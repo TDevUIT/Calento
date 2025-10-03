@@ -1,0 +1,11 @@
+export { HeroSection } from './HeroSection';
+export { GreenStatsSection } from './GreenStatsSection';
+export { FocusStatsSection } from './FocusStatsSection';
+export { DepartmentsSection } from './DepartmentsSection';
+export { IntegrationsSection } from './IntegrationsSection';
+export { EnterpriseSection } from './EnterpriseSection';
+export { TestimonialSection } from './TestimonialSection';
+export { SecondTestimonialSection } from './SecondTestimonialSection';
+export { PlatformIntegrationSection } from './PlatformIntegrationSection';
+export { ProductivitySection } from './ProductivitySection';
+export { ThirtyDaySection } from './ThirtyDaySection';
