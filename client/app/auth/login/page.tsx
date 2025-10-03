@@ -4,7 +4,7 @@ import { OAuthButtons } from '@/components/auth/oauth-buttons';
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center theme-hero-bg theme-bg-grid">
+    <div className="min-h-screen flex items-center justify-center theme-hero-bg">
       <div className="w-full max-w-md space-y-8 p-8">
         {/* Header */}
         <div className="text-center space-y-4">
