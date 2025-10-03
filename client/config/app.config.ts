@@ -32,8 +32,8 @@ export const NAVIGATION_LINKS = [
 ] as const;
 
 export const EXTERNAL_LINKS = {
-  signup: 'https://app.calento.ai/signup',
-  login: 'https://app.calento.ai/login',
+  signup: '/auth/register',
+  login: '/auth/login',
   contactSales: '/contact-sales',
   documentation: '/docs',
   support: '/support',
