@@ -1,0 +1,814 @@
+{
+  "info": {
+    "name": "Calento.space API",
+    "description": "Comprehensive API test collection for Calento.space - Smart Calendar Assistant with Google Calendar integration",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "calento-api-v1"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3001/api",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "event_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🔐 Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Store access token automatically",
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.tokens) {",
+                  "        pm.collectionVariables.set('access_token', response.data.tokens.accessToken);",
+                  "        pm.collectionVariables.set('refresh_token', response.data.tokens.refreshToken);",
+                  "    }",
+                  "    if (response.data && response.data.user) {",
+                  "        pm.collectionVariables.set('user_id', response.data.user.id);",
+                  "    }",
+                  "    pm.test('✅ Status code is 201', () => pm.response.to.have.status(201));",
+                  "    pm.test('✅ Response contains access token', () => pm.expect(response.data.tokens.accessToken).to.exist);",
+                  "    pm.test('✅ User data is returned', () => pm.expect(response.data.user).to.exist);",
+                  "} else if (pm.response.code === 409) {",
+                  "    pm.test('⚠️ User already exists', () => pm.response.to.have.status(409));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"username\": \"testuser\",\n  \"password\": \"Test123!@#\",\n  \"full_name\": \"Test User\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "🔐 Register a new user account"
+          },
+          "response": []
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Store access token automatically",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.tokens) {",
+                  "        pm.collectionVariables.set('access_token', response.data.tokens.accessToken);",
+                  "        pm.collectionVariables.set('refresh_token', response.data.tokens.refreshToken);",
+                  "    }",
+                  "    if (response.data && response.data.user) {",
+                  "        pm.collectionVariables.set('user_id', response.data.user.id);",
+                  "    }",
+                  "    pm.test('✅ Login successful', () => pm.response.to.have.status(200));",
+                  "    pm.test('✅ Access token received', () => pm.expect(response.data.tokens.accessToken).to.exist);",
+                  "} else {",
+                  "    pm.test('❌ Invalid credentials', () => pm.response.to.have.status(401));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"Test123!@#\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "🔐 Login with email and password"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Current User Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test('✅ Profile retrieved successfully', () => pm.response.to.have.status(200));",
+                  "    pm.test('✅ User data exists', () => pm.expect(response.data).to.exist);",
+                  "    pm.test('✅ Email exists', () => pm.expect(response.data.email).to.exist);",
+                  "} else {",
+                  "    pm.test('❌ Unauthorized', () => pm.response.to.have.status(401));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "me"]
+            },
+            "description": "👤 Get current authenticated user profile"
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.tokens) {",
+                  "        pm.collectionVariables.set('access_token', response.data.tokens.accessToken);",
+                  "        pm.collectionVariables.set('refresh_token', response.data.tokens.refreshToken);",
+                  "    }",
+                  "    pm.test('✅ Token refreshed successfully', () => pm.response.to.have.status(200));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/refresh",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "refresh"]
+            },
+            "description": "🔄 Refresh access token using refresh token from cookies"
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('✅ Logout successful', () => pm.response.to.have.status(200));",
+                  "// Clear tokens",
+                  "pm.collectionVariables.set('access_token', '');",
+                  "pm.collectionVariables.set('refresh_token', '');"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "logout"]
+            },
+            "description": "🚪 Logout and clear authentication cookies"
+          },
+          "response": []
+        }
+      ],
+      "description": "Authentication endpoints for user registration, login, and token management"
+    },
+    {
+      "name": "📅 Events",
+      "item": [
+        {
+          "name": "Get All Events",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test('✅ Events retrieved successfully', () => pm.response.to.have.status(200));",
+                  "    pm.test('✅ Data array exists', () => pm.expect(response.data).to.be.an('array'));",
+                  "    pm.test('✅ Pagination metadata exists', () => pm.expect(response.meta).to.exist);",
+                  "    pm.test('✅ Meta has page info', () => {",
+                  "        pm.expect(response.meta.page).to.exist;",
+                  "        pm.expect(response.meta.limit).to.exist;",
+                  "        pm.expect(response.meta.total).to.exist;",
+                  "    });",
+                  "    // Save first event ID for other requests",
+                  "    if (response.data.length > 0) {",
+                  "        pm.collectionVariables.set('event_id', response.data[0].id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/calendar?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["calendar"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "created_at",
+                  "disabled": true
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "DESC",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "📋 Get paginated list of user events"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Event",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test('✅ Event created successfully', () => pm.response.to.have.status(201));",
+                  "    pm.test('✅ Event data exists', () => pm.expect(response.data).to.exist);",
+                  "    pm.test('✅ Event has ID', () => pm.expect(response.data.id).to.exist);",
+                  "    // Save event ID",
+                  "    pm.collectionVariables.set('event_id', response.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Team Meeting\",\n  \"description\": \"Weekly team sync meeting\",\n  \"start_time\": \"2024-10-15T10:00:00Z\",\n  \"end_time\": \"2024-10-15T11:00:00Z\",\n  \"location\": \"Conference Room A\",\n  \"calendar_id\": \"primary\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/calendar",
+              "host": ["{{base_url}}"],
+              "path": ["calendar"]
+            },
+            "description": "➕ Create a new calendar event"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Recurring Event",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test('✅ Recurring event created', () => pm.response.to.have.status(201));",
+                  "    pm.test('✅ Has recurrence rule', () => pm.expect(response.data.recurrence_rule).to.exist);",
+                  "    pm.collectionVariables.set('event_id', response.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Daily Standup\",\n  \"description\": \"Daily team standup meeting\",\n  \"start_time\": \"2024-10-01T09:00:00Z\",\n  \"end_time\": \"2024-10-01T09:15:00Z\",\n  \"recurrence_rule\": \"FREQ=DAILY;COUNT=30\",\n  \"location\": \"Zoom\",\n  \"calendar_id\": \"primary\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/calendar",
+              "host": ["{{base_url}}"],
+              "path": ["calendar"]
+            },
+            "description": "🔄 Create a recurring event with RRULE"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Weekly Recurring Event",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test('✅ Weekly recurring event created', () => pm.response.to.have.status(201));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Weekly Team Meeting\",\n  \"description\": \"Every Monday team meeting\",\n  \"start_time\": \"2024-10-07T10:00:00Z\",\n  \"end_time\": \"2024-10-07T11:00:00Z\",\n  \"recurrence_rule\": \"FREQ=WEEKLY;BYDAY=MO\",\n  \"location\": \"Conference Room\",\n  \"calendar_id\": \"primary\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/calendar",
+              "host": ["{{base_url}}"],
+              "path": ["calendar"]
+            },
+            "description": "📆 Create a weekly recurring event (every Monday)"
+          },
+          "response": []
+        },
+        {
+          "name": "Expand Recurring Events",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test('✅ Recurring events expanded', () => pm.response.to.have.status(200));",
+                  "    pm.test('✅ Data is array', () => pm.expect(response.data).to.be.an('array'));",
+                  "    pm.test('✅ Has pagination', () => pm.expect(response.meta).to.exist);",
+                  "    if (response.data.length > 0) {",
+                  "        pm.test('✅ Has occurrence info', () => {",
+                  "            pm.expect(response.data[0].original_event_id).to.exist;",
+                  "            pm.expect(response.data[0].occurrence_index).to.exist;",
+                  "            pm.expect(response.data[0].is_recurring_instance).to.be.true;",
+                  "        });",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/calendar/recurring/expand?start_date=2024-10-01T00:00:00Z&end_date=2024-10-31T23:59:59Z&max_occurrences=100&page=1&limit=20",
+              "host": ["{{base_url}}"],
+              "path": ["calendar", "recurring", "expand"],
+              "query": [
+                {
+                  "key": "start_date",
+                  "value": "2024-10-01T00:00:00Z"
+                },
+                {
+                  "key": "end_date",
+                  "value": "2024-10-31T23:59:59Z"
+                },
+                {
+                  "key": "max_occurrences",
+                  "value": "100"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "🔄 Expand recurring events into individual occurrences"
+          },
+          "response": []
+        }
+      ],
+      "description": "Calendar event management endpoints"
+    },
+    {
+      "name": "👥 Users",
+      "item": [
+        {
+          "name": "Create User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test('✅ User created successfully', () => pm.response.to.have.status(201));",
+                  "    pm.test('✅ User ID exists', () => pm.expect(response.data.id).to.exist);",
+                  "    pm.test('❌ Password hash not exposed', () => pm.expect(response.data.password_hash).to.not.exist);",
+                  "    pm.collectionVariables.set('user_id', response.data.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"newuser@example.com\",\n  \"username\": \"newuser\",\n  \"password\": \"SecurePass123!@#\",\n  \"full_name\": \"New User\",\n  \"timezone\": \"Asia/Ho_Chi_Minh\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users",
+              "host": ["{{base_url}}"],
+              "path": ["users"]
+            },
+            "description": "👤 Create a new user"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test('✅ Users retrieved', () => pm.response.to.have.status(200));",
+                  "    pm.test('✅ Data is array', () => pm.expect(response.data).to.be.an('array'));",
+                  "    pm.test('✅ Has pagination', () => pm.expect(response.meta).to.exist);",
+                  "    if (response.data.length > 0) {",
+                  "        pm.test('❌ No password hash in response', () => {",
+                  "            pm.expect(response.data[0].password_hash).to.not.exist;",
+                  "        });",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["users"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "📋 Get all users with pagination"
+          },
+          "response": []
+        },
+        {
+          "name": "Search Users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test('✅ Search results received', () => pm.response.to.have.status(200));",
+                  "    pm.test('✅ Data is array', () => pm.expect(response.data).to.be.an('array'));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/search?search=test&page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["users", "search"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "test"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "🔍 Search users by email or username"
+          },
+          "response": []
+        },
+        {
+          "name": "Get User by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test('✅ User found', () => pm.response.to.have.status(200));",
+                  "    pm.test('✅ User data exists', () => pm.expect(response.data).to.exist);",
+                  "    pm.test('❌ No password hash', () => pm.expect(response.data.password_hash).to.not.exist);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["users", "{{user_id}}"]
+            },
+            "description": "👤 Get user by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Update User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test('✅ User updated', () => pm.response.to.have.status(200));",
+                  "    pm.test('✅ Updated data returned', () => pm.expect(response.data).to.exist);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Updated User Name\",\n  \"timezone\": \"America/New_York\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["users", "{{user_id}}"]
+            },
+            "description": "✏️ Update user information"
+          },
+          "response": []
+        },
+        {
+          "name": "Deactivate User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('✅ User deactivated', () => pm.response.to.have.status(200));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/{{user_id}}/deactivate",
+              "host": ["{{base_url}}"],
+              "path": ["users", "{{user_id}}", "deactivate"]
+            },
+            "description": "🚫 Deactivate user (soft delete)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    pm.test('✅ User deleted permanently', () => pm.response.to.have.status(200));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["users", "{{user_id}}"]
+            },
+            "description": "🗑️ Delete user permanently"
+          },
+          "response": []
+        }
+      ],
+      "description": "User management endpoints"
+    },
+    {
+      "name": "❤️ Health Check",
+      "item": [
+        {
+          "name": "Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('✅ Server is healthy', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            },
+            "description": "❤️ Check if the API server is running"
+          },
+          "response": []
+        }
+      ],
+      "description": "Health check endpoint"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Add any pre-request scripts here",
+          "// For example, refresh token if expired"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global test scripts",
+          "pm.test('Response time is acceptable', () => {",
+          "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+          "});",
+          "",
+          "// Log response for debugging",
+          "if (pm.response.code >= 400) {",
+          "    console.log('❌ Error Response:', pm.response.json());",
+          "}"
+        ]
+      }
+    }
+  ]
+}
