@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { EyeIcon, EyeOffIcon } from 'lucide-react';
 
 export default function LoginForm() {
@@ -28,10 +30,10 @@ export default function LoginForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Email Field */}
       <div className="space-y-2">
-        <label htmlFor="email" className="theme-text-primary text-sm font-medium">
+        <Label htmlFor="email" className="theme-text-primary text-sm font-medium">
           Email
-        </label>
-        <input
+        </Label>
+        <Input
           id="email"
           type="email"
           placeholder="Enter your email"
@@ -45,9 +47,9 @@ export default function LoginForm() {
       {/* Password Field */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <label htmlFor="password" className="theme-text-primary text-sm font-medium">
+          <Label htmlFor="password" className="theme-text-primary text-sm font-medium">
             Password
-          </label>
+          </Label>
           <Link
             href="/auth/forgot-password"
             className="text-sm theme-text-secondary hover:theme-text-primary transition-colors duration-200"
@@ -56,7 +58,7 @@ export default function LoginForm() {
           </Link>
         </div>
         <div className="relative">
-          <input
+          <Input
             id="password"
             type={showPassword ? 'text' : 'password'}
             placeholder="Enter your password"

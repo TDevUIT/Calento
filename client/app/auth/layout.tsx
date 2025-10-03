@@ -6,7 +6,6 @@ export default function AuthLayout({
   return (
     <div className="auth-layout">
       <div className="auth-container">
-        <h1>Auth Layout</h1>
         {children}
       </div>
     </div>
