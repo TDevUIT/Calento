@@ -1,32 +1,19 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { OAuthButtons } from '@/components/auth/oauth-buttons';
+import { RegisterForm } from '@/components/auth/register-form';
+import { AuthDivider } from '@/components/auth/auth-divider/auth-divider';
+import AuthShell from '@/components/auth/auth-shell';
+import AuthLogo from '@/components/auth/auth-logo';
+import { LegalNotice } from '@/components/auth/legal-notice/legal-notice';
 
-const Logo = () => (
-  <svg
-    className="w-8 h-8"
-    viewBox="0 0 32 32"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      d="M16 3.5L29.5 10.25V23.75L16 30.5L2.5 23.75V10.25L16 3.5Z"
-      className="theme-fill-primary"
-    />
-    <path
-      d="M16 14.5L29.5 21V23.75L16 30.5L2.5 23.75V21L16 14.5Z"
-      className="theme-fill-secondary"
-    />
-  </svg>
-);
+// Using shared header Logo for brand consistency
 
 export default function RegisterPage() {
   return (
-    <div className="min-h-screen flex flex-col theme-bg-subtle">
-      <header className="p-4 lg:px-8">
-        <Link href="/" className="flex items-center space-x-2">
-          <Logo />
-          <span className="font-semibold text-lg theme-text-primary">Tempra</span>
-        </Link>
+    <AuthShell>
+      <header className="p-6 lg:px-10 flex items-center">
+        <Link href="/" className="flex items-center"><AuthLogo /></Link>
       </header>
       <main className="flex-grow flex">
         <div className="w-full flex flex-col lg:flex-row">
@@ -43,40 +30,44 @@ export default function RegisterPage() {
                 </ul>
               </div>
 
-              <div className="space-y-4">
-                <div className="text-xs theme-text-muted space-y-1">
-                  <p>
-                    By selecting “Agree & sign up” below I agree to the{' '}
-                    <Link
-                      href="/terms"
-                      className="text-blue-600 dark:text-blue-400 underline hover:text-blue-800 dark:hover:text-blue-300"
-                    >
-                      Tempra Terms
-                    </Link>
-                    .
-                  </p>
-                  <p>
-                    Learn about how we use & protect your data in our{' '}
-                    <Link
-                      href="/privacy"
-                      className="text-blue-600 dark:text-blue-400 underline hover:text-blue-800 dark:hover:text-blue-300"
-                    >
-                      Privacy Policy
-                    </Link>
-                    .
-                  </p>
-                </div>
-                <OAuthButtons />
+              <div className="space-y-6">
+                <OAuthButtons mode="register" />
+                <AuthDivider label="Or sign up with email" />
+                <RegisterForm />
+                <LegalNotice variant="register" />
               </div>
             </div>
           </div>
           <div className="hidden lg:flex lg:w-1/2 items-center justify-center p-8">
-            <div className="w-full h-full bg-gray-100 dark:bg-gray-800 rounded-lg">
-              {/* Placeholder for the image/graphic on the right side */}
+            <div className="relative w-full flex items-center justify-center">
+              <div className="absolute -inset-6 -z-10 rounded-[2.5rem] bg-gradient-to-br from-emerald-300/35 via-white/40 to-transparent blur-3xl dark:from-emerald-500/15 dark:via-transparent" />
+              <div className="w-full max-w-2xl xl:max-w-[52rem] overflow-hidden rounded-2xl border border-emerald-100/70 bg-white/95 backdrop-blur-sm shadow-[0_8px_40px_-8px_rgba(16,185,129,0.25)] dark:border-emerald-500/20 dark:bg-slate-900/90 dark:shadow-[0_8px_40px_-8px_rgba(16,185,129,0.15)] transition-all">
+                <div className="flex items-center gap-2 border-b border-emerald-100/60 bg-emerald-50/70 px-5 py-3 dark:border-emerald-500/20 dark:bg-emerald-500/5">
+                  <div className="flex gap-1.5">
+                    <div className="h-3 w-3 rounded-full bg-emerald-300" />
+                    <div className="h-3 w-3 rounded-full bg-emerald-300/70" />
+                    <div className="h-3 w-3 rounded-full bg-emerald-300/50" />
+                  </div>
+                  <div className="ml-4 flex-1 rounded-md bg-white/70 px-3 py-1.5 text-xs text-slate-500 backdrop-blur-sm dark:bg-slate-800/60 dark:text-slate-400">
+                    app.calento.ai/dashboard
+                  </div>
+                  <span className="text-[10px] font-medium uppercase tracking-wide text-emerald-600 dark:text-emerald-400">Preview</span>
+                </div>
+                <div className="relative h-[520px] xl:h-[600px] bg-slate-100 dark:bg-slate-950">
+                  <Image
+                    src="https://cdn.dribbble.com/userupload/9926004/file/original-f57c1c7ecad5712b6cb18eaeb17e574b.png?resize=1600x900&vertical=center"
+                    alt="Calento calendar dashboard showing AI-powered scheduling interface"
+                    className="absolute inset-0 h-full w-full object-cover"
+                    width={2400}
+                    height={1350}
+                    priority
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </main>
-    </div>
+    </AuthShell>
   );
 }

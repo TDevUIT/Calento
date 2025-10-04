@@ -166,7 +166,7 @@ export const HeroSection = () => {
         className="relative mx-auto max-w-6xl"
       >
         <div className="absolute -inset-x-20 -inset-y-10 -z-10 bg-[#4ECCA3]/10 blur-3xl dark:bg-[#4ECCA3]/20" />
-        
+
         <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl shadow-slate-200/50 dark:border-slate-800 dark:bg-slate-900 dark:shadow-slate-950/50">
           <div className="flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-800 dark:bg-slate-900/50">
             <div className="flex gap-1.5">
@@ -178,7 +178,7 @@ export const HeroSection = () => {
               app.calento.ai/dashboard
             </div>
           </div>
-          
+
           <div className="relative aspect-[16/10] bg-slate-100 dark:bg-slate-950">
             <Image
               src="https://cdn.dribbble.com/userupload/9926004/file/original-f57c1c7ecad5712b6cb18eaeb17e574b.png?resize=1024x768&vertical=center"
@@ -216,10 +216,10 @@ export const HeroSection = () => {
           <div className="h-12">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={timeSavedData}>
-                <Line 
-                  type="monotone" 
-                  dataKey="value" 
-                  stroke="#10b981" 
+                <Line
+                  type="monotone"
+                  dataKey="value"
+                  stroke="#10b981"
                   strokeWidth={2}
                   dot={false}
                   animationDuration={1000}
@@ -250,9 +250,9 @@ export const HeroSection = () => {
           <div className="h-12">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={meetingsData}>
-                <Bar 
-                  dataKey="value" 
-                  fill="#4ECCA3" 
+                <Bar
+                  dataKey="value"
+                  fill="#4ECCA3"
                   radius={[4, 4, 0, 0]}
                   animationDuration={1000}
                 />
@@ -284,63 +284,63 @@ export const HeroSection = () => {
         transition={{ duration: 0.5, delay: 1.1, ease: [0.22, 1, 0.36, 1] }}
         className="relative py-16 overflow-hidden"
       >
-          <Marquee
-            gradient={false}
-            speed={35}
-            pauseOnHover={true}
-            className="py-8 overflow-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-          >
-            {[
-              { name: 'Google', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/google/google-original.svg' },
-              { name: 'Microsoft', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/azure/azure-original.svg' },
-              { name: 'Slack', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/slack/slack-original.svg' },
-              { name: 'Notion', logo: 'https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png' },
-              { name: 'GitHub', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg' },
-              { name: 'Stripe', logo: 'https://images.ctfassets.net/fzn2n1nzq965/HTTOloNPhisV9P4hlMPNA/cacf1bb88b9fc492dfad34378d844280/Stripe_icon_-_square.svg' },
-              { name: 'Vercel', logo: 'https://assets.vercel.com/image/upload/v1662130559/nextjs/Icon_dark_background.png' }
-            ].map((company, index) => (
-              <div
-                key={`${company.name}-${index}`}
-                className="mx-8 group cursor-pointer"
-              >
-                <div className="flex h-20 w-32 items-center justify-center transition-all duration-300">
-                  <Image 
-                    src={company.logo} 
-                    alt={`${company.name} logo`}
-                    width={40}
-                    height={40}
-                    className="h-8 w-8 object-contain transition-all duration-300"
-                  />
-                </div>
+        <Marquee
+          gradient={false}
+          speed={35}
+          pauseOnHover={true}
+          className="py-8 overflow-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+        >
+          {[
+            { name: 'Google', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/google/google-original.svg' },
+            { name: 'Microsoft', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/azure/azure-original.svg' },
+            { name: 'Slack', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/slack/slack-original.svg' },
+            { name: 'Notion', logo: 'https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png' },
+            { name: 'GitHub', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg' },
+            { name: 'Stripe', logo: 'https://images.ctfassets.net/fzn2n1nzq965/HTTOloNPhisV9P4hlMPNA/cacf1bb88b9fc492dfad34378d844280/Stripe_icon_-_square.svg' },
+            { name: 'Vercel', logo: 'https://assets.vercel.com/image/upload/v1662130559/nextjs/Icon_dark_background.png' }
+          ].map((company, index) => (
+            <div
+              key={`${company.name}-${index}`}
+              className="mx-8 group cursor-pointer"
+            >
+              <div className="flex h-20 w-32 items-center justify-center transition-all duration-300">
+                <Image
+                  src={company.logo}
+                  alt={`${company.name} logo`}
+                  width={40}
+                  height={40}
+                  className="h-8 w-8 object-contain transition-all duration-300"
+                />
               </div>
-            ))}
-            
-            {[
-              { name: 'Google', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/google/google-original.svg' },
-              { name: 'Microsoft', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/azure/azure-original.svg' },
-              { name: 'Slack', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/slack/slack-original.svg' },
-              { name: 'Notion', logo: 'https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png' },
-              { name: 'Figma', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/figma/figma-original.svg' },
-              { name: 'GitHub', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg' },
-              { name: 'Stripe', logo: 'https://images.ctfassets.net/fzn2n1nzq965/HTTOloNPhisV9P4hlMPNA/cacf1bb88b9fc492dfad34378d844280/Stripe_icon_-_square.svg' },
-              { name: 'Vercel', logo: 'https://assets.vercel.com/image/upload/v1662130559/nextjs/Icon_dark_background.png' }
-            ].map((company, index) => (
-              <div
-                key={`${company.name}-duplicate-${index}`}
-                className="mx-8 group cursor-pointer"
-              >
-                <div className="flex h-20 w-32 items-center justify-center transition-all duration-300">
-                  <Image 
-                    src={company.logo} 
-                    alt={`${company.name} logo`}
-                    width={40}
-                    height={40}
-                    className="h-8 w-8 object-contain transition-all duration-300"
-                  />
-                </div>
+            </div>
+          ))}
+
+          {[
+            { name: 'Google', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/google/google-original.svg' },
+            { name: 'Microsoft', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/azure/azure-original.svg' },
+            { name: 'Slack', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/slack/slack-original.svg' },
+            { name: 'Notion', logo: 'https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png' },
+            { name: 'Figma', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/figma/figma-original.svg' },
+            { name: 'GitHub', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg' },
+            { name: 'Stripe', logo: 'https://images.ctfassets.net/fzn2n1nzq965/HTTOloNPhisV9P4hlMPNA/cacf1bb88b9fc492dfad34378d844280/Stripe_icon_-_square.svg' },
+            { name: 'Vercel', logo: 'https://assets.vercel.com/image/upload/v1662130559/nextjs/Icon_dark_background.png' }
+          ].map((company, index) => (
+            <div
+              key={`${company.name}-duplicate-${index}`}
+              className="mx-8 group cursor-pointer"
+            >
+              <div className="flex h-20 w-32 items-center justify-center transition-all duration-300">
+                <Image
+                  src={company.logo}
+                  alt={`${company.name} logo`}
+                  width={40}
+                  height={40}
+                  className="h-8 w-8 object-contain transition-all duration-300"
+                />
               </div>
-            ))}
-          </Marquee>
+            </div>
+          ))}
+        </Marquee>
       </motion.div>
 
       <motion.div

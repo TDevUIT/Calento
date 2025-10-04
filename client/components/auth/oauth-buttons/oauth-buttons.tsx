@@ -3,17 +3,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 
-// Microsoft Icon Component
-const MicrosoftIcon = () => (
-  <svg className="w-5 h-5" viewBox="0 0 21 21">
-    <path fill="#f25022" d="M1 1h9v9H1z" />
-    <path fill="#00a4ef" d="M1 11h9v9H1z" />
-    <path fill="#7fba00" d="M11 1h9v9h-9z" />
-    <path fill="#ffb900" d="M11 11h9v9h-9z" />
-  </svg>
-);
-
-// Google Icon Component
+// Google Icon Component (unchanged)
 const GoogleIcon = () => (
   <svg className="w-5 h-5" viewBox="0 0 24 24">
     <path
@@ -37,84 +27,43 @@ const GoogleIcon = () => (
 );
 
 interface OAuthButtonsProps {
-  isLoginPage?: boolean;
+  mode?: 'login' | 'register';
 }
 
-export default function OAuthButtons({ isLoginPage = false }: OAuthButtonsProps) {
-  const [isLoading, setIsLoading] = useState<string | null>(null);
+export default function OAuthButtons({ mode = 'login' }: OAuthButtonsProps) {
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const handleLogin = async (provider: 'google' | 'microsoft' | 'sso') => {
-    setIsLoading(provider);
-    console.log(`${provider} login clicked`);
+  const handleLogin = async () => {
+    setIsLoading(true);
+    console.log('google login clicked');
     // Simulate loading
     setTimeout(() => {
-      setIsLoading(null);
+      setIsLoading(false);
     }, 2000);
   };
 
-  const renderButtonContent = (
-    provider: 'google' | 'microsoft' | 'sso',
-    text: string,
-    icon?: React.ReactNode
-  ) => {
-    if (isLoading === provider) {
-      return (
-        <div className="flex items-center justify-center space-x-2">
-          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-          <span>Connecting...</span>
-        </div>
-      );
-    }
-    return (
-      <>
-        {icon}
-        <span>{text}</span>
-      </>
-    );
-  };
-
-  const googleText = isLoginPage
-    ? 'Continue with Google'
-    : 'Agree & sign up with Google';
-  const microsoftText = isLoginPage
-    ? 'Continue with Microsoft'
-    : 'Agree & sign up with Outlook';
+  const text = mode === 'login' ? 'Continue with Google' : 'Agree & sign up with Google';
 
   return (
-    <div className="space-y-3 w-full">
-      {/* Google OAuth Button */}
+    <div className="w-full">
       <Button
         type="button"
-        onClick={() => handleLogin('google')}
-        disabled={!!isLoading}
+        onClick={handleLogin}
+        disabled={isLoading}
         className="w-full theme-btn-primary rounded-lg py-2.5 font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-3"
       >
-        {renderButtonContent('google', googleText, <GoogleIcon />)}
+        {isLoading ? (
+          <div className="flex items-center justify-center space-x-2">
+            <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+            <span>Connecting...</span>
+          </div>
+        ) : (
+          <>
+            <GoogleIcon />
+            <span>{text}</span>
+          </>
+        )}
       </Button>
-
-      {/* Microsoft OAuth Button */}
-      <Button
-        type="button"
-        variant="outline"
-        onClick={() => handleLogin('microsoft')}
-        disabled={!!isLoading}
-        className="w-full theme-btn-secondary rounded-lg py-2.5 font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-3"
-      >
-        {renderButtonContent('microsoft', microsoftText, <MicrosoftIcon />)}
-      </Button>
-
-      {/* SSO Button */}
-      {isLoginPage && (
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => handleLogin('sso')}
-          disabled={!!isLoading}
-          className="w-full theme-btn-secondary rounded-lg py-2.5 font-medium transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-3"
-        >
-          {renderButtonContent('sso', 'Continue with SSO')}
-        </Button>
-      )}
     </div>
   );
 }
