@@ -1,11 +1,6 @@
 # Custom nginx image with SSL certificates
 FROM nginx:alpine
 
-# Copy SSL certificates into the image
-COPY ssl/tempra.crt /etc/ssl/certs/tempra.crt
-COPY ssl/tempra.key /etc/ssl/certs/tempra.key
-
-
 # Set proper permissions
 RUN chmod 644 /etc/ssl/certs/calento.crt && \
     chmod 600 /etc/ssl/certs/calento.key
