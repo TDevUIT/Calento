@@ -3,6 +3,7 @@ FROM nginx:alpine
 
 # Set proper permissions
 RUN chmod 644 /etc/ssl/certs/calento.crt && \
+RUN chmod 644 /etc/ssl/certs/calento.crt && \
     chmod 600 /etc/ssl/certs/calento.key
 
 # Copy nginx configuration
