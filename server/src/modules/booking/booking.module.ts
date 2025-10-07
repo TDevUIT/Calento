@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { BookingLinkController, BookingController } from './booking.controller';
-import { BookingService } from './services/booking.service';
+import { BookingService } from './booking.service';
 import { BookingLinkRepository } from './repositories/booking-link.repository';
 import { BookingRepository } from './repositories/booking.repository';
 import { DatabaseModule } from '../../database/database.module';

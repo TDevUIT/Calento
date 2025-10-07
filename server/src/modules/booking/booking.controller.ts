@@ -17,7 +17,7 @@ import {
   ApiBearerAuth,
   ApiParam,
 } from '@nestjs/swagger';
-import { BookingService } from './services/booking.service';
+import { BookingService } from './booking.service';
 import {
   CreateBookingLinkDto,
   UpdateBookingLinkDto,

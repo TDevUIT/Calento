@@ -4,7 +4,8 @@ import { INestApplication } from '@nestjs/common';
 export function setupSwagger(app: INestApplication): void {
   const config = new DocumentBuilder()
     .setTitle('Calento.space API')
-      .setDescription(`
+    .setVersion('1.0.0')
+    .setDescription(`
   Calento.space - Smart Calendar Assistant API
 
   Manage your schedules, sync with Google Calendar, and automate your time management.
@@ -16,7 +17,20 @@ export function setupSwagger(app: INestApplication): void {
   - Availability management
   - Booking system
   - Real-time webhook notifications
+  - Email notifications
+  - Queue-based background processing
     `)
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'Authorization',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'bearer',
+    )
     .addCookieAuth(
       'access_token',
       {

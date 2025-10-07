@@ -1,16 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { BookingLinkRepository } from '../repositories/booking-link.repository';
-import { BookingRepository } from '../repositories/booking.repository';
-import { DatabaseService } from '../../../database/database.service';
-import { MessageService } from '../../../common/message/message.service';
-import { AvailabilityService } from '../../availability/services/availability.service';
-import { TIME_CONSTANTS } from '../../../common/constants';
+import { BookingLinkRepository } from './repositories/booking-link.repository';
+import { BookingRepository } from './repositories/booking.repository';
+import { DatabaseService } from '../../database/database.service';
+import { MessageService } from '../../common/message/message.service';
+import { TIME_CONSTANTS } from '../../common/constants';
 import {
   Booking,
   BookingLink,
   BookingStatus,
   BookingTimeSlot,
-} from '../interfaces/booking.interface';
+} from './interfaces/booking.interface';
 import {
   CreateBookingLinkDto,
   UpdateBookingLinkDto,
@@ -18,7 +17,7 @@ import {
   CancelBookingDto,
   RescheduleBookingDto,
   GetAvailableSlotsDto,
-} from '../dto/booking.dto';
+} from './dto/booking.dto';
 import {
   BookingLinkNotFoundException,
   BookingNotFoundException,
@@ -29,7 +28,8 @@ import {
   BookingOutsideWindowException,
   BookingDailyLimitException,
   BookingAlreadyCancelledException,
-} from '../exceptions/booking.exceptions';
+} from './exceptions/booking.exceptions';
+import { AvailabilityService } from '../availability/services/availability.service';
 
 @Injectable()
 export class BookingService {
@@ -39,7 +39,6 @@ export class BookingService {
     private readonly bookingLinkRepository: BookingLinkRepository,
     private readonly bookingRepository: BookingRepository,
     private readonly availabilityService: AvailabilityService,
-    private readonly databaseService: DatabaseService,
     private readonly messageService: MessageService,
   ) {}
 

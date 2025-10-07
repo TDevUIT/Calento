@@ -56,7 +56,37 @@ export class HealthController {
     };
   }
 
+  @Public()
   @Get('db')
+  @ApiOperation({ 
+    summary: '🗄️ Database health check',
+    description: 'Check database connection status and statistics'
+  })
+  @ApiResponse({ 
+    status: 200, 
+    description: '✅ Database health information',
+    schema: {
+      example: {
+        status: 'healthy',
+        stats: {
+          totalConnections: 10,
+          activeConnections: 2,
+          idleConnections: 8
+        },
+        timestamp: '2024-01-15T10:30:00Z'
+      }
+    }
+  })
+  @ApiResponse({ 
+    status: 503, 
+    description: '❌ Database unhealthy',
+    schema: {
+      example: {
+        status: 'unhealthy',
+        timestamp: '2024-01-15T10:30:00Z'
+      }
+    }
+  })
   async database() {
     const isHealthy = await this.databaseService.healthCheck();
     const stats = await this.databaseService.getStats();
