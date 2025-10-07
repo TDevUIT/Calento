@@ -33,29 +33,50 @@ export class EmailService {
     this.emailConfig = {
       host: this.configService.get<string>('SMTP_HOST', 'smtp.gmail.com'),
       port: this.configService.get<number>('SMTP_PORT', 587),
-      secure: this.configService.get<boolean>('SMTP_SECURE', false),
+      secure: this.configService.get<string>('SMTP_SECURE', 'false') === 'true',
       auth: {
         user: this.configService.get<string>('SMTP_USER', ''),
         pass: this.configService.get<string>('SMTP_PASSWORD', ''),
       },
       from: this.configService.get<string>(
         'SMTP_FROM',
-        'Tempra <noreply@tempra.app>',
+        'Calento <noreply@calento.space>',
       ),
     };
   }
 
   private initializeTransporter(): void {
-    this.transporter = nodemailer.createTransport({
+    const transporterConfig = {
       host: this.emailConfig.host,
       port: this.emailConfig.port,
-      secure: this.emailConfig.secure,
+        secure: process.env.SMTP_SECURE === 'true', 
       auth: this.emailConfig.auth,
-    });
+      tls: {
+        rejectUnauthorized: false,
+      },
+    };
+
+    if (this.emailConfig.host === 'smtp.gmail.com' && this.emailConfig.port === 587) {
+      transporterConfig['requireTLS'] = true;
+      transporterConfig['tls'] = {
+        rejectUnauthorized: false,
+      };
+    }
+
+    this.transporter = nodemailer.createTransport(transporterConfig);
 
     this.transporter.verify((error, success) => {
       if (error) {
-        this.logger.error('Email transporter verification failed:', error);
+        this.logger.error('Email transporter verification failed:');
+        this.logger.error(error);
+        
+        if (this.emailConfig.host === 'smtp.gmail.com') {
+          this.logger.warn('Gmail SMTP Debug Tips:');
+          this.logger.warn('1. Enable 2-Factor Authentication on Gmail');
+          this.logger.warn('2. Generate App Password (not regular password)');
+          this.logger.warn('3. Use App Password in SMTP_PASSWORD');
+          this.logger.warn('4. Ensure Less Secure Apps is enabled (if not using App Password)');
+        }
       } else {
         this.logger.log('Email server is ready to send messages');
       }

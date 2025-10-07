@@ -280,7 +280,7 @@ export class RescheduleBookingDto {
   reason?: string;
 }
 
-export class GetAvailableSlotsDto {
+export class GetBookingAvailableSlotsDto {
   @ApiProperty({
     description: 'Start date for slot search',
     example: '2025-10-05',

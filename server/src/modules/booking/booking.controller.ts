@@ -24,7 +24,7 @@ import {
   CreateBookingDto,
   CancelBookingDto,
   RescheduleBookingDto,
-  GetAvailableSlotsDto,
+  GetBookingAvailableSlotsDto,
   BookingLinkResponseDto,
   BookingResponseDto,
   BookingTimeSlotResponseDto,
@@ -256,7 +256,7 @@ export class BookingController {
   })
   async getAvailableSlots(
     @Param('slug') slug: string,
-    @Body() dto: GetAvailableSlotsDto,
+    @Body() dto: GetBookingAvailableSlotsDto,
   ) {
     const slots = await this.bookingService.getAvailableSlots(slug, dto);
 

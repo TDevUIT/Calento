@@ -16,7 +16,7 @@ import {
   CreateBookingDto,
   CancelBookingDto,
   RescheduleBookingDto,
-  GetAvailableSlotsDto,
+  GetBookingAvailableSlotsDto,
 } from './dto/booking.dto';
 import {
   BookingLinkNotFoundException,
@@ -199,7 +199,7 @@ export class BookingService {
 
   async getAvailableSlots(
     slug: string,
-    dto: GetAvailableSlotsDto,
+    dto: GetBookingAvailableSlotsDto,
   ): Promise<BookingTimeSlot[]> {
     const bookingLink = await this.getBookingLinkBySlug(slug);
 
