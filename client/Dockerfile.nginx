@@ -4,13 +4,10 @@ FROM nginx:alpine
 # Copy SSL certificates into the image
 COPY ssl/tempra.crt /etc/ssl/certs/tempra.crt
 COPY ssl/tempra.key /etc/ssl/certs/tempra.key
-COPY ssl/calento.crt /etc/ssl/certs/calento.crt
-COPY ssl/calento.key /etc/ssl/certs/calento.key
+
 
 # Set proper permissions
-RUN chmod 644 /etc/ssl/certs/tempra.crt && \
-    chmod 600 /etc/ssl/certs/tempra.key && \
-    chmod 644 /etc/ssl/certs/calento.crt && \
+RUN chmod 644 /etc/ssl/certs/calento.crt && \
     chmod 600 /etc/ssl/certs/calento.key
 
 # Copy nginx configuration
