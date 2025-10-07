@@ -13,7 +13,7 @@ export const useGoogleOAuthCallback = () => {
 
   useEffect(() => {
     const handleCallback = async () => {
-      if (isProcessing) return;
+      if (isProcessing || !searchParams) return;
 
       const params = new URLSearchParams(searchParams.toString());
       const callbackParams = googleService.handleOAuthCallback(params);

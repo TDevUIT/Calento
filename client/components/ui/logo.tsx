@@ -5,10 +5,9 @@ import { cn } from '@/lib/utils';
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg';
   className?: string;
-  showBeta?: boolean;
 }
 
-export function Logo({ size = 'md', className, showBeta = true }: LogoProps) {
+export function Logo({ size = 'md', className }: LogoProps) {
   return (
     <div className={cn('flex items-center group', className)}>
       <div className={`flex items-center ${size === 'sm' ? 'gap-2' : 'gap-3'}`}>
