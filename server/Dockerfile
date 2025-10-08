@@ -38,17 +38,24 @@ RUN groupadd -g 1001 -r nodejs && \
 COPY package*.json ./
 RUN npm ci --only=production && npm cache clean --force
 
-# Install CSS inline for email templates
-RUN npm install @css-inline/css-inline-linux-x64-gnu@latest --no-save
+# Install CSS inline for email templates and required dependencies
+RUN npm install @css-inline/css-inline-linux-x64-gnu@latest ioredis@latest --no-save
 
 # Copy built application from builder stage
 COPY --from=builder --chown=nodejs:nodejs /usr/src/app/dist ./dist
+
+# Copy standalone migration script (not built by TypeScript)
+COPY --chown=nodejs:nodejs src/cli/migrate-standalone.js ./dist/cli/
 
 # Copy SQL migrations (needed for runtime)
 COPY --from=builder --chown=nodejs:nodejs /usr/src/app/migrations ./migrations
 
 # Copy email templates (needed for runtime)
 COPY --from=builder --chown=nodejs:nodejs /usr/src/app/src/modules/email/templates ./src/modules/email/templates
+
+# Copy entrypoint script
+COPY --chown=nodejs:nodejs docker-entrypoint.sh ./
+RUN chmod +x docker-entrypoint.sh
 
 # Set environment variables
 ENV NODE_ENV=production
@@ -64,5 +71,6 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:8000/health || exit 1
 
-# Start the application
-CMD ["node", "dist/main.js"]
+# Start the application with entrypoint script
+ENTRYPOINT ["./docker-entrypoint.sh"]
+CMD []
