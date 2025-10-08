@@ -60,7 +60,7 @@ async function bootstrap() {
     }),
   );
 
-  if (env.NODE_ENV !== 'production') {
+  if (env.ENABLE_SWAGGER) {
     setupSwagger(app);
     LoggerConfig.log(
       `📚 API Documentation: http://${env.API_HOST}:${env.API_PORT}/docs`,

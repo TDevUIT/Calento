@@ -59,6 +59,9 @@ const envSchema = z.object({
 
   // Logging Configuration
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
+
+  // Swagger Documentation
+  ENABLE_SWAGGER: z.coerce.boolean().default(true),
 });
 
 const env = envSchema.safeParse(process.env);
