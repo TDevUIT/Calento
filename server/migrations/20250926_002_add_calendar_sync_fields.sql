@@ -8,14 +8,14 @@ ADD COLUMN IF NOT EXISTS last_sync_at TIMESTAMP,
 ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true,
 ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
--- 2. Thêm google_event_id vào events table để map với Google Calendar
+-- 2. Thêm synced_at vào events table (google_event_id đã có trong init migration)
 ALTER TABLE events
-ADD COLUMN IF NOT EXISTS google_event_id VARCHAR(255),
 ADD COLUMN IF NOT EXISTS synced_at TIMESTAMP;
 
 -- 3. Tạo index cho performance
 CREATE INDEX IF NOT EXISTS idx_events_google_event_id ON events(google_event_id);
-CREATE INDEX IF NOT EXISTS idx_events_user_google ON events(user_id, google_event_id);
+-- Note: events table doesn't have user_id, it uses calendar_id instead
+CREATE INDEX IF NOT EXISTS idx_events_calendar_google ON events(calendar_id, google_event_id);
 CREATE INDEX IF NOT EXISTS idx_user_credentials_sync ON user_credentials(user_id, provider, sync_enabled, is_active);
 
 -- 4. Tạo sync_log table để track sync history
@@ -54,7 +54,6 @@ CREATE INDEX IF NOT EXISTS idx_event_conflicts_resolved ON event_conflicts(resol
 COMMENT ON COLUMN user_credentials.sync_enabled IS 'Whether automatic sync with Google Calendar is enabled';
 COMMENT ON COLUMN user_credentials.last_sync_at IS 'Last successful sync timestamp';
 COMMENT ON COLUMN user_credentials.is_active IS 'Whether the connection is currently active';
-COMMENT ON COLUMN events.google_event_id IS 'Google Calendar event ID for synced events';
 COMMENT ON COLUMN events.synced_at IS 'Last time this event was synced with Google Calendar';
 COMMENT ON TABLE sync_log IS 'Tracks sync operations history and status';
 COMMENT ON TABLE event_conflicts IS 'Stores conflicts detected during calendar sync';
