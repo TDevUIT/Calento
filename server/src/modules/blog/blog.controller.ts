@@ -81,43 +81,7 @@ export class BlogController {
     return await this.blogService.deleteBlogPost(id, authorId);
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Get blog post by ID' })
-  @ApiResponse({
-    status: 200,
-    description: 'Blog post found',
-    type: BlogPostResponseDto,
-  })
-  @ApiResponse({ status: 404, description: 'Blog post not found' })
-  async getBlogPostById(@Param('id') id: string) {
-    return await this.blogService.getBlogPostById(id);
-  }
-
-  @Get('slug/:slug')
-  @ApiOperation({ summary: 'Get blog post by slug' })
-  @ApiResponse({ status: 200, description: 'Blog post found' })
-  @ApiResponse({ status: 404, description: 'Blog post not found' })
-  async getBlogPostBySlug(@Param('slug') slug: string) {
-    return await this.blogService.getBlogPostBySlug(slug);
-  }
-
-  @Get()
-  @ApiOperation({ summary: 'Get all blog posts with filters' })
-  @ApiResponse({
-    status: 200,
-    description: 'Blog posts retrieved successfully',
-  })
-  async getBlogPosts(
-    @Query() query: BlogPostQueryDto,
-    @Query('page') page?: number,
-    @Query('limit') limit?: number,
-  ) {
-    const options: Partial<PaginationOptions> = {
-      page: page || 1,
-      limit: limit || 10,
-    };
-    return await this.blogService.getBlogPosts(query, options);
-  }
+  // ===== PUBLIC ROUTES (Static paths first to avoid :id conflicts) =====
 
   @Get('public/published')
   @ApiOperation({ summary: 'Get published blog posts for landing page' })
@@ -146,6 +110,8 @@ export class BlogController {
   async getPopularPosts(@Query('limit') limit?: number) {
     return await this.blogService.getPopularPosts(limit || 5);
   }
+
+  // ===== SEARCH & FILTER ROUTES =====
 
   @Get('search')
   @ApiOperation({ summary: 'Search blog posts' })
@@ -207,6 +173,14 @@ export class BlogController {
     return await this.blogService.getBlogPostsByAuthor(authorId, options);
   }
 
+  @Get('slug/:slug')
+  @ApiOperation({ summary: 'Get blog post by slug' })
+  @ApiResponse({ status: 200, description: 'Blog post found' })
+  @ApiResponse({ status: 404, description: 'Blog post not found' })
+  async getBlogPostBySlug(@Param('slug') slug: string) {
+    return await this.blogService.getBlogPostBySlug(slug);
+  }
+
   @Get(':id/related')
   @ApiOperation({ summary: 'Get related blog posts' })
   @ApiResponse({ status: 200, description: 'Related posts retrieved' })
@@ -216,6 +190,37 @@ export class BlogController {
   ) {
     return await this.blogService.getRelatedPosts(id, limit || 3);
   }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get blog post by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Blog post found',
+    type: BlogPostResponseDto,
+  })
+  @ApiResponse({ status: 404, description: 'Blog post not found' })
+  async getBlogPostById(@Param('id') id: string) {
+    return await this.blogService.getBlogPostById(id);
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Get all blog posts with filters' })
+  @ApiResponse({
+    status: 200,
+    description: 'Blog posts retrieved successfully',
+  })
+  async getBlogPosts(
+    @Query() query: BlogPostQueryDto,
+    @Query('page') page?: number,
+    @Query('limit') limit?: number,
+  ) {
+    const options: Partial<PaginationOptions> = {
+      page: page || 1,
+      limit: limit || 10,
+    };
+    return await this.blogService.getBlogPosts(query, options);
+  }
+
 
   @Post(':id/publish')
   @UseGuards(JwtAuthGuard)
