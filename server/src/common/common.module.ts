@@ -34,7 +34,8 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
     },
     {
       provide: APP_INTERCEPTOR,
-      useFactory: (messageService: MessageService) => new ResponseInterceptor(messageService),
+      useFactory: (messageService: MessageService) =>
+        new ResponseInterceptor(messageService),
       inject: [MessageService],
     },
     {
@@ -43,25 +44,27 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
     },
     {
       provide: APP_FILTER,
-      useFactory: (messageService: MessageService) => new HttpExceptionFilter(messageService),
+      useFactory: (messageService: MessageService) =>
+        new HttpExceptionFilter(messageService),
       inject: [MessageService],
     },
     {
       provide: APP_FILTER,
-      useFactory: (messageService: MessageService) => new RateLimitFilter(messageService),
+      useFactory: (messageService: MessageService) =>
+        new RateLimitFilter(messageService),
       inject: [MessageService],
     },
   ],
   exports: [
-    MessageModule, 
-    PaginationService, 
-    UserValidationService, 
-    CalendarValidationService, 
+    MessageModule,
+    PaginationService,
+    UserValidationService,
+    CalendarValidationService,
     EventValidationService,
-    RecurringEventsService, 
-    PasswordService, 
+    RecurringEventsService,
+    PasswordService,
     SyncErrorRecoveryService,
-    JwtAuthGuard
+    JwtAuthGuard,
   ],
 })
 export class CommonModule {}

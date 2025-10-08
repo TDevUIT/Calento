@@ -26,7 +26,10 @@ export class LoggingFilter implements ExceptionFilter {
       timestamp: new Date().toISOString(),
     };
 
-    this.logger.error('Request that caused exception:', JSON.stringify(requestLog, null, 2));
+    this.logger.error(
+      'Request that caused exception:',
+      JSON.stringify(requestLog, null, 2),
+    );
     this.logger.error('Exception details:', exception);
 
     throw exception;
@@ -34,9 +37,14 @@ export class LoggingFilter implements ExceptionFilter {
 
   private sanitizeHeaders(headers: any): any {
     const sanitized = { ...headers };
-    const sensitiveHeaders = ['authorization', 'cookie', 'x-api-key', 'x-auth-token'];
-    
-    sensitiveHeaders.forEach(header => {
+    const sensitiveHeaders = [
+      'authorization',
+      'cookie',
+      'x-api-key',
+      'x-auth-token',
+    ];
+
+    sensitiveHeaders.forEach((header) => {
       if (sanitized[header]) {
         sanitized[header] = '[REDACTED]';
       }
@@ -51,9 +59,15 @@ export class LoggingFilter implements ExceptionFilter {
     }
 
     const sanitized = { ...body };
-    const sensitiveFields = ['password', 'token', 'secret', 'apiKey', 'creditCard'];
-    
-    sensitiveFields.forEach(field => {
+    const sensitiveFields = [
+      'password',
+      'token',
+      'secret',
+      'apiKey',
+      'creditCard',
+    ];
+
+    sensitiveFields.forEach((field) => {
       if (sanitized[field]) {
         sanitized[field] = '[REDACTED]';
       }

@@ -17,7 +17,7 @@ export interface AuthenticatedUser {
 export class CurrentUserService {
   getCurrentUser(request: Request): AuthenticatedUser | null {
     const user = (request as any).user;
-    
+
     if (!user) {
       return null;
     }
@@ -44,7 +44,9 @@ export class CurrentUserService {
     return user?.is_verified || false;
   }
 
-  getCurrentUserFromContext(context: ExecutionContext): AuthenticatedUser | null {
+  getCurrentUserFromContext(
+    context: ExecutionContext,
+  ): AuthenticatedUser | null {
     const request = context.switchToHttp().getRequest<Request>();
     return this.getCurrentUser(request);
   }

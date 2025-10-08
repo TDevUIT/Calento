@@ -1,5 +1,12 @@
 import { plainToClass, Transform } from 'class-transformer';
-import { IsEnum, IsNumber, IsString, validateSync, IsBoolean, IsOptional } from 'class-validator';
+import {
+  IsEnum,
+  IsNumber,
+  IsString,
+  validateSync,
+  IsBoolean,
+  IsOptional,
+} from 'class-validator';
 
 enum Environment {
   Development = 'development',
@@ -125,10 +132,10 @@ export function validateEnvironment(config: Record<string, unknown>) {
   });
 
   if (errors.length > 0) {
-    const errorMessages = errors.map(error => 
-      Object.values(error.constraints || {}).join(', ')
-    ).join('; ');
-    
+    const errorMessages = errors
+      .map((error) => Object.values(error.constraints || {}).join(', '))
+      .join('; ');
+
     throw new Error(`Environment validation failed: ${errorMessages}`);
   }
 

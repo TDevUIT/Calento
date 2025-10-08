@@ -1,4 +1,10 @@
-import { IsString, IsEmail, IsOptional, IsArray, IsObject } from 'class-validator';
+import {
+  IsString,
+  IsEmail,
+  IsOptional,
+  IsArray,
+  IsObject,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class SendEmailDto {
@@ -83,7 +89,10 @@ export class EmailLogResponseDto {
   @ApiProperty({ description: 'Template name' })
   template?: string;
 
-  @ApiProperty({ description: 'Email status', enum: ['pending', 'sent', 'failed', 'queued'] })
+  @ApiProperty({
+    description: 'Email status',
+    enum: ['pending', 'sent', 'failed', 'queued'],
+  })
   status: string;
 
   @ApiProperty({ description: 'Error message if failed' })

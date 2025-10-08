@@ -52,7 +52,10 @@ export class AvailabilityController {
     description: 'Availability rule created successfully',
     type: AvailabilityResponseDto,
   })
-  @ApiResponse({ status: 400, description: 'Invalid input or overlapping time' })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid input or overlapping time',
+  })
   @ApiResponse({ status: 409, description: 'Overlapping availability rule' })
   async create(
     @CurrentUser('id') userId: string,
@@ -172,10 +175,7 @@ export class AvailabilityController {
     type: AvailabilityResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Availability rule not found' })
-  async findOne(
-    @Param('id') id: string,
-    @CurrentUser('id') userId: string,
-  ) {
+  async findOne(@Param('id') id: string, @CurrentUser('id') userId: string) {
     const availability = await this.availabilityService.findById(id, userId);
 
     return {
@@ -217,12 +217,12 @@ export class AvailabilityController {
     summary: 'Delete availability rule',
     description: 'Delete a specific availability rule',
   })
-  @ApiResponse({ status: 204, description: 'Availability rule deleted successfully' })
+  @ApiResponse({
+    status: 204,
+    description: 'Availability rule deleted successfully',
+  })
   @ApiResponse({ status: 404, description: 'Availability rule not found' })
-  async delete(
-    @Param('id') id: string,
-    @CurrentUser('id') userId: string,
-  ) {
+  async delete(@Param('id') id: string, @CurrentUser('id') userId: string) {
     await this.availabilityService.delete(id, userId);
   }
 

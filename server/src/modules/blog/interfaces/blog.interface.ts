@@ -1,11 +1,13 @@
-import { BaseEntity, StatusEntity } from '../../../common/interfaces/base-entity.interface';
+import {
+  BaseEntity,
+  StatusEntity,
+} from '../../../common/interfaces/base-entity.interface';
 
 export enum BlogPostStatus {
   DRAFT = 'draft',
   PUBLISHED = 'published',
   ARCHIVED = 'archived',
 }
-
 
 export enum BlogCommentStatus {
   PENDING = 'pending',
@@ -22,13 +24,11 @@ export interface BlogCategory extends BaseEntity, StatusEntity {
   sort_order: number;
 }
 
-
 export interface BlogTag extends BaseEntity {
   name: string;
   slug: string;
   usage_count: number;
 }
-
 
 export interface BlogPost extends BaseEntity {
   title: string;
@@ -48,7 +48,6 @@ export interface BlogPost extends BaseEntity {
   seo_description?: string;
   seo_keywords?: string;
 }
-
 
 export interface BlogPostWithRelations extends BlogPost {
   author?: BlogAuthor;
@@ -82,11 +81,9 @@ export interface BlogComment extends BaseEntity {
   user_agent?: string;
 }
 
-
 export interface BlogCommentWithReplies extends BlogComment {
   replies?: BlogComment[];
 }
-
 
 export interface BlogView extends BaseEntity {
   post_id: string;
@@ -144,7 +141,6 @@ export interface PublicBlogPost {
   seo_description?: string;
 }
 
-
 export interface BlogPostListItem {
   id: string;
   title: string;
@@ -162,7 +158,6 @@ export interface BlogPostListItem {
   views_count: number;
 }
 
-
 export interface BlogSearchFilters {
   category?: string;
   tag?: string;
@@ -173,7 +168,6 @@ export interface BlogSearchFilters {
   published_after?: Date;
   published_before?: Date;
 }
-
 
 export interface PopularBlogPost {
   id: string;

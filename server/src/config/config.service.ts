@@ -159,15 +159,15 @@ export class ConfigService {
     return { ...this.config };
   }
   getSafeConfig(): Partial<Env> {
-    const { 
-      DB_PASSWORD, 
-      JWT_SECRET, 
-      JWT_REFRESH_SECRET, 
-      SESSION_SECRET, 
+    const {
+      DB_PASSWORD,
+      JWT_SECRET,
+      JWT_REFRESH_SECRET,
+      SESSION_SECRET,
       REDIS_PASSWORD,
-      ...safeConfig 
+      ...safeConfig
     } = this.config;
-    
+
     return safeConfig;
   }
 }

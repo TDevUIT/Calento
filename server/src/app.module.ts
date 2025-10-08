@@ -27,7 +27,7 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
     ScheduleModule.forRoot(),
     ConfigModule,
     CommonModule,
-    QueueModule, 
+    QueueModule,
     DatabaseModule,
     HealthModule,
     UsersModule,
@@ -45,8 +45,6 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
-
-    
   ],
 })
 export class AppModule {}

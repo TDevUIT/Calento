@@ -11,4 +11,3 @@ export interface User {
   created_at: Date; // TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
   updated_at: Date; // TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 }
-

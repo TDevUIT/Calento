@@ -7,7 +7,10 @@ import { UserValidationService } from '../../../common/services/user-validation.
 import { JwtPayload } from '../interfaces/auth.interface';
 
 @Injectable()
-export class JwtCookieStrategy extends PassportStrategy(Strategy, 'jwt-cookie') {
+export class JwtCookieStrategy extends PassportStrategy(
+  Strategy,
+  'jwt-cookie',
+) {
   private readonly logger = new Logger(JwtCookieStrategy.name);
 
   constructor(
@@ -39,8 +42,10 @@ export class JwtCookieStrategy extends PassportStrategy(Strategy, 'jwt-cookie') 
         return null;
       }
 
-      const user = await this.userValidationService.findUserByEmail(payload.email);
-      
+      const user = await this.userValidationService.findUserByEmail(
+        payload.email,
+      );
+
       if (!user) {
         this.logger.warn(`User not found for token: ${payload.email}`);
         return null;
@@ -52,7 +57,7 @@ export class JwtCookieStrategy extends PassportStrategy(Strategy, 'jwt-cookie') 
       }
 
       const { password_hash, ...safeUser } = user;
-      
+
       this.logger.debug(`User validated successfully: ${user.email}`);
       return safeUser;
     } catch (error) {

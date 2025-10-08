@@ -49,14 +49,17 @@ export class EmailService {
     const transporterConfig = {
       host: this.emailConfig.host,
       port: this.emailConfig.port,
-        secure: process.env.SMTP_SECURE === 'true', 
+      secure: process.env.SMTP_SECURE === 'true',
       auth: this.emailConfig.auth,
       tls: {
         rejectUnauthorized: false,
       },
     };
 
-    if (this.emailConfig.host === 'smtp.gmail.com' && this.emailConfig.port === 587) {
+    if (
+      this.emailConfig.host === 'smtp.gmail.com' &&
+      this.emailConfig.port === 587
+    ) {
       transporterConfig['requireTLS'] = true;
       transporterConfig['tls'] = {
         rejectUnauthorized: false,
@@ -69,13 +72,15 @@ export class EmailService {
       if (error) {
         this.logger.error('Email transporter verification failed:');
         this.logger.error(error);
-        
+
         if (this.emailConfig.host === 'smtp.gmail.com') {
           this.logger.warn('Gmail SMTP Debug Tips:');
           this.logger.warn('1. Enable 2-Factor Authentication on Gmail');
           this.logger.warn('2. Generate App Password (not regular password)');
           this.logger.warn('3. Use App Password in SMTP_PASSWORD');
-          this.logger.warn('4. Ensure Less Secure Apps is enabled (if not using App Password)');
+          this.logger.warn(
+            '4. Ensure Less Secure Apps is enabled (if not using App Password)',
+          );
         }
       } else {
         this.logger.log('Email server is ready to send messages');
@@ -105,7 +110,9 @@ export class EmailService {
     });
   }
 
-  private async loadTemplate(templateName: string): Promise<HandlebarsTemplateDelegate> {
+  private async loadTemplate(
+    templateName: string,
+  ): Promise<HandlebarsTemplateDelegate> {
     if (this.templateCache.has(templateName)) {
       return this.templateCache.get(templateName)!;
     }
@@ -120,9 +127,9 @@ export class EmailService {
     try {
       const templateSource = fs.readFileSync(templatePath, 'utf-8');
       const template = Handlebars.compile(templateSource);
-      
+
       this.templateCache.set(templateName, template);
-      
+
       return template;
     } catch (error) {
       this.logger.error(`Failed to load template ${templateName}:`, error);
@@ -135,13 +142,25 @@ export class EmailService {
     context: Record<string, any>,
   ): Promise<string> {
     const template = await this.loadTemplate(templateName);
-    
+
     const fullContext = {
       ...context,
       year: new Date().getFullYear(),
-      dashboardUrl: this.configService.get<string>('FRONTEND_URL', 'http://localhost:3000') + '/dashboard',
-      docsUrl: this.configService.get<string>('FRONTEND_URL', 'http://localhost:3000') + '/docs',
-      calendarUrl: this.configService.get<string>('FRONTEND_URL', 'http://localhost:3000') + '/calendar',
+      dashboardUrl:
+        this.configService.get<string>(
+          'FRONTEND_URL',
+          'http://localhost:3000',
+        ) + '/dashboard',
+      docsUrl:
+        this.configService.get<string>(
+          'FRONTEND_URL',
+          'http://localhost:3000',
+        ) + '/docs',
+      calendarUrl:
+        this.configService.get<string>(
+          'FRONTEND_URL',
+          'http://localhost:3000',
+        ) + '/calendar',
     };
 
     return template(fullContext);
@@ -153,7 +172,7 @@ export class EmailService {
   ): Promise<SendEmailResult> {
     try {
       let html = options.html;
-      let text = options.text;
+      const text = options.text;
 
       if (options.template && options.context) {
         html = await this.renderTemplate(options.template, options.context);
@@ -165,8 +184,16 @@ export class EmailService {
         subject: options.subject,
         html,
         text,
-        cc: options.cc ? (Array.isArray(options.cc) ? options.cc.join(', ') : options.cc) : undefined,
-        bcc: options.bcc ? (Array.isArray(options.bcc) ? options.bcc.join(', ') : options.bcc) : undefined,
+        cc: options.cc
+          ? Array.isArray(options.cc)
+            ? options.cc.join(', ')
+            : options.cc
+          : undefined,
+        bcc: options.bcc
+          ? Array.isArray(options.bcc)
+            ? options.bcc.join(', ')
+            : options.bcc
+          : undefined,
         attachments: options.attachments,
       };
 
@@ -186,7 +213,12 @@ export class EmailService {
       this.logger.log(`Email sent successfully: ${info.messageId}`);
 
       if (logId) {
-        await this.updateEmailLog(logId, EmailStatus.SENT, undefined, new Date());
+        await this.updateEmailLog(
+          logId,
+          EmailStatus.SENT,
+          undefined,
+          new Date(),
+        );
       }
 
       return {
@@ -340,7 +372,11 @@ export class EmailService {
       LIMIT $2 OFFSET $3
     `;
 
-    const result = await this.databaseService.query(query, [userId, limit, offset]);
+    const result = await this.databaseService.query(query, [
+      userId,
+      limit,
+      offset,
+    ]);
     return result.rows;
   }
 

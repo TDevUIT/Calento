@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { 
-  PaginationOptions, 
-  PaginationMeta, 
-  PaginatedResult, 
+import {
+  PaginationOptions,
+  PaginationMeta,
+  PaginatedResult,
 } from '../interfaces/pagination.interface';
 
 @Injectable()
@@ -13,7 +13,7 @@ export class PaginationService {
     total: number,
   ): PaginationMeta {
     const totalPages = Math.ceil(total / limit);
-    
+
     return {
       page,
       limit,
@@ -36,11 +36,9 @@ export class PaginationService {
     };
   }
 
-
   calculateOffset(page: number, limit: number): number {
     return (page - 1) * limit;
   }
-
 
   buildOrderByClause(
     sortBy?: string,
@@ -48,15 +46,16 @@ export class PaginationService {
     allowedSortFields: string[] = ['created_at', 'updated_at', 'id'],
   ): string {
     // Validate sort field to prevent SQL injection
-    const safeSortBy = sortBy && allowedSortFields.includes(sortBy) 
-      ? sortBy 
-      : 'created_at';
-    
+    const safeSortBy =
+      sortBy && allowedSortFields.includes(sortBy) ? sortBy : 'created_at';
+
     return `ORDER BY ${safeSortBy} ${sortOrder}`;
   }
 
-
-  buildLimitOffsetClause(page: number, limit: number): {
+  buildLimitOffsetClause(
+    page: number,
+    limit: number,
+  ): {
     clause: string;
     values: number[];
   } {
@@ -86,9 +85,9 @@ export class PaginationService {
 
     const searchPattern = `%${search}%`;
     const conditions = searchFields.map(
-      (field, index) => `${field} ILIKE $${paramStartIndex + index}`
+      (field, index) => `${field} ILIKE $${paramStartIndex + index}`,
     );
-    
+
     return {
       clause: `(${conditions.join(' OR ')})`,
       values: searchFields.map(() => searchPattern),
@@ -96,10 +95,12 @@ export class PaginationService {
     };
   }
 
-  validatePaginationOptions(options: Partial<PaginationOptions>): PaginationOptions {
+  validatePaginationOptions(
+    options: Partial<PaginationOptions>,
+  ): PaginationOptions {
     const page = Math.max(1, options.page || 1);
     const limit = Math.min(100, Math.max(1, options.limit || 10));
-    
+
     return {
       page,
       limit,
@@ -108,51 +109,55 @@ export class PaginationService {
     };
   }
 
+  buildPaginatedQuery(
+    baseQuery: string,
+    options: PaginationOptions,
+    allowedSortFields?: string[],
+    additionalWhereConditions?: string,
+    additionalParams?: any[],
+  ): {
+    countQuery: string;
+    dataQuery: string;
+    countParams: any[];
+    dataParams: any[];
+  } {
+    const { page, limit, sortBy, sortOrder } =
+      this.validatePaginationOptions(options);
 
-    buildPaginatedQuery(
-        baseQuery: string,
-        options: PaginationOptions,
-        allowedSortFields?: string[],
-        additionalWhereConditions?: string,
-        additionalParams?: any[],
-    ): {
-        countQuery: string;
-        dataQuery: string;
-        countParams: any[];
-        dataParams: any[];
-    } {
-        const { page, limit, sortBy, sortOrder } = this.validatePaginationOptions(options);
-        
-        // Build WHERE clause
-        const whereClause = additionalWhereConditions 
-        ? `WHERE ${additionalWhereConditions}` 
-        : '';
-        
-        // Build ORDER BY clause
-        const orderByClause = this.buildOrderByClause(sortBy, sortOrder, allowedSortFields);
-        
-        // Build LIMIT OFFSET clause
-        const { clause: limitOffsetClause, values: limitOffsetValues } = 
-        this.buildLimitOffsetClause(page, limit);
-        
-        // Count query
-        const countQuery = `SELECT COUNT(*) FROM (${baseQuery}) as base_query ${whereClause}`;
-        
-        // Data query
-        const dataQuery = `
+    // Build WHERE clause
+    const whereClause = additionalWhereConditions
+      ? `WHERE ${additionalWhereConditions}`
+      : '';
+
+    // Build ORDER BY clause
+    const orderByClause = this.buildOrderByClause(
+      sortBy,
+      sortOrder,
+      allowedSortFields,
+    );
+
+    // Build LIMIT OFFSET clause
+    const { clause: limitOffsetClause, values: limitOffsetValues } =
+      this.buildLimitOffsetClause(page, limit);
+
+    // Count query
+    const countQuery = `SELECT COUNT(*) FROM (${baseQuery}) as base_query ${whereClause}`;
+
+    // Data query
+    const dataQuery = `
         ${baseQuery} 
         ${whereClause} 
         ${orderByClause} 
         ${limitOffsetClause}
         `.trim();
-        
-        const baseParams = additionalParams || [];
-        
-        return {
-            countQuery,
-            dataQuery,
-            countParams: baseParams,
-            dataParams: [...baseParams, ...limitOffsetValues],
-        };
-    }
+
+    const baseParams = additionalParams || [];
+
+    return {
+      countQuery,
+      dataQuery,
+      countParams: baseParams,
+      dataParams: [...baseParams, ...limitOffsetValues],
+    };
+  }
 }

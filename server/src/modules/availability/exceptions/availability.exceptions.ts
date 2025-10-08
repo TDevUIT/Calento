@@ -2,10 +2,7 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 
 export class AvailabilityNotFoundException extends HttpException {
   constructor(id?: string) {
-    super(
-      id || 'Availability rule not found',
-      HttpStatus.NOT_FOUND,
-    );
+    super(id || 'Availability rule not found', HttpStatus.NOT_FOUND);
   }
 }
 
@@ -20,10 +17,7 @@ export class AvailabilityCreationFailedException extends HttpException {
 
 export class InvalidTimeRangeException extends HttpException {
   constructor(message?: string) {
-    super(
-      message || 'Invalid time range',
-      HttpStatus.BAD_REQUEST,
-    );
+    super(message || 'Invalid time range', HttpStatus.BAD_REQUEST);
   }
 }
 
@@ -38,19 +32,13 @@ export class OverlappingAvailabilityException extends HttpException {
 
 export class InvalidDateRangeException extends HttpException {
   constructor(message?: string) {
-    super(
-      message || 'Invalid date range provided',
-      HttpStatus.BAD_REQUEST,
-    );
+    super(message || 'Invalid date range provided', HttpStatus.BAD_REQUEST);
   }
 }
 
 export class NoAvailabilityFoundException extends HttpException {
   constructor(message?: string) {
-    super(
-      message || 'No availability rules found',
-      HttpStatus.NOT_FOUND,
-    );
+    super(message || 'No availability rules found', HttpStatus.NOT_FOUND);
   }
 }
 

@@ -3,10 +3,10 @@ import { DatabaseService } from '../../database/database.service';
 import { UserValidationService } from '../../common/services/user-validation.service';
 import { User } from '../users/user.entity';
 import { RegisterDto } from './dto/register.dto';
-import { 
-  AuthCreationFailedException, 
+import {
+  AuthCreationFailedException,
   UserNotFoundException,
-  DatabaseOperationException 
+  DatabaseOperationException,
 } from './exceptions/auth.exceptions';
 
 @Injectable()
@@ -15,10 +15,12 @@ export class AuthRepository {
 
   constructor(
     private readonly databaseService: DatabaseService,
-    private readonly userValidationService: UserValidationService
+    private readonly userValidationService: UserValidationService,
   ) {}
 
-  async createUser(userData: RegisterDto & { password_hash: string }): Promise<User> {
+  async createUser(
+    userData: RegisterDto & { password_hash: string },
+  ): Promise<User> {
     try {
       const query = `
         INSERT INTO users (email, username, avatar, password_hash, first_name, last_name, is_verified)
@@ -33,11 +35,11 @@ export class AuthRepository {
         userData.password_hash,
         userData.first_name,
         userData.last_name,
-        false 
+        false,
       ];
 
       const result = await this.databaseService.query(query, values);
-      
+
       if (!result.rows || result.rows.length === 0) {
         throw new AuthCreationFailedException('Failed to create user account');
       }
@@ -46,11 +48,11 @@ export class AuthRepository {
       return result.rows[0] as User;
     } catch (error) {
       this.logger.error(`Failed to create user: ${error.message}`, error.stack);
-      
+
       if (error instanceof AuthCreationFailedException) {
         throw error;
       }
-      
+
       if (error.code === '23505') {
         if (error.constraint?.includes('email')) {
           throw new AuthCreationFailedException('Email already exists');
@@ -59,8 +61,10 @@ export class AuthRepository {
           throw new AuthCreationFailedException('Username already exists');
         }
       }
-      
-      throw new DatabaseOperationException('Database error during user creation');
+
+      throw new DatabaseOperationException(
+        'Database error during user creation',
+      );
     }
   }
 
@@ -68,7 +72,10 @@ export class AuthRepository {
     try {
       return await this.userValidationService.findUserByEmail(email);
     } catch (error) {
-      this.logger.error(`Failed to find user by email: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to find user by email: ${error.message}`,
+        error.stack,
+      );
       throw new DatabaseOperationException('Database error during user lookup');
     }
   }
@@ -77,11 +84,13 @@ export class AuthRepository {
     try {
       return await this.userValidationService.findUserByUsername(username);
     } catch (error) {
-      this.logger.error(`Failed to find user by username: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to find user by username: ${error.message}`,
+        error.stack,
+      );
       throw new DatabaseOperationException('Database error during user lookup');
     }
   }
-
 
   async findById(id: string): Promise<User | null> {
     try {
@@ -93,7 +102,10 @@ export class AuthRepository {
       const result = await this.databaseService.query(query, [id]);
       return result.rows[0] || null;
     } catch (error) {
-      this.logger.error(`Failed to find user by ID: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to find user by ID: ${error.message}`,
+        error.stack,
+      );
       throw new DatabaseOperationException('Database error during user lookup');
     }
   }
@@ -106,21 +118,29 @@ export class AuthRepository {
         WHERE id = $2 AND is_active = true
       `;
 
-      const result = await this.databaseService.query(query, [passwordHash, userId]);
-      
+      const result = await this.databaseService.query(query, [
+        passwordHash,
+        userId,
+      ]);
+
       if (result.rowCount === 0) {
         throw new UserNotFoundException();
       }
 
       this.logger.log(`Password updated for user: ${userId}`);
     } catch (error) {
-      this.logger.error(`Failed to update password: ${error.message}`, error.stack);
-      
+      this.logger.error(
+        `Failed to update password: ${error.message}`,
+        error.stack,
+      );
+
       if (error instanceof UserNotFoundException) {
         throw error;
       }
-      
-      throw new DatabaseOperationException('Database error during password update');
+
+      throw new DatabaseOperationException(
+        'Database error during password update',
+      );
     }
   }
 
@@ -133,20 +153,25 @@ export class AuthRepository {
       `;
 
       const result = await this.databaseService.query(query, [userId]);
-      
+
       if (result.rowCount === 0) {
         throw new UserNotFoundException();
       }
 
       this.logger.log(`Email verified for user: ${userId}`);
     } catch (error) {
-      this.logger.error(`Failed to verify email: ${error.message}`, error.stack);
-      
+      this.logger.error(
+        `Failed to verify email: ${error.message}`,
+        error.stack,
+      );
+
       if (error instanceof UserNotFoundException) {
         throw error;
       }
-      
-      throw new DatabaseOperationException('Database error during email verification');
+
+      throw new DatabaseOperationException(
+        'Database error during email verification',
+      );
     }
   }
 
@@ -161,7 +186,10 @@ export class AuthRepository {
       await this.databaseService.query(query, [userId]);
       this.logger.log(`Last login updated for user: ${userId}`);
     } catch (error) {
-      this.logger.error(`Failed to update last login: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to update last login: ${error.message}`,
+        error.stack,
+      );
     }
   }
 
@@ -169,24 +197,41 @@ export class AuthRepository {
     try {
       return await this.userValidationService.emailExists(email);
     } catch (error) {
-      this.logger.error(`Failed to check email existence: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to check email existence: ${error.message}`,
+        error.stack,
+      );
       throw new DatabaseOperationException('Database error during email check');
     }
-  } 
+  }
 
-  async updateResetToken(userId: string, identifier: string, hashedSecret: string, expiresAt: Date) {
+  async updateResetToken(
+    userId: string,
+    identifier: string,
+    hashedSecret: string,
+    expiresAt: Date,
+  ) {
     const query = `
         UPDATE users 
         SET reset_token_identifier = $1, reset_token_secret = $2, reset_token_expires_at = $3
         WHERE id = $4 AND is_active = true
-      `
+      `;
     try {
-      
-      await this.databaseService.query(query, [identifier, hashedSecret, expiresAt, userId]);
+      await this.databaseService.query(query, [
+        identifier,
+        hashedSecret,
+        expiresAt,
+        userId,
+      ]);
       this.logger.log(`Reset token updated for user: ${userId}`);
     } catch (error) {
-      this.logger.error(`Failed to update reset token: ${error.message}`, error.stack);
-      throw new DatabaseOperationException('Database error during reset token update');
+      this.logger.error(
+        `Failed to update reset token: ${error.message}`,
+        error.stack,
+      );
+      throw new DatabaseOperationException(
+        'Database error during reset token update',
+      );
     }
   }
 
@@ -194,8 +239,13 @@ export class AuthRepository {
     try {
       return await this.userValidationService.usernameExists(username);
     } catch (error) {
-      this.logger.error(`Failed to check username existence: ${error.message}`, error.stack);
-      throw new DatabaseOperationException('Database error during username check');
+      this.logger.error(
+        `Failed to check username existence: ${error.message}`,
+        error.stack,
+      );
+      throw new DatabaseOperationException(
+        'Database error during username check',
+      );
     }
   }
 }

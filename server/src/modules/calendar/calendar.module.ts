@@ -1,11 +1,11 @@
-import { Module } from "@nestjs/common";
-import { CalendarController } from "./calendar.controller";
-import { CalendarService } from "./calendar.service";
-import { CalendarRepository } from "./calendar.repository";
+import { Module } from '@nestjs/common';
+import { CalendarController } from './calendar.controller';
+import { CalendarService } from './calendar.service';
+import { CalendarRepository } from './calendar.repository';
 
 /**
  * Calendar Module - Manages user calendars and Google Calendar integration
- * 
+ *
  * Features:
  * - CRUD operations for calendars
  * - Google Calendar synchronization
@@ -14,12 +14,9 @@ import { CalendarRepository } from "./calendar.repository";
  * - Search and filtering
  */
 @Module({
-    imports: [],
-    controllers: [CalendarController],
-    providers: [
-        CalendarService,
-        CalendarRepository
-    ],
-    exports: [CalendarService, CalendarRepository],
+  imports: [],
+  controllers: [CalendarController],
+  providers: [CalendarService, CalendarRepository],
+  exports: [CalendarService, CalendarRepository],
 })
 export class CalendarModule {}

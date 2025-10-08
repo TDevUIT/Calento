@@ -53,7 +53,10 @@ export class BookingRepository extends BaseRepository<Booking> {
       ORDER BY start_time ASC
     `;
 
-    const result = await this.databaseService.query(query, [userId, BookingStatus.CONFIRMED]);
+    const result = await this.databaseService.query(query, [
+      userId,
+      BookingStatus.CONFIRMED,
+    ]);
     return result.rows;
   }
 
@@ -93,7 +96,7 @@ export class BookingRepository extends BaseRepository<Booking> {
   async countByDate(bookingLinkId: string, date: Date): Promise<number> {
     const startOfDay = new Date(date);
     startOfDay.setHours(0, 0, 0, 0);
-    
+
     const endOfDay = new Date(date);
     endOfDay.setHours(23, 59, 59, 999);
 
@@ -195,7 +198,9 @@ export class BookingRepository extends BaseRepository<Booking> {
     const result = await this.databaseService.query(query, values);
 
     if (result.rows.length === 0) {
-      const message = this.messageService.get('booking.not_found', undefined, { id });
+      const message = this.messageService.get('booking.not_found', undefined, {
+        id,
+      });
       throw new BookingNotFoundException(message);
     }
 
@@ -224,7 +229,9 @@ export class BookingRepository extends BaseRepository<Booking> {
     ]);
 
     if (result.rows.length === 0) {
-      const message = this.messageService.get('booking.not_found', undefined, { id });
+      const message = this.messageService.get('booking.not_found', undefined, {
+        id,
+      });
       throw new BookingNotFoundException(message);
     }
 

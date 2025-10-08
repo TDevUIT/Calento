@@ -20,7 +20,10 @@ import { EmailService } from './services/email.service';
 import { SendEmailDto, EmailLogResponseDto } from './dto/send-email.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { SuccessResponseDto, PaginatedResponseDto } from '../../common/dto/base-response.dto';
+import {
+  SuccessResponseDto,
+  PaginatedResponseDto,
+} from '../../common/dto/base-response.dto';
 import { MessageService } from '../../common/message/message.service';
 import { TIME_CONSTANTS } from '../../common/constants';
 
@@ -36,7 +39,7 @@ export class EmailController {
 
   @Post('send')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Send email',
     description: 'Send email using Nodemailer with optional template support',
   })
@@ -80,15 +83,17 @@ export class EmailController {
         {
           messageId: result.messageId,
           logId: result.logId,
-        }
+        },
       );
     } else {
-      throw new Error(result.error || this.messageService.get('email.send_failed'));
+      throw new Error(
+        result.error || this.messageService.get('email.send_failed'),
+      );
     }
   }
 
   @Get('logs')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Get email logs',
     description: 'Retrieve email sending history for current user',
   })
@@ -118,12 +123,12 @@ export class EmailController {
         limit: Number(limit),
         total: logs.length,
         totalPages: Math.ceil(logs.length / Number(limit)),
-      }
+      },
     );
   }
 
   @Get('logs/:id')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Get email log by ID',
     description: 'Retrieve specific email log details',
   })
@@ -143,19 +148,19 @@ export class EmailController {
       return new SuccessResponseDto(
         this.messageService.get('email.log_not_found'),
         null,
-        HttpStatus.NOT_FOUND
+        HttpStatus.NOT_FOUND,
       );
     }
 
     return new SuccessResponseDto(
       this.messageService.get('email.log_retrieved'),
-      log
+      log,
     );
   }
 
   @Post('test/welcome')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Send test welcome email',
     description: 'Send a test welcome email to verify configuration',
   })
@@ -172,16 +177,16 @@ export class EmailController {
     );
 
     return new SuccessResponseDto(
-      result.success 
-        ? this.messageService.get('email.test_welcome_sent') 
+      result.success
+        ? this.messageService.get('email.test_welcome_sent')
         : this.messageService.get('email.test_send_failed'),
-      result
+      result,
     );
   }
 
   @Post('test/reminder')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Send test event reminder email',
     description: 'Send a test event reminder email to verify configuration',
   })
@@ -195,17 +200,19 @@ export class EmailController {
       email,
       {
         title: 'Test Event - Team Meeting',
-        startTime: new Date(Date.now() + TIME_CONSTANTS.EMAIL.TEST_REMINDER_DELAY),
+        startTime: new Date(
+          Date.now() + TIME_CONSTANTS.EMAIL.TEST_REMINDER_DELAY,
+        ),
         location: 'Conference Room A',
         description: 'This is a test event reminder',
       },
     );
 
     return new SuccessResponseDto(
-      result.success 
-        ? this.messageService.get('email.test_reminder_sent') 
+      result.success
+        ? this.messageService.get('email.test_reminder_sent')
         : this.messageService.get('email.test_send_failed'),
-      result
+      result,
     );
   }
 }

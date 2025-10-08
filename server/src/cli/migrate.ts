@@ -6,10 +6,10 @@ import { Logger } from '@nestjs/common';
 
 async function runMigrations() {
   const logger = new Logger('Migration CLI');
-  
+
   try {
     logger.log('🚀 Starting migration process...');
-    
+
     const app = await NestFactory.createApplicationContext(AppModule, {
       logger: ['error', 'warn', 'log'],
     });
@@ -19,7 +19,7 @@ async function runMigrations() {
     await migrationService.runMigrations();
 
     logger.log('✅ Migration process completed successfully');
-    
+
     await app.close();
     process.exit(0);
   } catch (error) {
@@ -30,10 +30,10 @@ async function runMigrations() {
 
 async function rollbackMigration() {
   const logger = new Logger('Rollback CLI');
-  
+
   try {
     logger.log('🔄 Starting rollback process...');
-    
+
     const app = await NestFactory.createApplicationContext(AppModule, {
       logger: ['error', 'warn', 'log'],
     });
@@ -42,7 +42,7 @@ async function rollbackMigration() {
     await migrationService.rollbackLastMigration();
 
     logger.log('✅ Rollback completed successfully');
-    
+
     await app.close();
     process.exit(0);
   } catch (error) {
@@ -54,9 +54,11 @@ async function rollbackMigration() {
 async function generateMigration() {
   const logger = new Logger('Generate CLI');
   const migrationName = process.argv[3];
-  
+
   if (!migrationName) {
-    logger.error('❌ Please provide a migration name: npm run migrate:generate <name>');
+    logger.error(
+      '❌ Please provide a migration name: npm run migrate:generate <name>',
+    );
     process.exit(1);
   }
 
@@ -69,7 +71,7 @@ async function generateMigration() {
     const filePath = migrationService.generateMigration(migrationName);
 
     logger.log(`✅ Migration file generated: ${filePath}`);
-    
+
     await app.close();
     process.exit(0);
   } catch (error) {

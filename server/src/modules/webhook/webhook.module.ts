@@ -9,24 +9,13 @@ import { DatabaseModule } from '../../database/database.module';
 import { CommonModule } from '../../common/common.module';
 
 @Module({
-    imports: [
-        GoogleModule,
-        DatabaseModule,
-        CommonModule,
-    ],
-    controllers: [
-        WebHookGoogleController,
-        WebhookMonitoringController,
-    ],
-    providers: [
-        WebhookService,
-        WebhookSchedulerService,
-        WebhookChannelRepository,
-    ],
-    exports: [
-        WebhookService,
-        WebhookSchedulerService,
-        WebhookChannelRepository,
-    ],
+  imports: [GoogleModule, DatabaseModule, CommonModule],
+  controllers: [WebHookGoogleController, WebhookMonitoringController],
+  providers: [
+    WebhookService,
+    WebhookSchedulerService,
+    WebhookChannelRepository,
+  ],
+  exports: [WebhookService, WebhookSchedulerService, WebhookChannelRepository],
 })
 export class WebhookModule {}

@@ -70,9 +70,13 @@ export class BookingLinkRepository extends BaseRepository<BookingLink> {
   async create(data: Partial<BookingLink>): Promise<BookingLink> {
     const slugExists = await this.checkSlugExists(data.slug!);
     if (slugExists) {
-      const message = this.messageService.get('booking.slug_exists', undefined, {
-        slug: data.slug,
-      });
+      const message = this.messageService.get(
+        'booking.slug_exists',
+        undefined,
+        {
+          slug: data.slug,
+        },
+      );
       throw new BookingSlugExistsException(message);
     }
 
@@ -129,9 +133,13 @@ export class BookingLinkRepository extends BaseRepository<BookingLink> {
     if (data.slug) {
       const slugExists = await this.checkSlugExists(data.slug, id);
       if (slugExists) {
-        const message = this.messageService.get('booking.slug_exists', undefined, {
-          slug: data.slug,
-        });
+        const message = this.messageService.get(
+          'booking.slug_exists',
+          undefined,
+          {
+            slug: data.slug,
+          },
+        );
         throw new BookingSlugExistsException(message);
       }
     }
@@ -164,7 +172,11 @@ export class BookingLinkRepository extends BaseRepository<BookingLink> {
     if (updates.length === 0) {
       const existing = await this.findById(id);
       if (!existing) {
-        const message = this.messageService.get('booking.link_not_found', undefined, { id });
+        const message = this.messageService.get(
+          'booking.link_not_found',
+          undefined,
+          { id },
+        );
         throw new BookingLinkNotFoundException(message);
       }
       return existing;
@@ -183,7 +195,11 @@ export class BookingLinkRepository extends BaseRepository<BookingLink> {
     const result = await this.databaseService.query(query, values);
 
     if (result.rows.length === 0) {
-      const message = this.messageService.get('booking.link_not_found', undefined, { id });
+      const message = this.messageService.get(
+        'booking.link_not_found',
+        undefined,
+        { id },
+      );
       throw new BookingLinkNotFoundException(message);
     }
 
@@ -198,7 +214,9 @@ export class BookingLinkRepository extends BaseRepository<BookingLink> {
     `;
 
     const result = await this.databaseService.query(query, [userId]);
-    this.logger.log(`Deleted ${result.rowCount} booking links for user ${userId}`);
+    this.logger.log(
+      `Deleted ${result.rowCount} booking links for user ${userId}`,
+    );
     return result.rowCount || 0;
   }
 

@@ -60,7 +60,10 @@ export class BookingLinkController {
     @CurrentUser('id') userId: string,
     @Body() dto: CreateBookingLinkDto,
   ) {
-    const bookingLink = await this.bookingService.createBookingLink(userId, dto);
+    const bookingLink = await this.bookingService.createBookingLink(
+      userId,
+      dto,
+    );
 
     return {
       success: true,
@@ -103,7 +106,8 @@ export class BookingLinkController {
     type: [BookingLinkResponseDto],
   })
   async findActive(@CurrentUser('id') userId: string) {
-    const bookingLinks = await this.bookingService.getActiveBookingLinks(userId);
+    const bookingLinks =
+      await this.bookingService.getActiveBookingLinks(userId);
 
     return {
       success: true,
@@ -126,11 +130,11 @@ export class BookingLinkController {
     type: BookingLinkResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Booking link not found' })
-  async findOne(
-    @Param('id') id: string,
-    @CurrentUser('id') userId: string,
-  ) {
-    const bookingLink = await this.bookingService.getBookingLinkById(id, userId);
+  async findOne(@Param('id') id: string, @CurrentUser('id') userId: string) {
+    const bookingLink = await this.bookingService.getBookingLinkById(
+      id,
+      userId,
+    );
 
     return {
       success: true,
@@ -155,7 +159,11 @@ export class BookingLinkController {
     @CurrentUser('id') userId: string,
     @Body() dto: UpdateBookingLinkDto,
   ) {
-    const bookingLink = await this.bookingService.updateBookingLink(id, userId, dto);
+    const bookingLink = await this.bookingService.updateBookingLink(
+      id,
+      userId,
+      dto,
+    );
 
     return {
       success: true,
@@ -170,12 +178,12 @@ export class BookingLinkController {
     summary: 'Delete booking link',
     description: 'Delete a booking link',
   })
-  @ApiResponse({ status: 204, description: 'Booking link deleted successfully' })
+  @ApiResponse({
+    status: 204,
+    description: 'Booking link deleted successfully',
+  })
   @ApiResponse({ status: 404, description: 'Booking link not found' })
-  async delete(
-    @Param('id') id: string,
-    @CurrentUser('id') userId: string,
-  ) {
+  async delete(@Param('id') id: string, @CurrentUser('id') userId: string) {
     await this.bookingService.deleteBookingLink(id, userId);
   }
 
@@ -229,10 +237,7 @@ export class BookingController {
   })
   @ApiResponse({ status: 400, description: 'Invalid booking time' })
   @ApiResponse({ status: 404, description: 'Booking link not found' })
-  async create(
-    @Param('slug') slug: string,
-    @Body() dto: CreateBookingDto,
-  ) {
+  async create(@Param('slug') slug: string, @Body() dto: CreateBookingDto) {
     const booking = await this.bookingService.createBooking(slug, dto);
 
     return {
@@ -337,10 +342,7 @@ export class BookingController {
     type: BookingResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Booking not found' })
-  async findOne(
-    @Param('id') id: string,
-    @CurrentUser('id') userId: string,
-  ) {
+  async findOne(@Param('id') id: string, @CurrentUser('id') userId: string) {
     const booking = await this.bookingService.getBookingById(id, userId);
 
     return {
@@ -397,7 +399,11 @@ export class BookingController {
     @CurrentUser('id') userId: string,
     @Body() dto: RescheduleBookingDto,
   ) {
-    const booking = await this.bookingService.rescheduleBooking(id, userId, dto);
+    const booking = await this.bookingService.rescheduleBooking(
+      id,
+      userId,
+      dto,
+    );
 
     return {
       success: true,

@@ -22,7 +22,13 @@ export class AvailabilityRepository extends BaseRepository<Availability> {
   }
 
   protected getAllowedSortFields(): string[] {
-    return ['day_of_week', 'start_time', 'end_time', 'created_at', 'updated_at'];
+    return [
+      'day_of_week',
+      'start_time',
+      'end_time',
+      'created_at',
+      'updated_at',
+    ];
   }
 
   async findByUserId(userId: string): Promise<Availability[]> {
@@ -92,21 +98,32 @@ export class AvailabilityRepository extends BaseRepository<Availability> {
 
     try {
       const result = await this.databaseService.query(query, values);
-      
+
       if (result.rows.length === 0) {
-        throw new AvailabilityCreationFailedException('No rows returned after insert');
+        throw new AvailabilityCreationFailedException(
+          'No rows returned after insert',
+        );
       }
 
       this.logger.log(`Created availability rule for user ${data.user_id}`);
       return result.rows[0];
     } catch (error) {
-      this.logger.error(`Failed to create availability: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to create availability: ${error.message}`,
+        error.stack,
+      );
       throw new AvailabilityCreationFailedException(error.message);
     }
   }
 
   async update(id: string, data: Partial<Availability>): Promise<Availability> {
-    const allowedFields = ['day_of_week', 'start_time', 'end_time', 'timezone', 'is_active'];
+    const allowedFields = [
+      'day_of_week',
+      'start_time',
+      'end_time',
+      'timezone',
+      'is_active',
+    ];
     const updates: string[] = [];
     const values: any[] = [];
     let paramIndex = 1;
@@ -154,7 +171,9 @@ export class AvailabilityRepository extends BaseRepository<Availability> {
     `;
 
     const result = await this.databaseService.query(query, [userId]);
-    this.logger.log(`Deleted ${result.rowCount} availability rules for user ${userId}`);
+    this.logger.log(
+      `Deleted ${result.rowCount} availability rules for user ${userId}`,
+    );
     return result.rowCount || 0;
   }
 
@@ -177,7 +196,7 @@ export class AvailabilityRepository extends BaseRepository<Availability> {
         ${excludeId ? 'AND id != $5' : ''}
     `;
 
-    const params = excludeId 
+    const params = excludeId
       ? [userId, dayOfWeek, startTime, endTime, excludeId]
       : [userId, dayOfWeek, startTime, endTime];
 
@@ -185,18 +204,20 @@ export class AvailabilityRepository extends BaseRepository<Availability> {
     return parseInt(result.rows[0].count) > 0;
   }
 
-  async bulkCreate(availabilities: Partial<Availability>[]): Promise<Availability[]> {
+  async bulkCreate(
+    availabilities: Partial<Availability>[],
+  ): Promise<Availability[]> {
     if (availabilities.length === 0) {
       return [];
     }
 
     const values: any[] = [];
     const valuesClauses: string[] = [];
-    
+
     availabilities.forEach((availability, index) => {
       const baseIndex = index * 6;
       valuesClauses.push(
-        `($${baseIndex + 1}, $${baseIndex + 2}, $${baseIndex + 3}, $${baseIndex + 4}, $${baseIndex + 5}, $${baseIndex + 6})`
+        `($${baseIndex + 1}, $${baseIndex + 2}, $${baseIndex + 3}, $${baseIndex + 4}, $${baseIndex + 5}, $${baseIndex + 6})`,
       );
       values.push(
         availability.user_id,
@@ -220,7 +241,10 @@ export class AvailabilityRepository extends BaseRepository<Availability> {
       this.logger.log(`Bulk created ${result.rows.length} availability rules`);
       return result.rows;
     } catch (error) {
-      this.logger.error(`Failed to bulk create availabilities: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to bulk create availabilities: ${error.message}`,
+        error.stack,
+      );
       throw new AvailabilityCreationFailedException(error.message);
     }
   }

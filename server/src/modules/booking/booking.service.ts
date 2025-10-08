@@ -69,7 +69,11 @@ export class BookingService {
     const link = await this.bookingLinkRepository.findById(id);
 
     if (!link || link.user_id !== userId) {
-      const message = this.messageService.get('booking.link_not_found', undefined, { id });
+      const message = this.messageService.get(
+        'booking.link_not_found',
+        undefined,
+        { id },
+      );
       throw new BookingLinkNotFoundException(message);
     }
 
@@ -80,7 +84,11 @@ export class BookingService {
     const link = await this.bookingLinkRepository.findBySlug(slug);
 
     if (!link) {
-      const message = this.messageService.get('booking.link_slug_not_found', undefined, { slug });
+      const message = this.messageService.get(
+        'booking.link_slug_not_found',
+        undefined,
+        { slug },
+      );
       throw new BookingLinkNotFoundException(message);
     }
 
@@ -101,10 +109,7 @@ export class BookingService {
     await this.bookingLinkRepository.delete(id);
   }
 
-  async createBooking(
-    slug: string,
-    dto: CreateBookingDto,
-  ): Promise<Booking> {
+  async createBooking(slug: string, dto: CreateBookingDto): Promise<Booking> {
     const bookingLink = await this.getBookingLinkBySlug(slug);
 
     if (!bookingLink.is_active) {
@@ -113,7 +118,9 @@ export class BookingService {
     }
 
     const startTime = new Date(dto.start_time);
-    const endTime = new Date(startTime.getTime() + bookingLink.duration_minutes * 60 * 1000);
+    const endTime = new Date(
+      startTime.getTime() + bookingLink.duration_minutes * 60 * 1000,
+    );
 
     await this.validateBookingTime(bookingLink, startTime, endTime);
 
@@ -146,7 +153,9 @@ export class BookingService {
     const booking = await this.bookingRepository.findById(id);
 
     if (!booking || booking.user_id !== userId) {
-      const message = this.messageService.get('booking.not_found', undefined, { id });
+      const message = this.messageService.get('booking.not_found', undefined, {
+        id,
+      });
       throw new BookingNotFoundException(message);
     }
 
@@ -178,12 +187,18 @@ export class BookingService {
     dto: RescheduleBookingDto,
   ): Promise<Booking> {
     const booking = await this.getBookingById(id, userId);
-    const bookingLink = await this.bookingLinkRepository.findById(booking.booking_link_id);
+    const bookingLink = await this.bookingLinkRepository.findById(
+      booking.booking_link_id,
+    );
 
     if (!bookingLink) {
-      const message = this.messageService.get('booking.link_not_found', undefined, {
-        id: booking.booking_link_id,
-      });
+      const message = this.messageService.get(
+        'booking.link_not_found',
+        undefined,
+        {
+          id: booking.booking_link_id,
+        },
+      );
       throw new BookingLinkNotFoundException(message);
     }
 
@@ -216,7 +231,8 @@ export class BookingService {
       {
         start_date: dto.start_date,
         end_date: dto.end_date,
-        duration_minutes: bookingLink.duration_minutes + bookingLink.buffer_time_minutes,
+        duration_minutes:
+          bookingLink.duration_minutes + bookingLink.buffer_time_minutes,
       },
     );
 
@@ -243,7 +259,9 @@ export class BookingService {
       const slotEnd = new Date(slot.end);
 
       const now = new Date();
-      const advanceNoticeMs = bookingLink.advance_notice_hours * TIME_CONSTANTS.BOOKING.ADVANCE_NOTICE_MULTIPLIER;
+      const advanceNoticeMs =
+        bookingLink.advance_notice_hours *
+        TIME_CONSTANTS.BOOKING.ADVANCE_NOTICE_MULTIPLIER;
       if (slotStart.getTime() - now.getTime() < advanceNoticeMs) {
         bookingSlots.push({
           start: slotStart,
@@ -254,7 +272,9 @@ export class BookingService {
         continue;
       }
 
-      const bookingWindowMs = bookingLink.booking_window_days * TIME_CONSTANTS.BOOKING.BOOKING_WINDOW_MULTIPLIER;
+      const bookingWindowMs =
+        bookingLink.booking_window_days *
+        TIME_CONSTANTS.BOOKING.BOOKING_WINDOW_MULTIPLIER;
       if (slotStart.getTime() - now.getTime() > bookingWindowMs) {
         bookingSlots.push({
           start: slotStart,
@@ -320,19 +340,31 @@ export class BookingService {
       throw new BookingPastDateException(message);
     }
 
-    const advanceNoticeMs = bookingLink.advance_notice_hours * TIME_CONSTANTS.BOOKING.ADVANCE_NOTICE_MULTIPLIER;
+    const advanceNoticeMs =
+      bookingLink.advance_notice_hours *
+      TIME_CONSTANTS.BOOKING.ADVANCE_NOTICE_MULTIPLIER;
     if (startTime.getTime() - now.getTime() < advanceNoticeMs) {
-      const message = this.messageService.get('booking.advance_notice', undefined, {
-        hours: bookingLink.advance_notice_hours.toString(),
-      });
+      const message = this.messageService.get(
+        'booking.advance_notice',
+        undefined,
+        {
+          hours: bookingLink.advance_notice_hours.toString(),
+        },
+      );
       throw new BookingAdvanceNoticeException(message);
     }
 
-    const bookingWindowMs = bookingLink.booking_window_days * TIME_CONSTANTS.BOOKING.BOOKING_WINDOW_MULTIPLIER;
+    const bookingWindowMs =
+      bookingLink.booking_window_days *
+      TIME_CONSTANTS.BOOKING.BOOKING_WINDOW_MULTIPLIER;
     if (startTime.getTime() - now.getTime() > bookingWindowMs) {
-      const message = this.messageService.get('booking.outside_window', undefined, {
-        days: bookingLink.booking_window_days.toString(),
-      });
+      const message = this.messageService.get(
+        'booking.outside_window',
+        undefined,
+        {
+          days: bookingLink.booking_window_days.toString(),
+        },
+      );
       throw new BookingOutsideWindowException(message);
     }
 
@@ -375,9 +407,13 @@ export class BookingService {
         startTime,
       );
       if (dayCount >= bookingLink.max_bookings_per_day) {
-        const message = this.messageService.get('booking.daily_limit', undefined, {
-          limit: bookingLink.max_bookings_per_day.toString(),
-        });
+        const message = this.messageService.get(
+          'booking.daily_limit',
+          undefined,
+          {
+            limit: bookingLink.max_bookings_per_day.toString(),
+          },
+        );
         throw new BookingDailyLimitException(message);
       }
     }

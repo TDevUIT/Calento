@@ -1,4 +1,9 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  HttpStatus,
+} from '@nestjs/common';
 import { Request, Response } from 'express';
 import { MessageService } from '../message/message.service';
 
@@ -37,7 +42,10 @@ export class RateLimitFilter implements ExceptionFilter {
 
     response.setHeader('X-RateLimit-Limit', exception.limit);
     response.setHeader('X-RateLimit-Remaining', 0);
-    response.setHeader('X-RateLimit-Reset', new Date(Date.now() + exception.retryAfter * 1000).toISOString());
+    response.setHeader(
+      'X-RateLimit-Reset',
+      new Date(Date.now() + exception.retryAfter * 1000).toISOString(),
+    );
     response.setHeader('Retry-After', exception.retryAfter);
 
     response.status(HttpStatus.TOO_MANY_REQUESTS).json(errorResponse);

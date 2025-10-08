@@ -31,8 +31,7 @@ export interface AuthResponse {
   login_at: Date;
 }
 
-export interface AuthUser extends Omit<User, 'password_hash'> {
-}
+export interface AuthUser extends Omit<User, 'password_hash'> {}
 
 export interface LoginCredentials {
   email: string;

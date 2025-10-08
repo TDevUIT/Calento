@@ -2,84 +2,86 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose, Transform } from 'class-transformer';
 
 export class UserResponseDto {
-  @ApiProperty({ 
+  @ApiProperty({
     example: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
-    description: 'User unique identifier (UUID)'
+    description: 'User unique identifier (UUID)',
   })
   @Expose()
   id: string;
 
-  @ApiProperty({ 
+  @ApiProperty({
     example: 'john.doe@example.com',
-    description: 'User email address'
+    description: 'User email address',
   })
   @Expose()
   email: string;
 
-  @ApiProperty({ 
+  @ApiProperty({
     example: 'johndoe123',
-    description: 'Username'
+    description: 'Username',
   })
   @Expose()
   username: string;
 
-  @ApiProperty({ 
+  @ApiProperty({
     example: 'John',
-    description: 'First name'
+    description: 'First name',
   })
   @Expose()
   first_name: string;
 
-  @ApiProperty({ 
+  @ApiProperty({
     example: 'Doe',
-    description: 'Last name'
+    description: 'Last name',
   })
   @Expose()
   last_name: string;
 
-  @ApiProperty({ 
+  @ApiProperty({
     example: 'https://example.com/avatar.jpg',
     description: 'Avatar URL',
     required: false,
-    nullable: true
+    nullable: true,
   })
   @Expose()
   avatar?: string | null;
 
-  @ApiProperty({ 
+  @ApiProperty({
     example: true,
-    description: 'Email verification status'
+    description: 'Email verification status',
   })
   @Expose()
   is_verified: boolean;
 
-  @ApiProperty({ 
+  @ApiProperty({
     example: true,
-    description: 'Account active status'
+    description: 'Account active status',
   })
   @Expose()
   is_active: boolean;
 
-  @ApiProperty({ 
+  @ApiProperty({
     example: '2024-01-15T10:00:00Z',
-    description: 'Account creation timestamp'
+    description: 'Account creation timestamp',
   })
   @Expose()
   created_at: Date;
 
-  @ApiProperty({ 
+  @ApiProperty({
     example: '2024-01-15T10:00:00Z',
-    description: 'Last update timestamp'
+    description: 'Last update timestamp',
   })
   @Expose()
   updated_at: Date;
 
-  @ApiProperty({ 
+  @ApiProperty({
     example: 'John Doe',
-    description: 'Full name (computed field)'
+    description: 'Full name (computed field)',
   })
   @Expose()
-  @Transform(({ obj }) => `${obj.first_name || ''} ${obj.last_name || ''}`.trim())
+  @Transform(({ obj }) =>
+    `${obj.first_name || ''} ${obj.last_name || ''}`.trim(),
+  )
   full_name: string;
 
   // Exclude sensitive fields
@@ -88,46 +90,46 @@ export class UserResponseDto {
 }
 
 export class AuthTokensDto {
-  @ApiProperty({ 
+  @ApiProperty({
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-    description: 'JWT access token'
+    description: 'JWT access token',
   })
   access_token: string;
 
-  @ApiProperty({ 
+  @ApiProperty({
     example: 'Bearer',
-    description: 'Token type'
+    description: 'Token type',
   })
   token_type: string = 'Bearer';
 
-  @ApiProperty({ 
+  @ApiProperty({
     example: 3600,
-    description: 'Token expiration time in seconds'
+    description: 'Token expiration time in seconds',
   })
   expires_in: number;
 
-  @ApiProperty({ 
+  @ApiProperty({
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
     description: 'JWT refresh token',
-    required: false
+    required: false,
   })
   refresh_token?: string;
 }
 
 export class AuthResponseDto {
-  @ApiProperty({ 
-    description: 'Authentication tokens'
+  @ApiProperty({
+    description: 'Authentication tokens',
   })
   tokens: AuthTokensDto;
 
-  @ApiProperty({ 
-    description: 'User information'
+  @ApiProperty({
+    description: 'User information',
   })
   user: UserResponseDto;
 
-  @ApiProperty({ 
+  @ApiProperty({
     example: '2024-01-15T10:00:00Z',
-    description: 'Login timestamp'
+    description: 'Login timestamp',
   })
   login_at: Date;
 

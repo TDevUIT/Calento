@@ -31,8 +31,8 @@ import { EmailModule } from '../email/email.module';
   ],
   controllers: [AuthController],
   providers: [
-    AuthService, 
-    AuthRepository, 
+    AuthService,
+    AuthRepository,
     CookieAuthService,
     JwtStrategy,
     JwtCookieStrategy,

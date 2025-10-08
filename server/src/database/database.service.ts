@@ -1,4 +1,9 @@
-import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
 import { Pool, PoolClient, QueryResult, QueryResultRow } from 'pg';
 import env from '../config/env';
 
@@ -47,12 +52,15 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  async query<T extends QueryResultRow = any>(text: string, params?: any[]): Promise<QueryResult<T>> {
+  async query<T extends QueryResultRow = any>(
+    text: string,
+    params?: any[],
+  ): Promise<QueryResult<T>> {
     const start = Date.now();
     try {
       const result = await this.pool.query(text, params);
       const duration = Date.now() - start;
-      
+
       this.logger.debug(`Executed query in ${duration}ms: ${text}`);
       return result;
     } catch (error) {
@@ -65,9 +73,11 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
     return this.pool.connect();
   }
 
-  async transaction<T>(callback: (client: PoolClient) => Promise<T>): Promise<T> {
+  async transaction<T>(
+    callback: (client: PoolClient) => Promise<T>,
+  ): Promise<T> {
     const client = await this.getClient();
-    
+
     try {
       await client.query('BEGIN');
       const result = await callback(client);
@@ -94,14 +104,17 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
 
   async getStats() {
     try {
-      const result = await this.query(`
+      const result = await this.query(
+        `
         SELECT 
           pg_database.datname as database_name,
           pg_size_pretty(pg_database_size(pg_database.datname)) as size,
           (SELECT count(*) FROM pg_stat_activity WHERE datname = pg_database.datname) as connections
         FROM pg_database 
         WHERE datname = $1
-      `, [env.DB_NAME]);
+      `,
+        [env.DB_NAME],
+      );
 
       return result.rows[0];
     } catch (error) {

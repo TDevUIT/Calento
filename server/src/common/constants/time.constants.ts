@@ -68,7 +68,7 @@ export const TIME_CONSTANTS = {
 export const SECURITY_CONSTANTS = {
   // Password & Hashing
   BCRYPT_SALT_ROUNDS: 12, // Increased from 10 for better security
-  
+
   // Token lengths
   TOKEN_LENGTHS: {
     RESET_TOKEN_IDENTIFIER: 8,
@@ -120,7 +120,7 @@ export const ENV_CONSTANTS = {
     LOG_LEVEL: 'debug',
     CACHE_TTL: 5 * 60 * 1000,
   },
-  
+
   PRODUCTION: {
     LOG_LEVEL: 'warn',
     CACHE_TTL: 30 * 60 * 1000,

@@ -5,7 +5,8 @@ export function setupSwagger(app: INestApplication): void {
   const config = new DocumentBuilder()
     .setTitle('Calento.space API')
     .setVersion('1.0.0')
-    .setDescription(`
+    .setDescription(
+      `
   Calento.space - Smart Calendar Assistant API
 
   Manage your schedules, sync with Google Calendar, and automate your time management.
@@ -19,7 +20,8 @@ export function setupSwagger(app: INestApplication): void {
   - Real-time webhook notifications
   - Email notifications
   - Queue-based background processing
-    `)
+    `,
+    )
     .addBearerAuth(
       {
         type: 'http',

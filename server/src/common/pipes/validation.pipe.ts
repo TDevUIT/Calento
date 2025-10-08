@@ -1,4 +1,9 @@
-import { ArgumentMetadata, BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
+import {
+  ArgumentMetadata,
+  BadRequestException,
+  Injectable,
+  PipeTransform,
+} from '@nestjs/common';
 import { validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
 import { MessageService } from '../message/message.service';
@@ -39,9 +44,9 @@ export class CustomValidationPipe implements PipeTransform<any> {
   private formatErrors(errors: any[]): string[] {
     const errorMessages: string[] = [];
 
-    errors.forEach(error => {
+    errors.forEach((error) => {
       if (error.constraints) {
-        Object.values(error.constraints).forEach(constraint => {
+        Object.values(error.constraints).forEach((constraint) => {
           errorMessages.push(constraint as string);
         });
       }

@@ -7,7 +7,6 @@ export class PasswordService {
   private readonly logger = new Logger(PasswordService.name);
   private readonly saltRounds = SECURITY_CONSTANTS.BCRYPT_SALT_ROUNDS;
 
-
   async hashPassword(password: string): Promise<string> {
     try {
       return await bcrypt.hash(password, this.saltRounds);
@@ -17,8 +16,10 @@ export class PasswordService {
     }
   }
 
-
-  async comparePassword(password: string, hashedPassword: string): Promise<boolean> {
+  async comparePassword(
+    password: string,
+    hashedPassword: string,
+  ): Promise<boolean> {
     try {
       return await bcrypt.compare(password, hashedPassword);
     } catch (error) {
@@ -36,7 +37,10 @@ export class PasswordService {
     }
   }
 
-  validatePasswordStrength(password: string): { isValid: boolean; errors: string[] } {
+  validatePasswordStrength(password: string): {
+    isValid: boolean;
+    errors: string[];
+  } {
     const errors: string[] = [];
 
     if (password.length < 8) {
@@ -61,7 +65,7 @@ export class PasswordService {
 
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
     };
   }
 }

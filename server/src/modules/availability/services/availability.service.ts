@@ -47,9 +47,13 @@ export class AvailabilityService {
     );
 
     if (hasOverlap) {
-      const message = this.messageService.get('availability.overlapping', undefined, {
-        dayOfWeek: dto.day_of_week.toString(),
-      });
+      const message = this.messageService.get(
+        'availability.overlapping',
+        undefined,
+        {
+          dayOfWeek: dto.day_of_week.toString(),
+        },
+      );
       throw new OverlappingAvailabilityException(message);
     }
 
@@ -89,7 +93,11 @@ export class AvailabilityService {
     const availability = await this.availabilityRepository.findById(id);
 
     if (!availability || availability.user_id !== userId) {
-      const message = this.messageService.get('availability.not_found', undefined, { id });
+      const message = this.messageService.get(
+        'availability.not_found',
+        undefined,
+        { id },
+      );
       throw new AvailabilityNotFoundException(message);
     }
 
@@ -108,7 +116,8 @@ export class AvailabilityService {
       const endTime = dto.end_time || existing.end_time;
       this.validateTimeRange(startTime, endTime);
 
-      const dayOfWeek = dto.day_of_week !== undefined ? dto.day_of_week : existing.day_of_week;
+      const dayOfWeek =
+        dto.day_of_week !== undefined ? dto.day_of_week : existing.day_of_week;
 
       const hasOverlap = await this.availabilityRepository.checkOverlap(
         userId,
@@ -119,9 +128,13 @@ export class AvailabilityService {
       );
 
       if (hasOverlap) {
-        const message = this.messageService.get('availability.overlapping', undefined, {
-          dayOfWeek: dayOfWeek.toString(),
-        });
+        const message = this.messageService.get(
+          'availability.overlapping',
+          undefined,
+          {
+            dayOfWeek: dayOfWeek.toString(),
+          },
+        );
         throw new OverlappingAvailabilityException(message);
       }
     }
@@ -146,15 +159,15 @@ export class AvailabilityService {
     const endDate = new Date(dto.end_datetime);
 
     if (startDate >= endDate) {
-      const message = this.messageService.get('availability.invalid_date_range');
+      const message = this.messageService.get(
+        'availability.invalid_date_range',
+      );
       throw new InvalidDateRangeException(message);
     }
 
     const dayOfWeek = startDate.getDay() as DayOfWeek;
-    const availabilityRules = await this.availabilityRepository.findByUserIdAndDay(
-      userId,
-      dayOfWeek,
-    );
+    const availabilityRules =
+      await this.availabilityRepository.findByUserIdAndDay(userId, dayOfWeek);
 
     if (availabilityRules.length === 0) {
       return {
@@ -182,7 +195,10 @@ export class AvailabilityService {
     return {
       available: conflicts.length === 0,
       conflicts,
-      suggestions: conflicts.length > 0 ? await this.suggestAlternativeTimes(userId, startDate, endDate) : undefined,
+      suggestions:
+        conflicts.length > 0
+          ? await this.suggestAlternativeTimes(userId, startDate, endDate)
+          : undefined,
     };
   }
 
@@ -195,20 +211,32 @@ export class AvailabilityService {
     const durationMinutes = dto.duration_minutes || 30;
 
     if (startDate >= endDate) {
-      const message = this.messageService.get('availability.invalid_date_range');
+      const message = this.messageService.get(
+        'availability.invalid_date_range',
+      );
       throw new InvalidDateRangeException(message);
     }
 
-    const daysDiff = Math.ceil((endDate.getTime() - startDate.getTime()) / TIME_CONSTANTS.BOOKING.MILLISECONDS_PER_DAY);
+    const daysDiff = Math.ceil(
+      (endDate.getTime() - startDate.getTime()) /
+        TIME_CONSTANTS.BOOKING.MILLISECONDS_PER_DAY,
+    );
     if (daysDiff > TIME_CONSTANTS.BOOKING.MAX_DATE_RANGE_DAYS) {
-      const message = this.messageService.get('availability.invalid_date_range');
+      const message = this.messageService.get(
+        'availability.invalid_date_range',
+      );
       throw new InvalidDateRangeException(message);
     }
 
-    const availabilityRules = await this.availabilityRepository.findActiveByUserId(userId);
+    const availabilityRules =
+      await this.availabilityRepository.findActiveByUserId(userId);
 
     if (availabilityRules.length === 0) {
-      const message = this.messageService.get('availability.no_rules_found', undefined, { userId });
+      const message = this.messageService.get(
+        'availability.no_rules_found',
+        undefined,
+        { userId },
+      );
       throw new NoAvailabilityFoundException(message);
     }
 
@@ -217,7 +245,9 @@ export class AvailabilityService {
 
     while (currentDate <= endDate) {
       const dayOfWeek = currentDate.getDay() as DayOfWeek;
-      const dayRules = availabilityRules.filter((rule) => rule.day_of_week === dayOfWeek);
+      const dayRules = availabilityRules.filter(
+        (rule) => rule.day_of_week === dayOfWeek,
+      );
 
       for (const rule of dayRules) {
         const daySlots = await this.generateSlotsForDay(
@@ -256,8 +286,12 @@ export class AvailabilityService {
       slotEnd.setMinutes(slotEnd.getMinutes() + durationMinutes);
 
       if (slotEnd <= dayEnd) {
-        const conflicts = await this.getEventConflicts(userId, slotStart, slotEnd);
-        
+        const conflicts = await this.getEventConflicts(
+          userId,
+          slotStart,
+          slotEnd,
+        );
+
         slots.push({
           start: new Date(slotStart),
           end: new Date(slotEnd),
@@ -311,10 +345,8 @@ export class AvailabilityService {
     const suggestions: Date[] = [];
     const dayOfWeek = originalStart.getDay() as DayOfWeek;
 
-    const availabilityRules = await this.availabilityRepository.findByUserIdAndDay(
-      userId,
-      dayOfWeek,
-    );
+    const availabilityRules =
+      await this.availabilityRepository.findByUserIdAndDay(userId, dayOfWeek);
 
     for (const rule of availabilityRules) {
       const [hour, minute] = rule.start_time.split(':').map(Number);
@@ -322,7 +354,11 @@ export class AvailabilityService {
       candidate.setHours(hour, minute, 0, 0);
 
       const candidateEnd = new Date(candidate.getTime() + duration);
-      const conflicts = await this.getEventConflicts(userId, candidate, candidateEnd);
+      const conflicts = await this.getEventConflicts(
+        userId,
+        candidate,
+        candidateEnd,
+      );
 
       if (conflicts.length === 0) {
         suggestions.push(candidate);
@@ -335,10 +371,14 @@ export class AvailabilityService {
 
   private validateTimeRange(startTime: string, endTime: string): void {
     if (startTime >= endTime) {
-      const message = this.messageService.get('availability.invalid_time_range', undefined, {
-        startTime,
-        endTime,
-      });
+      const message = this.messageService.get(
+        'availability.invalid_time_range',
+        undefined,
+        {
+          startTime,
+          endTime,
+        },
+      );
       throw new InvalidTimeRangeException(message);
     }
   }
@@ -347,11 +387,20 @@ export class AvailabilityService {
     return date.toTimeString().split(' ')[0];
   }
 
-  async getWeeklySchedule(userId: string): Promise<{ [key: number]: Availability[] }> {
-    const availabilities = await this.availabilityRepository.findActiveByUserId(userId);
-    
+  async getWeeklySchedule(
+    userId: string,
+  ): Promise<{ [key: number]: Availability[] }> {
+    const availabilities =
+      await this.availabilityRepository.findActiveByUserId(userId);
+
     const schedule: { [key: number]: Availability[] } = {
-      0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [],
+      0: [],
+      1: [],
+      2: [],
+      3: [],
+      4: [],
+      5: [],
+      6: [],
     };
 
     availabilities.forEach((availability) => {

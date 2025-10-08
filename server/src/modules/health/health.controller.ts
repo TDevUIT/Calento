@@ -9,12 +9,12 @@ export class HealthController {
   constructor(private readonly databaseService: DatabaseService) {}
   @Public()
   @Get()
-  @ApiOperation({ 
+  @ApiOperation({
     summary: '💚 System health check',
-    description: 'System health check with database, memory, and uptime info'
+    description: 'System health check with database, memory, and uptime info',
   })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: '✅ System health information',
     schema: {
       example: {
@@ -26,18 +26,18 @@ export class HealthController {
           stats: {
             totalConnections: 10,
             activeConnections: 2,
-            idleConnections: 8
-          }
+            idleConnections: 8,
+          },
         },
         memory: {
           rss: 45678592,
           heapTotal: 20971520,
           heapUsed: 18874368,
-          external: 1089024
+          external: 1089024,
         },
-        version: 'v18.17.0'
-      }
-    }
+        version: 'v18.17.0',
+      },
+    },
   })
   async check() {
     const dbHealth = await this.databaseService.healthCheck();
@@ -58,12 +58,12 @@ export class HealthController {
 
   @Public()
   @Get('db')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: '🗄️ Database health check',
-    description: 'Check database connection status and statistics'
+    description: 'Check database connection status and statistics',
   })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: '✅ Database health information',
     schema: {
       example: {
@@ -71,21 +71,21 @@ export class HealthController {
         stats: {
           totalConnections: 10,
           activeConnections: 2,
-          idleConnections: 8
+          idleConnections: 8,
         },
-        timestamp: '2024-01-15T10:30:00Z'
-      }
-    }
+        timestamp: '2024-01-15T10:30:00Z',
+      },
+    },
   })
-  @ApiResponse({ 
-    status: 503, 
+  @ApiResponse({
+    status: 503,
     description: '❌ Database unhealthy',
     schema: {
       example: {
         status: 'unhealthy',
-        timestamp: '2024-01-15T10:30:00Z'
-      }
-    }
+        timestamp: '2024-01-15T10:30:00Z',
+      },
+    },
   })
   async database() {
     const isHealthy = await this.databaseService.healthCheck();

@@ -9,7 +9,12 @@ export interface ApiResponseDecoratorOptions {
 }
 
 export function ApiSuccessResponse(options: ApiResponseDecoratorOptions = {}) {
-  const { status = 200, description = 'Success', type, isArray = false } = options;
+  const {
+    status = 200,
+    description = 'Success',
+    type,
+    isArray = false,
+  } = options;
 
   const responseOptions: ApiResponseOptions = {
     status,
@@ -25,16 +30,22 @@ export function ApiSuccessResponse(options: ApiResponseDecoratorOptions = {}) {
           type: 'string',
           example: 'Operation completed successfully',
         },
-        data: type ? {
-          ...(isArray ? { 
-            type: 'array', 
-            items: { $ref: `#/components/schemas/${typeof type === 'string' ? type : (type as any).name}` } 
-          } : { 
-            $ref: `#/components/schemas/${typeof type === 'string' ? type : (type as any).name}` 
-          }),
-        } : {
-          type: 'object',
-        },
+        data: type
+          ? {
+              ...(isArray
+                ? {
+                    type: 'array',
+                    items: {
+                      $ref: `#/components/schemas/${typeof type === 'string' ? type : (type as any).name}`,
+                    },
+                  }
+                : {
+                    $ref: `#/components/schemas/${typeof type === 'string' ? type : (type as any).name}`,
+                  }),
+            }
+          : {
+              type: 'object',
+            },
         timestamp: {
           type: 'string',
           format: 'date-time',

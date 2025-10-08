@@ -8,9 +8,7 @@ import { AuthTokens, JwtPayload } from '../interfaces/auth.interface';
 export class CookieAuthService {
   private readonly logger = new Logger(CookieAuthService.name);
 
-  constructor(
-    private readonly jwtService: JwtService,
-  ) {}
+  constructor(private readonly jwtService: JwtService) {}
 
   setAuthCookies(response: Response, tokens: AuthTokens): void {
     const cookieOptions = {
@@ -22,7 +20,7 @@ export class CookieAuthService {
 
     response.cookie('access_token', tokens.access_token, {
       ...cookieOptions,
-      maxAge: tokens.expires_in * 1000, 
+      maxAge: tokens.expires_in * 1000,
     });
 
     response.cookie('refresh_token', tokens.refresh_token, {
@@ -49,7 +47,7 @@ export class CookieAuthService {
 
   extractTokenFromCookies(request: Request): string | null {
     const accessToken = request.cookies?.access_token;
-    
+
     if (!accessToken) {
       this.logger.debug('No access token found in cookies');
       return null;
@@ -60,7 +58,7 @@ export class CookieAuthService {
 
   extractRefreshTokenFromCookies(request: Request): string | null {
     const refreshToken = request.cookies?.refresh_token;
-    
+
     if (!refreshToken) {
       this.logger.debug('No refresh token found in cookies');
       return null;
@@ -71,13 +69,13 @@ export class CookieAuthService {
 
   async verifyTokenFromCookies(request: Request): Promise<JwtPayload | null> {
     const token = this.extractTokenFromCookies(request);
-    
+
     if (!token) {
       return null;
     }
 
     try {
-      const decoded = this.jwtService.verify(token) as JwtPayload;
+      const decoded = this.jwtService.verify(token);
       this.logger.debug(`Token verified for user: ${decoded.email}`);
       return decoded;
     } catch (error) {
@@ -86,9 +84,12 @@ export class CookieAuthService {
     }
   }
 
-  async refreshTokenFromCookies(request: Request, response: Response): Promise<AuthTokens | null> {
+  async refreshTokenFromCookies(
+    request: Request,
+    response: Response,
+  ): Promise<AuthTokens | null> {
     const refreshToken = this.extractRefreshTokenFromCookies(request);
-    
+
     if (!refreshToken) {
       this.logger.debug('No refresh token found for refresh operation');
       return null;
@@ -97,7 +98,7 @@ export class CookieAuthService {
     try {
       const decoded = this.jwtService.verify(refreshToken, {
         secret: env.JWT_REFRESH_SECRET,
-      }) as JwtPayload;
+      });
 
       if (decoded.type !== 'refresh') {
         this.logger.warn('Invalid token type for refresh operation');
@@ -161,11 +162,16 @@ export class CookieAuthService {
     const unit = match[2];
 
     switch (unit) {
-      case 's': return value;
-      case 'm': return value * 60;
-      case 'h': return value * 3600;
-      case 'd': return value * 86400;
-      default: return 3600;
+      case 's':
+        return value;
+      case 'm':
+        return value * 60;
+      case 'h':
+        return value * 3600;
+      case 'd':
+        return value * 86400;
+      default:
+        return 3600;
     }
   }
 }

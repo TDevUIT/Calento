@@ -7,7 +7,10 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
-import { InvalidTokenException, TokenExpiredException } from '../../modules/auth/exceptions/auth.exceptions';
+import {
+  InvalidTokenException,
+  TokenExpiredException,
+} from '../../modules/auth/exceptions/auth.exceptions';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard(['jwt', 'jwt-cookie']) {
@@ -27,17 +30,17 @@ export class JwtAuthGuard extends AuthGuard(['jwt', 'jwt-cookie']) {
       return true;
     }
 
-    const isOptional = this.reflector.getAllAndOverride<boolean>('isOptionalAuth', [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const isOptional = this.reflector.getAllAndOverride<boolean>(
+      'isOptionalAuth',
+      [context.getHandler(), context.getClass()],
+    );
 
     if (isOptional) {
       const request = context.switchToHttp().getRequest<Request>();
       const authHeader = request.headers.authorization;
-      
+
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return true; 
+        return true;
       }
     }
 
@@ -46,17 +49,19 @@ export class JwtAuthGuard extends AuthGuard(['jwt', 'jwt-cookie']) {
 
   handleRequest(err: any, user: any, info: any, context: ExecutionContext) {
     const request = context.switchToHttp().getRequest<Request>();
-    const isOptional = this.reflector.getAllAndOverride<boolean>('isOptionalAuth', [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const isOptional = this.reflector.getAllAndOverride<boolean>(
+      'isOptionalAuth',
+      [context.getHandler(), context.getClass()],
+    );
 
     if (err || !user) {
       const ip = request.ip || request.connection.remoteAddress;
       const userAgent = request.headers['user-agent'];
       const endpoint = `${request.method} ${request.url}`;
-      
-      this.logger.warn(`Authentication failed for ${endpoint} from ${ip}: ${err?.message || info?.message || 'Unknown error'}`);
+
+      this.logger.warn(
+        `Authentication failed for ${endpoint} from ${ip}: ${err?.message || info?.message || 'Unknown error'}`,
+      );
     }
 
     if (err) {

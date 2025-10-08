@@ -1,4 +1,9 @@
-import { Injectable, CanActivate, ExecutionContext, SetMetadata } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  SetMetadata,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { RateLimitException } from '../filters/rate-limit.filter';
@@ -15,17 +20,18 @@ const requestCounts = new Map<string, { count: number; resetTime: number }>();
 
 export const RATE_LIMIT_KEY = 'rate_limit';
 
-export const RateLimit = (options: RateLimitOptions) => SetMetadata(RATE_LIMIT_KEY, options);
+export const RateLimit = (options: RateLimitOptions) =>
+  SetMetadata(RATE_LIMIT_KEY, options);
 
 @Injectable()
 export class RateLimitGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const rateLimitOptions = this.reflector.getAllAndOverride<RateLimitOptions>(RATE_LIMIT_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const rateLimitOptions = this.reflector.getAllAndOverride<RateLimitOptions>(
+      RATE_LIMIT_KEY,
+      [context.getHandler(), context.getClass()],
+    );
 
     if (!rateLimitOptions) {
       return true;

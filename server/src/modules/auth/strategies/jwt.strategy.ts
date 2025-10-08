@@ -12,7 +12,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   constructor(
     private userValidationService: UserValidationService,
-    private configService: ConfigService
+    private configService: ConfigService,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -30,10 +30,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       }
 
       // Get user from database to ensure they still exist and are active
-      const user = await this.userValidationService.findUserByEmail(payload.email);
-      
+      const user = await this.userValidationService.findUserByEmail(
+        payload.email,
+      );
+
       if (!user) {
-        this.logger.warn(`JWT validation failed: User ${payload.email} not found`);
+        this.logger.warn(
+          `JWT validation failed: User ${payload.email} not found`,
+        );
         throw new InvalidTokenException();
       }
 
@@ -47,7 +51,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       this.logger.debug(`User validated successfully: ${user.email}`);
       return userWithoutPassword;
     } catch (error) {
-      this.logger.error(`JWT validation error for user ${payload.email}:`, error);
+      this.logger.error(
+        `JWT validation error for user ${payload.email}:`,
+        error,
+      );
       throw new InvalidTokenException();
     }
   }

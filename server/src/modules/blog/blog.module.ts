@@ -6,20 +6,9 @@ import { DatabaseModule } from '../../database/database.module';
 import { CommonModule } from '../../common/common.module';
 
 @Module({
-    imports: [
-        DatabaseModule,
-        CommonModule,
-    ],
-    providers: [
-        BlogService,
-        BlogRepository,
-    ],
-    controllers: [
-        BlogController,
-    ],
-    exports: [
-        BlogService,
-        BlogRepository,
-    ],
+  imports: [DatabaseModule, CommonModule],
+  providers: [BlogService, BlogRepository],
+  controllers: [BlogController],
+  exports: [BlogService, BlogRepository],
 })
 export class BlogModule {}

@@ -16,20 +16,16 @@ import { EmailProcessor } from './processors/email.processor';
 
 @Global()
 @Module({
-    imports: [ConfigModule, EventModule, EmailModule],
-    providers: [
-        EventSyncQueueService,
-        EmailQueueService,
-        WebhookQueueService,
-        EventSyncProcessor,
-        EmailProcessor,
-        WebhookProcessor,
-    ],
-    controllers: [QueueMonitorController],
-    exports: [
-        EventSyncQueueService,
-        EmailQueueService,
-        WebhookQueueService,
-    ],
+  imports: [ConfigModule, EventModule, EmailModule],
+  providers: [
+    EventSyncQueueService,
+    EmailQueueService,
+    WebhookQueueService,
+    EventSyncProcessor,
+    EmailProcessor,
+    WebhookProcessor,
+  ],
+  controllers: [QueueMonitorController],
+  exports: [EventSyncQueueService, EmailQueueService, WebhookQueueService],
 })
 export class QueueModule {}
