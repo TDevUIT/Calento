@@ -2,7 +2,7 @@
 -- ==============================================
 
 -- Booking links table - stores public booking pages
-CREATE TABLE booking_links (
+CREATE TABLE IF NOT EXISTS booking_links (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     slug VARCHAR(100) UNIQUE NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE booking_links (
 );
 
 -- Bookings table - stores actual bookings
-CREATE TABLE bookings (
+CREATE TABLE IF NOT EXISTS bookings (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     booking_link_id UUID NOT NULL REFERENCES booking_links(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,

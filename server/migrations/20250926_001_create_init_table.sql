@@ -102,18 +102,7 @@ CREATE TABLE availabilities (
     CONSTRAINT chk_availabilities_time_order CHECK (start_time < end_time)
 );
 
--- Bookings table - stores meeting bookings
-CREATE TABLE bookings (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    user_id UUID NOT NULL, -- user being booked
-    event_id UUID NOT NULL,
-    booked_by UUID NOT NULL, -- user who made the booking
-    booking_start_time TIMESTAMP NOT NULL,
-    booking_end_time TIMESTAMP NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    CONSTRAINT chk_bookings_time_order CHECK (booking_start_time < booking_end_time)
-);
+-- Note: bookings table moved to 20250927_002_create_booking_tables.sql
 
 -- Integrations table - stores third-party service integrations
 CREATE TABLE integrations (
@@ -171,17 +160,7 @@ ALTER TABLE availabilities
     ADD CONSTRAINT fk_availabilities_user_id 
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
 
-ALTER TABLE bookings
-    ADD CONSTRAINT fk_bookings_user_id 
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
-
-ALTER TABLE bookings
-    ADD CONSTRAINT fk_bookings_event_id 
-    FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE;
-
-ALTER TABLE bookings
-    ADD CONSTRAINT fk_bookings_booked_by 
-    FOREIGN KEY (booked_by) REFERENCES users(id) ON DELETE CASCADE;
+-- Note: bookings foreign keys moved to 20250927_002_create_booking_tables.sql
 
 ALTER TABLE integrations
     ADD CONSTRAINT fk_integrations_user_id 
@@ -240,12 +219,7 @@ CREATE INDEX idx_availabilities_user_id ON availabilities(user_id);
 CREATE INDEX idx_availabilities_day_of_week ON availabilities(day_of_week);
 CREATE INDEX idx_availabilities_time_range ON availabilities(start_time, end_time);
 
--- Bookings indexes
-CREATE INDEX idx_bookings_user_id ON bookings(user_id);
-CREATE INDEX idx_bookings_event_id ON bookings(event_id);
-CREATE INDEX idx_bookings_booked_by ON bookings(booked_by);
-CREATE INDEX idx_bookings_time_range ON bookings(booking_start_time, booking_end_time);
-CREATE INDEX idx_bookings_start_time ON bookings(booking_start_time);
+-- Note: bookings indexes moved to 20250927_002_create_booking_tables.sql
 
 -- Integrations indexes
 CREATE INDEX idx_integrations_user_id ON integrations(user_id);
@@ -305,10 +279,7 @@ CREATE TRIGGER trigger_availabilities_updated_at
     FOR EACH ROW 
     EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER trigger_bookings_updated_at 
-    BEFORE UPDATE ON bookings 
-    FOR EACH ROW 
-    EXECUTE FUNCTION update_updated_at_column();
+-- Note: bookings trigger moved to 20250927_002_create_booking_tables.sql
 
 CREATE TRIGGER trigger_integrations_updated_at 
     BEFORE UPDATE ON integrations 
@@ -332,7 +303,7 @@ CREATE TRIGGER trigger_meeting_notes_updated_at
 DROP TRIGGER IF EXISTS trigger_meeting_notes_updated_at ON meeting_notes;
 DROP TRIGGER IF EXISTS trigger_notifications_updated_at ON notifications;
 DROP TRIGGER IF EXISTS trigger_integrations_updated_at ON integrations;
-DROP TRIGGER IF EXISTS trigger_bookings_updated_at ON bookings;
+-- Note: bookings trigger dropped in its own migration
 DROP TRIGGER IF EXISTS trigger_availabilities_updated_at ON availabilities;
 DROP TRIGGER IF EXISTS trigger_sync_logs_updated_at ON sync_logs;
 DROP TRIGGER IF EXISTS trigger_events_updated_at ON events;
@@ -352,11 +323,7 @@ DROP INDEX IF EXISTS idx_notifications_channel;
 DROP INDEX IF EXISTS idx_notifications_event_id;
 DROP INDEX IF EXISTS idx_integrations_provider;
 DROP INDEX IF EXISTS idx_integrations_user_id;
-DROP INDEX IF EXISTS idx_bookings_start_time;
-DROP INDEX IF EXISTS idx_bookings_time_range;
-DROP INDEX IF EXISTS idx_bookings_booked_by;
-DROP INDEX IF EXISTS idx_bookings_event_id;
-DROP INDEX IF EXISTS idx_bookings_user_id;
+-- Note: bookings indexes dropped in its own migration
 DROP INDEX IF EXISTS idx_availabilities_time_range;
 DROP INDEX IF EXISTS idx_availabilities_day_of_week;
 DROP INDEX IF EXISTS idx_availabilities_user_id;
@@ -382,7 +349,7 @@ DROP INDEX IF EXISTS idx_users_email;
 -- Drop tables (in reverse order due to foreign key dependencies)
 DROP TABLE IF EXISTS meeting_notes;
 DROP TABLE IF EXISTS notifications;
-DROP TABLE IF EXISTS bookings;
+-- Note: bookings table dropped in its own migration
 DROP TABLE IF EXISTS integrations;
 DROP TABLE IF EXISTS availabilities;
 DROP TABLE IF EXISTS sync_logs;
