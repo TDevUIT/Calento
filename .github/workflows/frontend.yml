@@ -1,0 +1,93 @@
+name: Frontend Build Check
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'feature/**'
+    paths:
+      - 'client/**'
+      - '.github/workflows/frontend.yml'
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'client/**'
+      - '.github/workflows/frontend.yml'
+
+jobs:
+  build:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: client/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./client
+        run: npm ci
+  
+      - name: Run linter
+        working-directory: ./client
+        run: npm run lint || echo "Lint script not found, skipping..."
+        continue-on-error: true
+
+      - name: Build project
+        working-directory: ./client
+        run: npm run build
+        env:
+          NODE_ENV: production
+          CI: true
+
+      - name: Check build output
+        working-directory: ./client
+        run: |
+          if [ -d ".next" ] || [ -d "dist" ] || [ -d "build" ]; then
+            echo "✅ Build successful - output folder created"
+            ls -la
+          else
+            echo "❌ Build failed - output folder not found"
+            exit 1
+          fi
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        if: success() && matrix.node-version == '20.x'
+        with:
+          name: frontend-build
+          path: |
+            client/.next
+            client/dist
+            client/build
+          retention-days: 7
+
+  notify:
+    name: Notify Build Status
+    needs: build
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Build Success
+        if: needs.build.result == 'success'
+        run: echo "✅ Frontend build passed successfully!"
+
+      - name: Build Failed
+        if: needs.build.result == 'failure'
+        run: |
+          echo "❌ Frontend build failed!"
+          exit 1

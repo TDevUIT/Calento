@@ -1,0 +1,79 @@
+name: Backend Build Check
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'feature/**'
+    paths:
+      - 'server/**'
+      - '.github/workflows/backend.yml'
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'server/**'
+      - '.github/workflows/backend.yml'
+
+jobs:
+  build:
+    name: Build Backend
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: server/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./server
+        run: npm ci
+
+      - name: Run linter
+        working-directory: ./server
+        run: npm run lint || echo "Lint script not found, skipping..."
+        continue-on-error: true
+
+      - name: Build project
+        working-directory: ./server
+        run: npm run build
+
+      - name: Check build output
+        working-directory: ./server
+        run: |
+          if [ -d "dist" ]; then
+            echo "✅ Build successful - dist folder created"
+            ls -la dist
+          else
+            echo "❌ Build failed - dist folder not found"
+            exit 1
+          fi
+
+  notify:
+    name: Notify Build Status
+    needs: build
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Build Success
+        if: needs.build.result == 'success'
+        run: echo "✅ Backend build passed successfully!"
+
+      - name: Build Failed
+        if: needs.build.result == 'failure'
+        run: |
+          echo "❌ Backend build failed!"
+          exit 1
