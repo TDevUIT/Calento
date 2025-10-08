@@ -34,7 +34,7 @@ CREATE TABLE blog_posts (
     content TEXT NOT NULL,
     featured_image VARCHAR(500),
     alt_text VARCHAR(255),
-    author_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    author_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     category_id INTEGER REFERENCES blog_categories(id) ON DELETE SET NULL,
     status VARCHAR(20) DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'archived')),
     is_featured BOOLEAN DEFAULT FALSE,
