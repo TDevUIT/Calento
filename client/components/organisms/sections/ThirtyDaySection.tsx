@@ -6,11 +6,11 @@ import { EXTERNAL_LINKS } from '@/config/app.config';
 
 export const ThirtyDaySection: React.FC = () => {
   return (
-        <section className="w-full py-20 px-4 bg-gradient-to-r from-emerald-50 to-teal-50 relative overflow-hidden">
+        <section className="w-full py-20 px-4 bg-gradient-to-r from-blue-50 to-blue-100 relative overflow-hidden">
             <div className="absolute inset-0 bg-radial-gradient(at 90% 50%, rgba(85, 98, 235, 0.1) 0%, rgba(226, 233, 255, 0.05) 100%) animate-pulse-slow" />
             <div className="max-w-6xl mx-auto relative z-10">
                 <div className="text-center mb-16">
-                    <h2 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-[#0c7057] to-[#0f8c6a] bg-clip-text text-transparent mb-4">
+                    <h2 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent mb-4">
                         Boost productivity on day 1
                     </h2>
                 </div>
@@ -19,7 +19,7 @@ export const ThirtyDaySection: React.FC = () => {
                     {TIMELINE_DATA.map((phase) => (
                         <div key={phase.id} className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
                             <div className="text-center mb-6">
-                                <div className={`text-2xl font-bold ${phase.period === "Day 30" ? "text-[#0c7057]" : "text-gray-900"}`}>
+                                <div className={`text-2xl font-bold ${phase.period === "Day 30" ? "text-blue-600" : "text-gray-900"}`}>
                                     {phase.period}
                                 </div>
                             </div>
@@ -46,7 +46,7 @@ export const ThirtyDaySection: React.FC = () => {
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                         <Link
                             href={EXTERNAL_LINKS.signup}
-                            className="bg-[#4ECCA3] text-slate-900 px-8 py-4 rounded-full font-semibold hover:bg-[#3dd490] transition-colors text-lg shadow-md hover:shadow-lg"
+                            className="theme-btn-primary px-8 py-4 rounded-full font-semibold transition-colors text-lg shadow-md hover:shadow-lg"
                         >
                             Create your free account
                         </Link>

@@ -6,7 +6,7 @@ import { STATS_DATA } from '@/config/landing-data.config';
 export const FocusStatsSection: React.FC = () => {
   return (
     <section
-      className="relative w-full py-24 px-4 overflow-hidden bg-gradient-to-b from-white via-emerald-50/30 to-white dark:from-cod-gray-950 dark:via-emerald-950/20 dark:to-cod-gray-950 transition-colors duration-300"
+      className="relative w-full py-24 px-4 overflow-hidden bg-gradient-to-b from-white via-blue-50/30 to-white dark:from-cod-gray-950 dark:via-blue-950/20 dark:to-cod-gray-950 transition-colors duration-300"
       aria-labelledby="focus-stats-heading"
     >
       <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] pointer-events-none dark:hidden" />
@@ -22,7 +22,7 @@ export const FocusStatsSection: React.FC = () => {
             className="text-4xl md:text-5xl lg:text-6xl font-bold text-cod-gray-900 dark:text-white leading-tight transition-colors duration-300"
           >
             Calento creates{' '}
-            <span className="bg-gradient-to-r from-[#0c7057] to-[#0f8c6a] dark:from-emerald-400 dark:to-green-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-400 dark:to-blue-500 bg-clip-text text-transparent">
               395 hours
             </span>{' '}
             of focus time per user every year
