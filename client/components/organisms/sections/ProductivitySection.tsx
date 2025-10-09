@@ -68,7 +68,7 @@ export const ProductivitySection: React.FC = () => {
                     fontSize: '12px',
                   }}
                 />
-                <Bar dataKey="hours" fill="#4ECCA3" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="hours" fill="#2563eb" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -79,8 +79,8 @@ export const ProductivitySection: React.FC = () => {
               <AreaChart data={weeklyData}>
                 <defs>
                   <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#4ECCA3" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#4ECCA3" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#2563eb" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
@@ -97,7 +97,7 @@ export const ProductivitySection: React.FC = () => {
                 <Area
                   type="monotone"
                   dataKey="hours"
-                  stroke="#4ECCA3"
+                  stroke="#2563eb"
                   strokeWidth={2}
                   fillOpacity={1}
                   fill="url(#colorGradient)"
@@ -113,7 +113,7 @@ export const ProductivitySection: React.FC = () => {
           </div>
           <Link
             href="/auth/signup"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#4ECCA3] text-cod-gray-900 font-medium rounded-md hover:bg-[#3dd490] transition-colors text-sm shadow-md"
+            className="inline-flex items-center gap-2 px-5 py-2.5 theme-btn-primary font-medium rounded-md transition-colors text-sm shadow-md"
           >
             Get started
             <ArrowRight className="w-4 h-4" />
