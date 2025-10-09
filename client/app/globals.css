@@ -57,6 +57,19 @@
   --color-cod-gray-900: #3d3d3d;
   --color-cod-gray-950: #121212;
 
+  /* Persian Blue Color Palette */
+  --color-persian-blue-50: #eef6ff;
+  --color-persian-blue-100: #d9e9ff;
+  --color-persian-blue-200: #bcdaff;
+  --color-persian-blue-300: #8ec3ff;
+  --color-persian-blue-400: #59a1ff;
+  --color-persian-blue-500: #337cfe;
+  --color-persian-blue-600: #1c5cf4;
+  --color-persian-blue-700: #1341d0;
+  --color-persian-blue-800: #173ab6;
+  --color-persian-blue-900: #19368f;
+  --color-persian-blue-950: #142357;
+
   /* Landing Page Theme Variables */
   --hero-bg-light: var(--color-cod-gray-50);
   --hero-bg-dark: var(--color-cod-gray-950);
@@ -83,12 +96,12 @@
   --nav-border-dark: var(--color-cod-gray-700);
   
   /* Button Theme Variables */
-  --btn-primary-bg-light: var(--color-cod-gray-900);
-  --btn-primary-bg-dark: var(--color-cod-gray-100);
+  --btn-primary-bg-light: var(--color-persian-blue-700);
+  --btn-primary-bg-dark: var(--color-persian-blue-600);
   --btn-primary-text-light: #ffffff;
-  --btn-primary-text-dark: var(--color-cod-gray-900);
-  --btn-primary-hover-light: var(--color-cod-gray-800);
-  --btn-primary-hover-dark: var(--color-cod-gray-200);
+  --btn-primary-text-dark: #ffffff;
+  --btn-primary-hover-light: var(--color-persian-blue-800);
+  --btn-primary-hover-dark: var(--color-persian-blue-700);
   
   --btn-secondary-bg-light: transparent;
   --btn-secondary-bg-dark: transparent;
@@ -108,8 +121,8 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(0.99 0.005 50);
   --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.81 0.12 170);
-  --primary-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.48 0.17 265);
+  --primary-foreground: oklch(0.99 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
