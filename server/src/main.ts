@@ -40,27 +40,48 @@ async function bootstrap() {
 
   app.setGlobalPrefix(env.API_PREFIX);
 
+  LoggerConfig.log(`🌐 CORS Origins: ${env.CORS_ORIGIN.join(', ')}`);
+  LoggerConfig.log(`🍪 CORS Credentials: ${env.CORS_CREDENTIALS}`);
+
   app.enableCors({
     origin: (origin, callback) => {
+      LoggerConfig.debug(`🔍 CORS Check - Origin: ${origin || 'none'}`);
+      
       if (!origin) {
+        LoggerConfig.debug('✅ CORS: Allowing request with no origin');
         return callback(null, true);
       }
 
       if (env.CORS_ORIGIN.includes('*')) {
         if (env.CORS_CREDENTIALS) {
-          LoggerConfig.warn(
-            '⚠️ CORS: Wildcard (*) with credentials=true is not allowed by browsers. Use specific origins.',
+          LoggerConfig.error(
+            '❌ CORS: Wildcard (*) with credentials=true is not allowed by browsers. Use specific origins.',
           );
           return callback(new Error('Invalid CORS configuration'));
         }
+        LoggerConfig.debug('✅ CORS: Allowing wildcard origin');
         return callback(null, true);
       }
 
-      if (env.CORS_ORIGIN.includes(origin)) {
-        return callback(null, origin); 
+      const isAllowed = env.CORS_ORIGIN.some(allowedOrigin => {
+        // Exact match
+        if (allowedOrigin === origin) return true;
+        
+        if (origin.startsWith('http://localhost:') && 
+            env.CORS_ORIGIN.some(o => o.startsWith('http://localhost:'))) {
+          return true;
+        }
+        
+        return false;
+      });
+
+      if (isAllowed) {
+        LoggerConfig.debug(`✅ CORS: Allowing origin: ${origin}`);
+        return callback(null, origin);
       }
 
-      LoggerConfig.warn(`⚠️ CORS blocked origin: ${origin}`);
+      LoggerConfig.warn(`❌ CORS blocked origin: ${origin}`);
+      LoggerConfig.warn(`📋 Allowed origins: ${env.CORS_ORIGIN.join(', ')}`);
       callback(new Error('Not allowed by CORS'));
     },
     credentials: env.CORS_CREDENTIALS,
