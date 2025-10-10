@@ -41,7 +41,21 @@ async function bootstrap() {
   app.setGlobalPrefix(env.API_PREFIX);
 
   app.enableCors({
-    origin: env.CORS_ORIGIN,
+    origin: (origin, callback) => {
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      if (
+        env.CORS_ORIGIN.includes('*') ||
+        env.CORS_ORIGIN.includes(origin)
+      ) {
+        callback(null, true);
+      } else {
+        LoggerConfig.warn(`⚠️ CORS blocked origin: ${origin}`);
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: env.CORS_CREDENTIALS,
     methods: env.CORS_METHODS.split(','),
     exposedHeaders: env.CORS_EXPOSED_HEADERS.split(','),

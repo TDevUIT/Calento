@@ -48,7 +48,10 @@ const envSchema = z.object({
   SESSION_SECRET: z.string().min(32),
 
   // CORS Configuration
-  CORS_ORIGIN: z.string().url().default('http://localhost:3000'),
+  CORS_ORIGIN: z
+    .string()
+    .default('http://localhost:3000')
+    .transform((val) => val.split(',').map((origin) => origin.trim())),
   CORS_METHODS: z.string().default('GET,HEAD,PUT,PATCH,POST,DELETE'),
   CORS_CREDENTIALS: z.coerce.boolean().default(true),
   CORS_EXPOSED_HEADERS: z.string().default('Content-Length,Content-Type'),
