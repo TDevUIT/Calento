@@ -33,4 +33,9 @@ export const logger = {
     if (!LOG_CONFIG.enabled) return;
     console.warn(message, ...args);
   },
+
+  info: (message: string, ...args: unknown[]) => {
+    if (!LOG_CONFIG.enabled) return;
+    console.log(`ℹ️  ${message}`, ...args);
+  },
 };
