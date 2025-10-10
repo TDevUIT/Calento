@@ -34,12 +34,21 @@ export interface LinkProps {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
 }
 
+export interface DropdownItem {
+  label: string;
+  href: string;
+  description?: string;
+}
+
 export interface NavigationLinkProps {
   label: string;
   href: string;
   hasDropdown?: boolean;
+  dropdownItems?: readonly DropdownItem[];
   isActive?: boolean;
   className?: string;
+  isOpen?: boolean;
+  onOpenChange?: (label: string, isOpen: boolean) => void;
 }
 export interface IntegrationBadgeProps {
   name: string;

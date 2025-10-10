@@ -23,13 +23,76 @@ export const BRAND_COLORS = {
   },
 } as const;
 
-export const NAVIGATION_LINKS = [
-  { label: 'Features', href: '/features', hasDropdown: false },
-  { label: 'Solutions', href: '#', hasDropdown: true },
-  { label: 'Integrations', href: '/integrations', hasDropdown: false },
-  { label: 'Pricing', href: '/pricing', hasDropdown: false },
-  { label: 'Resources', href: '#', hasDropdown: true },
-] as const;
+export interface DropdownItem {
+  label: string;
+  href: string;
+  description?: string;
+}
+
+export interface NavigationLink {
+  label: string;
+  href: string;
+  hasDropdown: boolean;
+  dropdownItems?: readonly DropdownItem[];
+}
+
+export const NAVIGATION_LINKS: NavigationLink[] = [
+  { 
+    label: 'Features', 
+    href: '/features', 
+    hasDropdown: true,
+    dropdownItems: [
+      { label: 'Calendar Sync', href: '/features/calendar-sync', description: 'Sync all your calendars in one place' },
+      { label: 'Google Calendar Integration', href: '/integrations/google-calendar', description: 'Seamless Google Calendar integration' },
+      { label: 'AI Scheduling', href: '/features/ai-scheduling', description: 'Smart AI-powered scheduling assistant' },
+      { label: 'Time Management', href: '/features/time-management', description: 'Optimize your time with insights' }
+    ]
+  },
+  { 
+    label: 'Pricing', 
+    href: '/pricing', 
+    hasDropdown: true,
+    dropdownItems: [
+      { label: 'Free Plan', href: '/pricing#free', description: 'Get started for free' },
+      { label: 'Pro Plan', href: '/pricing#pro', description: 'For power users' },
+      { label: 'Enterprise', href: '/pricing#enterprise', description: 'For teams and organizations' },
+      { label: 'Compare Plans', href: '/pricing/compare', description: 'See all features side by side' }
+    ]
+  },
+  { 
+    label: 'Integrations', 
+    href: '/integrations', 
+    hasDropdown: true,
+    dropdownItems: [
+      { label: 'Google Calendar', href: '/integrations/google-calendar', description: 'Connect Google Calendar' },
+      { label: 'Outlook', href: '/integrations/outlook', description: 'Connect Microsoft Outlook' },
+      { label: 'Slack', href: '/integrations/slack', description: 'Slack notifications & commands' },
+      { label: 'Zoom', href: '/integrations/zoom', description: 'Auto-generate Zoom links' }
+    ]
+  },
+  { 
+    label: 'Company', 
+    href: '/about', 
+    hasDropdown: true,
+    dropdownItems: [
+      { label: 'About', href: '/about', description: 'Learn about our mission' },
+      { label: 'Contact', href: '/contact', description: 'Get in touch with us' },
+      { label: 'Support', href: '/support', description: 'Get help when you need it' },
+      { label: 'Careers', href: '/careers', description: 'Join our team' }
+    ]
+  },
+  { 
+    label: 'Resources', 
+    href: '/docs', 
+    hasDropdown: true,
+    dropdownItems: [
+      { label: 'Help Center', href: '/docs', description: 'Documentation and guides' },
+      { label: 'Blog', href: '/blog', description: 'Latest news and updates' },
+      { label: 'API Docs', href: '/api-docs', description: 'Developer documentation' },
+      { label: 'Status', href: '/status', description: 'System status and uptime' }
+    ]
+  }
+];
 
 export const EXTERNAL_LINKS = {
   signup: 'https://app.calento.ai/signup',

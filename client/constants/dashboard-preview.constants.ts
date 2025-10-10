@@ -113,3 +113,7 @@ export const QUICK_ACTIONS_LABEL = 'Quick actions';
 export const MEETING_CTA = 'Schedule Meeting';
 
 export const MATCH_SCORE_LABEL = 'Match Score';
+
+export const formatCredits = (value: number): string => {
+  return value.toLocaleString('en-US');
+};

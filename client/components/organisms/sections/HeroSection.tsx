@@ -168,7 +168,7 @@ export const HeroSection = () => {
             <DashboardPreview />
           </div>
         </div>
-        <div className='hidden lg:block z-[9999] absolute -top-40 -left-10'>
+        <div className='hidden lg:block z-50 absolute -top-40 -left-10'>
           <div className="relative">
             <Image src="/images/dashed-arrow-icon.png" alt="Calendar View" className="-rotate-[100deg]" height={132} width={132} />
             <div className="absolute -left-4 -top-14">
@@ -178,7 +178,7 @@ export const HeroSection = () => {
           </div>
         </div>
 
-        <div className='hidden lg:block z-[9999] absolute -right-28 -bottom-20'>
+        <div className='hidden lg:block z-50 absolute -right-28 -bottom-20'>
           <div className="relative">
             <Image src="/images/dashed-arrow-icon.png" alt="AI Assistant" className="rotate-90" height={132} width={132} />
             <div className="absolute -right-4 -bottom-14">

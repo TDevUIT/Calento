@@ -20,7 +20,8 @@ import {
   QUICK_ACTIONS,
   QUICK_ACTIONS_LABEL,
   MEETING_CTA,
-  MATCH_SCORE_LABEL
+  MATCH_SCORE_LABEL,
+  formatCredits
 } from '@/constants/dashboard-preview.constants';
 
 const DashboardPreview = () => {
@@ -88,7 +89,7 @@ const DashboardPreview = () => {
             <div className='px-3 flex items-center justify-between bg-white border py-2 rounded-lg'>
                 <div className="flex items-center gap-2">
                     <FaCoins className="h-4 w-4 text-blue-600" />
-                    <span className="text-[10px] font-medium text-slate-900 dark:text-white">{CREDITS_CONFIG.available.toLocaleString()} {CREDITS_CONFIG.label}</span>
+                    <span className="text-[10px] font-medium text-slate-900 dark:text-white">{formatCredits(CREDITS_CONFIG.available)} {CREDITS_CONFIG.label}</span>
                 </div>
 
                 <span className='text-[10px] font-medium text-slate-900 dark:text-white underline cursor-pointer'>{CREDITS_CONFIG.upgradeText}</span>

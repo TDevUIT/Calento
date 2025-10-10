@@ -10,6 +10,22 @@ export const api = axios.create({
   headers: DEFAULT_HEADERS,
 });
 
+/**
+ * Refresh token helper - uses direct axios call to avoid circular dependency
+ * This bypasses the interceptor to prevent infinite loops
+ */
+const refreshAuthToken = async (): Promise<void> => {
+  const API_PREFIX = process.env.NEXT_PUBLIC_API_PREFIX || '/api';
+  await axios.post(
+    `${HTTP_CONFIG.BASE_URL}${API_PREFIX}/auth/refresh`,
+    {},
+    { 
+      withCredentials: true,
+      headers: DEFAULT_HEADERS,
+    }
+  );
+};
+
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     logger.request(config.method, config.url);
@@ -37,16 +53,29 @@ api.interceptors.response.use(
     }
 
     if (status === HTTP_STATUS.UNAUTHORIZED) {
+      // Prevent infinite loop - don't retry refresh endpoint itself
+      if (originalRequest?.url?.includes('/auth/refresh')) {
+        logger.warn('Refresh token expired, redirecting to login');
+        
+        if (typeof window !== 'undefined') {
+          window.location.href = '/auth/login';
+        }
+        
+        return Promise.reject(error);
+      }
+      
       markForRetry(originalRequest!, 'auth');
       
       try {
-        await api.post('/auth/refresh');
+        logger.info('Attempting token refresh...');
+        await refreshAuthToken();
+        logger.info('Token refreshed successfully, retrying original request');
         return api(originalRequest!);
       } catch (refreshError) {
         logger.warn('Token refresh failed, redirecting to login');
         
         if (typeof window !== 'undefined') {
-          window.location.href = '/login';
+          window.location.href = '/auth/login';
         }
         
         return Promise.reject(refreshError);

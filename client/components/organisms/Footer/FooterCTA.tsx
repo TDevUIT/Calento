@@ -13,11 +13,11 @@ export const FooterCTA: React.FC = () => {
             <div className="flex-1 p-6 sm:p-8 lg:p-10 xl:p-12 text-white relative">
               <div className="max-w-full lg:max-w-lg xl:max-w-xl">
                 <p className="text-xs font-semibold text-blue-200 dark:text-blue-300 mb-3 tracking-wider uppercase">
-                  {FOOTER_CTA.badge.text}
+                  {FOOTER_CTA.badge}
                 </p>
                 
                 <h2 className="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold mb-3 sm:mb-4 leading-tight text-white dark:text-gray-50">
-                  {FOOTER_CTA.title.text.split('\n').map((line, index) => (
+                  {FOOTER_CTA.title.split('\n').map((line: string, index: number) => (
                     <span key={index}>
                       {line}
                       {index === 0 && <br />}
@@ -26,11 +26,11 @@ export const FooterCTA: React.FC = () => {
                 </h2>
                 
                 <p className="text-blue-100 dark:text-blue-200 mb-4 sm:mb-6 text-sm sm:text-base leading-relaxed">
-                  {FOOTER_CTA.description.text}
+                  {FOOTER_CTA.description}
                 </p>
                 
                 <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:gap-3 mb-6">
-                  {FOOTER_CTA.features.map((feature) => (
+                  {FOOTER_CTA.features.map((feature: string) => (
                     <div key={feature} className="flex items-center gap-2">
                       <svg className="w-4 h-4 text-green-400 dark:text-green-300 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />

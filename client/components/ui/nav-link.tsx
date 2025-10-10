@@ -2,33 +2,47 @@
 import { cn } from '@/lib/utils';
 import { NavigationLinkProps } from '@/types/components.types';
 import Link from 'next/link';
-import { useState } from 'react';
+import { DropdownMenu } from './dropdown-menu';
 
 export function NavLink({
   label,
   href,
   hasDropdown = false,
+  dropdownItems = [],
   isActive = false,
   className,
+  isOpen = false,
+  onOpenChange,
 }: NavigationLinkProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const handleMouseEnter = () => {
+    if (hasDropdown && dropdownItems.length > 0 && onOpenChange) {
+      onOpenChange(label, true);
+    }
+  };
 
   const handleClick = (e: React.MouseEvent) => {
-    if (hasDropdown) {
+    if (hasDropdown && dropdownItems.length > 0 && onOpenChange) {
       e.preventDefault();
-      setIsOpen(!isOpen);
+      onOpenChange(label, !isOpen);
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (hasDropdown && (e.key === 'Enter' || e.key === ' ')) {
-      e.preventDefault();
-      setIsOpen(!isOpen);
+    if (hasDropdown && onOpenChange) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        onOpenChange(label, !isOpen);
+      } else if (e.key === 'Escape') {
+        onOpenChange(label, false);
+      }
     }
   };
 
   return (
-    <div className="relative">
+    <div 
+      className="relative"
+      onMouseEnter={handleMouseEnter}
+    >
       <Link
         href={href}
         onClick={handleClick}
@@ -38,25 +52,22 @@ export function NavLink({
           isActive 
             ? 'text-blue-600 dark:text-blue-400 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-950/20 dark:to-blue-900/20 font-bold shadow-sm' 
             : 'text-cod-gray-800 dark:text-cod-gray-200 hover:text-blue-600 dark:hover:text-blue-400',
+          isOpen && 'text-blue-600 dark:text-blue-400',
           className
         )}
         aria-expanded={hasDropdown ? isOpen : undefined}
         aria-haspopup={hasDropdown ? 'true' : undefined}
       >
         {label}
-        {hasDropdown && (
-          <svg 
-            className={`w-4 h-4 ml-1 inline-block transition-transform duration-200 ${isOpen ? 'rotate-180' : 'rotate-0'}`}
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-          </svg>
-        )}
       </Link>
-      {/* Dropdown menu would go here */}
+      
+      {hasDropdown && dropdownItems.length > 0 && (
+        <DropdownMenu 
+          items={dropdownItems} 
+          isOpen={isOpen} 
+          onClose={() => onOpenChange?.(label, false)}
+        />
+      )}
     </div>
   );
 }

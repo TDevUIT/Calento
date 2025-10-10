@@ -12,7 +12,7 @@ export const FooterLinks: React.FC = () => {
                         <div className="mb-6">
                             <Logo size="lg" />
                         </div>
-                        <p className={FOOTER_BRAND.className}>
+                        <p className="text-cod-gray-700 dark:text-cod-gray-300 mb-6 font-medium transition-colors duration-300 text-sm leading-relaxed">
                             {FOOTER_BRAND.description}
                         </p>
                         
@@ -52,7 +52,7 @@ export const FooterLinks: React.FC = () => {
                         <div className="flex justify-center mb-4">
                             <Logo size="lg" />
                         </div>
-                        <p className={FOOTER_BRAND.className}>
+                        <p className="text-cod-gray-700 dark:text-cod-gray-300 mb-6 font-medium transition-colors duration-300 text-sm leading-relaxed">
                             {FOOTER_BRAND.description}
                         </p>
                         

@@ -1,6 +1,5 @@
 import { APP_CONFIG, EXTERNAL_LINKS } from '@/config/app.config';
 
-// Footer Section Types
 export interface FooterSectionData {
   title: string;
   links: FooterLinkData[];
@@ -20,7 +19,6 @@ export interface SocialPlatform {
   icon: React.ReactNode;
 }
 
-// Footer Sections Configuration
 export const FOOTER_SECTIONS: FooterSectionData[] = [
   {
     title: "Features",
@@ -69,7 +67,6 @@ export const FOOTER_SECTIONS: FooterSectionData[] = [
   }
 ];
 
-// Social Media Platforms
 export const SOCIAL_PLATFORMS: Omit<SocialPlatform, 'icon'>[] = [
   {
     name: "Twitter",
@@ -98,20 +95,10 @@ export const SOCIAL_PLATFORMS: Omit<SocialPlatform, 'icon'>[] = [
   }
 ];
 
-// Footer CTA Configuration
 export const FOOTER_CTA = {
-  badge: {
-    text: "READY TO DIVE IN?",
-    className: "text-xs font-semibold text-blue-200 mb-3 tracking-wider uppercase"
-  },
-  title: {
-    text: "Boost your productivity.\nStart using our app today.",
-    className: "text-2xl lg:text-3xl font-bold mb-4 leading-tight"
-  },
-  description: {
-    text: "Transform your calendar management with AI-powered scheduling. Connect Google Calendar and start optimizing your time today.",
-    className: "text-blue-100 mb-6 text-base leading-relaxed"
-  },
+  badge: "READY TO DIVE IN?",
+  title: "Boost your productivity.\nStart using our app today.",
+  description: "Transform your calendar management with AI-powered scheduling. Connect Google Calendar and start optimizing your time today.",
   features: [
     "No-coding skills required",
     "Setup in minutes", 
@@ -119,12 +106,25 @@ export const FOOTER_CTA = {
   ],
   button: {
     text: `Get ${APP_CONFIG.name}`,
-    href: EXTERNAL_LINKS.signup,
-    className: "bg-white text-blue-700 px-6 py-3 rounded-full font-semibold text-base hover:bg-blue-50 transition-all duration-200 transform hover:scale-105 shadow-lg flex items-center gap-2"
+    href: EXTERNAL_LINKS.signup
   }
 } as const;
 
-// Footer Bottom Configuration
+export const REGISTER_CTA = {
+  badge: "JOIN 10,000+ PROFESSIONALS",
+  title: "See what Calento can do.\nExperience it yourself.",
+  description: "Get a glimpse of how Calento helps you manage your calendar smarter. Join thousands of professionals who have reclaimed their time with AI-powered scheduling.",
+  features: [
+    "Free forever plan available",
+    "No credit card required", 
+    "Setup in under 2 minutes"
+  ],
+  button: {
+    text: "View Live Dashboard",
+    href: "/dashboard/preview"
+  }
+} as const;
+
 export const FOOTER_BOTTOM = {
   copyright: `© ${new Date().getFullYear()} ${APP_CONFIG.name}. All rights reserved.`,
   email: APP_CONFIG.support.email,
@@ -134,8 +134,6 @@ export const FOOTER_BOTTOM = {
   ]
 } as const;
 
-// Footer Brand Configuration
 export const FOOTER_BRAND = {
-  description: `AI-powered calendar assistant helping professionals reclaim time and boost productivity`,
-  className: "text-cod-gray-700 dark:text-cod-gray-300 mb-6 font-medium transition-colors duration-300 text-sm leading-relaxed"
+  description: `AI-powered calendar assistant helping professionals reclaim time and boost productivity`
 } as const;

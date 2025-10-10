@@ -3,14 +3,24 @@
 'use client';
 
 import { Logo } from '@/components/ui/logo';
-import { NavLink } from '@/components/ui/nav-link';
 import { NAVIGATION_LINKS, EXTERNAL_LINKS } from '@/config/app.config';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from '@/components/ui/navigation-menu';
+import { cn } from '@/lib/utils';
 
 export const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [expandedMobileItem, setExpandedMobileItem] = useState<string | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -34,10 +44,10 @@ export const Header: React.FC = () => {
   return (
     <>
       <header
-        className={`w-full fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out ${
+        className={`w-full sticky top-0 left-0 right-0 z-[51] transition-all duration-300 ease-in-out ${
           isScrolled 
-            ? 'bg-white/95 dark:bg-black/95 backdrop-blur-lg  ' 
-            : 'bg-white'
+            ? 'bg-white/95 dark:bg-black/95 backdrop-blur-lg' 
+            : 'bg-white dark:bg-black'
         }`}
         role="banner"
       >
@@ -46,30 +56,56 @@ export const Header: React.FC = () => {
             <Link 
               href="/" 
               aria-label="Go to homepage"
-              className="flex-shrink-0 transition-transform hover:scale-105 duration-200"
+              className="flex-shrink-0 transition-transform duration-200"
             >
               <Logo size="md" />
             </Link>
 
-            <nav 
-              className="hidden lg:flex items-center gap-2" 
-              role="navigation" 
-              aria-label="Main navigation"
-            >
-              {NAVIGATION_LINKS.map((link) => (
-                <NavLink
-                  key={link.label}
-                  label={link.label}
-                  href={link.href}
-                  hasDropdown={link.hasDropdown}
-                />
-              ))}
-            </nav>
+            <NavigationMenu className="hidden lg:flex">
+              <NavigationMenuList>
+                {NAVIGATION_LINKS.map((link) => (
+                  <NavigationMenuItem key={link.label}>
+                    {link.hasDropdown && link.dropdownItems && link.dropdownItems.length > 0 ? (
+                      <>
+                        <NavigationMenuTrigger className="text-base font-semibold">
+                          {link.label}
+                        </NavigationMenuTrigger>
+                        <NavigationMenuContent>
+                          <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                            {link.dropdownItems.map((item) => (
+                              <li key={item.href}>
+                                <NavigationMenuLink asChild>
+                                  <Link
+                                    href={item.href}
+                                    className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                                  >
+                                    <div className="text-sm font-medium leading-none">{item.label}</div>
+                                    <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                                      {item.description}
+                                    </p>
+                                  </Link>
+                                </NavigationMenuLink>
+                              </li>
+                            ))}
+                          </ul>
+                        </NavigationMenuContent>
+                      </>
+                    ) : (
+                      <Link href={link.href} legacyBehavior passHref>
+                        <NavigationMenuLink className={cn(navigationMenuTriggerStyle(), "text-base font-semibold")}>
+                          {link.label}
+                        </NavigationMenuLink>
+                      </Link>
+                    )}
+                  </NavigationMenuItem>
+                ))}
+              </NavigationMenuList>
+            </NavigationMenu>
 
             <div className="hidden lg:flex items-center gap-4">
               <Link
                 href={EXTERNAL_LINKS.login}
-                className="text-base font-bold text-cod-gray-800 dark:text-cod-gray-200 hover:text-blue-700 dark:hover:text-blue-400 transition-all duration-200 px-6 py-2.5 rounded-lg border-2 border-cod-gray-300 dark:border-cod-gray-600 hover:border-blue-700 dark:hover:border-blue-400 hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 dark:hover:from-blue-950/20 dark:hover:to-blue-900/20 tracking-wide"
+                className="text-base font-medium text-cod-gray-800 dark:text-cod-gray-200 hover:text-blue-700 dark:hover:text-blue-400 transition-all duration-200 px-6 py-2 rounded-lg border-2 border-cod-gray-300 dark:border-cod-gray-600 hover:border-blue-700 dark:hover:border-blue-400 hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 dark:hover:from-blue-950/20 dark:hover:to-blue-900/20 tracking-wide"
               >
                 Log in
               </Link>
@@ -140,14 +176,50 @@ export const Header: React.FC = () => {
             <div className="px-4 py-6 space-y-6">
               <nav className="space-y-1" aria-label="Mobile navigation">
                 {NAVIGATION_LINKS.map((link) => (
-                  <Link
-                    key={link.label}
-                    href={link.href}
-                    className="block px-4 py-3 text-base font-bold text-cod-gray-800 dark:text-cod-gray-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 dark:hover:from-blue-950/20 dark:hover:to-blue-900/20 hover:text-blue-700 dark:hover:text-blue-400 rounded-lg transition-all duration-200 tracking-wide"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {link.label}
-                  </Link>
+                  <div key={link.label}>
+                    {link.hasDropdown && link.dropdownItems && link.dropdownItems.length > 0 ? (
+                      <div className="space-y-1">
+                        <button
+                          onClick={() => setExpandedMobileItem(expandedMobileItem === link.label ? null : link.label)}
+                          className="w-full text-left px-4 py-3 text-base font-bold text-cod-gray-800 dark:text-cod-gray-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 dark:hover:from-blue-950/20 dark:hover:to-blue-900/20 hover:text-blue-700 dark:hover:text-blue-400 rounded-lg transition-all duration-200 tracking-wide"
+                        >
+                          {link.label}
+                        </button>
+                        {expandedMobileItem === link.label && (
+                          <div className="pl-4 space-y-1 mt-1">
+                            {link.dropdownItems.map((item) => (
+                              <Link
+                                key={item.href}
+                                href={item.href}
+                                className="block px-4 py-2.5 text-sm font-medium text-cod-gray-700 dark:text-cod-gray-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 dark:hover:from-blue-950/20 dark:hover:to-blue-900/20 hover:text-blue-700 dark:hover:text-blue-400 rounded-lg transition-all duration-200"
+                                onClick={() => {
+                                  setIsMobileMenuOpen(false);
+                                  setExpandedMobileItem(null);
+                                }}
+                              >
+                                <div className="flex flex-col">
+                                  <span className="font-semibold">{item.label}</span>
+                                  {item.description && (
+                                    <span className="text-xs text-cod-gray-600 dark:text-cod-gray-400 mt-0.5">
+                                      {item.description}
+                                    </span>
+                                  )}
+                                </div>
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <Link
+                        href={link.href}
+                        className="block px-4 py-3 text-base font-bold text-cod-gray-800 dark:text-cod-gray-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 dark:hover:from-blue-950/20 dark:hover:to-blue-900/20 hover:text-blue-700 dark:hover:text-blue-400 rounded-lg transition-all duration-200 tracking-wide"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        {link.label}
+                      </Link>
+                    )}
+                  </div>
                 ))}
               </nav>
 
