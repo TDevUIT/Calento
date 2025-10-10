@@ -46,20 +46,29 @@ async function bootstrap() {
         return callback(null, true);
       }
 
-      if (
-        env.CORS_ORIGIN.includes('*') ||
-        env.CORS_ORIGIN.includes(origin)
-      ) {
-        callback(null, true);
-      } else {
-        LoggerConfig.warn(`⚠️ CORS blocked origin: ${origin}`);
-        callback(new Error('Not allowed by CORS'));
+      if (env.CORS_ORIGIN.includes('*')) {
+        if (env.CORS_CREDENTIALS) {
+          LoggerConfig.warn(
+            '⚠️ CORS: Wildcard (*) with credentials=true is not allowed by browsers. Use specific origins.',
+          );
+          return callback(new Error('Invalid CORS configuration'));
+        }
+        return callback(null, true);
       }
+
+      if (env.CORS_ORIGIN.includes(origin)) {
+        return callback(null, origin); 
+      }
+
+      LoggerConfig.warn(`⚠️ CORS blocked origin: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
     },
     credentials: env.CORS_CREDENTIALS,
     methods: env.CORS_METHODS.split(','),
     exposedHeaders: env.CORS_EXPOSED_HEADERS.split(','),
     maxAge: env.CORS_MAX_AGE,
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
   });
 
   app.useGlobalPipes(
