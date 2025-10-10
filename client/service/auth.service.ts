@@ -5,14 +5,20 @@ import {
   RegisterRequest,
   User,
   AuthTokens,
+  ApiSuccessResponse,
 } from '../interface/auth.interface';
 
-const BASE_ENDPOINT = '/auth';
+const BASE_ENDPOINT = 'auth';
+const API_PREFIX = process.env.NEXT_PUBLIC_API_PREFIX || '/api';
 
 export const register = async (userData: RegisterRequest): Promise<AuthResponse> => {
   try {
-    const response = await api.post<AuthResponse>(`${BASE_ENDPOINT}/register`, userData);
-    return response.data;
+    const response = await api.post<ApiSuccessResponse<AuthResponse>>(
+      `${API_PREFIX}/${BASE_ENDPOINT}/register`, 
+      userData,
+      { withCredentials: true }
+    );
+    return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }
@@ -20,8 +26,12 @@ export const register = async (userData: RegisterRequest): Promise<AuthResponse>
 
 export const login = async (credentials: LoginRequest): Promise<AuthResponse> => {
   try {
-    const response = await api.post<AuthResponse>(`${BASE_ENDPOINT}/login`, credentials);
-    return response.data;
+    const response = await api.post<ApiSuccessResponse<AuthResponse>>(
+      `${API_PREFIX}/${BASE_ENDPOINT}/login`, 
+      credentials,
+      { withCredentials: true }
+    );
+    return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }
@@ -29,7 +39,7 @@ export const login = async (credentials: LoginRequest): Promise<AuthResponse> =>
 
 export const logout = async (): Promise<void> => {
   try {
-    await api.post(`${BASE_ENDPOINT}/logout`);
+    await api.post(`${API_PREFIX}/${BASE_ENDPOINT}/logout`, {}, { withCredentials: true });
   } catch (error) {
     console.warn('Logout request failed:', getErrorMessage(error));
   }
@@ -37,8 +47,12 @@ export const logout = async (): Promise<void> => {
 
 export const refreshToken = async (): Promise<AuthTokens> => {
   try {
-    const response = await api.post<{ tokens: AuthTokens }>(`${BASE_ENDPOINT}/refresh`);
-    return response.data.tokens;
+    const response = await api.post<ApiSuccessResponse<{ tokens: AuthTokens }>>(
+      `${API_PREFIX}/${BASE_ENDPOINT}/refresh`,
+      {},
+      { withCredentials: true }
+    );
+    return response.data.data.tokens;
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }
@@ -46,8 +60,12 @@ export const refreshToken = async (): Promise<AuthTokens> => {
 
 export const getCurrentUser = async (): Promise<User> => {
   try {
-    const response = await api.post<User>(`${BASE_ENDPOINT}/me`);
-    return response.data;
+    const response = await api.post<ApiSuccessResponse<User>>(
+      `${API_PREFIX}/${BASE_ENDPOINT}/me`,
+      {},
+      { withCredentials: true }
+    );
+    return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }

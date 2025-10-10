@@ -9,10 +9,11 @@ import {
 } from '../interface/google.interface';
 
 const BASE_ENDPOINT = '/google';
+const API_PREFIX = process.env.NEXT_PUBLIC_API_PREFIX || '/api';
 
 export const getAuthUrl = async (): Promise<GoogleAuthUrl> => {
   try {
-    const response = await api.get<GoogleAuthUrl>(`${BASE_ENDPOINT}/auth/url`);
+    const response = await api.get<GoogleAuthUrl>(`${API_PREFIX}/${BASE_ENDPOINT}/auth/url`);
     return response.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -21,16 +22,16 @@ export const getAuthUrl = async (): Promise<GoogleAuthUrl> => {
 
 export const getConnectionStatus = async (): Promise<GoogleConnectionStatus> => {
   try {
-    const response = await api.get<GoogleConnectionStatus>(`${BASE_ENDPOINT}/status`);
+    const response = await api.get<GoogleConnectionStatus>(`${API_PREFIX}/${BASE_ENDPOINT}/status`);
     return response.data;
   } catch (error) {
-    throw new Error(getErrorMessage(error));
+    throw new Error(getErrorMessage(error));  
   }
 };
 
 export const disconnect = async (): Promise<{ disconnected: boolean }> => {
   try {
-    const response = await api.delete<{ disconnected: boolean }>(`${BASE_ENDPOINT}/disconnect`);
+    const response = await api.delete<{ disconnected: boolean }>(`${API_PREFIX}/${BASE_ENDPOINT}/disconnect`);
     return response.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -39,7 +40,7 @@ export const disconnect = async (): Promise<{ disconnected: boolean }> => {
 
 export const syncCalendars = async (): Promise<SyncCalendarsResponse> => {
   try {
-    const response = await api.post<SyncCalendarsResponse>(`${BASE_ENDPOINT}/calendars/sync`);
+    const response = await api.post<SyncCalendarsResponse>(`${API_PREFIX}/${BASE_ENDPOINT}/calendars/sync`);
     return response.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -48,7 +49,7 @@ export const syncCalendars = async (): Promise<SyncCalendarsResponse> => {
 
 export const getCalendars = async (): Promise<GoogleCalendarsListResponse> => {
   try {
-    const response = await api.get<GoogleCalendarsListResponse>(`${BASE_ENDPOINT}/calendars/list`);
+    const response = await api.get<GoogleCalendarsListResponse>(`${API_PREFIX}/${BASE_ENDPOINT}/calendars/list`);
     return response.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -57,7 +58,7 @@ export const getCalendars = async (): Promise<GoogleCalendarsListResponse> => {
 
 export const refreshToken = async (): Promise<RefreshTokenResponse> => {
   try {
-    const response = await api.post<RefreshTokenResponse>(`${BASE_ENDPOINT}/token/refresh`);
+    const response = await api.post<RefreshTokenResponse>(`${API_PREFIX}/${BASE_ENDPOINT}/token/refresh`);
     return response.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));

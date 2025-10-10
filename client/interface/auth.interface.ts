@@ -25,6 +25,14 @@ export interface AuthResponse {
   login_at: Date;
 }
 
+export interface ApiSuccessResponse<T = any> {
+  success: boolean;
+  message: string;
+  data: T;
+  status: number;
+  timestamp: Date;
+}
+
 export interface RegisterRequest {
   email: string;
   username: string;
