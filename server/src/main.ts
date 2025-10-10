@@ -45,10 +45,11 @@ async function bootstrap() {
 
   app.enableCors({
     origin: (origin, callback) => {
-      LoggerConfig.debug(`🔍 CORS Check - Origin: ${origin || 'none'}`);
+      // Always log CORS checks (not just debug level)
+      LoggerConfig.log(`🔍 CORS Check - Origin: "${origin || 'none'}"`);
       
       if (!origin) {
-        LoggerConfig.debug('✅ CORS: Allowing request with no origin');
+        LoggerConfig.log('✅ CORS: Allowing request with no origin');
         return callback(null, true);
       }
 
@@ -59,16 +60,23 @@ async function bootstrap() {
           );
           return callback(new Error('Invalid CORS configuration'));
         }
-        LoggerConfig.debug('✅ CORS: Allowing wildcard origin');
+        LoggerConfig.log('✅ CORS: Allowing wildcard origin');
         return callback(null, true);
       }
 
       const isAllowed = env.CORS_ORIGIN.some(allowedOrigin => {
-        // Exact match
-        if (allowedOrigin === origin) return true;
+        LoggerConfig.log(`🔍 Checking origin "${origin}" against allowed "${allowedOrigin}"`);
         
+        // Exact match
+        if (allowedOrigin === origin) {
+          LoggerConfig.log(`✅ Exact match found: ${allowedOrigin}`);
+          return true;
+        }
+        
+        // For development: allow localhost with any port if localhost is configured
         if (origin.startsWith('http://localhost:') && 
             env.CORS_ORIGIN.some(o => o.startsWith('http://localhost:'))) {
+          LoggerConfig.log(`✅ Localhost match found for: ${origin}`);
           return true;
         }
         
@@ -76,12 +84,14 @@ async function bootstrap() {
       });
 
       if (isAllowed) {
-        LoggerConfig.debug(`✅ CORS: Allowing origin: ${origin}`);
+        LoggerConfig.log(`✅ CORS: Allowing origin: "${origin}"`);
         return callback(null, origin);
       }
 
-      LoggerConfig.warn(`❌ CORS blocked origin: ${origin}`);
-      LoggerConfig.warn(`📋 Allowed origins: ${env.CORS_ORIGIN.join(', ')}`);
+      // Always log blocked origins with full details
+      LoggerConfig.error(`❌ CORS BLOCKED - Origin: "${origin}"`);
+      LoggerConfig.error(`📋 Configured origins: [${env.CORS_ORIGIN.join(', ')}]`);
+      LoggerConfig.error(`🔍 Origin type: ${typeof origin}, Length: ${origin?.length}`);
       callback(new Error('Not allowed by CORS'));
     },
     credentials: env.CORS_CREDENTIALS,

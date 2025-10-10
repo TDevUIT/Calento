@@ -19,6 +19,7 @@ import { AvailabilityModule } from './modules/availability/availability.module';
 import { BookingModule } from './modules/booking/booking.module';
 import { BlogModule } from './modules/blog/blog.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
+import { DebugController } from './debug-cors.controller';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
     BookingModule,
     BlogModule,
   ],
+  controllers: [DebugController],
   providers: [
     {
       provide: APP_GUARD,
