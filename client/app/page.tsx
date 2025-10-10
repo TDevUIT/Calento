@@ -1,5 +1,4 @@
 import { Header } from '@/components/organisms/Header';
-import { Footer } from '@/components/organisms/Footer';
 import { HeroSection } from '@/components/organisms/sections/HeroSection';
 import { FocusStatsSection } from '@/components/organisms/sections/FocusStatsSection';
 import { ProductivitySection } from '@/components/organisms/sections/ProductivitySection';

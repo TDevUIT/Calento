@@ -1,4 +1,4 @@
-import { Calendar, Clock, Users, TrendingUp, Settings, BarChart3, Calendar1, Plus, Bell, Zap, Star } from "lucide-react";
+import { Calendar, Clock, Users, TrendingUp, Settings, BarChart3 } from "lucide-react";
 
 // Dashboard Types
 export interface SidebarItem {
@@ -25,6 +25,9 @@ export interface UpcomingMeeting {
 export interface CalendarEvent {
   title: string;
   time: string;
+  startHour: number;
+  startMinute: number;
+  duration: number; // in minutes
   color: string;
 }
 
@@ -49,63 +52,42 @@ export const UPCOMING_MEETINGS: UpcomingMeeting[] = [
 
 export const CALENDAR_EVENTS: Record<number, CalendarEvent[]> = {
   8: [
-    { title: "Team Meeting", time: "10:00 AM", color: "bg-blue-500" },
+    { title: "Team Meeting", time: "10:00 AM", startHour: 10, startMinute: 0, duration: 60, color: "bg-blue-500" },
   ],
   15: [
-    { title: "Client Call", time: "2:00 PM", color: "bg-blue-600" },
+    { title: "Client Call", time: "2:00 PM", startHour: 14, startMinute: 0, duration: 45, color: "bg-blue-600" },
   ],
-  22: [{ title: "Workshop", time: "9:00 AM", color: "bg-slate-600" }],
-  28: [{ title: "Presentation", time: "3:00 PM", color: "bg-slate-700" }],
+  22: [{ title: "Workshop", time: "9:00 AM", startHour: 9, startMinute: 0, duration: 120, color: "bg-slate-600" }],
+  28: [{ title: "Presentation", time: "3:00 PM", startHour: 15, startMinute: 0, duration: 90, color: "bg-slate-700" }],
+};
+
+// Week View Calendar Events - organized by day of week
+export const WEEK_CALENDAR_EVENTS: Record<number, CalendarEvent[]> = {
+  0: [], // Sunday
+  1: [ // Monday
+    { title: "Team Standup", time: "9:00 AM", startHour: 9, startMinute: 0, duration: 30, color: "bg-blue-500" },
+    { title: "Project Review", time: "11:00 AM", startHour: 11, startMinute: 0, duration: 60, color: "bg-purple-500" },
+    { title: "Lunch Break", time: "12:00 PM", startHour: 12, startMinute: 0, duration: 60, color: "bg-green-500" },
+  ],
+  2: [ // Tuesday
+    { title: "Client Meeting", time: "10:00 AM", startHour: 10, startMinute: 0, duration: 90, color: "bg-indigo-500" },
+    { title: "Design Review", time: "2:00 PM", startHour: 14, startMinute: 0, duration: 60, color: "bg-pink-500" },
+  ],
+  3: [ // Wednesday
+    { title: "Product Demo", time: "9:30 AM", startHour: 9, startMinute: 30, duration: 45, color: "bg-orange-500" },
+    { title: "1-on-1", time: "1:00 PM", startHour: 13, startMinute: 0, duration: 30, color: "bg-teal-500" },
+    { title: "Workshop", time: "3:00 PM", startHour: 15, startMinute: 0, duration: 120, color: "bg-violet-500" },
+  ],
+  4: [ // Thursday
+    { title: "Code Review", time: "10:00 AM", startHour: 10, startMinute: 0, duration: 45, color: "bg-cyan-500" },
+    { title: "Sprint Planning", time: "2:30 PM", startHour: 14, startMinute: 30, duration: 90, color: "bg-blue-600" },
+  ],
+  5: [ // Friday
+    { title: "All Hands", time: "9:00 AM", startHour: 9, startMinute: 0, duration: 60, color: "bg-red-500" },
+    { title: "Team Lunch", time: "12:30 PM", startHour: 12, startMinute: 30, duration: 90, color: "bg-amber-500" },
+    { title: "Happy Hour", time: "5:00 PM", startHour: 17, startMinute: 0, duration: 120, color: "bg-emerald-500" },
+  ],
+  6: [], // Saturday
 };
 
 export const DAYS_OF_WEEK = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
-
-// Dashboard Styling Constants
-export const DASHBOARD_STYLES = {
-  container: "w-full h-full bg-white rounded-xl flex overflow-hidden mt-10 shadow-lg border border-slate-100",
-  sidebar: {
-    container: "w-40 h-full bg-white border-r border-slate-200 flex flex-col",
-    logo: "mt-4 mb-3 px-2",
-    nav: "flex-1 p-1.5",
-    navList: "space-y-1",
-    navItem: {
-      base: "w-full flex items-center justify-between px-2 py-1.5 rounded-md text-xs font-medium transition-colors",
-      active: "bg-blue-50 text-blue-600",
-      inactive: "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
-    },
-    badge: "bg-blue-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[16px] text-center",
-    footer: "p-2 border-t border-slate-200",
-    newEventButton: "w-full flex items-center justify-center space-x-1 px-2 py-1.5 bg-blue-600 text-white rounded-md text-xs font-medium hover:bg-blue-700 transition-colors"
-  },
-  main: {
-    container: "flex-1 flex flex-col h-full",
-    content: "flex-1 flex flex-col bg-slate-50 overflow-hidden",
-    header: "flex items-center justify-between p-3 bg-white border-b border-slate-200",
-    headerIcon: "p-2 bg-blue-50 rounded-lg",
-    headerTitle: "text-lg font-bold text-slate-900",
-    headerSubtitle: "text-xs text-slate-500"
-  },
-  calendar: {
-    container: "bg-white h-full flex flex-col",
-    navigation: "flex items-center justify-between p-3 border-b border-slate-200",
-    navButton: "p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md transition-colors",
-    monthTitle: "text-sm font-semibold text-slate-900 min-w-[120px] text-center",
-    todayButton: "px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors",
-    grid: "flex-1 p-3",
-    daysHeader: "grid grid-cols-7 border border-slate-200 bg-slate-50",
-    dayHeader: "text-center text-xs font-semibold text-slate-600 py-3",
-    daysGrid: "grid grid-cols-7 border-l border-r border-b border-slate-200",
-    dayCell: {
-      base: "relative min-h-[60px] border-b border-slate-200",
-      content: "w-full h-full cursor-pointer",
-      today: "bg-blue-50",
-      normal: "bg-white hover:bg-slate-50",
-      empty: "bg-slate-25"
-    },
-    event: {
-      base: "text-xs py-1 rounded-md text-white font-medium border-l-2 border-white/30 hover:shadow-md transition-shadow cursor-pointer",
-      time: "text-xs opacity-75 ml-1 text-white",
-      moreIndicator: "text-xs text-slate-500 px-2 py-0.5 bg-slate-100 rounded-md text-center font-medium"
-    }
-  }
-} as const;

@@ -3,27 +3,12 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { FEATURES } from "@/config/app.config";
-import { LineChart, Line, BarChart, Bar, ResponsiveContainer } from "recharts";
 import Marquee from "react-fast-marquee";
-
-const timeSavedData = [
-  { value: 8.2 },
-  { value: 9.5 },
-  { value: 10.1 },
-  { value: 11.3 },
-  { value: 12.5 },
-];
-
-const meetingsData = [
-  { value: 38 },
-  { value: 42 },
-  { value: 45 },
-  { value: 47 },
-];
+import DashboardPreview from "./DashboardPreview";
 
 export const HeroSection = () => {
   return (
-    <section className="relative mx-auto max-w-7xl px-6 py-20 md:px-8 lg:py-32">
+    <section className="relative mx-auto max-w-7xl px-6 py-6 md:px-8 lg:py-12">
       <div className="mx-auto max-w-4xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -163,110 +148,52 @@ export const HeroSection = () => {
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="relative mx-auto max-w-6xl"
+        className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8"
       >
-        <div className="absolute -inset-x-20 -inset-y-10 -z-10 bg-blue-500/10 blur-3xl dark:bg-blue-500/20" />
+        <div className="absolute -inset-x-10 sm:-inset-x-20 -inset-y-10 -z-10 bg-blue-500/10 blur-3xl dark:bg-blue-500/20" />
         
-        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl shadow-slate-200/50 dark:border-slate-800 dark:bg-slate-900 dark:shadow-slate-950/50">
-          <div className="flex items-center gap-2 border-b border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-800 dark:bg-slate-900/50">
-            <div className="flex gap-1.5">
-              <div className="h-3 w-3 rounded-full bg-slate-300 dark:bg-slate-700" />
-              <div className="h-3 w-3 rounded-full bg-slate-300 dark:bg-slate-700" />
-              <div className="h-3 w-3 rounded-full bg-slate-300 dark:bg-slate-700" />
+        <div className="overflow-hidden rounded-lg md:rounded-xl border border-slate-200 bg-white shadow-xl md:shadow-2xl shadow-slate-200/50 dark:border-slate-800 dark:bg-slate-900 dark:shadow-slate-950/50">
+          <div className="flex items-center gap-1.5 md:gap-2 border-b border-slate-200 bg-slate-50 px-3 md:px-4 py-2 md:py-3 dark:border-slate-800 dark:bg-slate-900/50">
+            <div className="flex gap-1">
+              <div className="h-2 w-2 md:h-3 md:w-3 rounded-full bg-slate-300 dark:bg-slate-700" />
+              <div className="h-2 w-2 md:h-3 md:w-3 rounded-full bg-slate-300 dark:bg-slate-700" />
+              <div className="h-2 w-2 md:h-3 md:w-3 rounded-full bg-slate-300 dark:bg-slate-700" />
             </div>
-            <div className="ml-4 flex-1 rounded-md bg-white px-3 py-1.5 text-xs text-slate-400 dark:bg-slate-800 dark:text-slate-500">
-              app.calento.ai/dashboard
+            <div className="ml-2 md:ml-4 flex-1 rounded-md bg-white px-2 md:px-3 py-1 md:py-1.5 text-[10px] md:text-xs text-slate-400 dark:bg-slate-800 dark:text-slate-500 truncate">
+              app.calento.space/dashboard/calendar
             </div>
           </div>
           
-          <div className="relative aspect-[16/10] bg-slate-100 dark:bg-slate-950">
-            <Image
-              src="https://cdn.dribbble.com/userupload/9926004/file/original-f57c1c7ecad5712b6cb18eaeb17e574b.png?resize=1024x768&vertical=center"
-              alt="Calento calendar dashboard showing AI-powered scheduling interface"
-              className="h-full w-full object-cover"
-              width={2000}
-              height={1250}
-            />
+          <div className="relative aspect-[16/10] md:aspect-[16/10] bg-slate-50 dark:bg-slate-950 min-h-[300px] md:min-h-[400px]">
+            <DashboardPreview />
+          </div>
+        </div>
+        <div className='hidden lg:block z-[9999] absolute -top-40 -left-10'>
+          <div className="relative">
+            <Image src="/images/dashed-arrow-icon.png" alt="Calendar View" className="-rotate-[100deg]" height={132} width={132} />
+            <div className="absolute -left-4 -top-14">
+              <p className="text-sm xl:text-base font-bold text-slate-900 dark:text-white">Your Schedule</p>
+              <p className="text-xs xl:text-sm text-slate-600 dark:text-slate-400">All events in one view </p>
+            </div>
           </div>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="absolute -left-40 top-1/4 hidden w-64 rounded-xl border border-slate-200 bg-white p-5 shadow-xl lg:block dark:border-slate-800 dark:bg-slate-900"
-        >
-          <div className="mb-3 flex items-start justify-between">
-            <div>
-              <div className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">Time Saved</div>
-              <div className="mt-1 text-3xl font-bold text-slate-900 dark:text-white">12.5<span className="text-lg text-slate-600 dark:text-slate-400">hrs</span></div>
-              <div className="mt-1 flex items-center gap-1 text-xs font-semibold text-blue-600 dark:text-blue-400">
-                <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                </svg>
-                <span>23% this week</span>
-              </div>
-            </div>
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-950">
-              <svg className="h-5 w-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+        <div className='hidden lg:block z-[9999] absolute -right-28 -bottom-20'>
+          <div className="relative">
+            <Image src="/images/dashed-arrow-icon.png" alt="AI Assistant" className="rotate-90" height={132} width={132} />
+            <div className="absolute -right-4 -bottom-14">
+              <p className="text-sm xl:text-base font-bold text-slate-900 dark:text-white">Try it now</p>
+              <p className="text-xs xl:text-sm text-slate-600 dark:text-slate-400">Ask AI anything! 🚀</p>
             </div>
           </div>
-          <div className="h-12">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={timeSavedData}>
-                <Line 
-                  type="monotone" 
-                  dataKey="value" 
-                  stroke="#2563eb" 
-                  strokeWidth={2}
-                  dot={false}
-                  animationDuration={1000}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5, delay: 0.9, ease: [0.22, 1, 0.36, 1] }}
-          className="absolute -right-40 top-1/2 hidden w-64 rounded-xl border border-slate-200 bg-white p-5 shadow-xl lg:block dark:border-slate-800 dark:bg-slate-900"
-        >
-          <div className="mb-3 flex items-start justify-between">
-            <div>
-              <div className="text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">Meetings</div>
-              <div className="mt-1 text-3xl font-bold text-slate-900 dark:text-white">47</div>
-              <div className="mt-1 text-xs font-medium text-blue-600 dark:text-blue-400">Scheduled this month</div>
-            </div>
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-950">
-              <svg className="h-5 w-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </div>
-          </div>
-          <div className="h-12">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={meetingsData}>
-                <Bar 
-                  dataKey="value" 
-                  fill="#2563eb" 
-                  radius={[4, 4, 0, 0]}
-                  animationDuration={1000}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </motion.div>
+        </div>
       </motion.div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 1, ease: [0.22, 1, 0.36, 1] }}
-        className="mt-24"
+        className="mt-12 md:mt-16 lg:mt-24"
       >
         <div className="text-center mb-16">
           <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">

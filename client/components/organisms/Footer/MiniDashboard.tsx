@@ -1,218 +1,118 @@
 'use client'
-import React, { useState, useEffect, useMemo } from "react";
-import { ChevronLeft, ChevronRight, Calendar1, Plus } from "lucide-react";
-import { Logo } from "@/components/ui/logo";
-import { 
-    SIDEBAR_ITEMS, 
-    CALENDAR_EVENTS, 
-    DAYS_OF_WEEK,
-    DASHBOARD_STYLES 
-} from '@/constants/dashboard.constants';
+import React from "react";
+import CalendarPreview from "@/components/organisms/Calendar/CalendarPreview";
+import { AvatarFallback } from "@radix-ui/react-avatar";
+import { Avatar } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+import Image from "next/image";
+import { Calendar, Clock, RefreshCw, Video, BarChart3, Settings, Users, HelpCircle, Folder, ChevronsLeftRight } from 'lucide-react';
+import { FaCoins } from 'react-icons/fa6';
 
 const MiniDashboard = () => {
-    // Note: currentTime and activeView are kept for future interactivity
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [currentTime, setCurrentTime] = useState(new Date());
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [activeView, setActiveView] = useState('calendar');
-    
-    useEffect(() => {
-        const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-        return () => clearInterval(timer);
-    }, []);
-
-    const currentDate = useMemo(() => new Date(), []);
-    const currentMonth = useMemo(() => 
-        currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }), 
-        [currentDate]
-    );
-    
-    const calendarDays = useMemo(() => {
-        const year = currentDate.getFullYear();
-        const month = currentDate.getMonth();
-        const firstDay = new Date(year, month, 1);
-        const lastDay = new Date(year, month + 1, 0);
-        const daysInMonth = lastDay.getDate();
-        const startingDayOfWeek = firstDay.getDay();
-        
-        const days: (number | null)[] = [];
-        
-        for (let i = 0; i < startingDayOfWeek; i++) {
-            days.push(null);
-        }
-        
-        for (let day = 1; day <= daysInMonth; day++) {
-            days.push(day);
-        }
-        
-        return days;
-    }, [currentDate]);
+    const sidebarItems = [
+        { icon: Calendar, label: 'Calendar', active: true, badge: 8 },
+        { icon: Clock, label: 'Schedule', active: false },
+        { icon: RefreshCw, label: 'Calendar Sync', active: false },
+        { icon: Video, label: 'Meetings', active: false },
+        { icon: BarChart3, label: 'Analytics', active: false }
+    ];
 
     return (
-        <div className={DASHBOARD_STYLES.container}>
-            <div className={DASHBOARD_STYLES.sidebar.container}>
-                <div className={DASHBOARD_STYLES.sidebar.logo}>
-                    <Logo size="xs" className="justify-center" />
-                </div>
-
-                <nav className={DASHBOARD_STYLES.sidebar.nav}>
-                    <ul className={DASHBOARD_STYLES.sidebar.navList}>
-                        {SIDEBAR_ITEMS.map((item) => {
-                            const Icon = item.icon;
-                            return (
-                                <li key={item.id}>
-                                    <button
-                                        onClick={() => setActiveView(item.id)}
-                                        className={`${DASHBOARD_STYLES.sidebar.navItem.base} ${
-                                            item.active
-                                                ? DASHBOARD_STYLES.sidebar.navItem.active
-                                                : DASHBOARD_STYLES.sidebar.navItem.inactive
-                                        }`}
-                                        aria-label={`Switch to ${item.name} view`}
-                                    >
-                                        <div className="flex items-center space-x-2">
-                                            <Icon className="w-3 h-3" aria-hidden="true" />
-                                            <span>{item.name}</span>
-                                        </div>
-                                        {item.badge && (
-                                            <span className={DASHBOARD_STYLES.sidebar.badge}>
-                                                {item.badge}
-                                            </span>
-                                        )}
-                                    </button>
-                                </li>
-                            );
-                        })}
-                    </ul>
-                </nav>
-
-                <div className={DASHBOARD_STYLES.sidebar.footer}>
-                    <button className={DASHBOARD_STYLES.sidebar.newEventButton}>
-                        <Plus className="w-3 h-3" aria-hidden="true" />
-                        <span>New Event</span>
-                    </button>
-                </div>
-            </div>
-
-            <div className={DASHBOARD_STYLES.main.container}>
-                <main className={DASHBOARD_STYLES.main.content}>
-                    <div className={DASHBOARD_STYLES.main.header}>
-                        <div className="flex items-center space-x-3">
-                            <div className={DASHBOARD_STYLES.main.headerIcon}>
-                                <Calendar1 className="w-5 h-5 text-blue-600" aria-hidden="true" />
-                            </div>
-                            <div>
-                                <h1 className={DASHBOARD_STYLES.main.headerTitle}>Calendar</h1>
-                                <p className={DASHBOARD_STYLES.main.headerSubtitle}>Manage your schedule</p>
+        <div className="w-full h-full bg-white rounded-l-xl flex overflow-hidden mt-10 shadow-lg border border-slate-100">
+            <div className="w-60 flex flex-col border-r border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
+                <div className="p-4 space-y-3">
+                    <div className="flex items-center gap-2">
+                        <Avatar className="h-8 w-8">
+                            <Image src="/icon-192x192.png" alt="AI Avatar" height={32} width={32} />
+                            <AvatarFallback className="bg-gradient-to-br from-blue-600 to-blue-700 text-white text-xs font-semibold">
+                                AI
+                            </AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col">
+                            <span className="text-sm font-bold text-slate-900 dark:text-white">Calento</span>
+                            <div className="flex items-center gap-1">
+                                <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
+                                <span className="text-[9px] text-slate-500 dark:text-slate-400">Online</span>
                             </div>
                         </div>
                     </div>
                     
-                    <div className="flex-1">
-                        <div className={DASHBOARD_STYLES.calendar.container}>
-                            <div className={DASHBOARD_STYLES.calendar.navigation}>
-                                <div className="flex items-center space-x-4">
-                                    <div className="flex items-center space-x-2">
-                                        <button 
-                                            className={DASHBOARD_STYLES.calendar.navButton}
-                                            aria-label="Previous month"
-                                        >
-                                            <ChevronLeft className="w-4 h-4" aria-hidden="true" />
-                                        </button>
-                                        <span className={DASHBOARD_STYLES.calendar.monthTitle}>
-                                            {currentMonth}
-                                        </span>
-                                        <button 
-                                            className={DASHBOARD_STYLES.calendar.navButton}
-                                            aria-label="Next month"
-                                        >
-                                            <ChevronRight className="w-4 h-4" aria-hidden="true" />
-                                        </button>
-                                    </div>
-                                    <button className={DASHBOARD_STYLES.calendar.todayButton}>
-                                        Today
-                                    </button>
-                                </div>
-                            </div>
-                            <div className={DASHBOARD_STYLES.calendar.grid}>
-                                <div className={DASHBOARD_STYLES.calendar.daysHeader}>
-                                    {DAYS_OF_WEEK.map((day, index) => (
-                                        <div 
-                                            key={day} 
-                                            className={`${DASHBOARD_STYLES.calendar.dayHeader} ${
-                                                index !== 6 ? 'border-r border-slate-200' : ''
-                                            }`}
-                                        >
-                                            {day}
-                                        </div>
-                                    ))}
-                                </div>
-
-                                <div className={DASHBOARD_STYLES.calendar.daysGrid}>
-                                    {calendarDays.map((day, index) => {
-                                        const isLastColumn = (index + 1) % 7 === 0;
-                                        const isToday = day === currentDate.getDate();
-                                        
-                                        return (
-                                            <div 
-                                                key={index} 
-                                                className={`${DASHBOARD_STYLES.calendar.dayCell.base} ${
-                                                    !isLastColumn ? 'border-r border-slate-200' : ''
-                                                }`}
-                                            >
-                                                {day ? (
-                                                    <div className={`${DASHBOARD_STYLES.calendar.dayCell.content} ${
-                                                        isToday 
-                                                            ? DASHBOARD_STYLES.calendar.dayCell.today
-                                                            : DASHBOARD_STYLES.calendar.dayCell.normal
-                                                    }`}>
-                                                        <div className="p-2">
-                                                            <div className="flex items-center justify-between">
-                                                                <span className={`text-xs font-medium ${
-                                                                    isToday 
-                                                                        ? 'text-blue-600 font-semibold' 
-                                                                        : 'text-slate-700'
-                                                                }`}>
-                                                                    {day}
-                                                                </span>
-                                                            </div>
-                                                            
-                                                            {CALENDAR_EVENTS[day] && (
-                                                                <div className="mt-1.5 space-y-0.5">
-                                                                    {CALENDAR_EVENTS[day].slice(0, 2).map((event, eventIndex) => (
-                                                                        <div 
-                                                                            key={eventIndex} 
-                                                                            className={`${DASHBOARD_STYLES.calendar.event.base} ${event.color}`}
-                                                                            title={`${event.title} at ${event.time}`}
-                                                                        >
-                                                                            <div className="flex items-center justify-between">
-                                                                                <span className={DASHBOARD_STYLES.calendar.event.time}>
-                                                                                    {event.time.split(' ')[0]}
-                                                                                </span>
-                                                                            </div>
-                                                                        </div>
-                                                                    ))}
-                                                                    {CALENDAR_EVENTS[day].length > 2 && (
-                                                                        <div className={DASHBOARD_STYLES.calendar.event.moreIndicator}>
-                                                                            +{CALENDAR_EVENTS[day].length - 2} more
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                ) : (
-                                                    <div className={DASHBOARD_STYLES.calendar.dayCell.empty}></div>
-                                                )}
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
+                    <Button variant="outline" className="w-full justify-between h-9 text-xs hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                        <div className="flex items-center gap-2">
+                            <Folder className="h-4 w-4" />
+                            <span>My Workspace</span>
                         </div>
+                        <ChevronsLeftRight className="h-3 w-3 rotate-90" />
+                    </Button>
+                </div>
+
+                <nav className="flex-1 px-3 space-y-0.5">
+                    {sidebarItems.map((item, i) => {
+                        const Icon = item.icon;
+                        return (
+                            <Button
+                                key={i}
+                                variant="ghost"
+                                className={cn(
+                                    "w-full justify-start h-9 px-3 text-sm font-medium transition-all duration-200 hover:scale-[1.02]",
+                                    item.active 
+                                        ? "bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-950 dark:text-blue-400 shadow-sm" 
+                                        : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                                )}
+                            >
+                                <Icon className="h-4 w-4 mr-3" />
+                                <span className="flex-1 text-left">{item.label}</span>
+                                {item.badge && (
+                                    <Badge className="ml-auto bg-gradient-to-r from-blue-600 to-blue-700 text-white text-[10px] h-5 px-1.5 shadow-sm animate-pulse">
+                                        {item.badge}
+                                    </Badge>
+                                )}
+                            </Button>
+                        );
+                    })}
+                </nav>
+
+                <div className="mt-auto">
+                    <div className="p-3 space-y-2">
+                        <div className='px-3 flex items-center justify-between bg-white border py-2 rounded-lg'>
+                            <div className="flex items-center gap-2">
+                                <FaCoins className="h-4 w-4 text-blue-600" />
+                                <span className="text-[10px] font-medium text-slate-900 dark:text-white">1,304 Credits left</span>
+                            </div>
+                            <span className='text-[10px] font-medium text-slate-900 dark:text-white underline cursor-pointer'>Upgrade</span>
+                        </div>
+
+                        <Button variant="ghost" className="w-full justify-between h-9 px-3 text-sm font-normal hover:bg-slate-100 dark:hover:bg-slate-800">
+                            <div className="flex items-center gap-2">
+                                <Settings className="h-4 w-4" />
+                                <span>Settings</span>
+                            </div>
+                        </Button>
+
+                        <Button variant="ghost" className="w-full justify-between h-9 px-3 text-sm font-normal hover:bg-slate-100 dark:hover:bg-slate-800">
+                            <div className="flex items-center gap-2">
+                                <Users className="h-4 w-4" />
+                                <span>Affiliate</span>
+                            </div>
+                            <Badge className="bg-slate-700 text-white text-[10px] px-1.5 py-0 dark:bg-slate-600">
+                                30%
+                            </Badge>
+                        </Button>
+
+                        <Button variant="ghost" className="w-full justify-start h-9 px-3 text-sm font-normal hover:bg-slate-100 dark:hover:bg-slate-800">
+                            <div className="flex items-center gap-2">
+                                <HelpCircle className="h-4 w-4" />
+                                <span>Help</span>
+                            </div>
+                        </Button>
                     </div>
-                </main>
+                </div>
             </div>
+
+            {/* Calendar Only - No AI Chat */}
+            <CalendarPreview />
         </div>
     );
 };
