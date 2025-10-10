@@ -1,4 +1,3 @@
-import { Header } from '@/components/organisms/Header';
 import { HeroSection } from '@/components/organisms/sections/HeroSection';
 import { FocusStatsSection } from '@/components/organisms/sections/FocusStatsSection';
 import { ProductivitySection } from '@/components/organisms/sections/ProductivitySection';
@@ -12,7 +11,6 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-[#f6f6f6] via-white/30 to-white dark:from-[#121212] dark:via-[#3d3d3d]/30 dark:to-[#121212] font-sans overflow-x-hidden transition-colors duration-300">
       <div className="relative bg-white dark:bg-[#121212] transition-colors duration-300">
-        <Header />
         <HeroSection />
         <div className="bg-[#f6f6f6] dark:bg-[#3d3d3d] transition-colors duration-300">
           <FocusStatsSection />
