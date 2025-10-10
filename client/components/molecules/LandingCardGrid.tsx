@@ -19,7 +19,7 @@ const cards: CardData[] = [
 export const LandingCardGrid: React.FC = () => {
   return (
     <section className="w-full py-16 px-4">
-      <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-y-4 -mx-2">
+      <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-y-4 ">
         {cards.map(card => (
           <LandingCard key={card.title} {...card} />
         ))}

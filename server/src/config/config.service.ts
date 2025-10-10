@@ -112,7 +112,7 @@ export class ConfigService {
   get sessionSecret(): string {
     return this.config.SESSION_SECRET;
   }
-  get corsOrigin(): string {
+  get corsOrigin(): string[] {
     return this.config.CORS_ORIGIN;
   }
 
