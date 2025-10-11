@@ -1,4 +1,7 @@
 export const PASSWORD_MIN_LENGTH = 8
+export const REDIRECT_DELAY_MS = 1500
+export const ERROR_TOAST_DURATION = 5000
+export const SUCCESS_TOAST_DURATION = 3000
 
 export const AUTH_PLACEHOLDERS = {
   email: 'you@company.com',
@@ -10,11 +13,11 @@ export const AUTH_PLACEHOLDERS = {
 } as const
 
 export const AUTH_VALIDATION_MESSAGES = {
-  passwordMismatch: 'Mật khẩu xác nhận không khớp',
-  passwordTooShort: `Mật khẩu phải có ít nhất ${PASSWORD_MIN_LENGTH} ký tự`,
-  requiredField: 'Trường này là bắt buộc',
-  invalidEmail: 'Email không hợp lệ',
-  invalidUsername: 'Tên đăng nhập không hợp lệ',
+  passwordMismatch: 'Passwords do not match',
+  passwordTooShort: `Password must be at least ${PASSWORD_MIN_LENGTH} characters`,
+  requiredField: 'This field is required',
+  invalidEmail: 'Invalid email address',
+  invalidUsername: 'Invalid username',
 } as const
 
 export const AUTH_BUTTON_TEXT = {
@@ -60,23 +63,23 @@ export const SOCIAL_PROVIDER_ICONS = {
 } as const
 
 export const AUTH_ERROR_MESSAGES = {
-  409: 'Email hoặc tên đăng nhập đã được sử dụng. Vui lòng chọn thông tin khác.',
-  400: 'Thông tin không hợp lệ. Vui lòng kiểm tra lại.',
-  401: 'Thông tin đăng nhập không chính xác.',
-  403: 'Bạn không có quyền thực hiện hành động này.',
-  500: 'Đã xảy ra lỗi từ phía máy chủ. Vui lòng thử lại sau.',
-  network: 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối internet.',
-  timeout: 'Yêu cầu mất quá nhiều thời gian. Vui lòng thử lại.',
-  default: 'Đã xảy ra lỗi không xác định. Vui lòng thử lại.',
+  409: 'Email or username already in use. Please choose different information.',
+  400: 'Invalid information. Please check again.',
+  401: 'Invalid login credentials.',
+  403: 'You do not have permission to perform this action.',
+  500: 'A server error occurred. Please try again later.',
+  network: 'Unable to connect to server. Please check your internet connection.',
+  timeout: 'Request took too long. Please try again.',
+  default: 'An unexpected error occurred. Please try again.',
 } as const
 
 export const AUTH_SUCCESS_MESSAGES = {
   register: {
-    title: 'Đăng ký thành công!',
-    description: 'Chào mừng bạn đến với Tempra. Đang chuyển hướng...',
+    title: 'Registration successful!',
+    description: 'Welcome to Tempra. Redirecting...',
   },
   login: {
-    title: 'Đăng nhập thành công!',
-    description: 'Chào mừng bạn trở lại.',
+    title: 'Login successful!',
+    description: 'Welcome back.',
   },
 } as const

@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button'
-import { BackButton, TermsAndPolicy } from '@/components/atoms'
+import { BackButton, TermsAndPolicy, Spinner } from '@/components/atoms'
 import { AUTH_BUTTON_TEXT } from '@/constants/auth.constants'
 
 type ReviewStepProps = {
@@ -54,10 +54,22 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
 
       <Button 
         type="submit"
-        className="w-full mt-2 md:mt-0 h-10 md:h-11 2xl:h-12 text-sm md:text-base 2xl:text-base"
+        className="w-full mt-2 md:mt-0 rounded-lg h-10 md:h-11 2xl:h-12 text-sm md:text-base 2xl:text-base font-semibold shadow-md hover:shadow-lg transition-all"
         disabled={loading}
       >
-        {loading ? AUTH_BUTTON_TEXT.register.loading : AUTH_BUTTON_TEXT.register.idle}
+        {loading ? (
+          <>
+            <Spinner size="md" className="-ml-1 mr-2" />
+            {AUTH_BUTTON_TEXT.register.loading}
+          </>
+        ) : (
+          <>
+            {AUTH_BUTTON_TEXT.register.idle}
+            <svg className="ml-2 h-4 w-4 md:h-5 md:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </>
+        )}
       </Button>
     </form>
   )

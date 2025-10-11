@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { TermsAndPolicy } from '@/components/atoms'
+import { TermsAndPolicy, Spinner } from '@/components/atoms'
 import {
   AUTH_PLACEHOLDERS, 
   AUTH_BUTTON_TEXT, 
@@ -53,8 +53,8 @@ export const EmailLoginForm: React.FC<EmailLoginFormProps> = ({
 
       <form onSubmit={onSubmit} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="email" className="text-sm font-medium text-foreground">
-            Email
+          <Label htmlFor="email" className="text-sm font-semibold text-foreground">
+            Email Address
           </Label>
           <Input
             id="email"
@@ -64,18 +64,21 @@ export const EmailLoginForm: React.FC<EmailLoginFormProps> = ({
             onChange={(e) => onEmailChange(e.target.value)}
             required
             autoComplete="email"
-            className="h-11 rounded-lg"
+            className="h-11 rounded-lg border-gray-300 dark:border-gray-600 focus-visible:ring-2 focus-visible:ring-blue-500 dark:focus-visible:ring-blue-400 transition-all"
           />
+          <p className="text-xs text-muted-foreground">
+            Enter the email you registered with Tempra
+          </p>
         </div>
 
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label htmlFor="password" className="text-sm font-medium text-foreground">
+            <Label htmlFor="password" className="text-sm font-semibold text-foreground">
               Password
             </Label>
             <Link 
               href={POLICY_LINKS.forgotPassword}
-              className="text-xs text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200 font-medium hover:underline transition-colors"
+              className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium hover:underline transition-colors"
             >
               Forgot password?
             </Link>
@@ -88,29 +91,37 @@ export const EmailLoginForm: React.FC<EmailLoginFormProps> = ({
             onChange={(e) => onPasswordChange(e.target.value)}
             required
             autoComplete="current-password"
-            className="h-11 rounded-lg"
+            className="h-11 rounded-lg border-gray-300 dark:border-gray-600 focus-visible:ring-2 focus-visible:ring-blue-500 dark:focus-visible:ring-blue-400 transition-all"
           />
+          <p className="text-xs text-muted-foreground">
+            Password must be at least 6 characters
+          </p>
         </div>
 
         <div className="flex items-center gap-2 pt-1">
           <input
             type="checkbox"
             id="remember"
-            className="h-4 w-4 rounded border-gray-300 cursor-pointer"
+            className="h-4 w-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 cursor-pointer"
             checked={remember}
             onChange={(e) => onRememberChange(e.target.checked)}
           />
-          <Label htmlFor="remember" className="text-sm text-muted-foreground select-none cursor-pointer">
-            Remember me
+          <Label htmlFor="remember" className="text-sm text-gray-700 dark:text-gray-300 select-none cursor-pointer">
+            Keep me signed in
           </Label>
         </div>
 
         <Button 
           type="submit" 
-          className="w-full h-11 rounded-[4px]" 
+          className="w-full h-11 rounded-lg font-semibold text-base shadow-md hover:shadow-lg transition-all" 
           disabled={loading}
         >
-          {loading ? AUTH_BUTTON_TEXT.login.loading : AUTH_BUTTON_TEXT.login.idle}
+          {loading ? (
+            <>
+              <Spinner size="md" className="-ml-1 mr-2" />
+              {AUTH_BUTTON_TEXT.login.loading}
+            </>
+          ) : AUTH_BUTTON_TEXT.login.idle}
         </Button>
 
         <div className="pt-2">
