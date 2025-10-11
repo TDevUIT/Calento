@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { isGuestOnlyRoute } from '@/constants/routes';
+import { isGuestOnlyRoute, isDashboardRoute } from '@/constants/routes';
 import { cn } from '@/lib/utils';
 import { Footer, Header } from './organisms';
 
@@ -16,15 +16,17 @@ export const MainLayoutProvider: React.FC<MainLayoutProviderProps> = ({
 }) => {
   const pathname = usePathname();
   const isAuthPage = isGuestOnlyRoute(pathname);
+  const isDashboard = isDashboardRoute(pathname);
+  const showHeaderFooter = !isAuthPage && !isDashboard;
 
   return (
     <main 
       className={cn('min-h-screen', className)}
       id="main-content"
     >
-      {!isAuthPage && <Header />}
+      {showHeaderFooter && <Header />}
       {children}
-      {!isAuthPage && <Footer />}
+      {showHeaderFooter && <Footer />}
     </main>
   );
 };

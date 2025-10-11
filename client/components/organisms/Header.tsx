@@ -6,6 +6,8 @@ import { Logo } from '@/components/ui/logo';
 import { NAVIGATION_LINKS, EXTERNAL_LINKS } from '@/config/app.config';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import { LayoutDashboard } from 'lucide-react';
+import { useAuth } from '@/hook';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -21,6 +23,8 @@ export const Header: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [expandedMobileItem, setExpandedMobileItem] = useState<string | null>(null);
+  
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -104,24 +108,36 @@ export const Header: React.FC = () => {
             </NavigationMenu>
 
             <div className="hidden lg:flex items-center gap-4">
-              <Link
-                href={EXTERNAL_LINKS.login}
-                className="text-base font-medium text-cod-gray-800 dark:text-cod-gray-200 hover:text-blue-700 dark:hover:text-blue-400 transition-all duration-200 px-6 py-2 rounded-lg border-2 border-cod-gray-300 dark:border-cod-gray-600 hover:border-blue-700 dark:hover:border-blue-400 hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 dark:hover:from-blue-950/20 dark:hover:to-blue-900/20 tracking-wide"
-              >
-                Log in
-              </Link>
-              
-              <Link
-                href={EXTERNAL_LINKS.signup}
-                className="rounded-lg px-6 py-2.5 theme-btn-primary transition-all duration-200 text-base font-bold shadow-lg hover:shadow-xl hover:scale-105 tracking-wide"
-              >
-                Try for free
-              </Link>
+              {isAuthenticated ? (
+                <Link
+                  href="/dashboard"
+                  className="flex items-center gap-2 rounded-lg px-6 py-2.5 theme-btn-primary transition-all duration-200 text-base font-bold shadow-lg hover:shadow-xl hover:scale-105 tracking-wide"
+                >
+                  <LayoutDashboard className="w-5 h-5" />
+                  Dashboard
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    href={EXTERNAL_LINKS.login}
+                    className="text-base font-medium text-cod-gray-800 dark:text-cod-gray-200 hover:text-persian-blue-700 dark:hover:text-persian-blue-400 transition-all duration-200 px-6 py-2 rounded-lg border-2 border-cod-gray-300 dark:border-cod-gray-600 hover:border-persian-blue-700 dark:hover:border-persian-blue-400 hover:bg-gradient-to-r hover:from-persian-blue-50 hover:to-persian-blue-100 dark:hover:from-persian-blue-950/20 dark:hover:to-persian-blue-900/20 tracking-wide"
+                  >
+                    Log in
+                  </Link>
+                  
+                  <Link
+                    href={EXTERNAL_LINKS.signup}
+                    className="rounded-lg px-6 py-2.5 theme-btn-primary transition-all duration-200 text-base font-bold shadow-lg hover:shadow-xl hover:scale-105 tracking-wide"
+                  >
+                    Try for free
+                  </Link>
+                </>
+              )}
             </div>
 
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 rounded-lg text-cod-gray-700 dark:text-cod-gray-300 hover:text-blue-700 dark:hover:text-blue-400 hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 dark:hover:from-blue-950/20 dark:hover:to-blue-900/20 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-700/20 border-2 border-transparent hover:border-blue-200 dark:hover:border-blue-700"
+              className="lg:hidden p-2 rounded-lg text-cod-gray-700 dark:text-cod-gray-300 hover:text-persian-blue-700 dark:hover:text-persian-blue-400 hover:bg-gradient-to-r hover:from-persian-blue-50 hover:to-persian-blue-100 dark:hover:from-persian-blue-950/20 dark:hover:to-persian-blue-900/20 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-persian-blue-700/20 border-2 border-transparent hover:border-persian-blue-200 dark:hover:border-persian-blue-700"
               aria-label="Toggle mobile menu"
               aria-expanded={isMobileMenuOpen}
             >
@@ -182,7 +198,7 @@ export const Header: React.FC = () => {
                       <div className="space-y-1">
                         <button
                           onClick={() => setExpandedMobileItem(expandedMobileItem === link.label ? null : link.label)}
-                          className="w-full text-left px-4 py-3 text-base font-bold text-cod-gray-800 dark:text-cod-gray-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 dark:hover:from-blue-950/20 dark:hover:to-blue-900/20 hover:text-blue-700 dark:hover:text-blue-400 rounded-lg transition-all duration-200 tracking-wide"
+                          className="w-full text-left px-4 py-3 text-base font-bold text-cod-gray-800 dark:text-cod-gray-200 hover:bg-gradient-to-r hover:from-persian-blue-50 hover:to-persian-blue-100 dark:hover:from-persian-blue-950/20 dark:hover:to-persian-blue-900/20 hover:text-persian-blue-700 dark:hover:text-persian-blue-400 rounded-lg transition-all duration-200 tracking-wide"
                         >
                           {link.label}
                         </button>
@@ -192,7 +208,7 @@ export const Header: React.FC = () => {
                               <Link
                                 key={item.href}
                                 href={item.href}
-                                className="block px-4 py-2.5 text-sm font-medium text-cod-gray-700 dark:text-cod-gray-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 dark:hover:from-blue-950/20 dark:hover:to-blue-900/20 hover:text-blue-700 dark:hover:text-blue-400 rounded-lg transition-all duration-200"
+                                className="block px-4 py-2.5 text-sm font-medium text-cod-gray-700 dark:text-cod-gray-300 hover:bg-gradient-to-r hover:from-persian-blue-50 hover:to-persian-blue-100 dark:hover:from-persian-blue-950/20 dark:hover:to-persian-blue-900/20 hover:text-persian-blue-700 dark:hover:text-persian-blue-400 rounded-lg transition-all duration-200"
                                 onClick={() => {
                                   setIsMobileMenuOpen(false);
                                   setExpandedMobileItem(null);
@@ -214,7 +230,7 @@ export const Header: React.FC = () => {
                     ) : (
                       <Link
                         href={link.href}
-                        className="block px-4 py-3 text-base font-bold text-cod-gray-800 dark:text-cod-gray-200 hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 dark:hover:from-blue-950/20 dark:hover:to-blue-900/20 hover:text-blue-700 dark:hover:text-blue-400 rounded-lg transition-all duration-200 tracking-wide"
+                        className="block px-4 py-3 text-base font-bold text-cod-gray-800 dark:text-cod-gray-200 hover:bg-gradient-to-r hover:from-persian-blue-50 hover:to-persian-blue-100 dark:hover:from-persian-blue-950/20 dark:hover:to-persian-blue-900/20 hover:text-persian-blue-700 dark:hover:text-persian-blue-400 rounded-lg transition-all duration-200 tracking-wide"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         {link.label}
@@ -227,20 +243,33 @@ export const Header: React.FC = () => {
               <div className="border-t border-cod-gray-200 dark:border-cod-gray-700" />
 
               <div className="space-y-3">
-                <Link
-                  href={EXTERNAL_LINKS.login}
-                  className="block px-4 py-3 text-center text-base font-bold text-cod-gray-800 dark:text-cod-gray-200 hover:text-blue-700 dark:hover:text-blue-400 bg-cod-gray-50 dark:bg-cod-gray-800 hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 dark:hover:from-blue-950/20 dark:hover:to-blue-900/20 rounded-lg transition-all duration-200 tracking-wide"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Log In
-                </Link>
-                <Link
-                  href={EXTERNAL_LINKS.signup}
-                  className="block px-4 py-3 text-center text-base font-bold theme-btn-primary rounded-full transition-all duration-200 hover:shadow-lg hover:scale-105 tracking-wide"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Get Started
-                </Link>
+                {isAuthenticated ? (
+                  <Link
+                    href="/dashboard"
+                    className="flex items-center justify-center gap-2 px-4 py-3 text-center text-base font-bold theme-btn-primary rounded-lg transition-all duration-200 hover:shadow-lg hover:scale-105 tracking-wide"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <LayoutDashboard className="w-5 h-5" />
+                    Dashboard
+                  </Link>
+                ) : (
+                  <>
+                    <Link
+                      href={EXTERNAL_LINKS.login}
+                      className="block px-4 py-3 text-center text-base font-bold text-cod-gray-800 dark:text-cod-gray-200 hover:text-persian-blue-700 dark:hover:text-persian-blue-400 bg-cod-gray-50 dark:bg-cod-gray-800 hover:bg-gradient-to-r hover:from-persian-blue-50 hover:to-persian-blue-100 dark:hover:from-persian-blue-950/20 dark:hover:to-persian-blue-900/20 rounded-lg transition-all duration-200 tracking-wide"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Log In
+                    </Link>
+                    <Link
+                      href={EXTERNAL_LINKS.signup}
+                      className="block px-4 py-3 text-center text-base font-bold theme-btn-primary rounded-full transition-all duration-200 hover:shadow-lg hover:scale-105 tracking-wide"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Get Started
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>

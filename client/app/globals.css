@@ -6,8 +6,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
+  --font-mono: ui-monospace, monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -42,8 +42,6 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
-
-
   /* Cod Gray Color Palette */
   --color-cod-gray-50: #f6f6f6;
   --color-cod-gray-100: #e7e7e7;
@@ -77,24 +75,24 @@
   --hero-text-dark: var(--color-cod-gray-100);
   --hero-subtext-light: var(--color-cod-gray-600);
   --hero-subtext-dark: var(--color-cod-gray-400);
-  
+
   --card-bg-light: #ffffff;
   --card-bg-dark: var(--color-cod-gray-900);
   --card-border-light: var(--color-cod-gray-200);
   --card-border-dark: var(--color-cod-gray-700);
   --card-hover-light: var(--color-cod-gray-50);
   --card-hover-dark: var(--color-cod-gray-800);
-  
+
   --section-bg-light: #ffffff;
   --section-bg-dark: var(--color-cod-gray-950);
   --section-alt-bg-light: var(--color-cod-gray-50);
   --section-alt-bg-dark: var(--color-cod-gray-900);
-  
+
   --nav-bg-light: rgba(255, 255, 255, 0.8);
   --nav-bg-dark: rgba(18, 18, 18, 0.8);
   --nav-border-light: var(--color-cod-gray-300);
   --nav-border-dark: var(--color-cod-gray-700);
-  
+
   /* Button Theme Variables */
   --btn-primary-bg-light: var(--color-persian-blue-700);
   --btn-primary-bg-dark: var(--color-persian-blue-600);
@@ -102,7 +100,7 @@
   --btn-primary-text-dark: #ffffff;
   --btn-primary-hover-light: var(--color-persian-blue-800);
   --btn-primary-hover-dark: var(--color-persian-blue-700);
-  
+
   --btn-secondary-bg-light: transparent;
   --btn-secondary-bg-dark: transparent;
   --btn-secondary-text-light: var(--color-cod-gray-700);
@@ -421,4 +419,32 @@
 
 .dark .theme-gradient-card {
   background: linear-gradient(135deg, var(--card-bg-dark) 0%, var(--section-alt-bg-dark) 100%);
+}
+
+/* Custom Scrollbar Styles */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-gray-700 rounded-full;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400 dark:bg-gray-600;
+}
+
+/* Firefox scrollbar */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(209 213 219) transparent;
+}
+
+.dark .scrollbar-thin {
+  scrollbar-color: rgb(55 65 81) transparent;
 }
