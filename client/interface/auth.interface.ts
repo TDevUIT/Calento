@@ -7,9 +7,12 @@ export interface User {
   avatar?: string | null;
   is_verified: boolean;
   is_active: boolean;
-  created_at: Date;
-  updated_at: Date;
-  full_name: string;
+  created_at: string | Date;
+  updated_at: string | Date;
+  full_name?: string;
+  reset_token_identifier?: string | null;
+  reset_token_secret?: string | null;
+  reset_token_expires_at?: string | Date | null;
 }
 
 export interface AuthTokens {
