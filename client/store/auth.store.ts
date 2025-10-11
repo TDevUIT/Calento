@@ -33,6 +33,16 @@ const initialState: AuthState = {
   error: null,
 };
 
+const migrateUserData = (user: any): User | null => {
+  if (!user) return null;
+  
+  if (user.data && typeof user.data === 'object') {
+    return user.data as User;
+  }
+  
+  return user as User;
+};
+
 export const useAuthStore = create<AuthStore>()(
   persist(
     immer((set, get) => ({
@@ -40,7 +50,7 @@ export const useAuthStore = create<AuthStore>()(
 
       setUser: (user) =>
         set((state) => {
-          state.user = user;
+          state.user = migrateUserData(user);
           state.isAuthenticated = !!user;
           state.error = null;
         }),
@@ -70,7 +80,7 @@ export const useAuthStore = create<AuthStore>()(
           const authResponse = await login(credentials);
           
           set((state) => {
-            state.user = authResponse.user;
+            state.user = migrateUserData(authResponse.user);
             state.isAuthenticated = true;
             state.isLoading = false;
           });
@@ -96,7 +106,7 @@ export const useAuthStore = create<AuthStore>()(
           const authResponse = await register(userData);
           
           set((state) => {
-            state.user = authResponse.user;
+            state.user = migrateUserData(authResponse.user);
             state.isAuthenticated = true;
             state.isLoading = false;
           });
@@ -127,11 +137,6 @@ export const useAuthStore = create<AuthStore>()(
             state.error = null;
           });
         } catch (error) {
-          // Logout should always succeed on client side
-          if (process.env.NODE_ENV === 'development') {
-            console.warn('Logout request failed:', error);
-          }
-          
           set((state) => {
             state.user = null;
             state.isAuthenticated = false;
@@ -148,12 +153,10 @@ export const useAuthStore = create<AuthStore>()(
           });
 
           await refreshToken();
-          const user = await getCurrentUser();
-          
+      
           set((state) => {
-            state.user = user;
-            state.isAuthenticated = true;
             state.isLoading = false;
+            state.isAuthenticated = true;
           });
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : 'Token refresh failed';
@@ -175,33 +178,19 @@ export const useAuthStore = create<AuthStore>()(
             state.isLoading = true;
           });
 
-          const isAuthenticated = await checkAuthStatus();
+          const user = await getCurrentUser();
           
-          if (isAuthenticated) {
-            const user = await getCurrentUser();
-            set((state) => {
-              state.user = user;
-              state.isAuthenticated = true;
-              state.isLoading = false;
-            });
-          } else {
-            set((state) => {
-              state.user = null;
-              state.isAuthenticated = false;
-              state.isLoading = false;
-            });
-          }
+          set((state) => {
+            state.user = migrateUserData(user);
+            state.isAuthenticated = true;
+            state.isLoading = false;
+          });
         } catch (error) {
           set((state) => {
             state.user = null;
             state.isAuthenticated = false;
             state.isLoading = false;
           });
-          
-          // Auth check failed - user will be treated as logged out
-          if (process.env.NODE_ENV === 'development') {
-            console.warn('Auth status check failed:', error);
-          }
         }
       },
 
@@ -214,6 +203,16 @@ export const useAuthStore = create<AuthStore>()(
         user: state.user,
         isAuthenticated: state.isAuthenticated,
       }),
+      version: 1,
+      migrate: (persistedState: any, version: number) => {
+        if (version === 0) {
+          return {
+            ...persistedState,
+            user: migrateUserData(persistedState.user),
+          };
+        }
+        return persistedState;
+      },
     }
   )
 );

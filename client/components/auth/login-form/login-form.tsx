@@ -7,7 +7,13 @@ import { cn } from '@/lib/utils'
 import type { LoginFormProps } from '@/types/auth.types'
 import { LoginOptions, EmailLoginForm } from './components'
 import { useLogin } from '@/hook/auth/use-login'
-import { AUTH_SUCCESS_MESSAGES } from '@/constants/auth.constants'
+import { 
+  AUTH_SUCCESS_MESSAGES,
+  REDIRECT_DELAY_MS,
+  ERROR_TOAST_DURATION,
+  SUCCESS_TOAST_DURATION
+} from '@/constants/auth.constants'
+import { getLoginErrorNotification } from '@/utils/auth-error.utils'
 
 const LoginForm: React.FC<LoginFormProps> = ({ 
   className, 
@@ -24,23 +30,22 @@ const LoginForm: React.FC<LoginFormProps> = ({
 
   useEffect(() => {
     if (isSuccess) {
-      toast.success(AUTH_SUCCESS_MESSAGES.login.title, {
-        description: AUTH_SUCCESS_MESSAGES.login.description,
-        duration: 3000,
+      toast.success('🎉 ' + AUTH_SUCCESS_MESSAGES.login.title, {
+        description: '🚀 ' + AUTH_SUCCESS_MESSAGES.login.description,
+        duration: SUCCESS_TOAST_DURATION,
       })
-      // Delay navigation to show success message
       setTimeout(() => {
         router.push('/dashboard')
-      }, 1500)
+      }, REDIRECT_DELAY_MS)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSuccess])
+  }, [isSuccess, router])
 
   useEffect(() => {
     if (error) {
-      toast.error('Đăng nhập thất bại', {
-        description: error,
-        duration: 5000,
+      const { title, description } = getLoginErrorNotification(error)
+      toast.error(title, {
+        description,
+        duration: ERROR_TOAST_DURATION,
       })
     }
   }, [error])

@@ -7,10 +7,12 @@ import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import type { RegisterFormProps, RegistrationStep } from '@/types/auth.types'
 import { 
-  AUTH_VALIDATION_MESSAGES, 
   PASSWORD_MIN_LENGTH, 
   AUTH_ROUTES,
-  AUTH_SUCCESS_MESSAGES
+  AUTH_SUCCESS_MESSAGES,
+  REDIRECT_DELAY_MS,
+  ERROR_TOAST_DURATION,
+  SUCCESS_TOAST_DURATION
 } from '@/constants/auth.constants'
 import {
   ProgressIndicator,
@@ -20,6 +22,7 @@ import {
   ReviewStep,
 } from './components'
 import { useRegister } from '@/hook/auth/use-register'
+import { getRegisterErrorNotification, VALIDATION_ERRORS } from '@/utils/auth-error.utils'
 
 const RegisterForm: React.FC<RegisterFormProps> = ({ 
   className, 
@@ -40,23 +43,22 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 
   useEffect(() => {
     if (isSuccess) {
-      toast.success(AUTH_SUCCESS_MESSAGES.register.title, {
-        description: AUTH_SUCCESS_MESSAGES.register.description,
-        duration: 3000,
+      toast.success('🎉 ' + AUTH_SUCCESS_MESSAGES.register.title, {
+        description: '✨ ' + AUTH_SUCCESS_MESSAGES.register.description,
+        duration: SUCCESS_TOAST_DURATION,
       })
-      // Delay navigation to show success message
       setTimeout(() => {
         router.push('/dashboard')
-      }, 1500)
+      }, REDIRECT_DELAY_MS)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSuccess])
+  }, [isSuccess, router])
 
   useEffect(() => {
     if (error) {
-      toast.error('Đăng ký thất bại', {
-        description: error,
-        duration: 5000,
+      const { title, description } = getRegisterErrorNotification(error)
+      toast.error(title, {
+        description,
+        duration: ERROR_TOAST_DURATION,
       })
     }
   }, [error])
@@ -79,19 +81,21 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
     e.preventDefault()
     
     if (password !== confirmPassword) {
-      setPasswordError('Mật khẩu xác nhận không khớp')
-      toast.error('Lỗi xác thực', {
-        description: 'Mật khẩu xác nhận không khớp',
-        duration: 4000,
+      setPasswordError('Passwords do not match')
+      const { title, description } = VALIDATION_ERRORS.passwordMismatch
+      toast.error(title, {
+        description,
+        duration: ERROR_TOAST_DURATION,
       })
       return
     }
     
     if (password.length < PASSWORD_MIN_LENGTH) {
-      setPasswordError(`Mật khẩu phải có ít nhất ${PASSWORD_MIN_LENGTH} ký tự`)
-      toast.error('Lỗi xác thực', {
-        description: `Mật khẩu phải có ít nhất ${PASSWORD_MIN_LENGTH} ký tự`,
-        duration: 4000,
+      setPasswordError(`Password must be at least ${PASSWORD_MIN_LENGTH} characters`)
+      const { title, description } = VALIDATION_ERRORS.passwordTooShort(PASSWORD_MIN_LENGTH)
+      toast.error(title, {
+        description,
+        duration: ERROR_TOAST_DURATION,
       })
       return
     }
@@ -114,7 +118,6 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
         lastName 
       })
     } catch {
-      // Error handled by useRegister hook and displayed via toast
     }
   }
 
@@ -125,62 +128,63 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 
   const handleConfirmPasswordChange = (value: string) => {
     setConfirmPassword(value)
-    setPasswordError('')
   }
 
   return (
-    <div className={cn('w-full flex justify-center', className)}>
+    <div className={cn('w-full flex justify-center ', className)}>
       <div className="w-full max-w-sm 2xl:max-w-md space-y-4 md:space-y-5">
         <RegisterSocialOptions onGoogleRegister={onGoogleRegister} />
 
-        <ProgressIndicator currentStep={currentStep} />
+        <div className="max-h-[calc(100vh-240px)] sm:max-h-[calc(100vh-260px)] md:max-h-[calc(100vh-280px)] lg:max-h-[calc(100vh-240px)] xl:max-h-[calc(100vh-260px)] overflow-y-auto overflow-x-hidden pr-1 space-y-4 md:space-y-5 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent">
+          <ProgressIndicator currentStep={currentStep} />
 
-        <div className="space-y-3 md:space-y-4 min-h-[350px] md:min-h-[400px] relative">
-          {currentStep === 1 && (
-            <PersonalInfoStep
-              firstName={firstName}
-              lastName={lastName}
-              email={email}
-              onFirstNameChange={setFirstName}
-              onLastNameChange={setLastName}
-              onEmailChange={setEmail}
-              onNext={handleNextStep}
-            />
-          )}
+          <div className="space-y-3 md:space-y-4 relative pb-4 mb-10">
+            {currentStep === 1 && (
+              <PersonalInfoStep
+                firstName={firstName}
+                lastName={lastName}
+                email={email}
+                onFirstNameChange={setFirstName}
+                onLastNameChange={setLastName}
+                onEmailChange={setEmail}
+                onNext={handleNextStep}
+              />
+            )}
 
-          {currentStep === 2 && (
-            <SecurityStep
-              username={username}
-              password={password}
-              confirmPassword={confirmPassword}
-              passwordError={passwordError}
-              onUsernameChange={setUsername}
-              onPasswordChange={handlePasswordChange}
-              onConfirmPasswordChange={handleConfirmPasswordChange}
-              onNext={handleNextStep}
-              onBack={handlePrevStep}
-            />
-          )}
+            {currentStep === 2 && (
+              <SecurityStep
+                username={username}
+                password={password}
+                confirmPassword={confirmPassword}
+                passwordError={passwordError}
+                onUsernameChange={setUsername}
+                onPasswordChange={handlePasswordChange}
+                onConfirmPasswordChange={handleConfirmPasswordChange}
+                onNext={handleNextStep}
+                onBack={handlePrevStep}
+              />
+            )}
 
-          {currentStep === 3 && (
-            <ReviewStep
-              firstName={firstName}
-              lastName={lastName}
-              email={email}
-              username={username}
-              loading={isLoading}
-              onSubmit={handleSubmit}
-              onBack={handlePrevStep}
-            />
-          )}
+            {currentStep === 3 && (
+              <ReviewStep
+                firstName={firstName}
+                lastName={lastName}
+                email={email}
+                username={username}
+                loading={isLoading}
+                onSubmit={handleSubmit}
+                onBack={handlePrevStep}
+              />
+            )}
 
-          <div className="text-center">
-            <p className="text-xs sm:text-sm text-muted-foreground">
-              Already have an account?{' '}
-              <Link href={AUTH_ROUTES.login} className="text-primary hover:underline font-medium">
-                Sign in
-              </Link>
-            </p>
+            <div className="text-center pt-2 pb-4">
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                Already have an account?{' '}
+                <Link href={AUTH_ROUTES.login} className="text-primary hover:underline font-medium">
+                  Sign in
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
       </div>
