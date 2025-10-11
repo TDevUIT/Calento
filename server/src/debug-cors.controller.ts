@@ -1,8 +1,10 @@
 import { Controller, Get } from '@nestjs/common';
 import env from './config/env';
+import { Public } from './common/decorators/public.decorator';
 
 @Controller('debug')
 export class DebugController {
+  @Public()
   @Get('cors')
   getCorsConfig() {
     return {

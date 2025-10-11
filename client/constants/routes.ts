@@ -1,11 +1,3 @@
-/**
- * Application Routes Configuration
- * Centralized route management for the application
- */
-
-// ============================================
-// PUBLIC ROUTES (No authentication required)
-// ============================================
 export const PUBLIC_ROUTES = {
   HOME: '/',
   ABOUT: '/about',
@@ -14,9 +6,7 @@ export const PUBLIC_ROUTES = {
   FEATURES: '/features',
 } as const;
 
-// ============================================
-// AUTH ROUTES (Guest only - redirects if authenticated)
-// ============================================
+
 export const AUTH_ROUTES = {
   LOGIN: '/auth/login',
   REGISTER: '/auth/register',
@@ -25,9 +15,6 @@ export const AUTH_ROUTES = {
   VERIFY_EMAIL: '/auth/verify-email',
 } as const;
 
-// ============================================
-// PROTECTED ROUTES (Authentication required)
-// ============================================
 export const PROTECTED_ROUTES = {
   DASHBOARD: '/dashboard',
   
@@ -56,36 +43,31 @@ export const PROTECTED_ROUTES = {
   ADMIN: '/admin',
 } as const;
 
-// ============================================
-// API ROUTES
-// ============================================
+
 export const API_ROUTES = {
   // Auth
-  AUTH_LOGIN: '/api/auth/login',
-  AUTH_REGISTER: '/api/auth/register',
-  AUTH_LOGOUT: '/api/auth/logout',
-  AUTH_REFRESH: '/api/auth/refresh',
-  AUTH_ME: '/api/auth/me',
+  AUTH_LOGIN: '/api/v1/auth/login',
+  AUTH_REGISTER: '/api/v1/auth/register',
+  AUTH_LOGOUT: '/api/v1/auth/logout',
+  AUTH_REFRESH: '/api/v1/auth/refresh',
+  AUTH_ME: '/api/v1/auth/me',
   
   // Events
-  EVENTS: '/api/events',
-  EVENT_DETAIL: (id: string) => `/api/events/${id}`,
+  EVENTS: '/api/v1/events',
+  EVENT_DETAIL: (id: string) => `/api/v1/events/${id}`,
   
   // Calendar
-  CALENDAR_SYNC: '/api/calendar/sync',
+  CALENDAR_SYNC: '/api/v1/calendar/sync',
   
-  // Google
-  GOOGLE_AUTH: '/api/google/auth',
-  GOOGLE_CALENDARS: '/api/google/calendars',
+  // Google Integration
+  GOOGLE_AUTH_URL: '/api/google/auth/url',
+  GOOGLE_STATUS: '/api/google/status',
+  GOOGLE_DISCONNECT: '/api/google/disconnect',
+  GOOGLE_CALENDARS_SYNC: '/api/google/calendars/sync',
+  GOOGLE_CALENDARS_LIST: '/api/google/calendars/list',
+  GOOGLE_TOKEN_REFRESH: '/api/google/token/refresh',
 } as const;
 
-// ============================================
-// ROUTE PATTERNS (for middleware matching)
-// ============================================
-
-/**
- * Routes that don't require authentication
- */
 export const PUBLIC_ROUTE_PATTERNS = [
   '/',
   '/about',

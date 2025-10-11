@@ -2,6 +2,7 @@ import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'ax
 import { HTTP_CONFIG, HTTP_STATUS, DEFAULT_HEADERS } from './http.config';
 import { shouldRetryRequest, getRetryDelay, markForRetry, delay, RetryConfig } from '../utils/retry.utils';
 import { logger } from '../utils/logger.utils';
+import { API_ROUTES, AUTH_ROUTES } from '../constants/routes';
 
 export const api = axios.create({
   baseURL: HTTP_CONFIG.BASE_URL,
@@ -10,14 +11,10 @@ export const api = axios.create({
   headers: DEFAULT_HEADERS,
 });
 
-/**
- * Refresh token helper - uses direct axios call to avoid circular dependency
- * This bypasses the interceptor to prevent infinite loops
- */
+
 const refreshAuthToken = async (): Promise<void> => {
-  const API_PREFIX = process.env.NEXT_PUBLIC_API_PREFIX || '/api';
   await axios.post(
-    `${HTTP_CONFIG.BASE_URL}${API_PREFIX}/auth/refresh`,
+    `${HTTP_CONFIG.BASE_URL}${API_ROUTES.AUTH_REFRESH}`,
     {},
     { 
       withCredentials: true,
@@ -53,12 +50,11 @@ api.interceptors.response.use(
     }
 
     if (status === HTTP_STATUS.UNAUTHORIZED) {
-      // Prevent infinite loop - don't retry refresh endpoint itself
       if (originalRequest?.url?.includes('/auth/refresh')) {
         logger.warn('Refresh token expired, redirecting to login');
         
         if (typeof window !== 'undefined') {
-          window.location.href = '/auth/login';
+          window.location.href = AUTH_ROUTES.LOGIN;
         }
         
         return Promise.reject(error);
@@ -75,7 +71,7 @@ api.interceptors.response.use(
         logger.warn('Token refresh failed, redirecting to login');
         
         if (typeof window !== 'undefined') {
-          window.location.href = '/auth/login';
+          window.location.href = AUTH_ROUTES.LOGIN;
         }
         
         return Promise.reject(refreshError);

@@ -5,7 +5,7 @@ export const HTTP_CONFIG = {
     NETWORK: 2,
   },
   RETRY_DELAY: (attemptIndex: number) => Math.pow(2, attemptIndex) * 1000,
-  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api',
+  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
 } as const;
 
 export const HTTP_STATUS = {

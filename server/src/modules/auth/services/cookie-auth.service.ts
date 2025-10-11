@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import type { Response, Request } from 'express';
+import type { Response, Request, CookieOptions } from 'express';
 import env from '../../../config/env';
 import { AuthTokens, JwtPayload } from '../interfaces/auth.interface';
 
@@ -11,10 +11,11 @@ export class CookieAuthService {
   constructor(private readonly jwtService: JwtService) {}
 
   setAuthCookies(response: Response, tokens: AuthTokens): void {
-    const cookieOptions = {
+    const isProd = env.NODE_ENV === 'production';
+    const cookieOptions: CookieOptions = {
       httpOnly: true,
-      secure: env.NODE_ENV === 'production',
-      sameSite: 'strict' as const,
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
       path: '/',
     };
 
@@ -32,10 +33,11 @@ export class CookieAuthService {
   }
 
   clearAuthCookies(response: Response): void {
-    const cookieOptions = {
+    const isProd = env.NODE_ENV === 'production';
+    const cookieOptions: CookieOptions = {
       httpOnly: true,
-      secure: env.NODE_ENV === 'production',
-      sameSite: 'strict' as const,
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
       path: '/',
     };
 
