@@ -1,6 +1,6 @@
 'use client';
 
-import * as React from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import type { LoginFormProps } from '@/types/auth.types'
@@ -17,12 +17,12 @@ const LoginForm: React.FC<LoginFormProps> = ({
   const { toast } = useToast()
   const { login, isLoading, error, isSuccess } = useLogin()
   
-  const [email, setEmail] = React.useState('')
-  const [password, setPassword] = React.useState('')
-  const [remember, setRemember] = React.useState(true)
-  const [showEmailForm, setShowEmailForm] = React.useState(false)
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [remember, setRemember] = useState(true)
+  const [showEmailForm, setShowEmailForm] = useState(false)
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isSuccess) {
       toast({
         title: 'Login successful!',
@@ -32,7 +32,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
     }
   }, [isSuccess, router, toast])
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (error) {
       toast({
         title: 'Login failed',

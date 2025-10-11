@@ -1,8 +1,6 @@
 'use client';
 
-import * as React from 'react'
 import { ArrowLeft } from 'lucide-react'
-import { ICON_SIZES } from '@/constants/auth.constants'
 
 type BackButtonProps = {
   onClick: () => void
@@ -20,7 +18,7 @@ export const BackButton: React.FC<BackButtonProps> = ({
       className="absolute left-0 p-1.5 md:p-2 hover:bg-muted rounded-full transition-colors"
       aria-label={label}
     >
-      <ArrowLeft className={ICON_SIZES.navigation} />
+      <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
     </button>
   )
 }

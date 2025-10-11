@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 import { INTEGRATIONS_DATA } from '@/config/landing-data.config';
 import type { IntegrationItem } from '@/types/landing.types';
 
@@ -54,7 +55,7 @@ export const IntegrationsSection: React.FC = () => {
           <p className="text-xl text-cod-gray-600 dark:text-cod-gray-300 max-w-3xl mx-auto leading-relaxed transition-colors duration-300">
             Connect all your favorite productivity tools and keep everything in sync.
             <br />
-            From task management to communication - we&apos;ve got you covered.
+            From task management to communication - we've got you covered.
           </p>
         </motion.div>
 
@@ -69,11 +70,10 @@ export const IntegrationsSection: React.FC = () => {
             <motion.div key={integration.id} variants={itemVariants}>
               <Link
                 href={integration.href}
-                className={`group relative block bg-white border border-cod-gray-200/50 rounded-2xl p-6 text-center transition-all duration-500 ease-out hover:border-blue-500/50 hover:scale-105 dark:bg-cod-gray-800 dark:border-cod-gray-700/50 dark:hover:border-blue-400/60 dark:hover:shadow-cod-gray-950/30 ${
-                  integration.comingSoon 
-                    ? 'opacity-50 cursor-not-allowed pointer-events-none grayscale' 
-                    : ''
-                }`}
+                className={cn(
+                  'group relative block bg-white border border-cod-gray-200/50 rounded-2xl p-6 text-center transition-all duration-500 ease-out hover:border-blue-500/50 hover:scale-105 dark:bg-cod-gray-800 dark:border-cod-gray-700/50 dark:hover:border-blue-400/60 dark:hover:shadow-cod-gray-950/30',
+                  integration.comingSoon && 'opacity-50 cursor-not-allowed pointer-events-none grayscale'
+                )}
                 aria-label={`${integration.name} integration: ${integration.description}`}
                 {...(integration.comingSoon && { 'aria-disabled': 'true' as const })}
               >

@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { cn } from '@/lib/utils';
 import { TIMELINE_DATA } from '@/config/landing-data.config';
 import { EXTERNAL_LINKS } from '@/config/app.config';
 
@@ -19,7 +20,7 @@ export const ThirtyDaySection: React.FC = () => {
                     {TIMELINE_DATA.map((phase) => (
                         <div key={phase.id} className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
                             <div className="text-center mb-6">
-                                <div className={`text-2xl font-bold ${phase.period === "Day 30" ? "text-blue-600" : "text-gray-900"}`}>
+                                <div className={cn('text-2xl font-bold', phase.period === "Day 30" ? "text-blue-600" : "text-gray-900")}>
                                     {phase.period}
                                 </div>
                             </div>

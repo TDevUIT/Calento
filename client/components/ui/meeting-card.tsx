@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { cn } from '@/lib/utils';
 
 interface Attendee {
   name: string;
@@ -44,7 +45,7 @@ export const MeetingCard: React.FC<MeetingCardProps> = ({
             <span>{duration}</span>
           </div>
         </div>
-        <span className={`px-3 py-1 rounded-full text-xs font-medium border ${statusColors[status]}`}>
+        <span className={cn('px-3 py-1 rounded-full text-xs font-medium border', statusColors[status])}>
           {status === 'in-progress' ? 'Live' : status === 'completed' ? 'Done' : 'Upcoming'}
         </span>
       </div>

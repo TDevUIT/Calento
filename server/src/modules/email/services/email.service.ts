@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { APP_URL_CONSTANTS } from '../../../common/constants';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import { Transporter } from 'nodemailer';
@@ -143,24 +144,17 @@ export class EmailService {
   ): Promise<string> {
     const template = await this.loadTemplate(templateName);
 
+    const frontendUrl = this.configService.get<string>(
+      'FRONTEND_URL',
+      APP_URL_CONSTANTS.DEFAULTS.FRONTEND,
+    );
+
     const fullContext = {
       ...context,
       year: new Date().getFullYear(),
-      dashboardUrl:
-        this.configService.get<string>(
-          'FRONTEND_URL',
-          'http://localhost:3000',
-        ) + '/dashboard',
-      docsUrl:
-        this.configService.get<string>(
-          'FRONTEND_URL',
-          'http://localhost:3000',
-        ) + '/docs',
-      calendarUrl:
-        this.configService.get<string>(
-          'FRONTEND_URL',
-          'http://localhost:3000',
-        ) + '/calendar',
+      dashboardUrl: `${frontendUrl}${APP_URL_CONSTANTS.FRONTEND_ROUTES.DASHBOARD}`,
+      docsUrl: `${frontendUrl}${APP_URL_CONSTANTS.FRONTEND_ROUTES.DOCS}`,
+      calendarUrl: `${frontendUrl}${APP_URL_CONSTANTS.FRONTEND_ROUTES.CALENDAR}`,
     };
 
     return template(fullContext);

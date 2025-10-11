@@ -1,15 +1,10 @@
 'use client';
 
-import * as React from 'react'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { 
-  AUTH_PLACEHOLDERS, 
-  AUTH_BUTTON_TEXT, 
-  FORM_FIELD_SIZES, 
-  BUTTON_SIZES 
-} from '@/constants/auth.constants'
+import { AUTH_PLACEHOLDERS, AUTH_BUTTON_TEXT } from '@/constants/auth.constants'
 
 type PersonalInfoStepProps = {
   firstName: string
@@ -40,7 +35,7 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
       
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 md:gap-3">
         <div className="space-y-1.5 md:space-y-2">
-          <Label htmlFor="firstName" className={FORM_FIELD_SIZES.text}>
+          <Label htmlFor="firstName" className="text-sm md:text-base 2xl:text-base">
             First Name
           </Label>
           <Input
@@ -50,12 +45,12 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             value={firstName}
             onChange={(e) => onFirstNameChange(e.target.value)}
             required
-            className={`${FORM_FIELD_SIZES.height} ${FORM_FIELD_SIZES.text}`}
+            className="h-9 md:h-10 2xl:h-11 text-sm md:text-base 2xl:text-base"
           />
         </div>
         
         <div className="space-y-1.5 md:space-y-2">
-          <Label htmlFor="lastName" className={FORM_FIELD_SIZES.text}>
+          <Label htmlFor="lastName" className="text-sm md:text-base 2xl:text-base">
             Last Name
           </Label>
           <Input
@@ -65,13 +60,13 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             value={lastName}
             onChange={(e) => onLastNameChange(e.target.value)}
             required
-            className={`${FORM_FIELD_SIZES.height} ${FORM_FIELD_SIZES.text}`}
+            className="h-9 md:h-10 2xl:h-11 text-sm md:text-base 2xl:text-base"
           />
         </div>
       </div>
 
       <div className="space-y-1.5 md:space-y-2">
-        <Label htmlFor="email" className={FORM_FIELD_SIZES.text}>
+        <Label htmlFor="email" className="text-sm md:text-base 2xl:text-base">
           Email
         </Label>
         <Input
@@ -81,14 +76,14 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
           value={email}
           onChange={(e) => onEmailChange(e.target.value)}
           required
-          className={`${FORM_FIELD_SIZES.height} ${FORM_FIELD_SIZES.text}`}
+          className="h-9 md:h-10 2xl:h-11 text-sm md:text-base 2xl:text-base"
         />
       </div>
 
       <Button 
         type="button"
         onClick={onNext}
-        className={`w-full mt-2 md:mt-0 rounded-[4px] ${BUTTON_SIZES.submit} ${FORM_FIELD_SIZES.text}`}
+        className="w-full mt-2 md:mt-0 rounded-[4px] h-10 md:h-11 2xl:h-12 text-sm md:text-base 2xl:text-base"
         disabled={!isValid}
       >
         {AUTH_BUTTON_TEXT.continue}

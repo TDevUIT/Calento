@@ -1,6 +1,6 @@
 'use client';
 
-import * as React from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/auth.store';
 
 interface AuthProviderProps {
@@ -9,14 +9,17 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const { checkAuthStatus, isLoading } = useAuthStore();
-  const [isInitialized, setIsInitialized] = React.useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const initAuth = async () => {
       try {
         await checkAuthStatus();
       } catch (error) {
-        console.warn('Auth initialization failed:', error);
+        // Failed to check auth - user will see login page if needed
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('Auth initialization failed:', error);
+        }
       } finally {
         setIsInitialized(true);
       }

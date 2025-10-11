@@ -1,13 +1,9 @@
 'use client';
 
-import * as React from 'react'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { BackButton, TermsAndPolicy } from '@/components/atoms'
-import { 
-  AUTH_BUTTON_TEXT, 
-  FORM_FIELD_SIZES, 
-  BUTTON_SIZES 
-} from '@/constants/auth.constants'
+import { AUTH_BUTTON_TEXT } from '@/constants/auth.constants'
 
 type ReviewStepProps = {
   firstName: string
@@ -59,7 +55,7 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
 
       <Button 
         type="submit"
-        className={`w-full mt-2 md:mt-0 ${BUTTON_SIZES.submit} ${FORM_FIELD_SIZES.text}`}
+        className="w-full mt-2 md:mt-0 h-10 md:h-11 2xl:h-12 text-sm md:text-base 2xl:text-base"
         disabled={loading}
       >
         {loading ? AUTH_BUTTON_TEXT.register.loading : AUTH_BUTTON_TEXT.register.idle}

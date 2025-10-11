@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { cn } from '@/lib/utils';
 
 interface CalendarEvent {
   id: string;
@@ -47,13 +48,10 @@ export const CalendarPreview: React.FC = () => {
         {days.map((day, index) => (
           <div
             key={day}
-            className={`
-              text-center py-2 rounded-lg text-sm font-medium
-              ${index === today 
-                ? 'bg-violet-500 text-white' 
-                : 'text-gray-600'
-              }
-            `}
+            className={cn(
+              'text-center py-2 rounded-lg text-sm font-medium',
+              index === today ? 'bg-violet-500 text-white' : 'text-gray-600'
+            )}
           >
             <div className="text-xs opacity-75">{day}</div>
             <div className="text-lg font-semibold">{18 + index}</div>
@@ -72,7 +70,7 @@ export const CalendarPreview: React.FC = () => {
             key={event.id}
             className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer"
           >
-            <div className={`w-1 h-12 ${event.color} rounded-full`}></div>
+            <div className={cn('w-1 h-12 rounded-full', event.color)}></div>
             <div className="flex-1">
               <h5 className="text-sm font-medium text-gray-900">{event.title}</h5>
               <p className="text-xs text-gray-500">{event.time}</p>

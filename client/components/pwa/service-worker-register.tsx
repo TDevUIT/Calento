@@ -14,14 +14,18 @@ export function ServiceWorkerRegister() {
         navigator.serviceWorker
           .register('/sw.js')
           .then((registration) => {
-            console.log('SW registered:', registration);
+            if (process.env.NODE_ENV === 'development') {
+              console.log('SW registered:', registration);
+            }
 
             setInterval(() => {
               registration.update();
             }, 60 * 60 * 1000);
           })
           .catch((error) => {
-            console.error('SW registration failed:', error);
+            if (process.env.NODE_ENV === 'development') {
+              console.error('SW registration failed:', error);
+            }
           });
       });
     }

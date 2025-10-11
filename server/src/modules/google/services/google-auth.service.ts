@@ -2,7 +2,11 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { google, Auth } from 'googleapis';
 import { UserCredentialsRepository } from '../repositories/user-credentials.repository';
-import { TIME_CONSTANTS } from '../../../common/constants';
+import { 
+  TIME_CONSTANTS, 
+  GOOGLE_API_CONSTANTS, 
+  OAUTH_CONSTANTS 
+} from '../../../common/constants';
 
 @Injectable()
 export class GoogleAuthService {
@@ -21,18 +25,13 @@ export class GoogleAuthService {
   }
 
   getAuthUrl(state?: string): string {
-    const scopes = [
-      'https://www.googleapis.com/auth/calendar',
-      'https://www.googleapis.com/auth/calendar.events',
-      'https://www.googleapis.com/auth/userinfo.email',
-      'https://www.googleapis.com/auth/userinfo.profile',
-    ];
+    const scopes = [...GOOGLE_API_CONSTANTS.SCOPE_SETS.FULL_CALENDAR_ACCESS];
 
     return this.oauth2Client.generateAuthUrl({
-      access_type: 'offline',
+      access_type: OAUTH_CONSTANTS.GOOGLE.ACCESS_TYPE,
       scope: scopes,
       state: state,
-      prompt: 'consent',
+      prompt: OAUTH_CONSTANTS.GOOGLE.PROMPT,
     });
   }
 

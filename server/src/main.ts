@@ -43,64 +43,94 @@ async function bootstrap() {
   LoggerConfig.log(`🌐 CORS Origins: ${env.CORS_ORIGIN.join(', ')}`);
   LoggerConfig.log(`🍪 CORS Credentials: ${env.CORS_CREDENTIALS}`);
 
-  app.enableCors({
-    origin: (origin, callback) => {
-      // Always log CORS checks (not just debug level)
-      LoggerConfig.log(`🔍 CORS Check - Origin: "${origin || 'none'}"`);
+  // app.enableCors({
+  //   origin: (origin, callback) => {
+  //     // Always log CORS checks (not just debug level)
+  //     LoggerConfig.log(`🔍 CORS Check - Origin: "${origin || 'none'}"`);
       
-      if (!origin) {
-        LoggerConfig.log('✅ CORS: Allowing request with no origin');
-        return callback(null, true);
-      }
+  //     if (!origin) {
+  //       LoggerConfig.log('✅ CORS: Allowing request with no origin');
+  //       return callback(null, true);
+  //     }
 
-      if (env.CORS_ORIGIN.includes('*')) {
-        if (env.CORS_CREDENTIALS) {
-          LoggerConfig.error(
-            '❌ CORS: Wildcard (*) with credentials=true is not allowed by browsers. Use specific origins.',
-          );
-          return callback(new Error('Invalid CORS configuration'));
-        }
-        LoggerConfig.log('✅ CORS: Allowing wildcard origin');
-        return callback(null, true);
-      }
+  //     if (env.CORS_ORIGIN.includes('*')) {
+  //       if (env.CORS_CREDENTIALS) {
+  //         LoggerConfig.error(
+  //           '❌ CORS: Wildcard (*) with credentials=true is not allowed by browsers. Use specific origins.',
+  //         );
+  //         return callback(new Error('Invalid CORS configuration'));
+  //       }
+  //       LoggerConfig.log('✅ CORS: Allowing wildcard origin');
+  //       return callback(null, true);
+  //     }
 
-      const isAllowed = env.CORS_ORIGIN.some(allowedOrigin => {
-        LoggerConfig.log(`🔍 Checking origin "${origin}" against allowed "${allowedOrigin}"`);
+  //     const isAllowed = env.CORS_ORIGIN.some(allowedOrigin => {
+  //       LoggerConfig.log(`🔍 Checking origin "${origin}" against allowed "${allowedOrigin}"`);
         
-        // Exact match
-        if (allowedOrigin === origin) {
-          LoggerConfig.log(`✅ Exact match found: ${allowedOrigin}`);
-          return true;
-        }
+  //       // Exact match
+  //       if (allowedOrigin === origin) {
+  //         LoggerConfig.log(`✅ Exact match found: ${allowedOrigin}`);
+  //         return true;
+  //       }
         
-        // For development: allow localhost with any port if localhost is configured
-        if (origin.startsWith('http://localhost:') && 
-            env.CORS_ORIGIN.some(o => o.startsWith('http://localhost:'))) {
-          LoggerConfig.log(`✅ Localhost match found for: ${origin}`);
-          return true;
-        }
+  //       // For development: allow localhost with any port if localhost is configured
+  //       if (origin.startsWith('http://localhost:') && 
+  //           env.CORS_ORIGIN.some(o => o.startsWith('http://localhost:'))) {
+  //         LoggerConfig.log(`✅ Localhost match found for: ${origin}`);
+  //         return true;
+  //       }
         
-        return false;
-      });
+  //       return false;
+  //     });
 
-      if (isAllowed) {
-        LoggerConfig.log(`✅ CORS: Allowing origin: "${origin}"`);
-        return callback(null, origin);
-      }
+  //     if (isAllowed) {
+  //       LoggerConfig.log(`✅ CORS: Allowing origin: "${origin}"`);
+  //       return callback(null, origin);
+  //     }
 
-      // Always log blocked origins with full details
-      LoggerConfig.error(`❌ CORS BLOCKED - Origin: "${origin}"`);
-      LoggerConfig.error(`📋 Configured origins: [${env.CORS_ORIGIN.join(', ')}]`);
-      LoggerConfig.error(`🔍 Origin type: ${typeof origin}, Length: ${origin?.length}`);
-      callback(new Error('Not allowed by CORS'));
-    },
-    credentials: env.CORS_CREDENTIALS,
-    methods: env.CORS_METHODS.split(','),
-    exposedHeaders: env.CORS_EXPOSED_HEADERS.split(','),
-    maxAge: env.CORS_MAX_AGE,
-    preflightContinue: false,
-    optionsSuccessStatus: 204,
+  //     // Always log blocked origins with full details
+  //     LoggerConfig.error(`❌ CORS BLOCKED - Origin: "${origin}"`);
+  //     LoggerConfig.error(`📋 Configured origins: [${env.CORS_ORIGIN.join(', ')}]`);
+  //     LoggerConfig.error(`🔍 Origin type: ${typeof origin}, Length: ${origin?.length}`);
+  //     callback(new Error('Not allowed by CORS'));
+  //   },
+  //   credentials: env.CORS_CREDENTIALS,
+  //   methods: env.CORS_METHODS.split(','),
+  //   exposedHeaders: env.CORS_EXPOSED_HEADERS.split(','),
+  //   maxAge: env.CORS_MAX_AGE,
+  //   preflightContinue: false,
+  //   optionsSuccessStatus: 204,
+  // });
+
+
+  // default for test
+  app.enableCors({
+    origin: [
+      'http://localhost',
+      'http://localhost:80',
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
+      'http://0.0.0.0:3000',
+      'http://localhost:5173',
+      'http://127.0.0.1:5173',
+      'http://0.0.0.0:5173',
+      'https://localhost:3000',
+      'http://nginx',
+      'http://client:3000',
+      'http://client',
+      'http://client:80',
+      '*'
+    ],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Requested-With',
+      'Cookie',
+    ],
+    credentials: true,
   });
+
 
   app.useGlobalPipes(
     new ValidationPipe({

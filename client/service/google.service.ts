@@ -172,7 +172,10 @@ export const ensureValidToken = async (): Promise<boolean> => {
     }
     return true;
   } catch (error) {
-    console.warn('Failed to refresh Google token:', getErrorMessage(error));
+    // Token refresh failed - user will need to reconnect
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('Failed to refresh Google token:', getErrorMessage(error));
+    }
     return false;
   }
 };

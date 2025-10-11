@@ -44,11 +44,12 @@ export const Header: React.FC = () => {
   return (
     <>
       <header
-        className={`w-full sticky top-0 left-0 right-0 z-[51] transition-all duration-300 ease-in-out ${
+        className={cn(
+          'w-full sticky top-0 left-0 right-0 z-[51] transition-all duration-300 ease-in-out',
           isScrolled 
             ? 'bg-white/95 dark:bg-black/95 backdrop-blur-lg' 
             : 'bg-white dark:bg-black'
-        }`}
+        )}
         role="banner"
       >
         <div className="max-w-7xl mx-auto">

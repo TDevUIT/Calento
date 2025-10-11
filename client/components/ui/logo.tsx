@@ -10,7 +10,7 @@ interface LogoProps {
 export function Logo({ size = 'md', className }: LogoProps) {
   return (
     <div className={cn('flex items-center group', className)}>
-      <div className={`flex items-center ${size === 'xs' ? 'gap-1' : size === 'sm' ? 'gap-2' : 'gap-3'}`}>
+      <div className={cn('flex items-center', size === 'xs' ? 'gap-1' : size === 'sm' ? 'gap-2' : 'gap-3')}>
         <svg 
           width={size === 'xs' ? 100 : size === 'sm' ? 120 : size === 'md' ? 160 : 200} 
           height={size === 'xs' ? 20 : size === 'sm' ? 24 : size === 'md' ? 32 : 40} 

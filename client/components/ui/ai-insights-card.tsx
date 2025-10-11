@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { cn } from '@/lib/utils';
 
 interface Insight {
   icon: string;
@@ -52,7 +53,7 @@ export const AIInsightsCard: React.FC = () => {
             className="bg-white/10 backdrop-blur-lg rounded-xl p-4 hover:bg-white/15 transition-all"
           >
             <div className="flex items-start gap-3">
-              <div className={`w-10 h-10 bg-gradient-to-br ${insight.color} rounded-lg flex items-center justify-center text-xl flex-shrink-0`}>
+              <div className={cn('w-10 h-10 bg-gradient-to-br rounded-lg flex items-center justify-center text-xl flex-shrink-0', insight.color)}>
                 {insight.icon}
               </div>
               <div className="flex-1">

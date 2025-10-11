@@ -21,7 +21,10 @@ export const useGoogleTokenRefresh = () => {
       try {
         await refreshToken();
       } catch (error) {
-        console.warn('Failed to auto-refresh Google token:', error);
+        // Token refresh will be retried on next user action
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('Failed to auto-refresh Google token:', error);
+        }
       }
     }, refreshTime);
 

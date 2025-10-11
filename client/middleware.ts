@@ -45,7 +45,9 @@ export function middleware(request: NextRequest) {
   if (isProtectedRoute(pathname) && !isAuthenticated) {
     // Redirect to login with return URL
     const loginUrl = getLoginRedirectUrl(pathname);
-    console.log('⚠️  Unauthorized access, redirecting to:', loginUrl);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('⚠️  Unauthorized access, redirecting to:', loginUrl);
+    }
     return NextResponse.redirect(new URL(loginUrl, request.url));
   }
 
@@ -59,7 +61,9 @@ export function middleware(request: NextRequest) {
       ? returnUrl 
       : PROTECTED_ROUTES.DASHBOARD;
     
-    console.log('✅ Already authenticated, redirecting to:', redirectTo);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('✅ Already authenticated, redirecting to:', redirectTo);
+    }
     return NextResponse.redirect(new URL(redirectTo, request.url));
   }
 

@@ -1,6 +1,6 @@
 'use client';
 
-import * as React from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -29,16 +29,16 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
   const { toast } = useToast()
   const { register, isLoading, error, isSuccess } = useRegister()
   
-  const [email, setEmail] = React.useState('')
-  const [username, setUsername] = React.useState('')
-  const [password, setPassword] = React.useState('')
-  const [confirmPassword, setConfirmPassword] = React.useState('')
-  const [firstName, setFirstName] = React.useState('')
-  const [lastName, setLastName] = React.useState('')
-  const [passwordError, setPasswordError] = React.useState('')
-  const [currentStep, setCurrentStep] = React.useState<RegistrationStep>(1)
+  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [passwordError, setPasswordError] = useState('')
+  const [currentStep, setCurrentStep] = useState<RegistrationStep>(1)
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isSuccess) {
       toast({
         title: 'Registration successful!',
@@ -48,7 +48,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
     }
   }, [isSuccess, router, toast])
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (error) {
       toast({
         title: 'Registration failed',

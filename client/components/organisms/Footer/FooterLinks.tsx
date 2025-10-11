@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils';
 import { FooterSection } from './FooterSection';
 import { Logo } from '@/components/ui/logo';
 import { FOOTER_SECTIONS, FOOTER_BRAND, SOCIAL_PLATFORMS } from '@/constants/footer.constants';
@@ -23,7 +24,7 @@ export const FooterLinks: React.FC = () => {
                                     <a
                                         key={platform.name}
                                         href={platform.href}
-                                        className={`p-2 bg-white dark:bg-cod-gray-700 text-cod-gray-700 dark:text-cod-gray-300 rounded-lg transition-all duration-300 hover:scale-105 border border-cod-gray-200 dark:border-cod-gray-600 hover:border-transparent ${platform.color}`}
+                                        className={cn('p-2 bg-white dark:bg-cod-gray-700 text-cod-gray-700 dark:text-cod-gray-300 rounded-lg transition-all duration-300 hover:scale-105 border border-cod-gray-200 dark:border-cod-gray-600 hover:border-transparent', platform.color)}
                                         aria-label={platform.name}
                                         title={platform.name}
                                         target="_blank"
@@ -63,7 +64,7 @@ export const FooterLinks: React.FC = () => {
                                     <a
                                         key={platform.name}
                                         href={platform.href}
-                                        className={`p-2 bg-white dark:bg-cod-gray-700 text-cod-gray-700 dark:text-cod-gray-300 rounded-lg transition-all duration-300 border border-cod-gray-200 dark:border-cod-gray-600 hover:border-transparent ${platform.color}`}
+                                        className={cn('p-2 bg-white dark:bg-cod-gray-700 text-cod-gray-700 dark:text-cod-gray-300 rounded-lg transition-all duration-300 border border-cod-gray-200 dark:border-cod-gray-600 hover:border-transparent', platform.color)}
                                         aria-label={platform.name}
                                         title={platform.name}
                                         target="_blank"

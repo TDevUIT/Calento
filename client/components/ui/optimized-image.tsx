@@ -1,5 +1,6 @@
 import Image, { ImageProps } from 'next/image';
 import { FC } from 'react';
+import { cn } from '@/lib/utils';
 
 interface OptimizedImageProps extends Omit<ImageProps, 'alt'> {
   alt: string;
@@ -39,7 +40,7 @@ export const AvatarImage: FC<AvatarImageProps> = ({
   ...props
 }) => {
   return (
-    <div className={`relative overflow-hidden rounded-full ${className}`} style={{ width: size, height: size }}>
+    <div className={cn('relative overflow-hidden rounded-full', className)} style={{ width: size, height: size }}>
       <Image
         alt={alt}
         fill

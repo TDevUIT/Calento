@@ -127,7 +127,10 @@ export const useAuthStore = create<AuthStore>()(
             state.error = null;
           });
         } catch (error) {
-          console.warn('Logout request failed:', error);
+          // Logout should always succeed on client side
+          if (process.env.NODE_ENV === 'development') {
+            console.warn('Logout request failed:', error);
+          }
           
           set((state) => {
             state.user = null;
@@ -195,7 +198,10 @@ export const useAuthStore = create<AuthStore>()(
             state.isLoading = false;
           });
           
-          console.warn('Auth status check failed:', error);
+          // Auth check failed - user will be treated as logged out
+          if (process.env.NODE_ENV === 'development') {
+            console.warn('Auth status check failed:', error);
+          }
         }
       },
 

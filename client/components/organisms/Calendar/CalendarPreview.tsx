@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useMemo } from 'react';
+import { cn } from '@/lib/utils';
 import { ChevronLeft, ChevronRight, Calendar1 } from 'lucide-react';
 import { WEEK_CALENDAR_EVENTS, DAYS_OF_WEEK, type CalendarEvent } from '@/constants/dashboard.constants';
 
@@ -112,19 +113,22 @@ const CalendarPreview: React.FC<CalendarPreviewProps> = ({ currentDate = new Dat
               return (
                 <div 
                   key={dayIndex} 
-                  className={`border-r border-slate-200 dark:border-slate-800 last:border-r-0 ${
+                  className={cn(
+                    'border-r border-slate-200 dark:border-slate-800 last:border-r-0',
                     isToday ? 'bg-blue-50/50 dark:bg-blue-950/10' : 'bg-white dark:bg-slate-950'
-                  }`}
+                  )}
                 >
-                  <div className={`h-10 border-b border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center ${
-                    isToday ? 'bg-blue-50 dark:bg-blue-950/20' : ''
-                  }`}>
+                  <div className={cn(
+                    'h-10 border-b border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center',
+                    isToday && 'bg-blue-50 dark:bg-blue-950/20'
+                  )}>
                     <span className="text-[9px] font-semibold text-slate-500 dark:text-slate-400 uppercase">
                       {DAYS_OF_WEEK[dayOfWeek]}
                     </span>
-                    <span className={`text-xs font-bold ${
+                    <span className={cn(
+                      'text-xs font-bold',
                       isToday ? 'text-blue-600 dark:text-blue-400' : 'text-slate-900 dark:text-slate-200'
-                    }`}>
+                    )}>
                       {date.getDate()}
                     </span>
                   </div>

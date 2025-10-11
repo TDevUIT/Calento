@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -28,7 +29,7 @@ export function PricingCard({ plan, billingPeriod, index }: PricingCardProps) {
         </div>
       )}
       
-      <Card className={`h-full ${plan.highlighted ? 'border-blue-500 ring-1 ring-blue-500 shadow-lg' : 'border-slate-200 dark:border-slate-800'} bg-white dark:bg-[#121212]`}>
+      <Card className={cn('h-full bg-white dark:bg-[#121212]', plan.highlighted ? 'border-blue-500 ring-1 ring-blue-500 shadow-lg' : 'border-slate-200 dark:border-slate-800')}>
         <CardContent className="p-8">
           <div className="mb-8">
             <CardTitle className="text-2xl font-bold text-slate-900 dark:text-white mb-2">

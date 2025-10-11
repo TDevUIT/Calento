@@ -1,6 +1,6 @@
 'use client';
 
-import * as React from 'react'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -8,8 +8,6 @@ import { BackButton } from '@/components/atoms'
 import { 
   AUTH_PLACEHOLDERS, 
   AUTH_BUTTON_TEXT, 
-  FORM_FIELD_SIZES, 
-  BUTTON_SIZES,
   PASSWORD_MIN_LENGTH 
 } from '@/constants/auth.constants'
 
@@ -48,7 +46,7 @@ export const SecurityStep: React.FC<SecurityStepProps> = ({
       </div>
       
       <div className="space-y-1.5 md:space-y-2">
-        <Label htmlFor="username" className={FORM_FIELD_SIZES.text}>
+        <Label htmlFor="username" className="text-sm md:text-base 2xl:text-base">
           Username
         </Label>
         <Input
@@ -58,12 +56,12 @@ export const SecurityStep: React.FC<SecurityStepProps> = ({
           value={username}
           onChange={(e) => onUsernameChange(e.target.value)}
           required
-          className={`${FORM_FIELD_SIZES.height} ${FORM_FIELD_SIZES.text}`}
+          className="h-9 md:h-10 2xl:h-11 text-sm md:text-base 2xl:text-base"
         />
       </div>
 
       <div className="space-y-1.5 md:space-y-2">
-        <Label htmlFor="password" className={FORM_FIELD_SIZES.text}>
+        <Label htmlFor="password" className="text-sm md:text-base 2xl:text-base">
           Password
         </Label>
         <Input
@@ -73,7 +71,7 @@ export const SecurityStep: React.FC<SecurityStepProps> = ({
           value={password}
           onChange={(e) => onPasswordChange(e.target.value)}
           required
-          className={`${FORM_FIELD_SIZES.height} ${FORM_FIELD_SIZES.text}`}
+          className="h-9 md:h-10 2xl:h-11 text-sm md:text-base 2xl:text-base"
         />
         <p className="text-[10px] md:text-xs text-muted-foreground">
           Must be at least {PASSWORD_MIN_LENGTH} characters
@@ -81,28 +79,27 @@ export const SecurityStep: React.FC<SecurityStepProps> = ({
       </div>
 
       <div className="space-y-1.5 md:space-y-2">
-        <Label htmlFor="confirmPassword" className={FORM_FIELD_SIZES.text}>
+        <Label htmlFor="confirmPassword" className="text-sm md:text-base 2xl:text-base">
           Confirm Password
         </Label>
         <Input
           id="confirmPassword"
           type="password"
-          placeholder={AUTH_PLACEHOLDERS.password}
+          placeholder={AUTH_PLACEHOLDERS.confirmPassword}
           value={confirmPassword}
           onChange={(e) => onConfirmPasswordChange(e.target.value)}
           required
-          className={`${FORM_FIELD_SIZES.height} ${FORM_FIELD_SIZES.text}`}
+          className="h-9 md:h-10 2xl:h-11 text-sm md:text-base 2xl:text-base"
         />
         {passwordError && (
           <p className="text-[10px] md:text-xs text-red-500">{passwordError}</p>
         )}
       </div>
-
       <Button 
         type="button"
         onClick={onNext}
         variant="outline"
-        className={`w-full mt-2 md:mt-0 rounded-[4px] ${BUTTON_SIZES.submit} ${FORM_FIELD_SIZES.text}`}
+        className="w-full mt-2 md:mt-0 rounded-[4px] h-10 md:h-11 2xl:h-12 text-sm md:text-base 2xl:text-base"
         disabled={!isValid}
       >
         {AUTH_BUTTON_TEXT.continue}

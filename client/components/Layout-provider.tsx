@@ -1,24 +1,25 @@
-'use client'
-import { usePathname } from "next/navigation";
-import { Footer, Header } from "./organisms";
+'use client';
 
-interface MainContentProps {
+import { usePathname } from 'next/navigation';
+import { isGuestOnlyRoute } from '@/constants/routes';
+import { cn } from '@/lib/utils';
+import { Footer, Header } from './organisms';
+
+interface MainLayoutProviderProps {
   children: React.ReactNode;
   className?: string;
 }
 
-export const MainLayoutProvider: React.FC<MainContentProps> = ({ 
+export const MainLayoutProvider: React.FC<MainLayoutProviderProps> = ({ 
   children, 
-  className = '' 
+  className 
 }) => {
-  const isPathName = usePathname()
-  const isAuthPage = isPathName === '/auth/login' || isPathName === '/auth/register' || isPathName === '/auth/forgot-password'
+  const pathname = usePathname();
+  const isAuthPage = isGuestOnlyRoute(pathname);
+
   return (
     <main 
-      className={`
-        min-h-screen 
-        ${className}
-      `}
+      className={cn('min-h-screen', className)}
       id="main-content"
     >
       {!isAuthPage && <Header />}

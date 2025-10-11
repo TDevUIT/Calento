@@ -39,7 +39,10 @@ export const logout = async (): Promise<void> => {
   try {
     await api.post(API_ROUTES.AUTH_LOGOUT, {}, { withCredentials: true });
   } catch (error) {
-    console.warn('Logout request failed:', getErrorMessage(error));
+    // Silently fail - logout should always succeed on client side
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('Logout request failed:', getErrorMessage(error));
+    }
   }
 };
 

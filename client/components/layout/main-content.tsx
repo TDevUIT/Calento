@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils';
 
 interface MainContentProps {
   children: React.ReactNode;
@@ -6,14 +7,11 @@ interface MainContentProps {
 
 export const MainContent: React.FC<MainContentProps> = ({ 
   children, 
-  className = '' 
+  className 
 }) => {
   return (
     <main 
-      className={`
-        min-h-screen 
-        ${className}
-      `}
+      className={cn('min-h-screen', className)}
       id="main-content"
     >
       {children}

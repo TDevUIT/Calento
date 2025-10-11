@@ -23,7 +23,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       try {
         await refreshToken();
       } catch (error) {
-        console.warn('Auto token refresh failed:', error);
+        // User will be redirected to login on next API call
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('Auto token refresh failed:', error);
+        }
       }
     }, 50 * 60 * 1000);
 

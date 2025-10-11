@@ -1,7 +1,14 @@
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { INestApplication } from '@nestjs/common';
+import env from '../../config/env';
+import { SERVER_URL_CONSTANTS } from '../constants';
 
 export function setupSwagger(app: INestApplication): void {
+  const isDevelopment = env.NODE_ENV === 'development';
+  const serverUrl = isDevelopment 
+    ? SERVER_URL_CONSTANTS.DEVELOPMENT.BACKEND 
+    : SERVER_URL_CONSTANTS.PRODUCTION.BACKEND;
+
   const config = new DocumentBuilder()
     .setTitle('Calento.space API')
     .setVersion('1.0.0')
@@ -42,8 +49,9 @@ export function setupSwagger(app: INestApplication): void {
       },
       'cookie',
     )
-    .addServer('http://localhost:8000', 'Development server')
-    .addServer('https://api.calento.space', 'Production server')
+    .addServer(SERVER_URL_CONSTANTS.DEVELOPMENT.BACKEND, 'Development server')
+    .addServer(SERVER_URL_CONSTANTS.PRODUCTION.BACKEND, 'Production server')
+    .addServer(serverUrl, `Current Environment (${env.NODE_ENV})`)
     .build();
 
   const document = SwaggerModule.createDocument(app, config, {

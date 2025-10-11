@@ -1,7 +1,7 @@
 'use client';
 
-import * as React from 'react'
 import Link from 'next/link'
+import { cn } from '@/lib/utils'
 import { POLICY_LINKS } from '@/constants/auth.constants'
 
 type TermsAndPolicyProps = {
@@ -14,7 +14,7 @@ export const TermsAndPolicy: React.FC<TermsAndPolicyProps> = ({
   className = 'text-xs',
 }) => {
   return (
-    <p className={`text-center text-muted-foreground leading-relaxed ${className}`}>
+    <p className={cn('text-center text-muted-foreground leading-relaxed', className)}>
       {text}{' '}
       <Link 
         href={POLICY_LINKS.terms}

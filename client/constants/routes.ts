@@ -81,10 +81,7 @@ export const PUBLIC_ROUTE_PATTERNS = [
   '/auth/verify-email',
 ] as const;
 
-/**
- * Routes that require authentication
- * Use patterns for dynamic routes
- */
+
 export const PROTECTED_ROUTE_PATTERNS = [
   '/dashboard',
   '/events',
@@ -94,86 +91,58 @@ export const PROTECTED_ROUTE_PATTERNS = [
   '/admin',
 ] as const;
 
-/**
- * Auth routes that should redirect to dashboard if already authenticated
- */
+
 export const GUEST_ONLY_ROUTE_PATTERNS = [
   '/auth/login',
   '/auth/register',
   '/auth/forgot-password',
 ] as const;
 
-/**
- * API routes that should be excluded from middleware redirect
- */
+
 export const API_ROUTE_PATTERNS = [
   '/api',
   '/_next',
   '/static',
 ] as const;
 
-// ============================================
-// REDIRECT ROUTES
-// ============================================
 
-/**
- * Default redirect after login
- */
 export const DEFAULT_LOGIN_REDIRECT = PROTECTED_ROUTES.DASHBOARD;
 
-/**
- * Default redirect after logout
- */
+
 export const DEFAULT_LOGOUT_REDIRECT = AUTH_ROUTES.LOGIN;
 
-/**
- * Default redirect for unauthenticated users
- */
+
 export const DEFAULT_UNAUTHENTICATED_REDIRECT = AUTH_ROUTES.LOGIN;
 
-// ============================================
-// HELPER FUNCTIONS
-// ============================================
 
-/**
- * Check if a route is public (doesn't require auth)
- */
 export const isPublicRoute = (pathname: string): boolean => {
   return PUBLIC_ROUTE_PATTERNS.some(pattern => 
     pathname === pattern || pathname.startsWith(pattern)
   );
 };
 
-/**
- * Check if a route is protected (requires auth)
- */
+
 export const isProtectedRoute = (pathname: string): boolean => {
   return PROTECTED_ROUTE_PATTERNS.some(pattern => 
     pathname.startsWith(pattern)
   );
 };
 
-/**
- * Check if a route is guest only (redirects if authenticated)
- */
+
 export const isGuestOnlyRoute = (pathname: string): boolean => {
   return GUEST_ONLY_ROUTE_PATTERNS.some(pattern => 
     pathname === pattern || pathname.startsWith(pattern)
   );
 };
 
-/**
- * Check if a route is an API route
- */
+
 export const isApiRoute = (pathname: string): boolean => {
   return API_ROUTE_PATTERNS.some(pattern => 
     pathname.startsWith(pattern)
   );
 };
 
-/**
- * Get return URL for login redirect
- */
+
 export const getLoginRedirectUrl = (returnUrl?: string): string => {
   if (!returnUrl || returnUrl === '/') {
     return AUTH_ROUTES.LOGIN;
@@ -181,9 +150,6 @@ export const getLoginRedirectUrl = (returnUrl?: string): string => {
   return `${AUTH_ROUTES.LOGIN}?returnUrl=${encodeURIComponent(returnUrl)}`;
 };
 
-/**
- * Extract return URL from query params
- */
 export const extractReturnUrl = (searchParams: URLSearchParams): string => {
   const returnUrl = searchParams.get('returnUrl');
   if (returnUrl && isProtectedRoute(returnUrl)) {
@@ -192,18 +158,11 @@ export const extractReturnUrl = (searchParams: URLSearchParams): string => {
   return DEFAULT_LOGIN_REDIRECT;
 };
 
-// ============================================
-// TYPE EXPORTS
-// ============================================
 
 export type PublicRoute = typeof PUBLIC_ROUTES[keyof typeof PUBLIC_ROUTES];
 export type AuthRoute = typeof AUTH_ROUTES[keyof typeof AUTH_ROUTES];
 export type ProtectedRoute = typeof PROTECTED_ROUTES[keyof typeof PROTECTED_ROUTES];
 export type ApiRoute = typeof API_ROUTES[keyof typeof API_ROUTES];
-
-// ============================================
-// ROUTE METADATA (for navigation menus, breadcrumbs, etc.)
-// ============================================
 
 export interface RouteMetadata {
   path: string;
