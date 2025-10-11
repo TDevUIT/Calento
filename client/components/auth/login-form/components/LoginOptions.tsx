@@ -1,6 +1,5 @@
 'use client';
 
-import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { Mail } from 'lucide-react'

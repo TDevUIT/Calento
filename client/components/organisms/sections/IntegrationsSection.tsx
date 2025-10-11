@@ -55,7 +55,7 @@ export const IntegrationsSection: React.FC = () => {
           <p className="text-xl text-cod-gray-600 dark:text-cod-gray-300 max-w-3xl mx-auto leading-relaxed transition-colors duration-300">
             Connect all your favorite productivity tools and keep everything in sync.
             <br />
-            From task management to communication - we've got you covered.
+            From task management to communication - we&apos;ve got you covered.
           </p>
         </motion.div>
 

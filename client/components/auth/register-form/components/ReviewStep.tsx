@@ -1,6 +1,5 @@
 'use client';
 
-import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { BackButton, TermsAndPolicy } from '@/components/atoms'
 import { AUTH_BUTTON_TEXT } from '@/constants/auth.constants'
