@@ -1,3 +1,5 @@
+import { BASE_FE_URL } from "@/constants/routes";
+
 export const APP_CONFIG = {
   name: 'Calento',
   tagline: 'Your AI-Powered Calendar Assistant',
@@ -95,8 +97,8 @@ export const NAVIGATION_LINKS: NavigationLink[] = [
 ];
 
 export const EXTERNAL_LINKS = {
-  signup: 'https://app.calento.ai/signup',
-  login: 'https://app.calento.ai/login',
+  signup: `/auth/register`,
+  login: `/auth/login`,
   contactSales: '/contact-sales',
   documentation: '/docs',
   support: '/support',

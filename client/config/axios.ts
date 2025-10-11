@@ -11,6 +11,24 @@ export const api = axios.create({
   headers: DEFAULT_HEADERS,
 });
 
+let isRefreshing = false;
+let refreshAttempts = 0;
+const MAX_REFRESH_ATTEMPTS = 1;
+let failedQueue: Array<{
+  resolve: (value?: any) => void;
+  reject: (error?: any) => void;
+}> = [];
+
+const processQueue = (error: any = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve();
+    }
+  });
+  failedQueue = [];
+};
 
 const refreshAuthToken = async (): Promise<void> => {
   await axios.post(
@@ -50,32 +68,87 @@ api.interceptors.response.use(
     }
 
     if (status === HTTP_STATUS.UNAUTHORIZED) {
-      if (originalRequest?.url?.includes('/auth/refresh')) {
-        logger.warn('Refresh token expired, redirecting to login');
+      const isAuthEndpoint = originalRequest?.url?.includes('/auth/login') ||
+                            originalRequest?.url?.includes('/auth/register') ||
+                            originalRequest?.url?.includes('/auth/refresh');
+      
+      const isAuthMeEndpoint = originalRequest?.url?.includes('/auth/me');
+      
+      if (isAuthEndpoint || isAuthMeEndpoint) {
+        logger.warn('Auth endpoint failed, skipping refresh');
+        
+        if (originalRequest?.url?.includes('/auth/refresh')) {
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('auth-storage');
+            
+            if (!window.location.pathname.includes('/auth/login')) {
+              window.location.href = AUTH_ROUTES.LOGIN;
+            }
+          }
+        }
+        
+        refreshAttempts = 0;
+        return Promise.reject(error);
+      }
+      
+      if (originalRequest?._retry) {
+        logger.warn('Already retried, giving up');
+        refreshAttempts = 0;
+        return Promise.reject(error);
+      }
+      
+      if (refreshAttempts >= MAX_REFRESH_ATTEMPTS) {
+        logger.warn(`Max refresh attempts (${MAX_REFRESH_ATTEMPTS}) exceeded, redirecting to login`);
+        refreshAttempts = 0;
+        isRefreshing = false;
         
         if (typeof window !== 'undefined') {
-          // Clear auth state before redirect
           localStorage.removeItem('auth-storage');
-          window.location.href = AUTH_ROUTES.LOGIN;
+          
+          if (!window.location.pathname.includes('/auth/login')) {
+            window.location.href = AUTH_ROUTES.LOGIN;
+          }
         }
         
         return Promise.reject(error);
       }
       
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then(() => {
+            return api(originalRequest!);
+          })
+          .catch((err) => {
+            return Promise.reject(err);
+          });
+      }
+      
       markForRetry(originalRequest!, 'auth');
+      isRefreshing = true;
+      refreshAttempts++;
       
       try {
-        logger.info('Attempting token refresh...');
+        logger.info(`Attempting token refresh (attempt ${refreshAttempts}/${MAX_REFRESH_ATTEMPTS})...`);
         await refreshAuthToken();
-        logger.info('Token refreshed successfully, retrying original request');
+        logger.info('Token refreshed successfully');
+        isRefreshing = false;
+        refreshAttempts = 0;
+        processQueue();
         return api(originalRequest!);
       } catch (refreshError) {
         logger.warn('Token refresh failed, redirecting to login');
+        isRefreshing = false;
+        refreshAttempts = 0;
+        processQueue(refreshError);
         
         if (typeof window !== 'undefined') {
-          // Clear auth state before redirect
           localStorage.removeItem('auth-storage');
-          window.location.href = AUTH_ROUTES.LOGIN;
+          
+          if (!window.location.pathname.includes('/auth/login')) {
+            window.location.href = AUTH_ROUTES.LOGIN;
+          }
         }
         
         return Promise.reject(refreshError);
