@@ -6,12 +6,14 @@ const LoginPage = () => {
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2 flex flex-col justify-center items-center">
-        <Image 
-          src='/icon-192x192.png'
-          alt='logo'
-          width={120}
-          height={120}
-        />
+        <Link href="/" className="flex items-center gap-2">
+          <Image 
+            src='/icon-192x192.png'
+            alt='logo'
+            width={120}
+            height={120}
+          />
+        </Link>
         <p className="text-lg font-bold text-persian-blue-500">
           Sign in to Calento with your work calendar
         </p>

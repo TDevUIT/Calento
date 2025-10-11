@@ -64,7 +64,7 @@ const RegisterPage = () => {
         </div>
       </div>
 
-      <div className="hidden lg:block opacity-90 dark:opacity-70 absolute top-[35%]  left-[56%] xl:left-[57.5%] 2xl:left-[60%] 2xl:top-[39%] transform -translate-x-1/2 -translate-y-1/2 z-[9999] transition-all duration-300">
+      <div className="hidden lg:block opacity-90 dark:opacity-70 absolute top-[34%] left-[56%] xl:left-[57.5%] 2xl:left-[60%] 2xl:top-[40%] transform -translate-x-1/2 -translate-y-1/2 z-[9999] transition-all duration-300">
           <Image 
             src='/images/dashed-arrow-icon.png'
             width={150}

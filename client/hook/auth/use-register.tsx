@@ -40,21 +40,30 @@ export const useRegister = (): UseRegisterReturn => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Get user-friendly error message based on status code
+  // Get error message from server response or fallback to generic message
   const getUserFriendlyError = (): string | null => {
     if (!mutation.error) return null;
     
+    // Check for network errors first
+    if (mutation.error instanceof AxiosError) {
+      if (!mutation.error.response) return AUTH_ERROR_MESSAGES.network;
+      if (mutation.error.code === 'ECONNABORTED') return AUTH_ERROR_MESSAGES.timeout;
+    }
+    
+    // Get actual error message from server response
+    const { message } = getErrorDetails(mutation.error);
+    
+    // Return server message if available, otherwise fallback to generic message
+    if (message && message !== 'An unexpected error occurred' && message !== 'An unknown error occurred') {
+      return message;
+    }
+    
+    // Fallback to generic messages based on status code
     if (errorStatus === 409) return AUTH_ERROR_MESSAGES[409];
     if (errorStatus === 400) return AUTH_ERROR_MESSAGES[400];
     if (errorStatus === 401) return AUTH_ERROR_MESSAGES[401];
     if (errorStatus === 403) return AUTH_ERROR_MESSAGES[403];
     if (errorStatus && errorStatus >= 500) return AUTH_ERROR_MESSAGES[500];
-    
-    // Check for network errors
-    if (mutation.error instanceof AxiosError) {
-      if (!mutation.error.response) return AUTH_ERROR_MESSAGES.network;
-      if (mutation.error.code === 'ECONNABORTED') return AUTH_ERROR_MESSAGES.timeout;
-    }
     
     return AUTH_ERROR_MESSAGES.default;
   };

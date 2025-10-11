@@ -1,3 +1,5 @@
+export const BASE_FE_URL = process.env.NEXT_PUBLIC_APP_FE_URL || 'http://localhost:3000';
+
 export const PUBLIC_ROUTES = {
   HOME: '/',
   ABOUT: '/about',
@@ -98,6 +100,10 @@ export const GUEST_ONLY_ROUTE_PATTERNS = [
   '/auth/forgot-password',
 ] as const;
 
+export const DASHBOARD_ROUTE_PATTERNS = [
+  '/dashboard',
+] as const;
+
 
 export const API_ROUTE_PATTERNS = [
   '/api',
@@ -138,6 +144,12 @@ export const isGuestOnlyRoute = (pathname: string): boolean => {
 
 export const isApiRoute = (pathname: string): boolean => {
   return API_ROUTE_PATTERNS.some(pattern => 
+    pathname.startsWith(pattern)
+  );
+};
+
+export const isDashboardRoute = (pathname: string): boolean => {
+  return DASHBOARD_ROUTE_PATTERNS.some(pattern => 
     pathname.startsWith(pattern)
   );
 };
@@ -220,6 +232,7 @@ export default {
   isProtectedRoute,
   isGuestOnlyRoute,
   isApiRoute,
+  isDashboardRoute,
   getLoginRedirectUrl,
   extractReturnUrl,
 };

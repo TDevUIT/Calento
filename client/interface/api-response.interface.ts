@@ -1,3 +1,25 @@
+export interface ServerSuccessResponse<T = unknown> {
+  success: true;
+  message: string;
+  data: {
+    status: number;
+    message: string;
+    data: T;
+    timestamp: string;
+  };
+  timestamp: string;
+  requestId: string;
+  path: string;
+}
+
+export interface ServerErrorResponse {
+  status: number;
+  message: string;
+  errors: string[];
+  timestamp: string;
+  data: null;
+}
+
 export interface ApiResponse<T = unknown> {
   success: boolean;
   message: string;
