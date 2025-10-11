@@ -82,7 +82,7 @@ async function bootstrap() {
 
       if (isAllowed) {
         LoggerConfig.log(`✅ CORS: Allowing origin: "${origin}"`);
-        return callback(null, origin);
+        return callback(null, true);
       }
 
       LoggerConfig.error(`❌ CORS BLOCKED - Origin: "${origin}"`);
