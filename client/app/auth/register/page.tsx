@@ -27,7 +27,7 @@ const RegisterPage = () => {
           </p>
         </div>
       </div>
-        <div className="absolute inset-0 top-56 2xl:top-60 -bottom-10">
+        <div className="absolute inset-0 top-56 2xl:top-60 -bottom-60">
           <div className="w-full h-full p-3">
             <div className="w-full h-full rounded-xl overflow-hidden border-2 border-black">
               <DashboardPreview />

@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import type { LoginFormProps } from '@/types/auth.types'
 import { LoginOptions, EmailLoginForm } from './components'
 import { useLogin } from '@/hook/auth/use-login'
-import { useToast } from '@/components/ui/use-toast'
+import { AUTH_SUCCESS_MESSAGES } from '@/constants/auth.constants'
 
 const LoginForm: React.FC<LoginFormProps> = ({ 
   className, 
@@ -14,7 +15,6 @@ const LoginForm: React.FC<LoginFormProps> = ({
   onSubmitEmailPassword 
 }) => {
   const router = useRouter()
-  const { toast } = useToast()
   const { login, isLoading, error, isSuccess } = useLogin()
   
   const [email, setEmail] = useState('')
@@ -24,23 +24,26 @@ const LoginForm: React.FC<LoginFormProps> = ({
 
   useEffect(() => {
     if (isSuccess) {
-      toast({
-        title: 'Login successful!',
-        description: 'Welcome back to Tempra',
+      toast.success(AUTH_SUCCESS_MESSAGES.login.title, {
+        description: AUTH_SUCCESS_MESSAGES.login.description,
+        duration: 3000,
       })
-      router.push('/dashboard')
+      // Delay navigation to show success message
+      setTimeout(() => {
+        router.push('/dashboard')
+      }, 1500)
     }
-  }, [isSuccess, router, toast])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSuccess])
 
   useEffect(() => {
     if (error) {
-      toast({
-        title: 'Login failed',
+      toast.error('Đăng nhập thất bại', {
         description: error,
-        variant: 'destructive',
+        duration: 5000,
       })
     }
-  }, [error, toast])
+  }, [error])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

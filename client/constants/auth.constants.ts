@@ -10,9 +10,11 @@ export const AUTH_PLACEHOLDERS = {
 } as const
 
 export const AUTH_VALIDATION_MESSAGES = {
-  passwordMismatch: 'Passwords do not match',
-  passwordTooShort: `Password must be at least ${PASSWORD_MIN_LENGTH} characters`,
-  requiredField: 'This field is required',
+  passwordMismatch: 'Mật khẩu xác nhận không khớp',
+  passwordTooShort: `Mật khẩu phải có ít nhất ${PASSWORD_MIN_LENGTH} ký tự`,
+  requiredField: 'Trường này là bắt buộc',
+  invalidEmail: 'Email không hợp lệ',
+  invalidUsername: 'Tên đăng nhập không hợp lệ',
 } as const
 
 export const AUTH_BUTTON_TEXT = {
@@ -55,4 +57,26 @@ export const AUTH_ROUTES = {
 export const SOCIAL_PROVIDER_ICONS = {
   google: '/images/google.svg',
   microsoft: '/images/microsoft.svg',
+} as const
+
+export const AUTH_ERROR_MESSAGES = {
+  409: 'Email hoặc tên đăng nhập đã được sử dụng. Vui lòng chọn thông tin khác.',
+  400: 'Thông tin không hợp lệ. Vui lòng kiểm tra lại.',
+  401: 'Thông tin đăng nhập không chính xác.',
+  403: 'Bạn không có quyền thực hiện hành động này.',
+  500: 'Đã xảy ra lỗi từ phía máy chủ. Vui lòng thử lại sau.',
+  network: 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối internet.',
+  timeout: 'Yêu cầu mất quá nhiều thời gian. Vui lòng thử lại.',
+  default: 'Đã xảy ra lỗi không xác định. Vui lòng thử lại.',
+} as const
+
+export const AUTH_SUCCESS_MESSAGES = {
+  register: {
+    title: 'Đăng ký thành công!',
+    description: 'Chào mừng bạn đến với Tempra. Đang chuyển hướng...',
+  },
+  login: {
+    title: 'Đăng nhập thành công!',
+    description: 'Chào mừng bạn trở lại.',
+  },
 } as const

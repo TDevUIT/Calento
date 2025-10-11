@@ -3,12 +3,14 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import type { RegisterFormProps, RegistrationStep } from '@/types/auth.types'
 import { 
   AUTH_VALIDATION_MESSAGES, 
   PASSWORD_MIN_LENGTH, 
-  AUTH_ROUTES 
+  AUTH_ROUTES,
+  AUTH_SUCCESS_MESSAGES
 } from '@/constants/auth.constants'
 import {
   ProgressIndicator,
@@ -18,7 +20,6 @@ import {
   ReviewStep,
 } from './components'
 import { useRegister } from '@/hook/auth/use-register'
-import { useToast } from '@/components/ui/use-toast'
 
 const RegisterForm: React.FC<RegisterFormProps> = ({ 
   className, 
@@ -26,7 +27,6 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
   onSubmitEmailPassword 
 }) => {
   const router = useRouter()
-  const { toast } = useToast()
   const { register, isLoading, error, isSuccess } = useRegister()
   
   const [email, setEmail] = useState('')
@@ -40,23 +40,26 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 
   useEffect(() => {
     if (isSuccess) {
-      toast({
-        title: 'Registration successful!',
-        description: 'Welcome to Tempra',
+      toast.success(AUTH_SUCCESS_MESSAGES.register.title, {
+        description: AUTH_SUCCESS_MESSAGES.register.description,
+        duration: 3000,
       })
-      router.push('/dashboard')
+      // Delay navigation to show success message
+      setTimeout(() => {
+        router.push('/dashboard')
+      }, 1500)
     }
-  }, [isSuccess, router, toast])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSuccess])
 
   useEffect(() => {
     if (error) {
-      toast({
-        title: 'Registration failed',
+      toast.error('Đăng ký thất bại', {
         description: error,
-        variant: 'destructive',
+        duration: 5000,
       })
     }
-  }, [error, toast])
+  }, [error])
 
   const handleNextStep = () => {
     if (currentStep === 1 && (!firstName || !lastName || !email)) {
@@ -76,12 +79,20 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
     e.preventDefault()
     
     if (password !== confirmPassword) {
-      setPasswordError(AUTH_VALIDATION_MESSAGES.passwordMismatch)
+      setPasswordError('Mật khẩu xác nhận không khớp')
+      toast.error('Lỗi xác thực', {
+        description: 'Mật khẩu xác nhận không khớp',
+        duration: 4000,
+      })
       return
     }
     
     if (password.length < PASSWORD_MIN_LENGTH) {
-      setPasswordError(AUTH_VALIDATION_MESSAGES.passwordTooShort)
+      setPasswordError(`Mật khẩu phải có ít nhất ${PASSWORD_MIN_LENGTH} ký tự`)
+      toast.error('Lỗi xác thực', {
+        description: `Mật khẩu phải có ít nhất ${PASSWORD_MIN_LENGTH} ký tự`,
+        duration: 4000,
+      })
       return
     }
     
@@ -103,7 +114,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
         lastName 
       })
     } catch {
-      // Error handled by hook
+      // Error handled by useRegister hook and displayed via toast
     }
   }
 

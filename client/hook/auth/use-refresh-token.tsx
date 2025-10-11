@@ -18,7 +18,8 @@ export const useRefreshToken = () => {
 
   const refreshToken = useCallback(async () => {
     return mutation.mutateAsync();
-  }, [mutation]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return {
     refreshToken,

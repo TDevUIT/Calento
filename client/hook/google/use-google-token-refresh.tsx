@@ -29,5 +29,6 @@ export const useGoogleTokenRefresh = () => {
     }, refreshTime);
 
     return () => clearTimeout(timer);
-  }, [isConnected, connectionStatus?.expires_at, refreshToken]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isConnected, connectionStatus?.expires_at]);
 };

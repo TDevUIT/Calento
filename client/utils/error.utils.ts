@@ -20,6 +20,27 @@ export const getErrorMessage = (error: unknown): string => {
   return 'An unknown error occurred';
 };
 
+export const getErrorStatus = (error: unknown): number | null => {
+  if (error instanceof AxiosError) {
+    return error.response?.status || null;
+  }
+  return null;
+};
+
+export const getErrorDetails = (error: unknown): { message: string; status: number | null; data?: any } => {
+  if (error instanceof AxiosError) {
+    return {
+      message: getErrorMessage(error),
+      status: error.response?.status || null,
+      data: error.response?.data
+    };
+  }
+  return {
+    message: getErrorMessage(error),
+    status: null
+  };
+};
+
 export const isNetworkError = (error: unknown): boolean => {
   if (error instanceof AxiosError) {
     return !error.response && error.code !== 'ECONNABORTED';

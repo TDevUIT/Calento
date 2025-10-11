@@ -68,7 +68,8 @@ export const useGoogleOAuthCallback = () => {
     };
 
     handleCallback();
-  }, [searchParams, router, checkConnectionStatus, isProcessing]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   return {
     isProcessing,

@@ -54,6 +54,8 @@ api.interceptors.response.use(
         logger.warn('Refresh token expired, redirecting to login');
         
         if (typeof window !== 'undefined') {
+          // Clear auth state before redirect
+          localStorage.removeItem('auth-storage');
           window.location.href = AUTH_ROUTES.LOGIN;
         }
         
@@ -71,6 +73,8 @@ api.interceptors.response.use(
         logger.warn('Token refresh failed, redirecting to login');
         
         if (typeof window !== 'undefined') {
+          // Clear auth state before redirect
+          localStorage.removeItem('auth-storage');
           window.location.href = AUTH_ROUTES.LOGIN;
         }
         
@@ -104,5 +108,5 @@ api.interceptors.response.use(
   }
 );
 
-export { getErrorMessage, isNetworkError, isTimeoutError, isServerError, isClientError } from '../utils/error.utils';
+export { getErrorMessage, getErrorStatus, getErrorDetails, isNetworkError, isTimeoutError, isServerError, isClientError } from '../utils/error.utils';
 export default api;

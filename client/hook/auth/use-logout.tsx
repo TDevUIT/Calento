@@ -20,7 +20,8 @@ export const useLogout = (): UseLogoutReturn => {
 
   const logout = useCallback(async () => {
     return mutation.mutateAsync();
-  }, [mutation]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return {
     logout,

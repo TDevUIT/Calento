@@ -61,9 +61,8 @@ export const refreshToken = async (): Promise<AuthTokens> => {
 
 export const getCurrentUser = async (): Promise<User> => {
   try {
-    const response = await api.post<ApiSuccessResponse<User>>(
+    const response = await api.get<ApiSuccessResponse<User>>(
       API_ROUTES.AUTH_ME,
-      {},
       { withCredentials: true }
     );
     return response.data.data;
