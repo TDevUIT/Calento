@@ -131,33 +131,6 @@ const SidebarDashboard = () => {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  variant="outline"
-                  className={`items-center ${state === "collapsed" ? "justify-center" : ""}`}
-                >
-                  {state === "collapsed" ? (
-                    <div className="flex h-6 w-6 items-center justify-center rounded-[4px] bg-black shrink-0">
-                      <Folder className="text-white h-4 w-4" />
-                    </div>
-                  ) : (
-                    <>
-                      <div className="flex h-6 w-6 items-center justify-center rounded-[4px] bg-black shrink-0">
-                        <Folder className="text-white h-4 w-4" />
-                      </div>
-                      <span className="text-sm">{WORKSPACE_CONFIG.name}</span>
-                      <ChevronsLeftRight className="ml-auto h-3 w-3 rotate-90 group-data-[collapsible=icon]:hidden" />
-                    </>
-                  )}
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
               {calendarScheduleItems.map((item) => {
                 const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
                 return (
