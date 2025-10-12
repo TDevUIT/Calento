@@ -8,6 +8,7 @@ import { CreateCalendarDto, UpdateCalendarDto } from './dto/calendar.dto';
 import {
   PaginatedResult,
   PaginationOptions,
+  SearchOptions,
 } from '../../common/interfaces/pagination.interface';
 import {
   CalendarCreationFailedException,
@@ -71,12 +72,18 @@ export class CalendarRepository extends UserOwnedRepository<Calendar> {
 
   async getCalendars(
     userId: string,
-    options: Partial<PaginationOptions>,
+    options: Partial<SearchOptions>,
   ): Promise<PaginatedResult<Calendar>> {
     await this.userValidationService.validateUserExists(userId);
 
     try {
-      return await this.findByUserId(userId, options);
+      // Add search fields for calendar search
+      const searchOptions: Partial<SearchOptions> = {
+        ...options,
+        searchFields: options.search ? ['name', 'description', 'google_calendar_id'] : undefined,
+      };
+      
+      return await this.findByUserId(userId, searchOptions);
     } catch (error) {
       this.logger.error('Failed to get calendars:', error);
       throw new CalendarCreationFailedException(

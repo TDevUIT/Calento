@@ -2,10 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { CalendarRepository } from './calendar.repository';
 import { Calendar } from './calendar';
 import { CreateCalendarDto, UpdateCalendarDto } from './dto/calendar.dto';
-import {
-  PaginatedResult,
-  PaginationOptions,
-} from '../../common/interfaces/pagination.interface';
+import { PaginationOptions, PaginatedResult, SearchOptions } from '../../common/interfaces/pagination.interface';
 
 @Injectable()
 export class CalendarService {
@@ -23,9 +20,9 @@ export class CalendarService {
 
   async getCalendars(
     userId: string,
-    options: Partial<PaginationOptions>,
+    options: Partial<SearchOptions>,
   ): Promise<PaginatedResult<Calendar>> {
-    this.logger.log(`Fetching calendars for user ${userId}`);
+    this.logger.log(`Fetching calendars for user ${userId}${options.search ? ` with search: ${options.search}` : ''}`);
     return this.calendarRepository.getCalendars(userId, options);
   }
 

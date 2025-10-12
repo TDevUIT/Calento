@@ -31,7 +31,7 @@ import {
   SuccessResponseDto,
   PaginatedResponseDto,
 } from '../../common/dto/base-response.dto';
-import { PaginationQueryDto } from '../../common/dto/pagination.dto';
+import { PaginationQueryDto, SearchPaginationQueryDto } from '../../common/dto/pagination.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUserId } from '../../common/decorators/current-user.decorator';
 import { CalendarNotFoundException } from './exceptions/calendar.exceptions';
@@ -58,12 +58,44 @@ export class CalendarController {
   @ApiOperation({
     summary: '📅 Get user calendars with pagination',
     description:
-      'Retrieve paginated list of calendars with filtering and search',
+      'Retrieve paginated list of calendars with filtering, search, and sorting. ' +
+      'Supports filtering by primary status, timezone, and search by name/description.',
   })
   @ApiResponse({
     status: 200,
     description: '✅ Calendars retrieved successfully',
     type: PaginatedResponseDto,
+    schema: {
+      example: {
+        success: true,
+        message: 'Resource retrieved successfully',
+        data: {
+          items: [
+            {
+              id: '123e4567-e89b-12d3-a456-426614174000',
+              user_id: '456e7890-e89b-12d3-a456-426614174001',
+              google_calendar_id: 'primary',
+              name: 'Personal Calendar',
+              description: 'My personal calendar',
+              timezone: 'Asia/Ho_Chi_Minh',
+              is_primary: true,
+              created_at: '2024-01-10T08:00:00Z',
+              updated_at: '2024-01-12T14:30:00Z',
+            },
+          ],
+          meta: {
+            page: 1,
+            limit: 20,
+            total: 1,
+            totalPages: 1,
+            hasNextPage: false,
+            hasPreviousPage: false,
+          },
+        },
+        status: 200,
+        timestamp: '2025-10-12T12:00:00Z',
+      },
+    },
   })
   @ApiResponse({
     status: 401,
@@ -71,7 +103,7 @@ export class CalendarController {
   })
   async getCalendars(
     @CurrentUserId() userId: string,
-    @Query() query: PaginationQueryDto,
+    @Query() query: SearchPaginationQueryDto,
   ): Promise<PaginatedResponseDto> {
     const result = await this.calendarService.getCalendars(userId, query);
 
