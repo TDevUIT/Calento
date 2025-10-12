@@ -21,6 +21,7 @@ import { MessageService } from '../../common/message/message.service';
 import { ConfigService } from '../../config/config.service';
 import { randomBytes } from 'crypto';
 import { EmailService } from '../email/services/email.service';
+import { CalendarService } from '../calendar/calendar.service';
 import { TIME_CONSTANTS, SECURITY_CONSTANTS } from '../../common/constants';
 
 @Injectable()
@@ -36,6 +37,7 @@ export class AuthService {
     private readonly userValidationService: UserValidationService,
     @Inject(forwardRef(() => EmailService))
     private readonly emailService: EmailService,
+    private readonly calendarService: CalendarService,
   ) {}
 
   async register(registerDto: RegisterDto): Promise<AuthResponse> {
@@ -70,6 +72,9 @@ export class AuthService {
       });
 
       this.logger.log(`User registered successfully: ${user.email}`);
+
+      // Auto-create default Personal Calendar for new user
+      await this.createDefaultCalendar(user);
 
       const tokens = await this.generateTokens(user);
 
@@ -332,5 +337,38 @@ export class AuthService {
   private createUserResponse(user: any): AuthUser {
     const { password_hash, ...userWithoutPassword } = user;
     return userWithoutPassword;
+  }
+
+  /**
+   * Create default Personal Calendar for new user
+   * This ensures every user has at least one calendar to create events
+   */
+  private async createDefaultCalendar(user: any): Promise<void> {
+    try {
+      const defaultCalendar = await this.calendarService.createCalendar(
+        {
+          google_calendar_id: `personal_${user.id}`,
+          name: 'Personal Calendar',
+          description: 'Your default personal calendar for events and appointments',
+          timezone: 'Asia/Ho_Chi_Minh', // Default timezone (can be user's locale)
+          is_primary: true,
+        },
+        user.id,
+      );
+
+      this.logger.log(
+        `Default calendar created for user ${user.id}: ${defaultCalendar.id}`,
+      );
+    } catch (error) {
+      // Log error but don't fail registration
+      // User can create calendar manually later
+      this.logger.error(
+        `Failed to create default calendar for user ${user.id}:`,
+        error.message,
+      );
+      this.logger.warn(
+        `User ${user.id} registered without default calendar. They can create one manually.`,
+      );
+    }
   }
 }
