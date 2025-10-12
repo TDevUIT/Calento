@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { startOfMonth, endOfMonth } from 'date-fns';
 import {
   Calendar,
   CalendarDayView,
@@ -11,13 +12,17 @@ import {
   CalendarTodayTrigger,
   CalendarWeekView,
   CalendarYearView,
+  type CalendarEvent,
 } from '@/components/calendar/views';
 import { KeyboardShortcuts } from '@/components/calendar/KeyboardShortcuts';
 import { DateDisplay, HeaderActions, ViewSelector, QuickActions, MonthProgress } from '@/components/calendar/header';
-import { mockEvents } from './mockData';
+import { useEvents } from '@/hook/event';
+import { useApiData } from '@/hook/use-api-data';
+import type { Event } from '@/interface/event.interface';
 import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 import { CalendarSidebar } from '@/components/calendar/sidebar/CalendarSidebar';
 import { EventDialog } from '@/components/calendar/dialogs/EventDialog';
+import { EditEventDialog } from '@/components/calendar/dialogs/EditEventDialog';
 import { CalendarSettingsDialog } from '@/components/calendar/settings/CalendarSettingsDialog';
 export default function Page() {
   const [openEventDialog, setOpenEventDialog] = useState(false);
@@ -25,15 +30,84 @@ export default function Page() {
   const [showSidebar, setShowSidebar] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [visibleCalendarIds, setVisibleCalendarIds] = useState<Set<string>>(new Set());
+  const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
+  
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [showEditDialog, setShowEditDialog] = useState(false);
 
   useKeyboardShortcuts({
     onShowShortcuts: () => setShowShortcuts(true),
     onCreateEvent: () => setOpenEventDialog(true),
   });
 
+  const queryResult = useEvents({
+    page: 1,
+    limit: 100,
+    start_date: startOfMonth(currentMonth).toISOString(),
+    end_date: endOfMonth(currentMonth).toISOString(),
+  });
+  
+  const { items: apiEvents = [], isLoading, error } = useApiData<Event>(queryResult);
+
+  const calendarEvents: CalendarEvent[] = useMemo(() => {
+    return apiEvents.map((event: Event) => ({
+      id: event.id,
+      title: event.title,
+      start: new Date(event.start_time),
+      end: new Date(event.end_time),
+      description: event.description,
+      calendarId: event.calendar_id,
+      color: mapCalendarIdToColor(event.calendar_id),
+    }));
+  }, [apiEvents]);
+
+  const filteredEvents = calendarEvents.filter(event => 
+    visibleCalendarIds.size === 0 || visibleCalendarIds.has(event.calendarId || '')
+  );
+
+  function mapCalendarIdToColor(calendarId: string): CalendarEvent['color'] {
+    const colorMap: Record<string, CalendarEvent['color']> = {
+      'personal-calendar': 'blue',
+      'work-calendar': 'green',
+      'team-calendar': 'purple',
+    };
+    return colorMap[calendarId] || 'default';
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
+          <p className="text-gray-600">Loading calendar events...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-red-600 mb-2">Failed to load events</p>
+          <p className="text-sm text-gray-600">{error.message}</p>
+        </div>
+      </div>
+    );
+  }
+
+  const handleEventClick = (event: CalendarEvent) => {
+    setSelectedEventId(event.id);
+    setShowEditDialog(true);
+  };
+
   return (
     <>
-    <Calendar events={mockEvents}>
+    <Calendar 
+      events={filteredEvents}
+      onEventClick={handleEventClick}
+    >
       <div className="bg-background flex -mx-2">
         <div className="flex-1 flex flex-col min-h-screen">
           <div className="px-4 md:px-6">
@@ -98,6 +172,8 @@ export default function Page() {
             onDateSelect={setSelectedDate}
             onCreateEvent={() => setOpenEventDialog(true)}
             onClose={() => setShowSidebar(false)}
+            visibleCalendarIds={visibleCalendarIds}
+            onVisibleCalendarIdsChange={setVisibleCalendarIds}
           />
         </div>
       )}
@@ -117,6 +193,17 @@ export default function Page() {
         open={showSettings}
         onOpenChange={setShowSettings}
       />
+
+      {selectedEventId && (
+        <EditEventDialog
+          open={showEditDialog}
+          onOpenChange={(open) => {
+            setShowEditDialog(open);
+            if (!open) setSelectedEventId(null);
+          }}
+          eventId={selectedEventId}
+        />
+      )}
     </Calendar>
     </>
   );
