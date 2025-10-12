@@ -56,9 +56,20 @@ export const API_ROUTES = {
   
   // Events
   EVENTS: '/api/v1/events',
+  EVENT_CREATE: '/api/v1/events',
   EVENT_DETAIL: (id: string) => `/api/v1/events/${id}`,
+  EVENT_UPDATE: (id: string) => `/api/v1/events/${id}`,
+  EVENT_DELETE: (id: string) => `/api/v1/events/${id}`,
+  EVENT_RECURRING_EXPAND: '/api/v1/events/recurring/expand',
   
-  // Calendar
+  // Calendars (containers)
+  CALENDARS: '/api/v1/calendars',
+  CALENDAR_CREATE: '/api/v1/calendars',
+  CALENDAR_DETAIL: (id: string) => `/api/v1/calendars/${id}`,
+  CALENDAR_UPDATE: (id: string) => `/api/v1/calendars/${id}`,
+  CALENDAR_DELETE: (id: string) => `/api/v1/calendars/${id}`,
+  CALENDAR_PRIMARY: '/api/v1/calendars/primary',
+  CALENDAR_SEARCH: '/api/v1/calendars/search',
   CALENDAR_SYNC: '/api/v1/calendar/sync',
   
   // Google Integration

@@ -38,7 +38,7 @@ import { SwaggerExamples } from '../../common/swagger/swagger-examples';
   SuccessResponseDto,
   PaginatedResponseDto,
 )
-@Controller('calendar')
+@Controller('events')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth('bearer')
 @ApiCookieAuth('cookie')
