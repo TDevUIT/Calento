@@ -2,14 +2,19 @@ import {
   Controller,
   Get,
   Post,
+  Put,
+  Delete,
   Body,
   Query,
+  Param,
   HttpStatus,
   UseGuards,
+  NotFoundException,
 } from '@nestjs/common';
 import { EventService } from './event.service';
 import {
   CreateEventDto,
+  UpdateEventDto,
   EventResponseDto,
   RecurringEventsQueryDto,
 } from './dto/events.dto';
@@ -26,7 +31,7 @@ import {
   SuccessResponseDto,
   PaginatedResponseDto,
 } from '../../common/dto/base-response.dto';
-import { PaginationQueryDto } from '../../common/dto/pagination.dto';
+import { PaginationQueryDto, EventQueryDto } from '../../common/dto/pagination.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUserId } from '../../common/decorators/current-user.decorator';
 import { SwaggerExamples } from '../../common/swagger/swagger-examples';
@@ -50,8 +55,8 @@ export class EventController {
 
   @Get()
   @ApiOperation({
-    summary: '📅 Get user events with pagination',
-    description: 'Retrieve paginated list of events with filtering and search',
+    summary: '📅 Get user events with pagination and date filtering',
+    description: 'Retrieve paginated list of events with date range filtering, calendar filtering, and search',
   })
   @ApiResponse({
     status: 200,
@@ -69,7 +74,7 @@ export class EventController {
   })
   async getEvents(
     @CurrentUserId() userId: string,
-    @Query() query: PaginationQueryDto,
+    @Query() query: EventQueryDto,
   ): Promise<PaginatedResponseDto> {
     const result = await this.eventService.getEvents(userId, query);
 
@@ -197,6 +202,174 @@ export class EventController {
       this.messageService.get('success.retrieved'),
       result.data,
       result.meta,
+    );
+  }
+
+  @Get(':id')
+  @ApiOperation({
+    summary: '📖 Get event by ID',
+    description: 'Retrieve a specific event by its ID',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '✅ Event retrieved successfully',
+    schema: {
+      example: {
+        success: true,
+        message: 'Event retrieved successfully',
+        data: {
+          id: '2d2e6a3d-63e6-4d87-b949-c8383d637766',
+          calendar_id: '123e4567-e89b-12d3-a456-426614174000',
+          user_id: '456e7890-e89b-12d3-a456-426614174001',
+          title: 'Team Meeting',
+          description: 'Weekly team sync',
+          start_time: '2024-01-15T10:00:00Z',
+          end_time: '2024-01-15T11:00:00Z',
+          status: 'confirmed',
+          color: 'blue',
+          location: 'Conference Room A',
+          is_all_day: false,
+          created_at: '2024-01-15T10:00:00Z',
+          updated_at: '2024-01-15T10:00:00Z',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: '❌ Event not found',
+    schema: {
+      example: {
+        success: false,
+        message: 'Event not found',
+        timestamp: '2024-01-15T10:00:00Z',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: '❌ Unauthorized - Invalid or expired token',
+    schema: {
+      example: SwaggerExamples.Errors.Unauthorized,
+    },
+  })
+  async getEventById(
+    @Param('id') eventId: string,
+    @CurrentUserId() userId: string,
+  ): Promise<SuccessResponseDto> {
+    const event = await this.eventService.getEventById(eventId, userId);
+
+    if (!event) {
+      throw new NotFoundException(
+        this.messageService.get('calendar.event_not_found'),
+      );
+    }
+
+    return new SuccessResponseDto(
+      this.messageService.get('success.retrieved'),
+      event,
+    );
+  }
+
+  @Put(':id')
+  @ApiOperation({
+    summary: '✏️ Update event',
+    description: 'Update an existing event by its ID',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '✅ Event updated successfully',
+    schema: {
+      example: {
+        success: true,
+        message: 'Event updated successfully',
+        data: {
+          id: '2d2e6a3d-63e6-4d87-b949-c8383d637766',
+          title: 'Updated Team Meeting',
+          description: 'Updated description',
+          start_time: '2024-01-15T10:30:00Z',
+          end_time: '2024-01-15T11:30:00Z',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: '❌ Validation failed - Invalid input data',
+    schema: {
+      example: SwaggerExamples.Errors.ValidationError,
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: '❌ Event not found',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '❌ Unauthorized - Invalid or expired token',
+    schema: {
+      example: SwaggerExamples.Errors.Unauthorized,
+    },
+  })
+  async updateEvent(
+    @Param('id') eventId: string,
+    @Body() updateEventDto: UpdateEventDto,
+    @CurrentUserId() userId: string,
+  ): Promise<SuccessResponseDto> {
+    const event = await this.eventService.updateEvent(
+      eventId,
+      updateEventDto,
+      userId,
+    );
+
+    return new SuccessResponseDto(
+      this.messageService.get('calendar.event_updated'),
+      event,
+    );
+  }
+
+  @Delete(':id')
+  @ApiOperation({
+    summary: '🗑️ Delete event',
+    description: 'Delete an event by its ID',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '✅ Event deleted successfully',
+    schema: {
+      example: {
+        success: true,
+        message: 'Event deleted successfully',
+        data: { deleted: true },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: '❌ Event not found',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '❌ Unauthorized - Invalid or expired token',
+    schema: {
+      example: SwaggerExamples.Errors.Unauthorized,
+    },
+  })
+  async deleteEvent(
+    @Param('id') eventId: string,
+    @CurrentUserId() userId: string,
+  ): Promise<SuccessResponseDto> {
+    const deleted = await this.eventService.deleteEvent(eventId, userId);
+
+    if (!deleted) {
+      throw new NotFoundException(
+        this.messageService.get('calendar.event_not_found'),
+      );
+    }
+
+    return new SuccessResponseDto(
+      this.messageService.get('calendar.event_deleted'),
+      { deleted: true },
     );
   }
 }

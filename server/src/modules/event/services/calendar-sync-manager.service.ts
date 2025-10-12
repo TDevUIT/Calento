@@ -234,7 +234,9 @@ export class CalendarSyncManagerService {
     for (const conflict of conflicts) {
       try {
         if (conflict.googleEvent && conflict.calendoEventId) {
-          const eventDto = EventMappers.googleEventToDto(conflict.googleEvent);
+          // TODO: Get actual calendar_id
+          const defaultCalendarId = 'temp-calendar-id';
+          const eventDto = EventMappers.googleEventToDto(conflict.googleEvent, defaultCalendarId);
           await this.eventRepository.updateEvent(
             conflict.calendoEventId,
             eventDto,
@@ -276,11 +278,27 @@ export class CalendarSyncManagerService {
     }
   }
 
+  private async createFromGoogle(
+    userId: string,
+    googleEvent: any,
+  ): Promise<void> {
+    // TODO: Get actual calendar_id from Google Calendar
+    const defaultCalendarId = 'temp-calendar-id';
+    const eventDto = EventMappers.googleEventToDto(googleEvent, defaultCalendarId);
+    const event = await this.eventRepository.createEvent(eventDto, userId);
+
+    if (googleEvent.id) {
+      await this.saveEventMapping(event.id, googleEvent.id);
+    }
+  }
+
   private async importGoogleEvent(
     userId: string,
     googleEvent: any,
   ): Promise<void> {
-    const eventDto = EventMappers.googleEventToDto(googleEvent);
+    // TODO: Get actual calendar_id from Google Calendar
+    const defaultCalendarId = 'temp-calendar-id';
+    const eventDto = EventMappers.googleEventToDto(googleEvent, defaultCalendarId);
     const event = await this.eventRepository.createEvent(eventDto, userId);
 
     if (googleEvent.id) {

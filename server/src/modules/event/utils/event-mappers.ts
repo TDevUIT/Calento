@@ -3,12 +3,14 @@ import { Event } from '../event';
 import { GoogleEventInput } from '../../google/types/google-calendar.types';
 
 export class EventMappers {
-  static googleEventToDto(googleEvent: any): CreateEventDto {
+  static googleEventToDto(googleEvent: any, calendarId: string): CreateEventDto {
     return {
+      calendar_id: calendarId,
       title: googleEvent.summary || 'Untitled Event',
       description: googleEvent.description ?? undefined,
-      start_time: new Date(googleEvent.start.dateTime).toISOString(),
-      end_time: new Date(googleEvent.end.dateTime).toISOString(),
+      start_time:
+        googleEvent.start.dateTime || googleEvent.start.date || new Date(),
+      end_time: googleEvent.end.dateTime || googleEvent.end.date || new Date(),
       location: googleEvent.location ?? undefined,
       is_all_day: false,
       recurrence_rule: googleEvent.recurrence?.[0] ?? undefined,

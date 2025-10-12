@@ -44,6 +44,14 @@ export function IsAfterStartTime(
 
 export class CreateEventDto {
   @ApiProperty({
+    description: 'Calendar ID where the event will be created',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @IsUUID()
+  @IsNotEmpty()
+  calendar_id: string;
+
+  @ApiProperty({
     description: 'Event title',
     example: 'Team Meeting',
     maxLength: 255,
@@ -98,6 +106,15 @@ export class CreateEventDto {
   @IsBoolean()
   @IsOptional()
   is_all_day?: boolean = false;
+
+  @ApiPropertyOptional({
+    description: 'Event color for UI display',
+    example: 'blue',
+    enum: ['blue', 'green', 'pink', 'purple', 'orange', 'red', 'default'],
+  })
+  @IsString()
+  @IsOptional()
+  color?: string;
 
   @ApiPropertyOptional({
     description: 'Recurrence rule (RRULE format)',
@@ -166,6 +183,15 @@ export class UpdateEventDto {
   is_all_day?: boolean;
 
   @ApiPropertyOptional({
+    description: 'Event color for UI display',
+    example: 'green',
+    enum: ['blue', 'green', 'pink', 'purple', 'orange', 'red', 'default'],
+  })
+  @IsString()
+  @IsOptional()
+  color?: string;
+
+  @ApiPropertyOptional({
     description: 'Recurrence rule (RRULE format)',
     example: 'FREQ=DAILY;COUNT=5',
     maxLength: 500,
@@ -182,6 +208,12 @@ export class EventResponseDto {
     example: '123e4567-e89b-12d3-a456-426614174000',
   })
   id: string;
+
+  @ApiProperty({
+    description: 'Calendar ID where the event belongs',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  calendar_id: string;
 
   @ApiProperty({
     description: 'User ID who owns the event',
@@ -213,6 +245,30 @@ export class EventResponseDto {
   })
   end_time: Date;
 
+  @ApiProperty({
+    description: 'Event status',
+    example: 'confirmed',
+  })
+  status: string;
+
+  @ApiPropertyOptional({
+    description: 'Event color',
+    example: 'blue',
+  })
+  color?: string;
+
+  @ApiProperty({
+    description: 'Event attendees',
+    example: [],
+  })
+  attendees: any[];
+
+  @ApiProperty({
+    description: 'Event reminders',
+    example: [],
+  })
+  reminders: any[];
+
   @ApiPropertyOptional({
     description: 'Event location',
     example: 'Conference Room A',
@@ -232,19 +288,27 @@ export class EventResponseDto {
   recurrence_rule?: string;
 
   @ApiProperty({
-    description: 'Event creation timestamp',
-    example: '2024-01-10T08:00:00Z',
+    description: 'Created timestamp',
+    example: '2024-01-15T10:00:00Z',
   })
   created_at: Date;
 
   @ApiProperty({
-    description: 'Event last update timestamp',
-    example: '2024-01-12T14:30:00Z',
+    description: 'Updated timestamp',
+    example: '2024-01-15T10:00:00Z',
   })
   updated_at: Date;
 }
 
 export class EventQueryDto {
+  @ApiPropertyOptional({
+    description: 'Filter by calendar ID',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @IsUUID()
+  @IsOptional()
+  calendar_id?: string;
+
   @ApiPropertyOptional({
     description: 'Start date filter (ISO 8601 format)',
     example: '2024-01-01T00:00:00Z',

@@ -231,8 +231,12 @@ export class EventSyncService {
       }));
     }
 
+    // TODO: Get actual calendar_id from Google Calendar or user's primary calendar
+    // For now, use a placeholder - this should be passed from the calling function
+    const defaultCalendarId = 'temp-calendar-id'; // This needs to be fixed properly
+    
     const eventDtos = validEvents.map((event) =>
-      EventMappers.googleEventToDto(event),
+      EventMappers.googleEventToDto(event, defaultCalendarId),
     );
 
     const values: string[] = [];
@@ -305,7 +309,9 @@ export class EventSyncService {
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        const eventDto = EventMappers.googleEventToDto(googleEvent);
+        // TODO: Get actual calendar_id from Google Calendar
+        const defaultCalendarId = 'temp-calendar-id';
+        const eventDto = EventMappers.googleEventToDto(googleEvent, defaultCalendarId);
         const createdEvent = await this.eventRepository.createEvent(
           eventDto,
           userId,
