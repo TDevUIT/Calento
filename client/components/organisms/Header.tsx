@@ -110,7 +110,7 @@ export const Header: React.FC = () => {
             <div className="hidden lg:flex items-center gap-4">
               {isAuthenticated ? (
                 <Link
-                  href="/dashboard"
+                  href="/dashboard/calendar"
                   className="flex items-center gap-2 rounded-lg px-6 py-2.5 theme-btn-primary transition-all duration-200 text-base font-bold shadow-lg hover:shadow-xl  tracking-wide"
                 >
                   <LayoutDashboard className="w-5 h-5" />

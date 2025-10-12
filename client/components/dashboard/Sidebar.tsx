@@ -27,12 +27,14 @@ import {
   SidebarHeader,
   SidebarFooter,
   SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { WORKSPACE_CONFIG, CREDITS_CONFIG, formatCredits } from "@/constants/dashboard-preview.constants";
 import { Logo } from "../ui/logo";
 import { useCurrentUser } from "@/hook/store/use-auth-store";
 import { useAuthStore } from "@/store/auth.store";
+import Image from "next/image";
 
 const calendarScheduleItems = [
   {
@@ -79,6 +81,7 @@ const SidebarDashboard = () => {
   const pathname = usePathname();
   const { user, isLoading, isAuthenticated } = useCurrentUser();
   const { checkAuthStatus } = useAuthStore();
+  const { state } = useSidebar();
   React.useEffect(() => {
     if (!isAuthenticated && !isLoading) {
       checkAuthStatus();
@@ -106,8 +109,17 @@ const SidebarDashboard = () => {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href="/dashboard">
-                <div className="flex flex-col gap-0.5 leading-none">
-                  <Logo />
+                <div className="flex items-center gap-2 leading-none">
+                  {state === "collapsed" ? (
+                    <Image 
+                      src="/images/logo.png"
+                      width={28}
+                      height={28}
+                      alt="Logo"
+                    />
+                  ) : (
+                    <Logo size="sm" />
+                  )}
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -120,10 +132,23 @@ const SidebarDashboard = () => {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton className="h-9  py-4 bg-white border">
-                  <div className="p-1 rounded-[4px] bg-black"><Folder className=" text-white h-4 w-4" /></div>
-                  <span>{WORKSPACE_CONFIG.name}</span>
-                  <ChevronsLeftRight className="ml-auto h-3 w-3 rotate-90" />
+                <SidebarMenuButton
+                  variant="outline"
+                  className={`items-center ${state === "collapsed" ? "justify-center" : ""}`}
+                >
+                  {state === "collapsed" ? (
+                    <div className="flex h-6 w-6 items-center justify-center rounded-[4px] bg-black shrink-0">
+                      <Folder className="text-white h-4 w-4" />
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex h-6 w-6 items-center justify-center rounded-[4px] bg-black shrink-0">
+                        <Folder className="text-white h-4 w-4" />
+                      </div>
+                      <span className="text-sm">{WORKSPACE_CONFIG.name}</span>
+                      <ChevronsLeftRight className="ml-auto h-3 w-3 rotate-90 group-data-[collapsible=icon]:hidden" />
+                    </>
+                  )}
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -140,7 +165,7 @@ const SidebarDashboard = () => {
                     <SidebarMenuButton asChild isActive={isActive} className="">
                       <Link href={item.href}>
                         <item.icon className="size-4" />
-                        <span className="text-[16px] font-base">{item.title}</span>
+                        <span className="text-sm">{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -154,7 +179,7 @@ const SidebarDashboard = () => {
       <SidebarFooter >
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton className="h-12 data-[state=collapsed]:h-auto">
+            <SidebarMenuButton className="h-12 group-data-[collapsible=icon]:h-auto">
               <div className="flex items-center gap-2 min-w-0">
                 <FaCoins className="h-4 w-4 text-persian-blue-600 shrink-0" />
                 <div className="flex flex-col min-w-0 flex-1">
