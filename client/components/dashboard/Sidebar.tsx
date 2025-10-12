@@ -30,7 +30,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { WORKSPACE_CONFIG, CREDITS_CONFIG, formatCredits } from "@/constants/dashboard-preview.constants";
+import { CREDITS_CONFIG, formatCredits } from "@/constants/dashboard-preview.constants";
 import { Logo } from "../ui/logo";
 import { useCurrentUser } from "@/hook/store/use-auth-store";
 import { useAuthStore } from "@/store/auth.store";

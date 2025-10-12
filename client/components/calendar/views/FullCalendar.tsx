@@ -408,7 +408,7 @@ const CalendarMonthView = () => {
                         )}
                       ></div>
                       <span className="flex-1 truncate font-medium">{event.title}</span>
-                      <time className="tabular-nums text-muted-foreground/60 text-[10px]">
+                      <time className="tabular-nums text-muted-foreground/60 text-[10px]" suppressHydrationWarning>
                         {format(event.start, 'HH:mm')}
                       </time>
                     </div>
