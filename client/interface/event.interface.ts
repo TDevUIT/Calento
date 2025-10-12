@@ -1,6 +1,7 @@
 export interface Event {
   id: string;
   user_id: string;
+  calendar_id: string;
   title: string;
   description?: string;
   start_time: Date | string;
@@ -13,6 +14,7 @@ export interface Event {
 }
 
 export interface CreateEventRequest {
+  calendar_id: string;
   title: string;
   description?: string;
   start_time: string; // ISO 8601 format
@@ -69,12 +71,16 @@ export interface BulkEventOperation {
 export interface PaginatedEventsResponse {
   success: boolean;
   message: string;
-  data: Event[];
-  meta: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
+  data: {
+    items: Event[];
+    meta: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+      hasNextPage: boolean;
+      hasPreviousPage: boolean;
+    };
   };
   status: number;
   timestamp: string;

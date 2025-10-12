@@ -6,21 +6,17 @@ import { PaginatedEventsResponse, EventQueryParams } from '@/interface/event.int
 import { useDebounce } from '../use-debounce';
 import { EVENT_QUERY_KEYS } from './query-keys';
 
-/**
- * Hook to search events with debounce
- */
 export const useSearchEvents = (
   searchTerm: string,
   params?: Omit<EventQueryParams, 'search'>,
   debounceMs: number = 300
 ): UseQueryResult<PaginatedEventsResponse, Error> => {
-  // Debounce search term to avoid too many requests
   const debouncedSearch = useDebounce(searchTerm, debounceMs);
 
   return useQuery({
     queryKey: EVENT_QUERY_KEYS.search(debouncedSearch, params),
     queryFn: () => eventService.searchEvents(debouncedSearch, params),
-    staleTime: 1 * 60 * 1000, // 1 minute
-    enabled: debouncedSearch.length >= 2, // Only search if 2+ characters
+    staleTime: 1 * 60 * 1000,
+    enabled: debouncedSearch.length >= 2,
   });
 };
