@@ -48,17 +48,18 @@ export class EventValidationService {
   ): Promise<void> {
     try {
       let query = `
-                SELECT id, title, start_time, end_time 
-                FROM events 
-                WHERE user_id = $1 
-                AND start_time < $3 
-                AND end_time > $2
-            `;
+            SELECT e.id, e.title, e.start_time, e.end_time
+            FROM events e
+            INNER JOIN calendars c ON e.calendar_id = c.id
+            WHERE c.user_id = $1
+            AND e.start_time < $3
+            AND e.end_time > $2
+        `;
 
       const params = [userId, startTime, endTime];
 
       if (excludeEventId) {
-        query += ' AND id != $4';
+        query += ' AND e.id != $4';
         params.push(excludeEventId);
       }
 

@@ -55,13 +55,14 @@ export class PaginationService {
   buildLimitOffsetClause(
     page: number,
     limit: number,
+    paramStartIndex: number = 1,
   ): {
     clause: string;
     values: number[];
   } {
     const offset = this.calculateOffset(page, limit);
     return {
-      clause: 'LIMIT $1 OFFSET $2',
+      clause: `LIMIT $${paramStartIndex} OFFSET $${paramStartIndex + 1}`,
       values: [limit, offset],
     };
   }
@@ -136,9 +137,12 @@ export class PaginationService {
       allowedSortFields,
     );
 
-    // Build LIMIT OFFSET clause
+    const baseParams = additionalParams || [];
+    const paramStartIndex = baseParams.length + 1;
+
+    // Build LIMIT OFFSET clause with correct parameter indexes
     const { clause: limitOffsetClause, values: limitOffsetValues } =
-      this.buildLimitOffsetClause(page, limit);
+      this.buildLimitOffsetClause(page, limit, paramStartIndex);
 
     // Count query
     const countQuery = `SELECT COUNT(*) FROM (${baseQuery}) as base_query ${whereClause}`;
@@ -150,8 +154,6 @@ export class PaginationService {
         ${orderByClause} 
         ${limitOffsetClause}
         `.trim();
-
-    const baseParams = additionalParams || [];
 
     return {
       countQuery,

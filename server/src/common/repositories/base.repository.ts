@@ -9,6 +9,7 @@ import {
 import {
   PaginatedResult,
   PaginationOptions,
+  SearchOptions,
 } from '../interfaces/pagination.interface';
 import { RepositoryOptions } from '../interfaces/database.interface';
 
@@ -319,7 +320,7 @@ export abstract class UserOwnedRepository<
 > extends BaseRepository<T> {
   async findByUserId(
     userId: string,
-    paginationOptions: Partial<PaginationOptions>,
+    paginationOptions: Partial<PaginationOptions> | Partial<SearchOptions>,
     options?: RepositoryOptions,
   ): Promise<PaginatedResult<T>> {
     const validatedOptions =
@@ -327,8 +328,23 @@ export abstract class UserOwnedRepository<
     const { page, limit } = validatedOptions;
 
     const baseQuery = this.buildSelectQuery(options?.includeDeleted);
-    const whereCondition = 'user_id = $1';
-    const whereParams = [userId];
+    let whereCondition = 'user_id = $1';
+    let whereParams: any[] = [userId];
+    
+    // Handle search if provided
+    const searchOptions = paginationOptions as Partial<SearchOptions>;
+    if (searchOptions.search && searchOptions.searchFields && searchOptions.searchFields.length > 0) {
+      const searchConditions = searchOptions.searchFields.map(
+        (field, index) => `${field} ILIKE $${index + 2}`
+      );
+      whereCondition += ` AND (${searchConditions.join(' OR ')})`;
+      
+      // Add search parameter for each field
+      searchOptions.searchFields.forEach(() => {
+        whereParams.push(`%${searchOptions.search}%`);
+      });
+    }
+    
     const allowedSortFields = this.getAllowedSortFields();
 
     const { countQuery, dataQuery, countParams, dataParams } =

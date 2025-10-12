@@ -57,3 +57,26 @@ export class SearchPaginationQueryDto extends PaginationQueryDto {
   @IsOptional()
   search?: string;
 }
+
+export class EventQueryDto extends PaginationQueryDto {
+  @ApiPropertyOptional({
+    description: 'Start date for filtering events (ISO 8601 format)',
+    example: '2024-01-01T00:00:00Z',
+  })
+  @IsOptional()
+  start_date?: string;
+
+  @ApiPropertyOptional({
+    description: 'End date for filtering events (ISO 8601 format)',
+    example: '2024-12-31T23:59:59Z',
+  })
+  @IsOptional()
+  end_date?: string;
+
+  @ApiPropertyOptional({
+    description: 'Filter by calendar ID',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @IsOptional()
+  calendar_id?: string;
+}
