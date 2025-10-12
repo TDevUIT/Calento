@@ -2,49 +2,32 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, Sparkles, User, Briefcase, Users } from 'lucide-react';
-import { MiniCalendar } from '../MiniCalendar';
-import { CalendarItem } from '../shared/types';
+import { Plus, Sparkles, Calendar } from 'lucide-react';
 import { SidebarHeader } from './SidebarHeader';
-import { CalendarList } from './CalendarList';
+import { CalendarListWithAPI } from './CalendarListWithAPI';
 import { EventsList } from './EventsList';
+import { CreateCalendarDialog } from '../dialogs/CreateCalendarDialog';
 
 interface CalendarSidebarProps {
   onDateSelect?: (date: Date) => void;
   onCreateEvent?: () => void;
   onClose?: () => void;
   selectedDate?: Date;
+  visibleCalendarIds?: Set<string>;
+  onVisibleCalendarIdsChange?: (ids: Set<string>) => void;
 }
 
 export function CalendarSidebar({ 
   onDateSelect, 
   onCreateEvent, 
   onClose, 
-  selectedDate 
+  selectedDate,
+  visibleCalendarIds,
+  onVisibleCalendarIdsChange
 }: CalendarSidebarProps) {
   const [activeTab, setActiveTab] = useState<'calendar' | 'events'>('calendar');
   const [searchQuery, setSearchQuery] = useState('');
-
-  const eventsCount = {
-    '2024-12-12': 3,
-    '2024-12-15': 2,
-    '2024-12-18': 1,
-    '2024-12-20': 4,
-  };
-
-  const [calendars, setCalendars] = useState<CalendarItem[]>([
-    { id: 'personal', name: 'Personal', color: 'bg-blue-500', icon: User, visible: true, count: 12 },
-    { id: 'work', name: 'Work', color: 'bg-green-500', icon: Briefcase, visible: true, count: 8 },
-    { id: 'team', name: 'Team Events', color: 'bg-purple-500', icon: Users, visible: false, count: 5 },
-  ]);
-
-  const toggleCalendar = (id: string) => {
-    setCalendars(prev => 
-      prev.map(cal => 
-        cal.id === id ? { ...cal, visible: !cal.visible } : cal
-      )
-    );
-  };
+  const [showCreateCalendarDialog, setShowCreateCalendarDialog] = useState(false);
 
   return (
     <div className="h-full flex flex-col bg-white shadow-xl border-l overflow-hidden">
@@ -58,7 +41,7 @@ export function CalendarSidebar({
 
       <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400">
         {activeTab === 'calendar' ? (
-          <div className="p-4 space-y-4">
+          <div className="p-4 space-y-3">
             <Button 
               onClick={onCreateEvent} 
               className="w-full gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transition-all duration-200"
@@ -68,18 +51,31 @@ export function CalendarSidebar({
               <Sparkles className="h-3.5 w-3.5 ml-auto" />
             </Button>
 
-            <MiniCalendar
-              selectedDate={selectedDate}
-              onDateSelect={onDateSelect}
-              eventsCount={eventsCount}
-            />
+            <Button 
+              onClick={() => setShowCreateCalendarDialog(true)} 
+              variant="outline"
+              className="w-full gap-2 border-2 border-dashed border-gray-300 hover:border-blue-500 hover:bg-blue-50 transition-all duration-200"
+            >
+              <Calendar className="h-4 w-4" />
+              <span className="font-medium">Create Calendar</span>
+              <Plus className="h-3.5 w-3.5 ml-auto" />
+            </Button>
 
-            <CalendarList calendars={calendars} onToggle={toggleCalendar} />
+            <CalendarListWithAPI 
+              onCreateCalendar={() => setShowCreateCalendarDialog(true)}
+              visibleCalendarIds={visibleCalendarIds}
+              onVisibleCalendarIdsChange={onVisibleCalendarIdsChange}
+            />
           </div>
         ) : (
           <EventsList />
         )}
       </div>
+
+      <CreateCalendarDialog 
+        open={showCreateCalendarDialog}
+        onOpenChange={setShowCreateCalendarDialog}
+      />
     </div>
   );
 }

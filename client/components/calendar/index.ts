@@ -1,8 +1,3 @@
-// ======================
-// 📁 CALENDAR COMPONENTS
-// ======================
-
-// Core Calendar (FullCalendar Views)
 export {
   Calendar,
   CalendarCurrentDate,
@@ -18,26 +13,14 @@ export {
   type CalendarEvent,
 } from './views/FullCalendar';
 
-// Views
 export { EventPreview } from './views/EventPreview';
-
-// Sidebar Components
 export { CalendarSidebar } from './sidebar';
-
-// Dialogs
 export { EventDialog } from './dialogs/EventDialog';
-
-// Search
 export { EventSearch, type EventSearchFilters } from './search';
-
-// Settings
 export { CalendarSettingsDialog } from './settings';
-
-// Shared Components
 export { MiniCalendar } from './MiniCalendar';
 export { KeyboardShortcuts } from './KeyboardShortcuts';
 
-// Shared Types & Utils
 export type {
   CalendarSettings,
   CalendarView,

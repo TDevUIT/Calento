@@ -93,7 +93,9 @@ export type CalendarEvent = {
   start: Date;
   end: Date;
   title: string;
-  color?: VariantProps<typeof monthEventVariants>['variant'];
+  color?: 'default' | 'blue' | 'green' | 'pink' | 'purple';
+  description?: string;
+  calendarId?: string;
 };
 
 type CalendarProps = {
@@ -340,7 +342,7 @@ const CalendarWeekView = () => {
 };
 
 const CalendarMonthView = () => {
-  const { date, view, events, locale } = useCalendar();
+  const { date, view, events, locale, onEventClick } = useCalendar();
 
   const monthDates = useMemo(() => getDaysInMonth(date), [date]);
   const weekDays = useMemo(() => generateWeekdays(locale), [locale]);
@@ -400,6 +402,7 @@ const CalendarMonthView = () => {
                     <div
                       key={event.id}
                       className="px-2 py-1 rounded-md text-xs flex items-center gap-1.5 hover:bg-accent/50 transition-colors cursor-pointer"
+                      onClick={() => onEventClick?.(event)}
                     >
                       <div
                         className={cn(
