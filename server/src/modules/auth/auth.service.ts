@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit, Inject, forwardRef } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthRepository } from './auth.repository';
 import { PasswordService } from '../../common/services/password.service';
@@ -34,6 +34,7 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly passwordService: PasswordService,
     private readonly userValidationService: UserValidationService,
+    @Inject(forwardRef(() => EmailService))
     private readonly emailService: EmailService,
   ) {}
 
@@ -265,13 +266,11 @@ export class AuthService {
         type: 'refresh',
       };
 
-      // Generate access token
       this.logger.debug('Generating access token...');
       const access_token = this.jwtService.sign(payload, {
         expiresIn: this.configService.jwtExpiresIn,
       });
 
-      // Generate refresh token
       this.logger.debug('Generating refresh token...');
       const refresh_token = this.jwtService.sign(refreshPayload, {
         secret: this.configService.jwtRefreshSecret,

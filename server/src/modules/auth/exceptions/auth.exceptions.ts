@@ -80,13 +80,31 @@ export class InvalidCredentialsException extends HttpException {
 
 export class TokenExpiredException extends HttpException {
   constructor() {
-    super('Token has expired', HttpStatus.UNAUTHORIZED);
+    super(
+      {
+        status: HttpStatus.UNAUTHORIZED,
+        message: 'Token has expired',
+        errors: ['Access token expired'],
+        timestamp: new Date().toISOString(),
+        autoRefresh: true, // Signal to interceptor to try refresh
+      },
+      HttpStatus.UNAUTHORIZED,
+    );
   }
 }
 
 export class InvalidTokenException extends HttpException {
   constructor() {
-    super('Invalid or malformed token', HttpStatus.UNAUTHORIZED);
+    super(
+      {
+        status: HttpStatus.UNAUTHORIZED,
+        message: 'Invalid or malformed token',
+        errors: ['Invalid or malformed token'],
+        timestamp: new Date().toISOString(),
+        requiresLogin: true, // Signal to frontend to redirect to login
+      },
+      HttpStatus.UNAUTHORIZED,
+    );
   }
 }
 
@@ -111,7 +129,13 @@ export class AccountDisabledException extends HttpException {
 export class RefreshTokenExpiredException extends HttpException {
   constructor() {
     super(
-      'Refresh token has expired. Please login again.',
+      {
+        status: HttpStatus.UNAUTHORIZED,
+        message: 'Refresh token has expired. Please login again.',
+        errors: ['Refresh token expired'],
+        timestamp: new Date().toISOString(),
+        requiresLogin: true,
+      },
       HttpStatus.UNAUTHORIZED,
     );
   }
@@ -119,7 +143,16 @@ export class RefreshTokenExpiredException extends HttpException {
 
 export class InvalidRefreshTokenException extends HttpException {
   constructor() {
-    super('Invalid refresh token', HttpStatus.UNAUTHORIZED);
+    super(
+      {
+        status: HttpStatus.UNAUTHORIZED,
+        message: 'Invalid refresh token',
+        errors: ['Invalid refresh token'],
+        timestamp: new Date().toISOString(),
+        requiresLogin: true,
+      },
+      HttpStatus.UNAUTHORIZED,
+    );
   }
 }
 

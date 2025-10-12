@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose, Transform } from 'class-transformer';
 
-export class UserResponseDto {
+export class AuthUserResponseDto {
   @ApiProperty({
     example: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
     description: 'User unique identifier (UUID)',
@@ -124,8 +124,9 @@ export class AuthResponseDto {
 
   @ApiProperty({
     description: 'User information',
+    type: AuthUserResponseDto,
   })
-  user: UserResponseDto;
+  user: AuthUserResponseDto;
 
   @ApiProperty({
     example: '2024-01-15T10:00:00Z',
@@ -133,7 +134,7 @@ export class AuthResponseDto {
   })
   login_at: Date;
 
-  constructor(tokens: AuthTokensDto, user: UserResponseDto) {
+  constructor(tokens: AuthTokensDto, user: AuthUserResponseDto) {
     this.tokens = tokens;
     this.user = user;
     this.login_at = new Date();

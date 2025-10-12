@@ -56,7 +56,7 @@ export const Header: React.FC = () => {
         )}
         role="banner"
       >
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto px-4 md:px-0">
           <div className="flex justify-between items-center h-16 lg:h-20">
             <Link 
               href="/" 
@@ -111,7 +111,7 @@ export const Header: React.FC = () => {
               {isAuthenticated ? (
                 <Link
                   href="/dashboard"
-                  className="flex items-center gap-2 rounded-lg px-6 py-2.5 theme-btn-primary transition-all duration-200 text-base font-bold shadow-lg hover:shadow-xl hover:scale-105 tracking-wide"
+                  className="flex items-center gap-2 rounded-lg px-6 py-2.5 theme-btn-primary transition-all duration-200 text-base font-bold shadow-lg hover:shadow-xl  tracking-wide"
                 >
                   <LayoutDashboard className="w-5 h-5" />
                   Dashboard
@@ -127,7 +127,7 @@ export const Header: React.FC = () => {
                   
                   <Link
                     href={EXTERNAL_LINKS.signup}
-                    className="rounded-lg px-6 py-2.5 theme-btn-primary transition-all duration-200 text-base font-bold shadow-lg hover:shadow-xl hover:scale-105 tracking-wide"
+                    className="rounded-lg px-6 py-2.5 theme-btn-primary transition-all duration-200 text-base font-bold shadow-lg hover:shadow-xl  tracking-wide"
                   >
                     Try for free
                   </Link>
@@ -245,8 +245,8 @@ export const Header: React.FC = () => {
               <div className="space-y-3">
                 {isAuthenticated ? (
                   <Link
-                    href="/dashboard"
-                    className="flex items-center justify-center gap-2 px-4 py-3 text-center text-base font-bold theme-btn-primary rounded-lg transition-all duration-200 hover:shadow-lg hover:scale-105 tracking-wide"
+                    href="/dashboard/calendar"
+                    className="flex items-center justify-center gap-2 px-4 py-3 text-center text-base font-bold theme-btn-primary rounded-lg transition-all duration-200 hover:shadow-lg  tracking-wide"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <LayoutDashboard className="w-5 h-5" />
@@ -263,7 +263,7 @@ export const Header: React.FC = () => {
                     </Link>
                     <Link
                       href={EXTERNAL_LINKS.signup}
-                      className="block px-4 py-3 text-center text-base font-bold theme-btn-primary rounded-full transition-all duration-200 hover:shadow-lg hover:scale-105 tracking-wide"
+                      className="block px-4 py-3 text-center text-base font-bold theme-btn-primary rounded-full transition-all duration-200 hover:shadow-lg  tracking-wide"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       Get Started

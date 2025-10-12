@@ -22,7 +22,7 @@ import { AuthService } from './auth.service';
 import { CookieAuthService } from './services/cookie-auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import { AuthResponseDto } from './dto/auth-response.dto';
+import { AuthResponseDto, AuthUserResponseDto } from './dto/auth-response.dto';
 import { AuthResponse } from './interfaces/auth.interface';
 import { Public } from '../../common/decorators/public.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -30,7 +30,7 @@ import { SuccessResponseDto } from '../../common/dto/base-response.dto';
 import { MessageService } from '../../common/message/message.service';
 
 @ApiTags('Authentication')
-@ApiExtraModels(AuthResponseDto, SuccessResponseDto)
+@ApiExtraModels(AuthResponseDto, AuthUserResponseDto, SuccessResponseDto)
 @Controller('auth')
 export class AuthController {
   constructor(

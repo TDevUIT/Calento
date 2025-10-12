@@ -23,9 +23,10 @@ export class JwtCookieStrategy extends PassportStrategy(
         (request: Request) => {
           const token = request?.cookies?.access_token;
           if (token) {
-            this.logger.debug('JWT extracted from cookies');
+            this.logger.debug(`JWT extracted from cookies (length: ${token.length})`);
             return token;
           }
+          this.logger.debug('No access token in cookies');
           return null;
         },
       ]),

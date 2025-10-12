@@ -27,7 +27,6 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
     RecurringEventsService,
     PasswordService,
     SyncErrorRecoveryService,
-    JwtAuthGuard,
     {
       provide: APP_INTERCEPTOR,
       useClass: RequestIdInterceptor,
@@ -64,7 +63,6 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
     RecurringEventsService,
     PasswordService,
     SyncErrorRecoveryService,
-    JwtAuthGuard,
   ],
 })
 export class CommonModule {}

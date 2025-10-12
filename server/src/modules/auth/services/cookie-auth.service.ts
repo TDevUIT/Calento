@@ -90,35 +90,44 @@ export class CookieAuthService {
     request: Request,
     response: Response,
   ): Promise<AuthTokens | null> {
+    this.logger.debug('Attempting to refresh token from cookies...');
+    
     const refreshToken = this.extractRefreshTokenFromCookies(request);
 
     if (!refreshToken) {
-      this.logger.debug('No refresh token found for refresh operation');
+      this.logger.warn('No refresh token found in cookies');
       return null;
     }
 
+    this.logger.debug(`Refresh token found, length: ${refreshToken.length}`);
+
     try {
+      this.logger.debug('Verifying refresh token...');
       const decoded = this.jwtService.verify(refreshToken, {
         secret: env.JWT_REFRESH_SECRET,
       });
 
+      this.logger.debug(`Token decoded - type: ${decoded.type}, email: ${decoded.email}`);
+
       if (decoded.type !== 'refresh') {
-        this.logger.warn('Invalid token type for refresh operation');
+        this.logger.warn(`Invalid token type: ${decoded.type}, expected 'refresh'`);
         return null;
       }
 
+      this.logger.debug('Generating new tokens...');
       const newTokens = await this.generateTokens({
         id: decoded.sub,
         email: decoded.email,
         username: decoded.username,
       });
 
+      this.logger.debug('Setting new auth cookies...');
       this.setAuthCookies(response, newTokens);
 
-      this.logger.log(`Tokens refreshed for user: ${decoded.email}`);
+      this.logger.log(`✅ Tokens refreshed successfully for user: ${decoded.email}`);
       return newTokens;
     } catch (error) {
-      this.logger.warn(`Token refresh failed: ${error.message}`);
+      this.logger.error(`❌ Token refresh failed: ${error.name} - ${error.message}`);
       this.clearAuthCookies(response);
       return null;
     }

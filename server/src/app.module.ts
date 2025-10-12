@@ -11,7 +11,6 @@ import { EventModule } from './modules/event/event.module';
 import { CalendarModule } from './modules/calendar/calendar.module';
 import { GoogleModule } from './modules/google/google.module';
 import { WebhookModule } from './modules/webhook/webhook.module';
-
 import { APP_GUARD } from '@nestjs/core';
 import { AuthModule } from './modules/auth/auth.module';
 import { EmailModule } from './modules/email/email.module';
@@ -28,20 +27,21 @@ import { DebugController } from './debug-cors.controller';
     }),
     ScheduleModule.forRoot(),
     ConfigModule,
+    DatabaseModule,
+    AuthModule,
     CommonModule,
     QueueModule,
-    DatabaseModule,
     HealthModule,
     UsersModule,
     EventModule,
     CalendarModule,
     GoogleModule,
     WebhookModule,
-    AuthModule,
     EmailModule,
     AvailabilityModule,
     BookingModule,
     BlogModule,
+    EmailModule,
   ],
   controllers: [DebugController],
   providers: [
