@@ -390,9 +390,32 @@ export class EventRepository extends BaseRepository<Event> {
     await this.userValidationService.validateUserExists(userId);
 
     try {
+      if (eventId.includes('_occurrence_')) {
+        const [originalId, occurrencePart] = eventId.split('_occurrence_');
+        const occurrenceIndex = parseInt(occurrencePart, 10);
+
+        if (isNaN(occurrenceIndex)) {
+          this.logger.warn(`Invalid occurrence index in ID: ${eventId}`);
+          return null;
+        }
+
+        const originalEvent = await this.findById(originalId);
+        if (!originalEvent) {
+          return null;
+        }
+
+        const normalizedEvent = this.normalizeEventData(originalEvent);
+        const occurrence = this.recurringEventsService.getOccurrenceById(
+          normalizedEvent,
+          occurrenceIndex,
+        );
+
+        return occurrence;
+      }
+
       const event = await this.findById(eventId);
       if (event) {
-            return this.normalizeEventData(event);
+        return this.normalizeEventData(event);
       }
       return null;
     } catch (error) {
@@ -532,7 +555,11 @@ export class EventRepository extends BaseRepository<Event> {
   async deleteEvent(eventId: string, userId: string): Promise<boolean> {
     await this.userValidationService.validateUserExists(userId);
 
-    const existingEvent = await this.getEventById(eventId, userId);
+    const actualId = eventId.includes('_occurrence_') 
+      ? eventId.split('_occurrence_')[0] 
+      : eventId;
+
+    const existingEvent = await this.getEventById(actualId, userId);
     if (!existingEvent) {
       throw new EventCreationFailedException(
         this.messageService.get('error.event_not_found'),
@@ -540,10 +567,10 @@ export class EventRepository extends BaseRepository<Event> {
     }
 
     try {
-      const result = await this.delete(eventId);
+      const result = await this.delete(actualId);
       return result !== null;
     } catch (error) {
-      this.logger.error(`Failed to delete event ${eventId}:`, error);
+      this.logger.error(`Failed to delete event ${actualId}:`, error);
       throw new EventCreationFailedException(
         this.messageService.get('error.internal_server_error'),
       );

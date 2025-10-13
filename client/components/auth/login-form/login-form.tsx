@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils'
 import type { LoginFormProps } from '@/types/auth.types'
 import { LoginOptions, EmailLoginForm } from './components'
 import { useLogin } from '@/hook/auth/use-login'
+import { useGoogleLogin } from '@/hook/auth/use-google-login'
 import { 
   AUTH_SUCCESS_MESSAGES,
   REDIRECT_DELAY_MS,
@@ -22,6 +23,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
 }) => {
   const router = useRouter()
   const { login, isLoading, error, isSuccess } = useLogin()
+  const { loginWithGoogle, isLoading: isGoogleLoading } = useGoogleLogin()
   
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -65,12 +67,22 @@ const LoginForm: React.FC<LoginFormProps> = ({
     setPassword('')
   }
 
+  const handleGoogleLogin = async () => {
+    try {
+      await loginWithGoogle()
+      onGoogleLogin?.()
+    } catch (error) {
+      // Error handling is done in the hook
+    }
+  }
+
   return (
     <div className={cn('w-full max-w-md space-y-6', className)}>
       {!showEmailForm ? (
         <LoginOptions
-          onGoogleLogin={onGoogleLogin}
+          onGoogleLogin={handleGoogleLogin}
           onEmailLoginClick={() => setShowEmailForm(true)}
+          isGoogleLoading={isGoogleLoading}
         />
       ) : (
         <EmailLoginForm

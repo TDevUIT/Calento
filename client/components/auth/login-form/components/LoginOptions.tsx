@@ -8,11 +8,13 @@ import { SocialLoginButton, TermsAndPolicy } from '@/components/atoms'
 type LoginOptionsProps = {
   onGoogleLogin?: () => void
   onEmailLoginClick: () => void
+  isGoogleLoading?: boolean
 }
 
 export const LoginOptions: React.FC<LoginOptionsProps> = ({
   onGoogleLogin,
   onEmailLoginClick,
+  isGoogleLoading = false,
 }) => {
   return (
     <div className="space-y-3 flex flex-col items-center">
@@ -20,6 +22,8 @@ export const LoginOptions: React.FC<LoginOptionsProps> = ({
         <SocialLoginButton
           provider="google"
           onClick={onGoogleLogin}
+          disabled={isGoogleLoading}
+          isLoading={isGoogleLoading}
         />
         <SocialLoginButton
           provider="microsoft"

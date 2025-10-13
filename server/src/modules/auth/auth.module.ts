@@ -12,6 +12,7 @@ import { ConfigService } from '../../config/config.service';
 import { CommonModule } from '../../common/common.module';
 import { EmailModule } from '../email/email.module';
 import { CalendarModule } from '../calendar/calendar.module';
+import { GoogleModule } from '../google/google.module';
 
 @Global()
 @Module({
@@ -20,6 +21,7 @@ import { CalendarModule } from '../calendar/calendar.module';
     ConfigModule,
     forwardRef(() => EmailModule),
     CalendarModule, // Import CalendarModule for auto-creating default calendar
+    GoogleModule, // Import GoogleModule for Google OAuth
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],

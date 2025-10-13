@@ -53,6 +53,7 @@ export const API_ROUTES = {
   AUTH_LOGOUT: '/api/v1/auth/logout',
   AUTH_REFRESH: '/api/v1/auth/refresh',
   AUTH_ME: '/api/v1/auth/me',
+  AUTH_GOOGLE_LOGIN: '/api/v1/auth/google/login',
   
   // Events
   EVENTS: '/api/v1/events',
@@ -73,12 +74,12 @@ export const API_ROUTES = {
   CALENDAR_SYNC: '/api/v1/calendar/sync',
   
   // Google Integration
-  GOOGLE_AUTH_URL: '/api/google/auth/url',
-  GOOGLE_STATUS: '/api/google/status',
-  GOOGLE_DISCONNECT: '/api/google/disconnect',
-  GOOGLE_CALENDARS_SYNC: '/api/google/calendars/sync',
-  GOOGLE_CALENDARS_LIST: '/api/google/calendars/list',
-  GOOGLE_TOKEN_REFRESH: '/api/google/token/refresh',
+  GOOGLE_AUTH_URL: '/api/v1/auth/google/url',
+  GOOGLE_STATUS: '/api/v1/google/status',
+  GOOGLE_DISCONNECT: '/api/v1/google/disconnect',
+  GOOGLE_CALENDARS_SYNC: '/api/v1/google/calendars/sync',
+  GOOGLE_CALENDARS_LIST: '/api/v1/google/calendars/list',
+  GOOGLE_TOKEN_REFRESH: '/api/v1/google/token/refresh',
 } as const;
 
 export const PUBLIC_ROUTE_PATTERNS = [

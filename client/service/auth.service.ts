@@ -79,6 +79,19 @@ export const checkAuthStatus = async (): Promise<boolean> => {
   }
 };
 
+export const loginWithGoogle = async (code: string): Promise<AuthResponse> => {
+  try {
+    const response = await api.post<ApiSuccessResponse<AuthResponse>>(
+      API_ROUTES.AUTH_GOOGLE_LOGIN,
+      { code },
+      { withCredentials: true }
+    );
+    return response.data.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+};
+
 export const authService = {
   register,
   login,
@@ -86,6 +99,7 @@ export const authService = {
   refreshToken,
   getCurrentUser,
   checkAuthStatus,
+  loginWithGoogle,
 };
 
 export default authService;

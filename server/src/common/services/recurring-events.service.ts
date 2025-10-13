@@ -146,6 +146,39 @@ export class RecurringEventsService {
     }
   }
 
+  getOccurrenceById(
+    event: Event,
+    occurrenceIndex: number,
+  ): ExpandedEvent | null {
+    if (!this.isRecurringEvent(event)) {
+      return null;
+    }
+
+    try {
+      const rrule = this.parseRecurrenceRule(
+        event.recurrence_rule!,
+        event.start_time,
+      );
+      
+      const allOccurrences = rrule.all();
+      
+      if (occurrenceIndex < 0 || occurrenceIndex >= allOccurrences.length) {
+        return null;
+      }
+
+      const occurrenceDate = allOccurrences[occurrenceIndex];
+      const duration = this.calculateDuration(event);
+
+      return this.createOccurrence(event, occurrenceDate, duration, occurrenceIndex);
+    } catch (error) {
+      this.logger.error(
+        `Failed to get occurrence ${occurrenceIndex} for event ${event.id}:`,
+        error,
+      );
+      return null;
+    }
+  }
+
   isRecurringEvent(event: Event): boolean {
     return !!event.recurrence_rule?.trim();
   }

@@ -6,3 +6,4 @@ export { useCurrentUser } from './use-current-user';
 export { useAuthStatus } from './use-auth-status';
 export { useRefreshToken } from './use-refresh-token';
 export { useRequireAuth } from './use-require-auth';
+export { useGoogleLogin } from './use-google-login';

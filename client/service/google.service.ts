@@ -11,8 +11,8 @@ import { API_ROUTES } from '../constants/routes';
 
 export const getAuthUrl = async (): Promise<GoogleAuthUrl> => {
   try {
-    const response = await api.get<GoogleAuthUrl>(API_ROUTES.GOOGLE_AUTH_URL);
-    return response.data;
+    const response = await api.get<{ status: number; message: string; data: GoogleAuthUrl }>(API_ROUTES.GOOGLE_AUTH_URL);
+    return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }
@@ -20,8 +20,8 @@ export const getAuthUrl = async (): Promise<GoogleAuthUrl> => {
 
 export const getConnectionStatus = async (): Promise<GoogleConnectionStatus> => {
   try {
-    const response = await api.get<GoogleConnectionStatus>(API_ROUTES.GOOGLE_STATUS);
-    return response.data;
+    const response = await api.get<{ status: number; message: string; data: GoogleConnectionStatus }>(API_ROUTES.GOOGLE_STATUS);
+    return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));  
   }
@@ -29,8 +29,8 @@ export const getConnectionStatus = async (): Promise<GoogleConnectionStatus> => 
 
 export const disconnect = async (): Promise<{ disconnected: boolean }> => {
   try {
-    const response = await api.delete<{ disconnected: boolean }>(API_ROUTES.GOOGLE_DISCONNECT);
-    return response.data;
+    const response = await api.delete<{ status: number; message: string; data: { disconnected: boolean } }>(API_ROUTES.GOOGLE_DISCONNECT);
+    return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }
@@ -38,8 +38,8 @@ export const disconnect = async (): Promise<{ disconnected: boolean }> => {
 
 export const syncCalendars = async (): Promise<SyncCalendarsResponse> => {
   try {
-    const response = await api.post<SyncCalendarsResponse>(API_ROUTES.GOOGLE_CALENDARS_SYNC);
-    return response.data;
+    const response = await api.post<{ status: number; message: string; data: SyncCalendarsResponse }>(API_ROUTES.GOOGLE_CALENDARS_SYNC);
+    return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }
@@ -47,8 +47,8 @@ export const syncCalendars = async (): Promise<SyncCalendarsResponse> => {
 
 export const getCalendars = async (): Promise<GoogleCalendarsListResponse> => {
   try {
-    const response = await api.get<GoogleCalendarsListResponse>(API_ROUTES.GOOGLE_CALENDARS_LIST);
-    return response.data;
+    const response = await api.get<{ status: number; message: string; data: GoogleCalendarsListResponse }>(API_ROUTES.GOOGLE_CALENDARS_LIST);
+    return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }
@@ -56,8 +56,8 @@ export const getCalendars = async (): Promise<GoogleCalendarsListResponse> => {
 
 export const refreshToken = async (): Promise<RefreshTokenResponse> => {
   try {
-    const response = await api.post<RefreshTokenResponse>(API_ROUTES.GOOGLE_TOKEN_REFRESH);
-    return response.data;
+    const response = await api.post<{ status: number; message: string; data: RefreshTokenResponse }>(API_ROUTES.GOOGLE_TOKEN_REFRESH);
+    return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }
@@ -172,11 +172,28 @@ export const ensureValidToken = async (): Promise<boolean> => {
     }
     return true;
   } catch (error) {
-    // Token refresh failed - user will need to reconnect
     if (process.env.NODE_ENV === 'development') {
       console.warn('Failed to refresh Google token:', getErrorMessage(error));
     }
     return false;
+  }
+};
+
+export const loginWithGoogle = async (): Promise<void> => {
+  try {
+    console.log('[loginWithGoogle] ========== STARTING GOOGLE LOGIN ==========');
+    
+    // Get auth URL from backend
+    const { auth_url } = await getAuthUrl();
+    console.log('[loginWithGoogle] Auth URL received');
+
+    // Redirect to Google OAuth (full page redirect, not popup)
+    console.log('[loginWithGoogle] Redirecting to Google OAuth...');
+    window.location.href = auth_url;
+    
+  } catch (error) {
+    console.error('[loginWithGoogle] ❌ Error:', error);
+    throw new Error(getErrorMessage(error));
   }
 };
 
@@ -192,6 +209,7 @@ export const googleService = {
   isConnected,
   isTokenExpired,
   ensureValidToken,
+  loginWithGoogle,
 };
 
 export default googleService;

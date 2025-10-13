@@ -33,7 +33,7 @@ const envSchema = z.object({
   API_PORT: z.string().transform(Number).default(8000),
   API_HOST: z.string().default('localhost'),
   API_URL: z.string().url().default('http://localhost:8000'),
-  API_PREFIX: z.string().default('v1/api'),
+  API_PREFIX: z.string().default('api/v1'),
 
   // JWT Configuration
   JWT_SECRET: z.string().min(32),

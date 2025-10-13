@@ -3,12 +3,14 @@ import {
   Get,
   Post,
   Body,
+  Query,
   HttpCode,
   HttpStatus,
   Res,
   Req,
   UseGuards,
   UnauthorizedException,
+  Logger,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -16,8 +18,10 @@ import {
   ApiResponse,
   ApiCookieAuth,
   ApiExtraModels,
+  ApiQuery,
 } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { CookieAuthService } from './services/cookie-auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -28,15 +32,20 @@ import { Public } from '../../common/decorators/public.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { SuccessResponseDto } from '../../common/dto/base-response.dto';
 import { MessageService } from '../../common/message/message.service';
+import { GoogleAuthService } from '../google/services/google-auth.service';
 
 @ApiTags('Authentication')
 @ApiExtraModels(AuthResponseDto, AuthUserResponseDto, SuccessResponseDto)
 @Controller('auth')
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
+
   constructor(
     private readonly authService: AuthService,
     private readonly cookieAuthService: CookieAuthService,
     private readonly messageService: MessageService,
+    private readonly googleAuthService: GoogleAuthService,
+    private readonly configService: ConfigService,
   ) {}
 
   @Public()
@@ -203,6 +212,106 @@ export class AuthController {
     return new SuccessResponseDto(
       this.messageService.get('auth.profile_retrieved'),
       user,
+    );
+  }
+
+  @Public()
+  @Get('google/url')
+  @ApiOperation({
+    summary: '🔗 Get Google OAuth URL for Login',
+    description: 'Generate OAuth URL for Google login (no authentication required)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '✅ OAuth URL generated',
+    schema: {
+      example: {
+        status: 200,
+        message: 'OAuth URL generated',
+        data: {
+          auth_url: 'https://accounts.google.com/o/oauth2/v2/auth?...',
+        },
+      },
+    },
+  })
+  async getGoogleAuthUrl(): Promise<SuccessResponseDto> {
+    const authUrl = this.googleAuthService.getAuthUrl();
+
+    return new SuccessResponseDto(
+      this.messageService.get('google.auth_url_generated'),
+      { auth_url: authUrl },
+    );
+  }
+
+  @Public()
+  @Get('google/callback')
+  @ApiOperation({
+    summary: '🔄 Google OAuth Callback for Login',
+    description: 'Handle OAuth callback from Google and redirect to frontend',
+  })
+  @ApiQuery({ name: 'code', description: 'Authorization code from Google' })
+  @ApiQuery({ name: 'state', description: 'State parameter', required: false })
+  @ApiQuery({ name: 'error', description: 'Error from Google', required: false })
+  @ApiResponse({
+    status: 302,
+    description: '✅ Redirects to frontend callback page',
+  })
+  async handleGoogleCallback(
+    @Query('code') code: string,
+    @Query('state') state: string,
+    @Query('error') error: string,
+    @Res() res: Response,
+  ) {
+    const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
+    const callbackPath = '/auth/callback/google';
+
+    // Build query params
+    const params = new URLSearchParams();
+    
+    if (error) {
+      params.append('error', error);
+    } else if (!code) {
+      params.append('error', 'no_code');
+    } else {
+      params.append('code', code);
+      if (state) {
+        params.append('state', state);
+      }
+    }
+
+    // Simple redirect to frontend
+    const redirectUrl = `${frontendUrl}${callbackPath}?${params.toString()}`;
+    
+    this.logger.log(`Redirecting to frontend: ${redirectUrl}`);
+    
+    return res.redirect(redirectUrl);
+  }
+
+  @Public()
+  @Post('google/login')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: '🔐 Complete Google Login',
+    description: 'Complete Google OAuth login flow and create user session',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Google login successful',
+    type: SuccessResponseDto<AuthResponseDto>,
+  })
+  @ApiResponse({ status: 400, description: 'Invalid authorization code' })
+  @ApiResponse({ status: 401, description: 'Google authentication failed' })
+  async googleLogin(
+    @Body() body: { code: string; state?: string },
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<SuccessResponseDto<AuthResponse>> {
+    const result = await this.authService.loginWithGoogle(body.code);
+    
+    this.cookieAuthService.setAuthCookies(response, result.tokens);
+    
+    return new SuccessResponseDto(
+      this.messageService.get('auth.google_login_success'),
+      result,
     );
   }
 }

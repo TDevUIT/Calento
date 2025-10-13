@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { FcGoogle } from 'react-icons/fc'
+import { Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { SOCIAL_PROVIDER_LABELS } from '@/constants/auth.constants'
 
@@ -13,6 +14,7 @@ export type SocialLoginButtonProps = {
   onClick?: () => void
   disabled?: boolean
   isComingSoon?: boolean
+  isLoading?: boolean
 }
 
 export const SocialLoginButton: React.FC<SocialLoginButtonProps> = ({
@@ -20,10 +22,15 @@ export const SocialLoginButton: React.FC<SocialLoginButtonProps> = ({
   onClick,
   disabled = false,
   isComingSoon = false,
+  isLoading = false,
 }) => {
   const label = SOCIAL_PROVIDER_LABELS[provider]
   
   const renderIcon = () => {
+    if (isLoading) {
+      return <Loader2 className="w-5 h-5 md:w-6 md:h-6 lg:w-5 lg:h-5 2xl:w-6 2xl:h-6 animate-spin" />
+    }
+    
     if (provider === 'google') {
       return <FcGoogle className="w-5 h-5 md:w-6 md:h-6 lg:w-5 lg:h-5 2xl:w-6 2xl:h-6" />
     }
@@ -49,7 +56,7 @@ export const SocialLoginButton: React.FC<SocialLoginButtonProps> = ({
       <Button
         type="button"
         variant="outline"
-        disabled={disabled || isComingSoon}
+        disabled={disabled || isComingSoon || isLoading}
         onClick={onClick}
         className={cn(
           'w-full px-1.5 justify-start font-medium rounded-[4px] border shadow-sm transition-all duration-200 h-11 md:h-12 lg:h-11 2xl:h-12',
@@ -65,7 +72,7 @@ export const SocialLoginButton: React.FC<SocialLoginButtonProps> = ({
           provider === 'google' && !isComingSoon && 'text-white',
           'text-xs md:text-sm lg:text-xs 2xl:text-sm'
         )}>
-          {label}
+          {isLoading ? 'Signing in...' : label}
         </span>
       </Button>
     </div>
