@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Keyboard } from 'lucide-react';
+import { KEYBOARD_SHORTCUTS } from './keyboard-shortcuts-data';
 
 interface KeyboardShortcutsProps {
   open: boolean;
@@ -16,47 +17,6 @@ interface KeyboardShortcutsProps {
 }
 
 export function KeyboardShortcuts({ open, onOpenChange }: KeyboardShortcutsProps) {
-  const shortcuts = [
-    {
-      category: 'Navigation',
-      items: [
-        { keys: ['T'], description: 'Go to Today' },
-        { keys: ['←'], description: 'Previous period' },
-        { keys: ['→'], description: 'Next period' },
-        { keys: ['D'], description: 'Day view' },
-        { keys: ['W'], description: 'Week view' },
-        { keys: ['M'], description: 'Month view' },
-        { keys: ['Y'], description: 'Year view' },
-      ],
-    },
-    {
-      category: 'Actions',
-      items: [
-        { keys: ['C'], description: 'Create new event' },
-        { keys: ['N'], description: 'New task' },
-        { keys: ['/'], description: 'Search events' },
-        { keys: ['?'], description: 'Show shortcuts' },
-      ],
-    },
-    {
-      category: 'Event Actions',
-      items: [
-        { keys: ['E'], description: 'Edit selected event' },
-        { keys: ['Delete'], description: 'Delete selected event' },
-        { keys: ['Enter'], description: 'Open event details' },
-        { keys: ['Esc'], description: 'Close dialog/modal' },
-      ],
-    },
-    {
-      category: 'General',
-      items: [
-        { keys: ['Cmd', 'K'], description: 'Quick search (Mac)' },
-        { keys: ['Ctrl', 'K'], description: 'Quick search (Windows)' },
-        { keys: ['Cmd', 'Z'], description: 'Undo' },
-        { keys: ['Cmd', 'Shift', 'Z'], description: 'Redo' },
-      ],
-    },
-  ];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -72,7 +32,7 @@ export function KeyboardShortcuts({ open, onOpenChange }: KeyboardShortcutsProps
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {shortcuts.map((section) => (
+          {KEYBOARD_SHORTCUTS.map((section) => (
             <div key={section.category} className="space-y-3">
               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
                 {section.category}
