@@ -21,7 +21,7 @@ export function ChatButton() {
       {!showChatBox && (
         <button
           onClick={() => setShowChatBox(true)}
-          className="fixed bottom-6 right-6 h-14 w-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 flex items-center justify-center z-[100] group animate-in fade-in slide-in-from-bottom-4"
+          className="fixed bottom-6 right-6 h-14 w-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 flex items-center justify-center z-[1100] group animate-in fade-in slide-in-from-bottom-4"
           aria-label="Open AI Chat Assistant"
         >
           <MessageSquare className="h-6 w-6 transition-transform group-hover:scale-110" />

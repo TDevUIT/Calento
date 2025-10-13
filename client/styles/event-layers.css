@@ -52,13 +52,22 @@
   z-index: 600 !important;
 }
 
-/* Hover card states - highest priority */
+/* Hover card states - high priority but below modals */
 .event-hover-card {
   z-index: 1000 !important;
 }
 
 .event-quick-preview {
   z-index: 1000 !important;
+}
+
+/* Modals and dialogs - highest priority */
+.modal-backdrop {
+  z-index: 9998 !important;
+}
+
+.modal-content {
+  z-index: 9999 !important;
 }
 
 /* Ensure events appear above calendar grid lines */

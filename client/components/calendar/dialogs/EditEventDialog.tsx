@@ -22,12 +22,12 @@ export function EditEventDialog({ open, onOpenChange, eventId }: EditEventDialog
       <>
         {/* Backdrop Overlay */}
         <div 
-          className="fixed inset-0 bg-black/50 z-[100] animate-in fade-in duration-200"
+          className="fixed inset-0 bg-black/50 z-[9998] animate-in fade-in duration-200 modal-backdrop"
           onClick={() => onOpenChange(false)}
         />
 
         {/* Loading State */}
-        <div className="fixed inset-0 z-[101] flex items-center justify-center pointer-events-none">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none modal-content">
           <div className="w-full h-full bg-background pointer-events-auto animate-in zoom-in-95 fade-in duration-200 flex items-center justify-center">
             <div className="flex flex-col items-center gap-4">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />

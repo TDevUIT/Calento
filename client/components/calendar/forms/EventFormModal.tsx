@@ -176,13 +176,13 @@ export function EventFormModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center">
+    <div className="fixed inset-0 z-[9998] flex items-center justify-center modal-backdrop">
       <div 
         className="absolute inset-0 bg-black/50 animate-in fade-in duration-200"
         onClick={() => onOpenChange(false)}
       />
 
-      <div className="relative z-10 w-full h-full">
+      <div className="relative z-[9999] w-full h-full modal-content">
         <div className="w-full h-full bg-background animate-in zoom-in-95 fade-in duration-200">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full w-full">
