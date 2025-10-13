@@ -55,13 +55,21 @@ export function EventQuickPreview({ event }: EventQuickPreviewProps) {
     const endTime = format(endDate, 'HH:mm');
     return `${startTime} - ${endTime}`;
   };
-
   const acceptedCount = event.attendees?.filter(a => a.response_status === 'accepted').length || 0;
   const totalAttendees = event.attendees?.length || 0;
 
   return (
-    <div className="w-80 bg-background border rounded-lg shadow-lg p-4 space-y-3 relative z-[1000] event-quick-preview">
-      {/* Header */}
+    <div 
+      className="w-80 bg-background border rounded-lg shadow-xl p-4 space-y-3 relative event-quick-preview" 
+      style={{ 
+        zIndex: 999999, 
+        pointerEvents: 'auto',
+        position: 'relative',
+      }}
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
+    >
       <div className="flex items-start gap-3">
         <div className={`h-2 w-2 rounded-full mt-2 flex-shrink-0 ${colorClasses[event.color || 'blue']}`} />
         <div className="flex-1 min-w-0">
@@ -78,10 +86,8 @@ export function EventQuickPreview({ event }: EventQuickPreviewProps) {
           </Badge>
         )}
       </div>
-
-      {/* Quick Info Grid */}
+      
       <div className="space-y-2">
-        {/* Time */}
         <div className="flex items-center gap-2 text-sm">
           <Clock className="h-4 w-4 text-muted-foreground flex-shrink-0" />
           <span>{formatTimeRange()}</span>
@@ -93,7 +99,6 @@ export function EventQuickPreview({ event }: EventQuickPreviewProps) {
           )}
         </div>
 
-        {/* Conference */}
         {event.conference_data && (
           <div className="flex items-center gap-2 text-sm">
             <Video className={`h-4 w-4 flex-shrink-0 ${conferenceIcons[event.conference_data.type]?.color || 'text-gray-500'}`} />
@@ -106,7 +111,6 @@ export function EventQuickPreview({ event }: EventQuickPreviewProps) {
           </div>
         )}
 
-        {/* Location (physical) */}
         {event.location && !event.conference_data && (
           <div className="flex items-center gap-2 text-sm">
             <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" />
@@ -114,7 +118,6 @@ export function EventQuickPreview({ event }: EventQuickPreviewProps) {
           </div>
         )}
 
-        {/* Organizer */}
         {event.organizer_name && (
           <div className="flex items-center gap-2 text-sm">
             <UserIcon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
@@ -122,7 +125,6 @@ export function EventQuickPreview({ event }: EventQuickPreviewProps) {
           </div>
         )}
 
-        {/* Attendees */}
         {event.attendees && event.attendees.length > 0 && (
           <div className="flex items-center gap-2 text-sm">
             <Users className="h-4 w-4 text-muted-foreground flex-shrink-0" />
@@ -133,7 +135,6 @@ export function EventQuickPreview({ event }: EventQuickPreviewProps) {
           </div>
         )}
 
-        {/* Reminders */}
         {event.reminders && event.reminders.length > 0 && (
           <div className="flex items-center gap-2 text-sm">
             <Bell className="h-4 w-4 text-muted-foreground flex-shrink-0" />
@@ -142,7 +143,6 @@ export function EventQuickPreview({ event }: EventQuickPreviewProps) {
         )}
       </div>
 
-      {/* Description Preview */}
       {event.description && (
         <div className="pt-2 border-t">
           <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
@@ -151,7 +151,6 @@ export function EventQuickPreview({ event }: EventQuickPreviewProps) {
         </div>
       )}
 
-      {/* Footer hint */}
       <div className="pt-2 border-t">
         <p className="text-xs text-muted-foreground text-center">
           Click để xem chi tiết đầy đủ

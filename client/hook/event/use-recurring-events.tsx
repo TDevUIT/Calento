@@ -14,7 +14,9 @@ export const useRecurringEvents = (
   return useQuery({
     queryKey: EVENT_QUERY_KEYS.recurring(params),
     queryFn: () => eventService.expandRecurringEvents(params),
-    staleTime: 2 * 60 * 1000, // 2 minutes (shorter for recurring)
+    staleTime: 0, // Always consider data stale
+    gcTime: 0, // Don't cache - always fetch fresh data
     enabled: !!params.start_date && !!params.end_date,
+    refetchOnMount: 'always',
   });
 };

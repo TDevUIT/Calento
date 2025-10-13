@@ -10,14 +10,14 @@ export const attendeeSchema = z.object({
 });
 
 export const conferenceDataSchema = z.object({
-  type: z.enum(['google_meet', 'zoom', 'ms_teams', 'custom']),
+  type: z.enum(['google_meet', 'zoom', 'ms_teams', 'custom']).optional(),
   url: z.string().url('Invalid URL'),
   id: z.string().optional(),
   password: z.string().optional(),
   phone: z.string().optional(),
   pin: z.string().optional(),
   notes: z.string().max(500, 'Notes must be at most 500 characters').optional(),
-});
+}).optional();
 
 export const reminderSchema = z.object({
   method: z.enum(['email', 'popup', 'sms']),
@@ -37,7 +37,11 @@ export const eventFormSchema = z.object({
   recurrence_rule: z.string().max(500, 'Recurrence rule must be at most 500 characters').optional(),
   
   attendees: z.array(attendeeSchema).optional(),
-  conference_data: conferenceDataSchema.optional(),
+  conference_data: z.union([
+    conferenceDataSchema,
+    z.undefined(),
+    z.null(),
+  ]).optional(),
   reminders: z.array(reminderSchema).optional(),
   visibility: z.enum(['default', 'public', 'private', 'confidential']).default('default'),
 }).refine(

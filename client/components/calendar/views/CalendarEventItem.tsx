@@ -54,7 +54,9 @@ export function CalendarEventItem({
       onEdit={() => onEdit?.(fullEvent)}
       onDelete={() => onDelete?.(event.id)}
     >
-      <div onClick={onClick}>{children}</div>
+      <div onClick={onClick} style={{ cursor: 'pointer' }}>
+        {children}
+      </div>
     </EventHoverCard>
   );
 }

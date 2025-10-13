@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { Resolver } from 'react-hook-form';
@@ -43,6 +44,13 @@ export function EventFormModal({
   defaultStartTime,
   defaultEndTime,
 }: EventFormModalProps) {
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+  
   const createEvent = useCreateEvent();
   const updateEvent = useUpdateEvent();
 
@@ -68,7 +76,11 @@ export function EventFormModal({
 
   useEffect(() => {
     if (mode === 'edit' && event && open) {
-      form.reset({
+      const cleanConferenceData = event.conference_data?.url 
+        ? event.conference_data 
+        : undefined;
+      
+      const formData = {
         calendar_id: event.calendar_id,
         title: event.title,
         description: event.description || '',
@@ -79,10 +91,12 @@ export function EventFormModal({
         color: event.color || '#3b82f6',
         recurrence_rule: event.recurrence_rule || undefined,
         attendees: event.attendees || [],
-        conference_data: event.conference_data,
+        conference_data: cleanConferenceData,
         reminders: event.reminders || [{ method: 'popup', minutes: 30 }],
         visibility: event.visibility || 'default',
-      });
+      };
+      
+      form.reset(formData);
     }
   }, [mode, event, open, form]);
 
@@ -95,27 +109,40 @@ export function EventFormModal({
         return;
       }
 
+      const cleanedConferenceData = (data.conference_data?.url && data.conference_data?.type) 
+        ? {
+            type: data.conference_data.type,
+            url: data.conference_data.url,
+            id: data.conference_data.id,
+            password: data.conference_data.password,
+            phone: data.conference_data.phone,
+            pin: data.conference_data.pin,
+            notes: data.conference_data.notes,
+          }
+        : undefined;
+
       const cleanedData = {
         ...data,
         description: data.description?.trim() || undefined,
         location: data.location?.trim() || undefined,
         recurrence_rule: data.recurrence_rule?.trim() || undefined,
-        conference_data: data.conference_data?.url ? data.conference_data : undefined,
+        conference_data: cleanedConferenceData,
       };
 
       console.log('Cleaned data:', cleanedData);
 
       if (mode === 'create') {
-        const result = await createEvent.mutateAsync(cleanedData);
-        console.log('Event created:', result);
-        toast.success('Event created successfully!');
+        await createEvent.mutateAsync(cleanedData);
+        console.log('Event created successfully');
       } else if (mode === 'edit' && event) {
-        const result = await updateEvent.mutateAsync({ id: event.id, data: cleanedData });
-        console.log('Event updated:', result);
-        toast.success('Event updated successfully!');
+        await updateEvent.mutateAsync({ id: event.id, data: cleanedData });
+        console.log('Event updated successfully');
       }
-      onOpenChange(false);
-      form.reset();
+      
+      setTimeout(() => {
+        onOpenChange(false);
+        form.reset();
+      }, 300);
     } catch (error: unknown) {
       console.error('Event submission error:', error);
       console.error('Error details:', {
@@ -174,15 +201,17 @@ export function EventFormModal({
   };
 
   if (!open) return null;
+  if (!mounted) return null;
 
-  return (
-    <div className="fixed inset-0 z-[9998] flex items-center justify-center modal-backdrop">
+  const modalContent = (
+    <div className="fixed inset-0 flex items-center justify-center modal-backdrop">
       <div 
         className="absolute inset-0 bg-black/50 animate-in fade-in duration-200"
         onClick={() => onOpenChange(false)}
+        style={{ zIndex: 9999998 }}
       />
 
-      <div className="relative z-[9999] w-full h-full modal-content">
+      <div className="relative w-full h-full modal-content" style={{ zIndex: 9999999 }}>
         <div className="w-full h-full bg-background animate-in zoom-in-95 fade-in duration-200">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full w-full">
@@ -356,4 +385,6 @@ export function EventFormModal({
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }

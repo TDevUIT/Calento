@@ -302,6 +302,9 @@ export class EventRepository extends BaseRepository<Event> {
       const params: any[] = [userId];
       let paramIndex = 2;
 
+      // Exclude recurring events - they are handled by /recurring/expand endpoint
+      conditions.push(`(e.recurrence_rule IS NULL OR e.recurrence_rule = '')`);
+
       if (start_date) {
         conditions.push(`e.start_time >= $${paramIndex}`);
         params.push(start_date);

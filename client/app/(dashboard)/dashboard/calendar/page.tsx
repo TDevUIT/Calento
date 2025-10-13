@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
-import { startOfMonth, endOfMonth } from 'date-fns';
+import { startOfMonth, endOfMonth, format } from 'date-fns';
 import {
   Calendar,
   CalendarDayView,
@@ -12,6 +12,7 @@ import {
   CalendarTodayTrigger,
   CalendarWeekView,
   CalendarYearView,
+  useCalendar,
   type CalendarEvent,
 } from '@/components/calendar/views';
 import { KeyboardShortcuts } from '@/components/calendar/KeyboardShortcuts';
@@ -19,6 +20,8 @@ import { DateDisplay, HeaderActions, ViewSelector, QuickActions, MonthProgress }
 import { useEvents, useRecurringEvents } from '@/hook/event';
 import { useApiData } from '@/hook/use-api-data';
 import type { Event } from '@/interface/event.interface';
+import { useQueryClient } from '@tanstack/react-query';
+import { EVENT_QUERY_KEYS } from '@/hook/event/query-keys';
 import { getColorHex } from '@/utils/colors';
 import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 import { CalendarSidebar } from '@/components/calendar/sidebar/CalendarSidebar';
@@ -27,44 +30,64 @@ import { CalendarSettingsDialog } from '@/components/calendar/settings/CalendarS
 import { useControllerStore } from '@/store/controller.store';
 
 export default function Page() {
+  const queryClient = useQueryClient();
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   
-  // Use controller store for sidebar state with localStorage persistence
   const { expandedCalendarSidebar, toggleCalendarSidebar } = useControllerStore();
-  const [currentMonth] = useState(new Date());
+  const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [visibleCalendarIds, setVisibleCalendarIds] = useState<Set<string>>(new Set());
   const [openEventDialog, setOpenEventDialog] = useState(false);
   
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  
   useKeyboardShortcuts({
     onShowShortcuts: () => setShowShortcuts(true),
     onCreateEvent: () => setOpenEventDialog(true),
   });
 
-  const regularEventsQuery = useEvents({
+  const startDate = useMemo(() => startOfMonth(currentMonth).toISOString(), [currentMonth]);
+  const endDate = useMemo(() => endOfMonth(currentMonth).toISOString(), [currentMonth]);
+
+  const queryParams = useMemo(() => ({
     page: 1,
     limit: 100,
-    start_date: startOfMonth(currentMonth).toISOString(),
-    end_date: endOfMonth(currentMonth).toISOString(),
-  });
-  
-  const recurringEventsQuery = useRecurringEvents({
-    start_date: startOfMonth(currentMonth).toISOString(),
-    end_date: endOfMonth(currentMonth).toISOString(),
+    start_date: startDate,
+    end_date: endDate,
+  }), [startDate, endDate]);
+
+  const recurringQueryParams = useMemo(() => ({
+    start_date: startDate,
+    end_date: endDate,
     max_occurrences: 100,
     page: 1,
     limit: 100,
-  });
+  }), [startDate, endDate]);
+
+  const regularEventsQuery = useEvents(queryParams);
+  const recurringEventsQuery = useRecurringEvents(recurringQueryParams);
+
+  // Force refetch when month changes
+  useEffect(() => {
+    queryClient.invalidateQueries({ 
+      queryKey: EVENT_QUERY_KEYS.all,
+      refetchType: 'active',
+    });
+    
+    Promise.all([
+      regularEventsQuery.refetch(),
+      recurringEventsQuery.refetch(),
+    ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentMonth, startDate, endDate]);
   
   const { items: regularEvents = [] } = useApiData<Event>(regularEventsQuery);
   const { items: recurringEvents = [] } = useApiData<Event>(recurringEventsQuery);
   
   const apiEvents = useMemo(() => {
-    const nonRecurringEvents = regularEvents.filter(e => !e.recurrence_rule);
-    return [...nonRecurringEvents, ...recurringEvents];
+    return [...regularEvents, ...recurringEvents];
   }, [regularEvents, recurringEvents]);
   
   const isLoading = regularEventsQuery.isLoading || recurringEventsQuery.isLoading;
@@ -78,7 +101,7 @@ export default function Page() {
       end: new Date(event.end_time),
       description: event.description,
       calendarId: event.calendar_id,
-      color: getColorHex(event.color), // Use event's color directly, convert to hex
+      color: getColorHex(event.color),
     }));
   }, [apiEvents]);
 
@@ -86,16 +109,6 @@ export default function Page() {
     visibleCalendarIds.size === 0 || visibleCalendarIds.has(event.calendarId || '')
   );
 
-  // Debug: Log event data
-  console.log('📅 Calendar Events Debug:', {
-    regularEventsCount: regularEvents.length,
-    recurringEventsCount: recurringEvents.length,
-    totalApiEvents: apiEvents.length,
-    totalCalendarEvents: calendarEvents.length,
-    visibleCalendarIds: Array.from(visibleCalendarIds),
-    filteredEventsCount: filteredEvents.length,
-    sampleRecurringEvent: recurringEvents[0],
-  });
 
 
   if (isLoading) {
@@ -124,13 +137,99 @@ export default function Page() {
     setSelectedEventId(event.id);
     setShowEditDialog(true);
   };
+  
+  return (
+    <CalendarWrapper
+      currentMonth={currentMonth}
+      setCurrentMonth={setCurrentMonth}
+      filteredEvents={filteredEvents}
+      handleEventClick={handleEventClick}
+      expandedCalendarSidebar={expandedCalendarSidebar}
+      toggleCalendarSidebar={toggleCalendarSidebar}
+      selectedDate={selectedDate}
+      setSelectedDate={setSelectedDate}
+      openEventDialog={openEventDialog}
+      setOpenEventDialog={setOpenEventDialog}
+      showShortcuts={showShortcuts}
+      setShowShortcuts={setShowShortcuts}
+      showSettings={showSettings}
+      setShowSettings={setShowSettings}
+      selectedEventId={selectedEventId}
+      setSelectedEventId={setSelectedEventId}
+      showEditDialog={showEditDialog}
+      setShowEditDialog={setShowEditDialog}
+      visibleCalendarIds={visibleCalendarIds}
+      setVisibleCalendarIds={setVisibleCalendarIds}
+    />
+  );
+}
+
+// Separate component to handle calendar rendering
+function CalendarWrapper({
+  currentMonth,
+  setCurrentMonth,
+  filteredEvents,
+  handleEventClick,
+  expandedCalendarSidebar,
+  toggleCalendarSidebar,
+  selectedDate,
+  setSelectedDate,
+  openEventDialog,
+  setOpenEventDialog,
+  showShortcuts,
+  setShowShortcuts,
+  showSettings,
+  setShowSettings,
+  selectedEventId,
+  setSelectedEventId,
+  showEditDialog,
+  setShowEditDialog,
+  visibleCalendarIds,
+  setVisibleCalendarIds,
+}: {
+  currentMonth: Date;
+  setCurrentMonth: (date: Date) => void;
+  filteredEvents: CalendarEvent[];
+  handleEventClick: (event: CalendarEvent) => void;
+  expandedCalendarSidebar: boolean;
+  toggleCalendarSidebar: () => void;
+  selectedDate: Date;
+  setSelectedDate: (date: Date) => void;
+  openEventDialog: boolean;
+  setOpenEventDialog: (open: boolean) => void;
+  showShortcuts: boolean;
+  setShowShortcuts: (show: boolean) => void;
+  showSettings: boolean;
+  setShowSettings: (show: boolean) => void;
+  selectedEventId: string | null;
+  setSelectedEventId: (id: string | null) => void;
+  showEditDialog: boolean;
+  setShowEditDialog: (show: boolean) => void;
+  visibleCalendarIds: Set<string>;
+  setVisibleCalendarIds: (ids: Set<string>) => void;
+}) {
+  
+  // Sync helper component
+  const CalendarDateSync = ({ onDateChange }: { onDateChange: (date: Date) => void }) => {
+    const { date } = useCalendar();
+    
+    useEffect(() => {
+      onDateChange(date);
+    }, [date, onDateChange]);
+    
+    return null;
+  };
 
   return (
     <>
     <Calendar 
       events={filteredEvents}
       onEventClick={handleEventClick}
+      defaultDate={currentMonth}
     >
+      {/* Sync calendar date changes with currentMonth for event queries */}
+      <CalendarDateSync onDateChange={setCurrentMonth} />
+      
       <div className="bg-background flex -mx-2">
         <div className="flex-1 flex flex-col min-h-screen">
           <div className="px-4 md:px-6">

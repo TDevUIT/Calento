@@ -27,23 +27,24 @@ export const useCreateEvent = (): UseMutationResult<EventResponse, Error, Create
   return useMutation({
     mutationFn: (data: CreateEventRequest) => eventService.createEvent(data),
     
-    onSuccess: (newEvent, variables) => {
+    onSuccess: async (newEvent, variables) => {
       if (!newEvent?.data?.id) return;
 
       queryClient.setQueryData(EVENT_QUERY_KEYS.detail(newEvent.data.id), newEvent);
       
-      queryClient.invalidateQueries({ 
+      queryClient.removeQueries({ 
         queryKey: EVENT_QUERY_KEYS.all,
-        refetchType: 'active'
       });
-    },
-
-    onError: (error, variables) => {
-      queryClient.invalidateQueries({ 
+      
+      await queryClient.invalidateQueries({ 
         queryKey: EVENT_QUERY_KEYS.all,
         refetchType: 'active'
       });
       
+      toast.success('Event created successfully!');
+    },
+
+    onError: (error, variables) => {
       toast.error('Failed to create event', {
         description: error.message,
       });
@@ -58,24 +59,25 @@ export const useUpdateEvent = (): UseMutationResult<EventResponse, Error, Partia
   return useMutation({
     mutationFn: ({ id, data }: PartialUpdateEventParams) => eventService.updateEvent(id, data),
     
-    onSuccess: (updatedEvent, variables) => {
+    onSuccess: async (updatedEvent, variables) => {
       queryClient.setQueryData(
         EVENT_QUERY_KEYS.detail(variables.id),
         updatedEvent
       );
       
-      queryClient.invalidateQueries({ 
+      queryClient.removeQueries({ 
         queryKey: EVENT_QUERY_KEYS.all,
-        refetchType: 'active'
       });
-    },
-
-    onError: (error, variables, context) => {
-      queryClient.invalidateQueries({ 
+      
+      await queryClient.invalidateQueries({ 
         queryKey: EVENT_QUERY_KEYS.all,
         refetchType: 'active'
       });
       
+      toast.success('Event updated successfully!');
+    },
+
+    onError: (error, variables, context) => {
       toast.error('Failed to update event', {
         description: error.message,
       });
@@ -90,24 +92,25 @@ export const useReplaceEvent = (): UseMutationResult<EventResponse, Error, Updat
   return useMutation({
     mutationFn: ({ id, data }: UpdateEventParams) => eventService.replaceEvent(id, data),
     
-    onSuccess: (updatedEvent, variables) => {
+    onSuccess: async (updatedEvent, variables) => {
       queryClient.setQueryData(
         EVENT_QUERY_KEYS.detail(variables.id),
         updatedEvent
       );
       
-      queryClient.invalidateQueries({ 
+      queryClient.removeQueries({ 
         queryKey: EVENT_QUERY_KEYS.all,
-        refetchType: 'active'
       });
-    },
-
-    onError: (error, variables) => {
-      queryClient.invalidateQueries({ 
+      
+      await queryClient.invalidateQueries({ 
         queryKey: EVENT_QUERY_KEYS.all,
         refetchType: 'active'
       });
       
+      toast.success('Event updated successfully!');
+    },
+
+    onError: (error, variables) => {
       toast.error('Failed to update event', {
         description: error.message,
       });
@@ -122,10 +125,14 @@ export const useDeleteEvent = (): UseMutationResult<void, Error, string> => {
   return useMutation({
     mutationFn: (eventId: string) => eventService.deleteEvent(eventId),
     
-    onSuccess: (_, eventId) => {
+    onSuccess: async (_, eventId) => {
       queryClient.removeQueries({ queryKey: EVENT_QUERY_KEYS.detail(eventId) });
       
-      queryClient.invalidateQueries({ 
+      queryClient.removeQueries({ 
+        queryKey: EVENT_QUERY_KEYS.all,
+      });
+      
+      await queryClient.invalidateQueries({ 
         queryKey: EVENT_QUERY_KEYS.all,
         refetchType: 'active'
       });
@@ -134,11 +141,6 @@ export const useDeleteEvent = (): UseMutationResult<void, Error, string> => {
     },
 
     onError: (error, eventId) => {
-      queryClient.invalidateQueries({ 
-        queryKey: EVENT_QUERY_KEYS.all,
-        refetchType: 'active'
-      });
-      
       toast.error('Failed to delete event', {
         description: error.message,
       });
@@ -154,24 +156,25 @@ export const useUpdateEventWithMethod = (): UseMutationResult<EventResponse, Err
     mutationFn: ({ id, data, method = 'PATCH' }: UpdateEventParams & { method?: 'PUT' | 'PATCH' }) => 
       eventService.updateEventWithMethod(id, data, method),
     
-    onSuccess: (updatedEvent, variables) => {
+    onSuccess: async (updatedEvent, variables) => {
       queryClient.setQueryData(
         EVENT_QUERY_KEYS.detail(variables.id),
         updatedEvent
       );
       
-      queryClient.invalidateQueries({ 
+      queryClient.removeQueries({ 
         queryKey: EVENT_QUERY_KEYS.all,
-        refetchType: 'active'
       });
-    },
-
-    onError: (error, variables) => {
-      queryClient.invalidateQueries({ 
+      
+      await queryClient.invalidateQueries({ 
         queryKey: EVENT_QUERY_KEYS.all,
         refetchType: 'active'
       });
       
+      toast.success('Event updated successfully!');
+    },
+
+    onError: (error, variables) => {
       toast.error('Failed to update event', {
         description: error.message,
       });

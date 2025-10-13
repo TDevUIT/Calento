@@ -1,6 +1,3 @@
-/* Event Z-Index Layers */
-/* Higher z-index for events that start later (time priority) */
-
 .event-card {
   position: relative;
   z-index: 100;
@@ -13,7 +10,6 @@
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
-/* Time-based z-index layers */
 .event-layer-1 { z-index: 101; }
 .event-layer-2 { z-index: 102; }
 .event-layer-3 { z-index: 103; }
@@ -25,7 +21,6 @@
 .event-layer-9 { z-index: 109; }
 .event-layer-10 { z-index: 110; }
 
-/* Month view events */
 .event-month {
   z-index: 150;
 }
@@ -34,7 +29,6 @@
   z-index: 250 !important;
 }
 
-/* Week/Day view events */
 .event-week {
   z-index: 200;
 }
@@ -43,7 +37,6 @@
   z-index: 300 !important;
 }
 
-/* Selected/Active states */
 .event-selected {
   z-index: 500 !important;
 }
@@ -52,25 +45,24 @@
   z-index: 600 !important;
 }
 
-/* Hover card states - high priority but below modals */
 .event-hover-card {
-  z-index: 1000 !important;
+  z-index: 999999 !important;
+  position: relative !important;
 }
 
 .event-quick-preview {
-  z-index: 1000 !important;
+  z-index: 999999 !important;
+  position: relative !important;
 }
 
-/* Modals and dialogs - highest priority */
 .modal-backdrop {
-  z-index: 9998 !important;
+  z-index: 9999998 !important;
 }
 
 .modal-content {
-  z-index: 9999 !important;
+  z-index: 9999999 !important;
 }
 
-/* Ensure events appear above calendar grid lines */
 .calendar-grid {
   z-index: 1;
 }

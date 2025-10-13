@@ -9,9 +9,10 @@ export const useEvents = (params?: EventQueryParams): UseQueryResult<PaginatedEv
   return useQuery({
     queryKey: EVENT_QUERY_KEYS.list(params),
     queryFn: () => eventService.getEvents(params),
-    staleTime: 30 * 1000,
+    staleTime: 0, // Always consider data stale
+    gcTime: 0, // Don't cache - always fetch fresh data
     refetchOnWindowFocus: true,
-    refetchOnMount: true,
+    refetchOnMount: 'always',
   });
 };
 
