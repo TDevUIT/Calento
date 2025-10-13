@@ -6,7 +6,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import type { EventFormData } from '../event-form.schema';
@@ -32,9 +31,10 @@ export function ColorField({ form }: ColorFieldProps) {
                     key={color.value}
                     type="button"
                     onClick={() => field.onChange(color.value)}
-                    className={`relative h-7 w-7 rounded-full ${color.class} transition-all hover:scale-110 ${
+                    className={`relative h-7 w-7 rounded-full transition-all hover:scale-110 ${
                       isSelected ? 'ring-2 ring-offset-2 ring-offset-background ring-primary' : 'opacity-70 hover:opacity-100'
                     }`}
+                    style={{ backgroundColor: color.hex }}
                     title={color.label}
                   >
                     {isSelected && (

@@ -1,7 +1,7 @@
 'use client';
 
 import { useCalendarDetail } from '@/hook/calendar';
-import { Calendar, Loader2, Star, Clock, MapPin, Calendar as CalendarIcon, AlertCircle } from 'lucide-react';
+import { Loader2, Star, Clock, MapPin, Calendar as CalendarIcon, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 

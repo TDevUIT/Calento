@@ -132,6 +132,7 @@ export function CustomSelect({
         role="combobox"
         aria-expanded={isOpen}
         aria-haspopup="listbox"
+        aria-controls={isOpen ? 'custom-select-options' : undefined}
         disabled={disabled}
         onClick={() => !disabled && setIsOpen(!isOpen)}
         onKeyDown={handleKeyDown}
@@ -156,6 +157,7 @@ export function CustomSelect({
 
       {isOpen && (
         <div
+          id="custom-select-options"
           ref={dropdownRef}
           role="listbox"
           style={{

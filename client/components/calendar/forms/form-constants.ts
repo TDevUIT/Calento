@@ -1,11 +1,11 @@
-export const COLOR_OPTIONS = [
-  { value: 'blue', label: 'Blue', class: 'bg-blue-500' },
-  { value: 'green', label: 'Green', class: 'bg-green-500' },
-  { value: 'pink', label: 'Pink', class: 'bg-pink-500' },
-  { value: 'purple', label: 'Purple', class: 'bg-purple-500' },
-  { value: 'orange', label: 'Orange', class: 'bg-orange-500' },
-  { value: 'red', label: 'Red', class: 'bg-red-500' },
-] as const;
+import { EVENT_COLOR_OPTIONS } from '@/utils/colors';
+
+export const COLOR_OPTIONS = EVENT_COLOR_OPTIONS.map(color => ({
+  value: color.hex, // Store hex value
+  label: color.name,
+  class: `bg-${color.value}-500`, // Tailwind class for display
+  hex: color.hex,
+}));
 
 export const VISIBILITY_OPTIONS = [
   {

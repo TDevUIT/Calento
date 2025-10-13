@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-// Attendee schema
 export const attendeeSchema = z.object({
   email: z.string().email('Invalid email address'),
   name: z.string().optional(),
@@ -10,7 +9,6 @@ export const attendeeSchema = z.object({
   comment: z.string().max(500, 'Comment must be at most 500 characters').optional(),
 });
 
-// Conference data schema
 export const conferenceDataSchema = z.object({
   type: z.enum(['google_meet', 'zoom', 'ms_teams', 'custom']),
   url: z.string().url('Invalid URL'),
@@ -21,31 +19,27 @@ export const conferenceDataSchema = z.object({
   notes: z.string().max(500, 'Notes must be at most 500 characters').optional(),
 });
 
-// Reminder schema
 export const reminderSchema = z.object({
   method: z.enum(['email', 'popup', 'sms']),
   minutes: z.number().min(0, 'Minutes must be >= 0').max(10080, 'Maximum 7 days (10080 minutes)'),
 });
 
-// Main event form schema
 export const eventFormSchema = z.object({
   calendar_id: z.string()
-    .min(1, 'Please select a calendar')
-    .uuid('Please select a valid calendar'),
+    .min(1, 'Please select a calendar'),
   title: z.string().min(1, 'Title is required').max(255, 'Title must be at most 255 characters'),
   description: z.string().max(1000, 'Description must be at most 1000 characters').optional(),
   start_time: z.string().min(1, 'Start time is required'),
   end_time: z.string().min(1, 'End time is required'),
   location: z.string().max(255, 'Location must be at most 255 characters').optional(),
-  is_all_day: z.boolean().optional().default(false),
-  color: z.enum(['blue', 'green', 'pink', 'purple', 'orange', 'red', 'default']).optional().default('blue'),
+  is_all_day: z.boolean().default(false),
+  color: z.string().regex(/^(#[0-9A-Fa-f]{6}|blue|green|pink|purple|orange|red|yellow|cyan|indigo|teal|default)$/, 'Color must be a valid hex code or preset name').default('#3b82f6'),
   recurrence_rule: z.string().max(500, 'Recurrence rule must be at most 500 characters').optional(),
   
-  // New fields
   attendees: z.array(attendeeSchema).optional(),
   conference_data: conferenceDataSchema.optional(),
   reminders: z.array(reminderSchema).optional(),
-  visibility: z.enum(['default', 'public', 'private', 'confidential']).optional().default('default'),
+  visibility: z.enum(['default', 'public', 'private', 'confidential']).default('default'),
 }).refine(
   (data) => {
     if (!data.start_time || !data.end_time) return true;
@@ -63,7 +57,7 @@ export const eventFormSchema = z.object({
     const start = new Date(data.start_time);
     const end = new Date(data.end_time);
     const durationMs = end.getTime() - start.getTime();
-    const maxDurationMs = 24 * 60 * 60 * 1000; // 24 hours
+    const maxDurationMs = 24 * 60 * 60 * 1000;
     return durationMs <= maxDurationMs;
   },
   {
@@ -72,10 +66,8 @@ export const eventFormSchema = z.object({
   }
 ).refine(
   (data) => {
-    // Validate recurrence rule format if provided
     if (!data.recurrence_rule || data.recurrence_rule.trim() === '') return true;
     const rule = data.recurrence_rule.trim();
-    // Accept both "RRULE:FREQ=..." and "FREQ=..." formats
     return rule.includes('FREQ=');
   },
   {

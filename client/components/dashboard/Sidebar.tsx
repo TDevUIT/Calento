@@ -11,8 +11,6 @@ import {
   RefreshCw,
   Video,
   BarChart3,
-  Folder,
-  ChevronsLeftRight,
   HelpCircle,
 } from "lucide-react";
 import { FaCoins } from "react-icons/fa6";

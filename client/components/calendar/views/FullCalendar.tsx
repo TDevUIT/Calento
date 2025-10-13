@@ -2,7 +2,6 @@
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { cva } from 'class-variance-authority';
 import {
   Locale,
   addDays,
@@ -38,39 +37,7 @@ import {
 import { useHotkeys } from 'react-hotkeys-hook';
 import { EventHoverCard } from '../shared/EventHoverCard';
 import type { Event } from '@/interface/event.interface';
-
-const monthEventVariants = cva('size-2 rounded-full transition-transform hover:scale-125', {
-  variants: {
-    variant: {
-      default: 'bg-primary',
-      blue: 'bg-blue-500',
-      green: 'bg-green-500',
-      pink: 'bg-pink-500',
-      purple: 'bg-purple-500',
-    },
-  },
-  defaultVariants: {
-    variant: 'default',
-  },
-});
-
-const dayEventVariants = cva(
-  'font-medium border-l-4 rounded-md p-2.5 text-xs shadow-sm cursor-pointer transition-all hover:shadow-md hover:scale-[1.02] hover:-translate-y-0.5',
-  {
-    variants: {
-      variant: {
-        default: 'bg-muted/40 text-foreground border-muted hover:bg-muted/60',
-        blue: 'bg-blue-500/20 text-blue-700 dark:text-blue-400 border-blue-500 hover:bg-blue-500/30',
-        green: 'bg-green-500/20 text-green-700 dark:text-green-400 border-green-500 hover:bg-green-500/30',
-        pink: 'bg-pink-500/20 text-pink-700 dark:text-pink-400 border-pink-500 hover:bg-pink-500/30',
-        purple: 'bg-purple-500/20 text-purple-700 dark:text-purple-400 border-purple-500 hover:bg-purple-500/30',
-      },
-    },
-    defaultVariants: {
-      variant: 'default',
-    },
-  }
-);
+import { getEventZIndexStyle } from '@/utils/event-display';
 
 type View = 'day' | 'week' | 'month' | 'year';
 
@@ -95,14 +62,11 @@ export type CalendarEvent = {
   start: Date;
   end: Date;
   title: string;
-  color?: 'default' | 'blue' | 'green' | 'pink' | 'purple';
+  color?: string; // Hex color code (e.g., #3b82f6) or preset name
   description?: string;
   calendarId?: string;
 };
 
-/**
- * Helper function to convert CalendarEvent to Event interface for EventHoverCard
- */
 function convertToFullEvent(calendarEvent: CalendarEvent): Event {
   return {
     id: calendarEvent.id,
@@ -216,7 +180,7 @@ const CalendarViewTrigger = forwardRef<
 });
 CalendarViewTrigger.displayName = 'CalendarViewTrigger';
 
-const EventGroup = ({
+const HourEvents = ({
   events,
   hour,
 }: {
@@ -224,6 +188,9 @@ const EventGroup = ({
   hour: Date;
 }) => {
   const { onEventClick } = useCalendar();
+  // const [hoveredEventId, setHoveredEventId] = useState<string | null>(null);
+  // const handleMouseOver = (eventId: string) => setHoveredEventId(eventId);
+  // const handleMouseLeave = () => setHoveredEventId(null);
   
   return (
     <div className="h-20 border-t last:border-b relative group hover:bg-accent/5 transition-colors">
@@ -244,18 +211,34 @@ const EventGroup = ({
               onDelete={() => {}}
             >
               <div
-                className={cn(
-                  'absolute left-0 right-0 mx-1',
-                  dayEventVariants({ variant: event.color })
-                )}
+                className="absolute left-0 right-0 mx-1 font-medium rounded-md p-2.5 text-xs shadow-sm cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02] hover:-translate-y-0.5 backdrop-blur-sm"
                 style={{
                   top: `${startPosition * 100}%`,
                   height: `${hoursDifference * 100}%`,
+                  backgroundColor: event.color ? `${event.color}26` : 'rgba(59, 130, 246, 0.15)',
+                  background: event.color 
+                    ? `linear-gradient(to right, ${event.color}40, ${event.color}20)` 
+                    : 'linear-gradient(to right, rgba(59, 130, 246, 0.25), rgba(59, 130, 246, 0.12))',
+                  ...getEventZIndexStyle(event, events, { baseZIndex: 200 }),
                 }}
                 onClick={() => onEventClick?.(event)}
               >
-                <div className="font-semibold truncate">{event.title}</div>
-                <div className="text-[10px] opacity-70 mt-0.5">
+                <div 
+                  className="font-semibold truncate drop-shadow-sm" 
+                  style={{ 
+                    color: event.color || '#1e40af',
+                    textShadow: '0 0 8px rgba(255, 255, 255, 0.8)'
+                  }}
+                >
+                  {event.title}
+                </div>
+                <div 
+                  className="text-[10px] opacity-80 mt-0.5 drop-shadow-sm"
+                  style={{ 
+                    color: event.color || '#1e40af',
+                    textShadow: '0 0 6px rgba(255, 255, 255, 0.7)'
+                  }}
+                >
                   {format(event.start, 'HH:mm')} - {format(event.end, 'HH:mm')}
                 </div>
               </div>
@@ -274,11 +257,11 @@ const CalendarDayView = () => {
   const hours = [...Array(24)].map((_, i) => setHours(date, i));
 
   return (
-    <div className="flex relative overflow-hidden h-full rounded-lg border bg-card shadow-sm">
+    <div className="flex relative overflow-hidden h-full rounded-lg border bg-card shadow-sm mb-10">
       <TimeTable />
       <div className="flex-1">
         {hours.map((hour) => (
-          <EventGroup key={hour.toString()} hour={hour} events={events} />
+          <HourEvents key={hour.toString()} hour={hour} events={events} />
         ))}
       </div>
     </div>
@@ -313,7 +296,7 @@ const CalendarWeekView = () => {
   if (view !== 'week') return null;
 
   return (
-    <div className="flex flex-col relative overflow-auto h-full rounded-lg border bg-card shadow-sm">
+    <div className="flex flex-col relative overflow-hidden h-full rounded-lg border bg-card shadow-sm mb-10">
       <div className="flex sticky top-0 bg-card z-10 border-b">
         <div className="w-12"></div>
         {headerDays.map((date, i) => (
@@ -355,7 +338,7 @@ const CalendarWeekView = () => {
                 key={hours[0].toString()}
               >
                 {hours.map((hour) => (
-                  <EventGroup
+                  <HourEvents
                     key={hour.toString()}
                     hour={hour}
                     events={events}
@@ -437,17 +420,31 @@ const CalendarMonthView = () => {
                       onDelete={() => {}}
                     >
                       <div
-                        className="px-2 py-1 rounded-md text-xs flex items-center gap-1.5 hover:bg-accent/50 transition-colors cursor-pointer"
+                        className="px-2 py-1.5 rounded-md text-xs flex items-center gap-2 transition-all cursor-pointer hover:shadow-md hover:scale-[1.01] relative"
+                        style={{
+                          backgroundColor: event.color ? `${event.color}20` : 'rgba(59, 130, 246, 0.12)',
+                          ...getEventZIndexStyle(event, currentEvents, { baseZIndex: 150 }),
+                        }}
                         onClick={() => onEventClick?.(event)}
                       >
                         <div
-                          className={cn(
-                            'shrink-0',
-                            monthEventVariants({ variant: event.color })
-                          )}
+                          className="shrink-0 size-2 rounded-full transition-transform hover:scale-125 shadow-sm"
+                          style={{
+                            backgroundColor: event.color || '#3b82f6',
+                            boxShadow: `0 0 4px ${event.color || '#3b82f6'}`,
+                          }}
                         ></div>
-                        <span className="flex-1 truncate font-medium">{event.title}</span>
-                        <time className="tabular-nums text-muted-foreground/60 text-[10px]" suppressHydrationWarning>
+                        <span 
+                          className="flex-1 truncate font-semibold"
+                          style={{ color: event.color || '#1e40af' }}
+                        >
+                          {event.title}
+                        </span>
+                        <time 
+                          className="tabular-nums text-[10px] font-medium" 
+                          style={{ color: event.color || '#1e40af', opacity: 0.7 }}
+                          suppressHydrationWarning
+                        >
                           {format(event.start, 'HH:mm')}
                         </time>
                       </div>

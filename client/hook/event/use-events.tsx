@@ -9,8 +9,9 @@ export const useEvents = (params?: EventQueryParams): UseQueryResult<PaginatedEv
   return useQuery({
     queryKey: EVENT_QUERY_KEYS.list(params),
     queryFn: () => eventService.getEvents(params),
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30 * 1000,
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };
 
@@ -22,7 +23,8 @@ export const useEventsByDateRange = (
   return useQuery({
     queryKey: EVENT_QUERY_KEYS.byDateRange(startDate, endDate, params),
     queryFn: () => eventService.getEventsByDateRange(startDate, endDate, params),
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30 * 1000,
     enabled: !!startDate && !!endDate,
+    refetchOnMount: true,
   });
 };

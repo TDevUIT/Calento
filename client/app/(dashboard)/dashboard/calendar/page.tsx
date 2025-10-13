@@ -16,38 +16,55 @@ import {
 } from '@/components/calendar/views';
 import { KeyboardShortcuts } from '@/components/calendar/KeyboardShortcuts';
 import { DateDisplay, HeaderActions, ViewSelector, QuickActions, MonthProgress } from '@/components/calendar/header';
-import { useEvents } from '@/hook/event';
+import { useEvents, useRecurringEvents } from '@/hook/event';
 import { useApiData } from '@/hook/use-api-data';
 import type { Event } from '@/interface/event.interface';
+import { getColorHex } from '@/utils/colors';
 import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 import { CalendarSidebar } from '@/components/calendar/sidebar/CalendarSidebar';
 import { CreateEventDialog, EditEventDialog } from '@/components/calendar/dialogs';
 import { CalendarSettingsDialog } from '@/components/calendar/settings/CalendarSettingsDialog';
 export default function Page() {
-  const [openEventDialog, setOpenEventDialog] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [currentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [visibleCalendarIds, setVisibleCalendarIds] = useState<Set<string>>(new Set());
-  const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
+  const [openEventDialog, setOpenEventDialog] = useState(false);
   
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
-
   useKeyboardShortcuts({
     onShowShortcuts: () => setShowShortcuts(true),
     onCreateEvent: () => setOpenEventDialog(true),
   });
 
-  const queryResult = useEvents({
+  const regularEventsQuery = useEvents({
     page: 1,
     limit: 100,
     start_date: startOfMonth(currentMonth).toISOString(),
     end_date: endOfMonth(currentMonth).toISOString(),
   });
   
-  const { items: apiEvents = [], isLoading, error } = useApiData<Event>(queryResult);
+  const recurringEventsQuery = useRecurringEvents({
+    start_date: startOfMonth(currentMonth).toISOString(),
+    end_date: endOfMonth(currentMonth).toISOString(),
+    max_occurrences: 100,
+    page: 1,
+    limit: 100,
+  });
+  
+  const { items: regularEvents = [] } = useApiData<Event>(regularEventsQuery);
+  const { items: recurringEvents = [] } = useApiData<Event>(recurringEventsQuery);
+  
+  const apiEvents = useMemo(() => {
+    const nonRecurringEvents = regularEvents.filter(e => !e.recurrence_rule);
+    return [...nonRecurringEvents, ...recurringEvents];
+  }, [regularEvents, recurringEvents]);
+  
+  const isLoading = regularEventsQuery.isLoading || recurringEventsQuery.isLoading;
+  const error = regularEventsQuery.error || recurringEventsQuery.error;
 
   const calendarEvents: CalendarEvent[] = useMemo(() => {
     return apiEvents.map((event: Event) => ({
@@ -57,7 +74,7 @@ export default function Page() {
       end: new Date(event.end_time),
       description: event.description,
       calendarId: event.calendar_id,
-      color: mapCalendarIdToColor(event.calendar_id),
+      color: getColorHex(event.color), // Use event's color directly, convert to hex
     }));
   }, [apiEvents]);
 
@@ -65,21 +82,17 @@ export default function Page() {
     visibleCalendarIds.size === 0 || visibleCalendarIds.has(event.calendarId || '')
   );
 
-  // Debug: Log filtering
-  console.log('🔍 Event Filtering:', {
+  // Debug: Log event data
+  console.log('📅 Calendar Events Debug:', {
+    regularEventsCount: regularEvents.length,
+    recurringEventsCount: recurringEvents.length,
+    totalApiEvents: apiEvents.length,
     totalCalendarEvents: calendarEvents.length,
     visibleCalendarIds: Array.from(visibleCalendarIds),
     filteredEventsCount: filteredEvents.length,
+    sampleRecurringEvent: recurringEvents[0],
   });
 
-  function mapCalendarIdToColor(calendarId: string): CalendarEvent['color'] {
-    const colorMap: Record<string, CalendarEvent['color']> = {
-      'personal-calendar': 'blue',
-      'work-calendar': 'green',
-      'team-calendar': 'purple',
-    };
-    return colorMap[calendarId] || 'default';
-  }
 
   if (isLoading) {
     return (

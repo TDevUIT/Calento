@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Put,
+  Patch,
   Delete,
   Body,
   Query,
@@ -15,6 +16,7 @@ import { EventService } from './event.service';
 import {
   CreateEventDto,
   UpdateEventDto,
+  PartialUpdateEventDto,
   EventResponseDto,
   RecurringEventsQueryDto,
 } from './dto/events.dto';
@@ -40,6 +42,8 @@ import { SwaggerExamples } from '../../common/swagger/swagger-examples';
 @ApiExtraModels(
   EventResponseDto,
   CreateEventDto,
+  UpdateEventDto,
+  PartialUpdateEventDto,
   SuccessResponseDto,
   PaginatedResponseDto,
 )
@@ -186,16 +190,15 @@ export class EventController {
   })
   async expandRecurringEvents(
     @CurrentUserId() userId: string,
-    @Query() recurringQuery: RecurringEventsQueryDto,
-    @Query() paginationQuery: PaginationQueryDto,
+    @Query() query: RecurringEventsQueryDto,
   ): Promise<PaginatedResponseDto> {
-    const { start_date, end_date, max_occurrences = 100 } = recurringQuery;
+    const { start_date, end_date, max_occurrences = 100, ...paginationOptions } = query;
     const result = await this.eventService.expandRecurringEvents(
       userId,
       new Date(start_date),
       new Date(end_date),
       max_occurrences,
-      paginationQuery,
+      paginationOptions,
     );
 
     return new PaginatedResponseDto(
@@ -273,8 +276,65 @@ export class EventController {
 
   @Put(':id')
   @ApiOperation({
-    summary: '✏️ Update event',
-    description: 'Update an existing event by its ID',
+    summary: '🔄 Replace event (PUT)',
+    description: 'Replace an existing event with new data. All fields are required except optional ones.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '✅ Event replaced successfully',
+    schema: {
+      example: {
+        success: true,
+        message: 'Event updated successfully',
+        data: {
+          id: '2d2e6a3d-63e6-4d87-b949-c8383d637766',
+          title: 'Updated Team Meeting',
+          description: 'Updated description',
+          start_time: '2024-01-15T10:30:00Z',
+          end_time: '2024-01-15T11:30:00Z',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: '❌ Validation failed - Invalid input data',
+    schema: {
+      example: SwaggerExamples.Errors.ValidationError,
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: '❌ Event not found',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '❌ Unauthorized - Invalid or expired token',
+    schema: {
+      example: SwaggerExamples.Errors.Unauthorized,
+    },
+  })
+  async replaceEvent(
+    @Param('id') eventId: string,
+    @Body() updateEventDto: UpdateEventDto,
+    @CurrentUserId() userId: string,
+  ): Promise<SuccessResponseDto> {
+    const event = await this.eventService.replaceEvent(
+      eventId,
+      updateEventDto,
+      userId,
+    );
+
+    return new SuccessResponseDto(
+      this.messageService.get('calendar.event_updated'),
+      event,
+    );
+  }
+
+  @Patch(':id')
+  @ApiOperation({
+    summary: '✏️ Update event (PATCH)',
+    description: 'Partially update an existing event. Only provided fields will be updated.',
   })
   @ApiResponse({
     status: 200,
@@ -313,12 +373,12 @@ export class EventController {
   })
   async updateEvent(
     @Param('id') eventId: string,
-    @Body() updateEventDto: UpdateEventDto,
+    @Body() partialUpdateEventDto: PartialUpdateEventDto,
     @CurrentUserId() userId: string,
   ): Promise<SuccessResponseDto> {
     const event = await this.eventService.updateEvent(
       eventId,
-      updateEventDto,
+      partialUpdateEventDto,
       userId,
     );
 

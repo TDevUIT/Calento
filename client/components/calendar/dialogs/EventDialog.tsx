@@ -429,7 +429,7 @@ export function EventDialog({ open, onOpenChange, defaultDate, defaultTime }: Ev
                       type="button"
                       onClick={() => {
                         setSelectedColor(color);
-                        form.setValue('color', color as any);
+                        form.setValue('color', color as 'blue' | 'green' | 'pink' | 'purple' | 'orange' | 'red');
                       }}
                       className={`h-8 w-8 rounded-full border-2 transition-all ${
                         selectedColor === color

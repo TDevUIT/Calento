@@ -18,10 +18,9 @@ interface CalendarSidebarProps {
 }
 
 export function CalendarSidebar({ 
-  onDateSelect, 
+ 
   onCreateEvent, 
   onClose, 
-  selectedDate,
   visibleCalendarIds,
   onVisibleCalendarIdsChange
 }: CalendarSidebarProps) {

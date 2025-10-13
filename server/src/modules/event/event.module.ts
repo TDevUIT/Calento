@@ -9,6 +9,7 @@ import { EventQueueController } from './controllers/event-queue.controller';
 import { SyncChecker } from './utils/sync-checker';
 import { DatabaseModule } from '../../database/database.module';
 import { GoogleModule } from '../google/google.module';
+import { RecurringEventsService } from '../../common/services/recurring-events.service';
 
 @Module({
   imports: [DatabaseModule, GoogleModule],
@@ -19,6 +20,7 @@ import { GoogleModule } from '../google/google.module';
     EventSyncService,
     CalendarSyncManagerService,
     SyncChecker,
+    RecurringEventsService,
   ],
   exports: [EventSyncService, CalendarSyncManagerService],
 })

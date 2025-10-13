@@ -17,17 +17,15 @@ interface CalendarListWithAPIProps {
   visibleCalendarIds?: Set<string>;
   onVisibleCalendarIdsChange?: (ids: Set<string>) => void;
 }
-
 export function CalendarListWithAPI({ 
-  onCreateCalendar,
   visibleCalendarIds: externalVisibleIds,
   onVisibleCalendarIdsChange: onExternalIdsChange 
 }: CalendarListWithAPIProps) {
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(20);
+  const [limit] = useState(10);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState('created_at');
-  const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('DESC');
+  const [sortBy] = useState('created_at');
+  const [sortOrder] = useState<'ASC' | 'DESC'>('DESC');
   
   const queryResult = useCalendars({ 
     page, 
@@ -71,26 +69,11 @@ export function CalendarListWithAPI({
     if (lowerName.includes('team')) return Users;
     return CalendarIcon;
   };
-
-  const getCalendarColor = (index: number) => {
-    const colors = [
-      'bg-blue-500',
-      'bg-green-500',
-      'bg-purple-500',
-      'bg-pink-500',
-      'bg-orange-500',
-      'bg-cyan-500',
-    ];
-    return colors[index % colors.length];
-  };
-
-  // Search handler
   const handleSearch = (value: string) => {
     setSearchQuery(value);
-    setPage(1); // Reset to first page on search
+    setPage(1); 
   };
 
-  // Edit calendar handler
   const handleEditCalendar = (calendar: Calendar) => {
     setSelectedCalendar(calendar);
     setShowEditDialog(true);
@@ -200,9 +183,8 @@ export function CalendarListWithAPI({
       </div>
 
       <div className="space-y-1">
-        {calendars.map((calendar: Calendar, index: number) => {
+        {calendars.map((calendar: Calendar) => {
           const Icon = getCalendarIcon(calendar.name || 'Calendar');
-          const colorClass = getCalendarColor(index);
           const isVisible = visibleCalendarIds.has(calendar.id);
 
           return (

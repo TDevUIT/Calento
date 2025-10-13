@@ -60,7 +60,7 @@ export function EventQuickPreview({ event }: EventQuickPreviewProps) {
   const totalAttendees = event.attendees?.length || 0;
 
   return (
-    <div className="w-80 bg-background border rounded-lg shadow-lg p-4 space-y-3">
+    <div className="w-80 bg-background border rounded-lg shadow-lg p-4 space-y-3 relative z-[1000] event-quick-preview">
       {/* Header */}
       <div className="flex items-start gap-3">
         <div className={`h-2 w-2 rounded-full mt-2 flex-shrink-0 ${colorClasses[event.color || 'blue']}`} />

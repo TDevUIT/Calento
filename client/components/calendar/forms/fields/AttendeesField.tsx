@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CustomSelect, SelectOption } from '@/components/ui/custom-select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import type { EventFormData } from '../event-form.schema';
 
@@ -56,7 +55,7 @@ export function AttendeesField({ form }: AttendeesFieldProps) {
     const newAttendees = [...attendees];
     newAttendees[index] = {
       ...newAttendees[index],
-      response_status: status as any,
+      response_status: status as 'accepted' | 'declined' | 'tentative' | 'needsAction',
     };
     form.setValue('attendees', newAttendees);
   };
@@ -152,7 +151,6 @@ export function AttendeesField({ form }: AttendeesFieldProps) {
           <div className="space-y-2 max-h-[300px] overflow-y-auto">
             {attendees.map((attendee, index) => {
               const StatusIcon = statusIcons[attendee.response_status || 'needsAction'].icon;
-              const statusColor = statusIcons[attendee.response_status || 'needsAction'].color;
 
               return (
                 <div
@@ -194,8 +192,7 @@ export function AttendeesField({ form }: AttendeesFieldProps) {
                         placeholder="Select status"
                         className="w-[160px]"
                       />
-
-                      <label className="flex items-center gap-2 px-3 py-1.5 rounded-lg border hover:bg-accent cursor-pointer transition-colors">
+                      <label className="flex items-center gap-2">
                         <Checkbox
                           checked={attendee.is_optional}
                           onCheckedChange={() => toggleOptional(index)}

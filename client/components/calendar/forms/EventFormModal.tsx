@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import type { Resolver } from 'react-hook-form';
 import { format } from 'date-fns';
 import { X, Loader2, MapPin, Bell } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
@@ -10,8 +11,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { eventFormSchema, type EventFormData } from './event-form.schema';
-import { useCreateEvent } from '@/hook/event/use-create-event';
-import { useUpdateEvent } from '@/hook/event/use-update-event';
 import type { Event } from '@/interface/event.interface';
 import { TimeRangeField } from './fields/TimeRangeField';
 import { AllDayField } from './fields/AllDayField';
@@ -23,6 +22,7 @@ import { RecurrenceField } from './fields/RecurrenceField';
 import { ConferenceField } from './fields/ConferenceField';
 import { RemindersField } from './fields/RemindersField';
 import { CalendarField } from './fields/CalendarField';
+import { useCreateEvent, useUpdateEvent } from '@/hook';
 
 interface EventFormModalProps {
   open: boolean;
@@ -47,7 +47,7 @@ export function EventFormModal({
   const updateEvent = useUpdateEvent();
 
   const form = useForm<EventFormData>({
-    resolver: zodResolver(eventFormSchema) as any,
+    resolver: zodResolver(eventFormSchema) as Resolver<EventFormData>,
     mode: 'onChange',
     reValidateMode: 'onChange',
     defaultValues: {
@@ -58,7 +58,7 @@ export function EventFormModal({
       end_time: defaultEndTime ? format(defaultEndTime, "yyyy-MM-dd'T'HH:mm") : '',
       location: '',
       is_all_day: false,
-      color: 'blue',
+      color: '#3b82f6',
       recurrence_rule: undefined,
       attendees: [],
       reminders: [{ method: 'popup', minutes: 30 }],
@@ -76,7 +76,7 @@ export function EventFormModal({
         end_time: format(new Date(event.end_time), "yyyy-MM-dd'T'HH:mm"),
         location: event.location || '',
         is_all_day: event.is_all_day || false,
-        color: (event.color as any) || 'blue',
+        color: event.color || '#3b82f6',
         recurrence_rule: event.recurrence_rule || undefined,
         attendees: event.attendees || [],
         conference_data: event.conference_data,
@@ -90,7 +90,6 @@ export function EventFormModal({
     try {
       console.log('Form submission started:', { mode, data });
       
-      // Validate calendar_id
       if (!data.calendar_id) {
         toast.error('Please select a calendar');
         return;
@@ -117,15 +116,15 @@ export function EventFormModal({
       }
       onOpenChange(false);
       form.reset();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Event submission error:', error);
       console.error('Error details:', {
-        message: error?.message,
-        response: error?.response?.data,
-        status: error?.response?.status,
+        message: (error as Error)?.message,
+        response: (error as { response?: { data?: unknown; status?: number } })?.response?.data,
+        status: (error as { response?: { data?: unknown; status?: number } })?.response?.status,
       });
       
-      const errorMessage = error?.response?.data?.message || error?.message;
+      const errorMessage = (error as { response?: { data?: { message?: string } }; message?: string })?.response?.data?.message || (error as Error)?.message;
       
       if (errorMessage === 'error.event_duration_too_long') {
         toast.error('Event duration cannot exceed 24 hours. Please adjust the time range or use recurring events.');

@@ -156,7 +156,7 @@ export function AttendeesList({ attendees, organizerEmail }: AttendeesListProps)
                       </p>
                     )}
                     {attendee.comment && (
-                      <p className="text-xs italic">"{attendee.comment}"</p>
+                      <p className="text-xs italic">&quot;{attendee.comment}&quot;</p>
                     )}
                   </div>
                 </TooltipContent>

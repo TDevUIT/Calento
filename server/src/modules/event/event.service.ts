@@ -4,7 +4,7 @@ import {
   PaginationOptions,
 } from '../../common/interfaces/pagination.interface';
 import { Event } from './event';
-import { CreateEventDto, UpdateEventDto } from './dto/events.dto';
+import { CreateEventDto, UpdateEventDto, PartialUpdateEventDto } from './dto/events.dto';
 import { EventRepository } from './event.repository';
 
 @Injectable()
@@ -15,9 +15,17 @@ export class EventService {
     return this.eventRepository.createEvent(eventDto, userId);
   }
 
-  async updateEvent(
+  async replaceEvent(
     eventId: string,
     eventDto: UpdateEventDto,
+    userId: string,
+  ): Promise<Event> {
+    return this.eventRepository.replaceEvent(eventId, eventDto, userId);
+  }
+
+  async updateEvent(
+    eventId: string,
+    eventDto: PartialUpdateEventDto,
     userId: string,
   ): Promise<Event> {
     return this.eventRepository.updateEvent(eventId, eventDto, userId);

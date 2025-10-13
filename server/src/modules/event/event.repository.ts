@@ -6,7 +6,7 @@ import {
   PaginationOptions,
 } from '../../common/interfaces/pagination.interface';
 import { Event } from './event';
-import { CreateEventDto, UpdateEventDto } from './dto/events.dto';
+import { CreateEventDto, UpdateEventDto, PartialUpdateEventDto } from './dto/events.dto';
 import { UserValidationService } from '../../common/services/user-validation.service';
 import { CalendarValidationService } from '../../common/services/calendar-validation.service';
 import { EventValidationService } from '../../common/services/event-validation.service';
@@ -45,21 +45,17 @@ export class EventRepository extends BaseRepository<Event> {
       return null;
     }
     
-    // If it's already a string, try to parse it back to object to prevent double-encoding
     if (typeof value === 'string') {
       try {
-        // If it's a JSON string, parse it back to object
         const parsed = JSON.parse(value);
         this.logger.debug(`Parsed JSON string back to object:`, { original: value, parsed });
         return parsed;
       } catch (error) {
-        // If it's not valid JSON, return as-is
         this.logger.debug(`String is not JSON, returning as-is:`, value);
         return value;
       }
     }
     
-    // For objects and arrays, return as-is - PostgreSQL driver will handle JSON serialization
     this.logger.debug(`Returning object/array as-is:`, value);
     return value;
   }
@@ -73,12 +69,10 @@ export class EventRepository extends BaseRepository<Event> {
       return defaultValue;
     }
     
-    // If it's already an object/array, return as-is
     if (typeof value === 'object') {
       return value;
     }
     
-    // If it's a string, try to parse it
     if (typeof value === 'string') {
       try {
         return JSON.parse(value);
@@ -129,7 +123,6 @@ export class EventRepository extends BaseRepository<Event> {
 
     this.logger.debug('Final processed data for database:', processedData);
 
-    // Use the parent create method with processed data
     return await super.create(processedData);
   }
 
@@ -170,7 +163,6 @@ export class EventRepository extends BaseRepository<Event> {
 
     this.logger.debug('Final processed data for update:', processedData);
 
-    // Use the parent update method with processed data
     return await super.update(id, processedData);
   }
 
@@ -241,7 +233,6 @@ export class EventRepository extends BaseRepository<Event> {
       eventDto.recurrence_rule,
     );
 
-    // Debug: Log incoming DTO data
     this.logger.debug('CreateEvent DTO received:', {
       attendees: eventDto.attendees,
       attendees_type: typeof eventDto.attendees,
@@ -253,23 +244,22 @@ export class EventRepository extends BaseRepository<Event> {
 
     const eventData: Partial<Event> = {
       calendar_id: eventDto.calendar_id,
-      google_event_id: undefined, // NULL for manually created events
+      google_event_id: undefined,
       title: eventDto.title,
       description: eventDto.description,
       start_time: new Date(eventDto.start_time),
       end_time: new Date(eventDto.end_time),
       location: eventDto.location,
       is_all_day: eventDto.is_all_day || false,
-      color: eventDto.color || 'blue',
+      color: eventDto.color || '#3b82f6',
       recurrence_rule: eventDto.recurrence_rule,
-      organizer_id: userId, // Set current user as organizer
+      organizer_id: userId,
       attendees: eventDto.attendees || [],
       conference_data: eventDto.conference_data,
       reminders: eventDto.reminders || [],
       visibility: eventDto.visibility || 'default',
     };
 
-    // Debug: Log processed event data
     this.logger.debug('Processed event data:', {
       attendees: eventData.attendees,
       attendees_type: typeof eventData.attendees,
@@ -402,9 +392,7 @@ export class EventRepository extends BaseRepository<Event> {
     try {
       const event = await this.findById(eventId);
       if (event) {
-        // Event ownership is validated through calendar_id
-        // No direct user_id check needed
-        return this.normalizeEventData(event);
+            return this.normalizeEventData(event);
       }
       return null;
     } catch (error) {
@@ -415,21 +403,87 @@ export class EventRepository extends BaseRepository<Event> {
     }
   }
 
-  async updateEvent(
+  async replaceEvent(
     eventId: string,
     eventDto: UpdateEventDto,
     userId: string,
   ): Promise<Event> {
     await this.userValidationService.validateUserExists(userId);
 
-    const existingEvent = await this.getEventById(eventId, userId);
+    // Extract original ID if it's an occurrence virtual ID
+    const actualId = eventId.includes('_occurrence_') 
+      ? eventId.split('_occurrence_')[0] 
+      : eventId;
+
+    const existingEvent = await this.getEventById(actualId, userId);
     if (!existingEvent) {
       throw new EventCreationFailedException(
         this.messageService.get('calendar.event_not_found'),
       );
     }
 
-    // Only validate fields that are being updated
+    await this.eventValidationService.validateEvent(
+      userId,
+      eventDto.title,
+      new Date(eventDto.start_time),
+      new Date(eventDto.end_time),
+      eventDto.description,
+      eventDto.recurrence_rule,
+      actualId,
+    );
+
+    const eventData: Partial<Event> = {
+      calendar_id: eventDto.calendar_id,
+      title: eventDto.title,
+      description: eventDto.description,
+      start_time: new Date(eventDto.start_time),
+      end_time: new Date(eventDto.end_time),
+      location: eventDto.location,
+      is_all_day: eventDto.is_all_day ?? false,
+      color: eventDto.color,
+      recurrence_rule: eventDto.recurrence_rule,
+      attendees: eventDto.attendees,
+      conference_data: eventDto.conference_data,
+      reminders: eventDto.reminders,
+      visibility: eventDto.visibility,
+      response_status: eventDto.response_status,
+    };
+
+    try {
+      const updatedEvent = await this.updateWithJsonHandling(actualId, eventData);
+      if (!updatedEvent) {
+        throw new EventCreationFailedException(
+          this.messageService.get('calendar.event_not_found'),
+        );
+      }
+      return this.normalizeEventData(updatedEvent);
+    } catch (error) {
+      this.logger.error(`Failed to replace event ${actualId}:`, error);
+      throw new EventCreationFailedException(
+        this.messageService.get('error.internal_server_error'),
+      );
+    }
+  }
+
+  async updateEvent(
+    eventId: string,
+    eventDto: PartialUpdateEventDto,
+    userId: string,
+  ): Promise<Event> {
+    await this.userValidationService.validateUserExists(userId);
+
+    // Extract original ID if it's an occurrence virtual ID
+    const actualId = eventId.includes('_occurrence_') 
+      ? eventId.split('_occurrence_')[0] 
+      : eventId;
+
+    const existingEvent = await this.getEventById(actualId, userId);
+    if (!existingEvent) {
+      throw new EventCreationFailedException(
+        this.messageService.get('calendar.event_not_found'),
+      );
+    }
+
     if (eventDto.title || eventDto.start_time || eventDto.end_time) {
       await this.eventValidationService.validateEvent(
         userId,
@@ -438,13 +492,13 @@ export class EventRepository extends BaseRepository<Event> {
         eventDto.end_time ? new Date(eventDto.end_time) : existingEvent.end_time,
         eventDto.description,
         eventDto.recurrence_rule,
-        eventId,
+        actualId,
       );
     }
 
     const eventData: Partial<Event> = {};
     
-    // Only include fields that are provided
+    if (eventDto.calendar_id !== undefined) eventData.calendar_id = eventDto.calendar_id;
     if (eventDto.title !== undefined) eventData.title = eventDto.title;
     if (eventDto.description !== undefined) eventData.description = eventDto.description;
     if (eventDto.start_time !== undefined) eventData.start_time = new Date(eventDto.start_time);
@@ -457,9 +511,10 @@ export class EventRepository extends BaseRepository<Event> {
     if (eventDto.conference_data !== undefined) eventData.conference_data = eventDto.conference_data;
     if (eventDto.reminders !== undefined) eventData.reminders = eventDto.reminders;
     if (eventDto.visibility !== undefined) eventData.visibility = eventDto.visibility;
+    if (eventDto.response_status !== undefined) eventData.response_status = eventDto.response_status;
 
     try {
-      const updatedEvent = await this.updateWithJsonHandling(eventId, eventData);
+      const updatedEvent = await this.updateWithJsonHandling(actualId, eventData);
       if (!updatedEvent) {
         throw new EventCreationFailedException(
           this.messageService.get('calendar.event_not_found'),
@@ -467,7 +522,7 @@ export class EventRepository extends BaseRepository<Event> {
       }
       return this.normalizeEventData(updatedEvent);
     } catch (error) {
-      this.logger.error(`Failed to update event ${eventId}:`, error);
+      this.logger.error(`Failed to update event ${actualId}:`, error);
       throw new EventCreationFailedException(
         this.messageService.get('error.internal_server_error'),
       );
@@ -563,18 +618,19 @@ export class EventRepository extends BaseRepository<Event> {
     await this.userValidationService.validateUserExists(userId);
 
     const query = `
-            SELECT * FROM ${this.tableName}
-            WHERE user_id = $1 
-                AND recurrence_rule IS NOT NULL 
-                AND recurrence_rule != ''
-                AND start_time <= $3
-            ORDER BY start_time ASC
-        `;
+      SELECT e.* 
+      FROM ${this.tableName} e
+      INNER JOIN calendars c ON e.calendar_id = c.id
+      WHERE c.user_id = $1 
+        AND e.recurrence_rule IS NOT NULL 
+        AND e.recurrence_rule != ''
+        AND e.start_time <= $2
+      ORDER BY e.start_time ASC
+    `;
 
     try {
       const result = await this.databaseService.query(query, [
         userId,
-        startDate,
         endDate,
       ]);
       return result.rows.map(event => this.normalizeEventData(event));

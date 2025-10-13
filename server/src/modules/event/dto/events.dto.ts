@@ -2,12 +2,10 @@ import {
   IsString,
   IsOptional,
   IsBoolean,
-  IsDateString,
   IsUUID,
   IsNotEmpty,
   MaxLength,
   IsISO8601,
-  ValidateIf,
   registerDecorator,
   ValidationOptions,
   ValidationArguments,
@@ -18,9 +16,11 @@ import {
   IsUrl,
   IsNumber,
   Min,
+  Matches,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { PaginationQueryDto } from '../../../common/dto/pagination.dto';
 
 export function IsAfterStartTime(
   property: string,
@@ -249,12 +249,15 @@ export class CreateEventDto {
   is_all_day?: boolean = false;
 
   @ApiPropertyOptional({
-    description: 'Event color for UI display',
-    example: 'blue',
-    enum: ['blue', 'green', 'pink', 'purple', 'orange', 'red', 'default'],
+    description: 'Event color for UI display (hex color code or preset name)',
+    example: '#3b82f6',
+    examples: ['#3b82f6', '#10b981', '#ec4899', '#8b5cf6', '#f59e0b', '#ef4444'],
   })
   @IsString()
   @IsOptional()
+  @Matches(/^(#[0-9A-Fa-f]{6}|blue|green|pink|purple|orange|red|default)$/, {
+    message: 'Color must be a valid hex code (e.g., #3b82f6) or preset name',
+  })
   color?: string;
 
   @ApiPropertyOptional({
@@ -306,7 +309,15 @@ export class CreateEventDto {
   visibility?: 'default' | 'public' | 'private' | 'confidential';
 }
 
-export class UpdateEventDto {
+export class PartialUpdateEventDto {
+  @ApiPropertyOptional({
+    description: 'Calendar ID to move event to different calendar',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @IsUUID()
+  @IsOptional()
+  calendar_id?: string;
+
   @ApiPropertyOptional({
     description: 'Event title',
     example: 'Updated Team Meeting',
@@ -362,12 +373,151 @@ export class UpdateEventDto {
   is_all_day?: boolean;
 
   @ApiPropertyOptional({
-    description: 'Event color for UI display',
-    example: 'green',
-    enum: ['blue', 'green', 'pink', 'purple', 'orange', 'red', 'default'],
+    description: 'Event color for UI display (hex color code or preset name)',
+    example: '#22c55e',
+    examples: ['#3b82f6', '#22c55e', '#ec4899', '#a855f7', '#f97316', '#ef4444', 'blue', 'green', 'purple'],
   })
   @IsString()
   @IsOptional()
+  @Matches(/^(#[0-9A-Fa-f]{6}|blue|green|pink|purple|orange|red|yellow|cyan|indigo|teal|default)$/, {
+    message: 'Color must be a valid hex code (e.g., #3b82f6) or preset name',
+  })
+  color?: string;
+
+  @ApiPropertyOptional({
+    description: 'Recurrence rule (RRULE format)',
+    example: 'FREQ=DAILY;COUNT=5',
+    maxLength: 500,
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(500)
+  recurrence_rule?: string;
+
+  @ApiPropertyOptional({
+    description: 'Event visibility level',
+    enum: ['default', 'public', 'private', 'confidential'],
+    example: 'default',
+  })
+  @IsEnum(['default', 'public', 'private', 'confidential'])
+  @IsOptional()
+  visibility?: 'default' | 'public' | 'private' | 'confidential';
+
+  @ApiPropertyOptional({
+    description: 'List of event attendees',
+    type: [EventAttendeeDto],
+  })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => EventAttendeeDto)
+  @IsOptional()
+  attendees?: EventAttendeeDto[];
+
+  @ApiPropertyOptional({
+    description: 'Video conference information',
+    type: ConferenceDataDto,
+  })
+  @ValidateNested()
+  @Type(() => ConferenceDataDto)
+  @IsOptional()
+  conference_data?: ConferenceDataDto;
+
+  @ApiPropertyOptional({
+    description: 'Event reminders',
+    type: [EventReminderDto],
+  })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => EventReminderDto)
+  @IsOptional()
+  reminders?: EventReminderDto[];
+
+  @ApiPropertyOptional({
+    description: 'User response status',
+    enum: ['accepted', 'declined', 'tentative', 'needsAction'],
+    example: 'accepted',
+  })
+  @IsEnum(['accepted', 'declined', 'tentative', 'needsAction'])
+  @IsOptional()
+  response_status?: 'accepted' | 'declined' | 'tentative' | 'needsAction';
+}
+
+export class UpdateEventDto {
+  @ApiProperty({
+    description: 'Calendar ID where the event belongs (required for PUT)',
+    example: '123e4567-e89b-12d3-a456-426614174000',
+  })
+  @IsUUID()
+  @IsNotEmpty()
+  calendar_id: string;
+
+  @ApiProperty({
+    description: 'Event title (required for PUT)',
+    example: 'Updated Team Meeting',
+    maxLength: 255,
+  })
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(255)
+  title: string;
+
+  @ApiPropertyOptional({
+    description: 'Event description',
+    example: 'Updated weekly team sync meeting',
+    maxLength: 1000,
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(1000)
+  description?: string;
+
+  @ApiProperty({
+    description: 'Event start time in ISO 8601 format (required for PUT)',
+    example: '2024-01-15T10:30:00Z',
+  })
+  @IsISO8601()
+  @IsNotEmpty()
+  start_time: string;
+
+  @ApiProperty({
+    description: 'Event end time in ISO 8601 format (required for PUT)',
+    example: '2024-01-15T11:30:00Z',
+  })
+  @IsISO8601()
+  @IsAfterStartTime('start_time', {
+    message: 'End time must be after start time',
+  })
+  end_time: string;
+
+  @ApiPropertyOptional({
+    description: 'Event location',
+    example: 'Conference Room B',
+    maxLength: 255,
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(255)
+  location?: string;
+
+  @ApiProperty({
+    description: 'Whether the event is an all-day event',
+    example: false,
+    default: false,
+  })
+  @IsBoolean()
+  @IsOptional()
+  is_all_day?: boolean = false;
+
+  @ApiPropertyOptional({
+    description: 'Event color for UI display (hex color code or preset name)',
+    example: '#22c55e',
+    examples: ['#3b82f6', '#22c55e', '#ec4899', '#a855f7', '#f97316', '#ef4444', 'blue', 'green', 'purple'],
+  })
+  @IsString()
+  @IsOptional()
+  @Matches(/^(#[0-9A-Fa-f]{6}|blue|green|pink|purple|orange|red|yellow|cyan|indigo|teal|default)$/, {
+    message: 'Color must be a valid hex code (e.g., #3b82f6) or preset name',
+  })
   color?: string;
 
   @ApiPropertyOptional({
@@ -478,8 +628,9 @@ export class EventResponseDto {
   status: string;
 
   @ApiPropertyOptional({
-    description: 'Event color',
-    example: 'blue',
+    description: 'Event color (hex color code or preset name)',
+    example: '#3b82f6',
+    examples: ['#3b82f6', '#10b981', '#ec4899', '#8b5cf6', '#f59e0b', '#ef4444'],
   })
   color?: string;
 
@@ -656,7 +807,7 @@ export class EventConflictCheckDto {
   exclude_event_id?: string;
 }
 
-export class RecurringEventsQueryDto {
+export class RecurringEventsQueryDto extends PaginationQueryDto {
   @ApiProperty({
     description: 'Start date for recurring event expansion in ISO 8601 format',
     example: '2024-01-01T00:00:00Z',
@@ -680,5 +831,8 @@ export class RecurringEventsQueryDto {
     default: 100,
   })
   @IsOptional()
+  @Type(() => Number)
+  @IsNumber()
+  @Min(1)
   max_occurrences?: number = 100;
 }

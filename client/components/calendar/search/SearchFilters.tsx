@@ -32,7 +32,6 @@ export function SearchFilters({
   setFilters,
   activeFilterCount,
   onClearFilters,
-  onApplyFilters,
 }: SearchFiltersProps) {
   return (
     <div className="space-y-4">

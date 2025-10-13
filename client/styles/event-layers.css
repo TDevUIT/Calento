@@ -1,0 +1,75 @@
+/* Event Z-Index Layers */
+/* Higher z-index for events that start later (time priority) */
+
+.event-card {
+  position: relative;
+  z-index: 100;
+  transition: all 0.2s ease-in-out;
+}
+
+.event-card:hover {
+  z-index: 200 !important;
+  transform: scale(1.02);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Time-based z-index layers */
+.event-layer-1 { z-index: 101; }
+.event-layer-2 { z-index: 102; }
+.event-layer-3 { z-index: 103; }
+.event-layer-4 { z-index: 104; }
+.event-layer-5 { z-index: 105; }
+.event-layer-6 { z-index: 106; }
+.event-layer-7 { z-index: 107; }
+.event-layer-8 { z-index: 108; }
+.event-layer-9 { z-index: 109; }
+.event-layer-10 { z-index: 110; }
+
+/* Month view events */
+.event-month {
+  z-index: 150;
+}
+
+.event-month:hover {
+  z-index: 250 !important;
+}
+
+/* Week/Day view events */
+.event-week {
+  z-index: 200;
+}
+
+.event-week:hover {
+  z-index: 300 !important;
+}
+
+/* Selected/Active states */
+.event-selected {
+  z-index: 500 !important;
+}
+
+.event-editing {
+  z-index: 600 !important;
+}
+
+/* Hover card states - highest priority */
+.event-hover-card {
+  z-index: 1000 !important;
+}
+
+.event-quick-preview {
+  z-index: 1000 !important;
+}
+
+/* Ensure events appear above calendar grid lines */
+.calendar-grid {
+  z-index: 1;
+}
+
+.calendar-header {
+  z-index: 10;
+}
+
+.calendar-current-time {
+  z-index: 20;
+}

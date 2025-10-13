@@ -69,7 +69,27 @@ export interface CreateEventRequest {
   visibility?: 'default' | 'public' | 'private' | 'confidential';
 }
 
+// For PUT requests - full replacement (all required fields must be provided)
 export interface UpdateEventRequest {
+  calendar_id: string; // Required for PUT
+  title: string;       // Required for PUT
+  description?: string;
+  start_time: string;  // Required for PUT
+  end_time: string;    // Required for PUT
+  location?: string;
+  is_all_day?: boolean;
+  recurrence_rule?: string;
+  color?: string;
+  attendees?: EventAttendee[];
+  conference_data?: ConferenceData;
+  reminders?: EventReminder[];
+  visibility?: 'default' | 'public' | 'private' | 'confidential';
+  response_status?: 'accepted' | 'declined' | 'tentative' | 'needsAction';
+}
+
+// For PATCH requests - partial update (all fields are optional)
+export interface PartialUpdateEventRequest {
+  calendar_id?: string; // Allow moving event to different calendar
   title?: string;
   description?: string;
   start_time?: string;

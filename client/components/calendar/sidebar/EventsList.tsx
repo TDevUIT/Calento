@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { ChevronDown, ChevronUp, Copy, BarChart3, MoreVertical } from 'lucide-react';
+import { Copy, BarChart3, MoreVertical } from 'lucide-react';
 
 interface EventItem {
   id: number;

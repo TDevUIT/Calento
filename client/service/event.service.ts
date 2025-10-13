@@ -3,6 +3,7 @@ import {
   Event,
   CreateEventRequest,
   UpdateEventRequest,
+  PartialUpdateEventRequest,
   EventQueryParams,
   RecurringEventsQueryParams,
   PaginatedEventsResponse,
@@ -61,11 +62,32 @@ export const createEvent = async (data: CreateEventRequest): Promise<EventRespon
 };
 
 /**
- * Update existing event
+ * Replace existing event using PUT (full replacement)
+ * All required fields must be provided
+ */
+export const replaceEvent = async (
+  id: string,
+  data: UpdateEventRequest
+): Promise<EventResponse> => {
+  try {
+    const response = await api.put<EventResponse>(
+      API_ROUTES.EVENT_UPDATE(id),
+      data,
+      { withCredentials: true }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+};
+
+/**
+ * Update existing event using PATCH (partial update)
+ * Only provided fields will be updated
  */
 export const updateEvent = async (
   id: string,
-  data: UpdateEventRequest
+  data: PartialUpdateEventRequest
 ): Promise<EventResponse> => {
   try {
     const response = await api.patch<EventResponse>(
@@ -73,6 +95,43 @@ export const updateEvent = async (
       data,
       { withCredentials: true }
     );
+    return response.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+};
+
+/**
+ * Update existing event using PUT (full update) - Legacy method
+ * @deprecated Use replaceEvent instead
+ */
+export const updateEventPut = async (
+  id: string,
+  data: UpdateEventRequest
+): Promise<EventResponse> => {
+  return replaceEvent(id, data);
+};
+
+/**
+ * Update existing event with custom method (PATCH or PUT)
+ */
+export const updateEventWithMethod = async (
+  id: string,
+  data: UpdateEventRequest | PartialUpdateEventRequest,
+  method: 'PATCH' | 'PUT' = 'PATCH'
+): Promise<EventResponse> => {
+  try {
+    const response = method === 'PUT'
+      ? await api.put<EventResponse>(
+          API_ROUTES.EVENT_UPDATE(id),
+          data,
+          { withCredentials: true }
+        )
+      : await api.patch<EventResponse>(
+          API_ROUTES.EVENT_UPDATE(id),
+          data,
+          { withCredentials: true }
+        );
     return response.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -167,7 +226,10 @@ export const eventService = {
   getEvents,
   getEventById,
   createEvent,
+  replaceEvent,
   updateEvent,
+  updateEventPut, // Legacy - deprecated
+  updateEventWithMethod,
   deleteEvent,
   expandRecurringEvents,
   getEventsByDateRange,

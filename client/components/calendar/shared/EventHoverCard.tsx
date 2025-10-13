@@ -6,9 +6,9 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from '@/components/ui/hover-card';
-import { EventDetailView } from '../views/EventDetailView';
-import { EventQuickPreview } from './EventQuickPreview';
 import type { Event } from '@/interface/event.interface';
+import { EventDetailView } from '../views';
+import { EventQuickPreview } from '.';
 
 interface EventHoverCardProps {
   event: Event;
@@ -40,7 +40,7 @@ export function EventHoverCard({
       <HoverCardContent 
         side={side} 
         align={align}
-        className="w-auto p-0 border-0 bg-transparent shadow-none"
+        className="w-auto p-0 border-0 bg-transparent shadow-none z-[1000] event-hover-card"
         sideOffset={8}
       >
         {mode === 'quick' ? (
