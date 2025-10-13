@@ -1,3 +1,18 @@
+/**
+ * @deprecated This component is deprecated. Use CreateEventDialog instead.
+ * 
+ * This old Dialog-based event form will be removed in future versions.
+ * Please migrate to CreateEventDialog which uses the new Sheet-based UI
+ * consistent with EditEventDialog.
+ * 
+ * @example
+ * // Instead of:
+ * // <EventDialog open={open} onOpenChange={setOpen} />
+ * 
+ * // Use:
+ * // <CreateEventDialog open={open} onOpenChange={setOpen} />
+ */
+
 'use client';
 
 import { useState, useEffect } from 'react';
