@@ -48,8 +48,10 @@ export function EventFormModal({
 
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventFormSchema) as any,
+    mode: 'onChange',
+    reValidateMode: 'onChange',
     defaultValues: {
-      calendar_id: defaultCalendarId || '', // Will be set from CalendarField
+      calendar_id: defaultCalendarId || '',
       title: '',
       description: '',
       start_time: defaultStartTime ? format(defaultStartTime, "yyyy-MM-dd'T'HH:mm") : '',
@@ -57,7 +59,7 @@ export function EventFormModal({
       location: '',
       is_all_day: false,
       color: 'blue',
-      recurrence_rule: '',
+      recurrence_rule: undefined,
       attendees: [],
       reminders: [{ method: 'popup', minutes: 30 }],
       visibility: 'default',
@@ -75,7 +77,7 @@ export function EventFormModal({
         location: event.location || '',
         is_all_day: event.is_all_day || false,
         color: (event.color as any) || 'blue',
-        recurrence_rule: event.recurrence_rule || '',
+        recurrence_rule: event.recurrence_rule || undefined,
         attendees: event.attendees || [],
         conference_data: event.conference_data,
         reminders: event.reminders || [{ method: 'popup', minutes: 30 }],
@@ -86,7 +88,14 @@ export function EventFormModal({
 
   const onSubmit = async (data: EventFormData) => {
     try {
-      // Clean up data: remove empty strings and convert to undefined
+      console.log('Form submission started:', { mode, data });
+      
+      // Validate calendar_id
+      if (!data.calendar_id) {
+        toast.error('Please select a calendar');
+        return;
+      }
+
       const cleanedData = {
         ...data,
         description: data.description?.trim() || undefined,
@@ -95,18 +104,46 @@ export function EventFormModal({
         conference_data: data.conference_data?.url ? data.conference_data : undefined,
       };
 
+      console.log('Cleaned data:', cleanedData);
+
       if (mode === 'create') {
-        await createEvent.mutateAsync(cleanedData);
+        const result = await createEvent.mutateAsync(cleanedData);
+        console.log('Event created:', result);
         toast.success('Event created successfully!');
       } else if (mode === 'edit' && event) {
-        await updateEvent.mutateAsync({ id: event.id, data: cleanedData });
+        const result = await updateEvent.mutateAsync({ id: event.id, data: cleanedData });
+        console.log('Event updated:', result);
         toast.success('Event updated successfully!');
       }
       onOpenChange(false);
       form.reset();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Event submission error:', error);
-      toast.error(mode === 'create' ? 'Failed to create event' : 'Failed to update event');
+      console.error('Error details:', {
+        message: error?.message,
+        response: error?.response?.data,
+        status: error?.response?.status,
+      });
+      
+      const errorMessage = error?.response?.data?.message || error?.message;
+      
+      if (errorMessage === 'error.event_duration_too_long') {
+        toast.error('Event duration cannot exceed 24 hours. Please adjust the time range or use recurring events.');
+      } else if (errorMessage === 'error.event_invalid_recurrence_format') {
+        toast.error('Invalid recurrence rule format. Please check the recurrence settings.');
+      } else if (errorMessage === 'error.event_recurrence_missing_freq') {
+        toast.error('Recurrence rule is missing frequency. Please select a valid recurrence pattern.');
+      } else if (errorMessage === 'error.event_invalid_recurrence_freq') {
+        toast.error('Invalid recurrence frequency. Please select a valid option.');
+      } else if (errorMessage?.includes('recurrence')) {
+        toast.error('Invalid recurrence settings: ' + errorMessage);
+      } else if (errorMessage?.includes('duration')) {
+        toast.error(errorMessage);
+      } else if (errorMessage?.includes('calendar')) {
+        toast.error(errorMessage);
+      } else {
+        toast.error(mode === 'create' ? 'Failed to create event. Please check all fields.' : 'Failed to update event');
+      }
     }
   };
 
@@ -177,10 +214,10 @@ export function EventFormModal({
                     {(createEvent.isPending || updateEvent.isPending) ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Saving...
+                        {mode === 'create' ? 'Creating...' : 'Saving...'}
                       </>
                     ) : (
-                      'Save'
+                      mode === 'create' ? 'Create' : 'Save'
                     )}
                   </Button>
                   <Button

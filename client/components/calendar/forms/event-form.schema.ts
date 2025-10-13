@@ -29,7 +29,9 @@ export const reminderSchema = z.object({
 
 // Main event form schema
 export const eventFormSchema = z.object({
-  calendar_id: z.string().uuid('Invalid Calendar ID - must be UUID format'),
+  calendar_id: z.string()
+    .min(1, 'Please select a calendar')
+    .uuid('Please select a valid calendar'),
   title: z.string().min(1, 'Title is required').max(255, 'Title must be at most 255 characters'),
   description: z.string().max(1000, 'Description must be at most 1000 characters').optional(),
   start_time: z.string().min(1, 'Start time is required'),
@@ -54,6 +56,31 @@ export const eventFormSchema = z.object({
   {
     message: 'End time must be after start time',
     path: ['end_time'],
+  }
+).refine(
+  (data) => {
+    if (!data.start_time || !data.end_time) return true;
+    const start = new Date(data.start_time);
+    const end = new Date(data.end_time);
+    const durationMs = end.getTime() - start.getTime();
+    const maxDurationMs = 24 * 60 * 60 * 1000; // 24 hours
+    return durationMs <= maxDurationMs;
+  },
+  {
+    message: 'Event duration cannot exceed 24 hours. Use recurring events for longer periods.',
+    path: ['end_time'],
+  }
+).refine(
+  (data) => {
+    // Validate recurrence rule format if provided
+    if (!data.recurrence_rule || data.recurrence_rule.trim() === '') return true;
+    const rule = data.recurrence_rule.trim();
+    // Accept both "RRULE:FREQ=..." and "FREQ=..." formats
+    return rule.includes('FREQ=');
+  },
+  {
+    message: 'Invalid recurrence rule format. Must contain FREQ= (e.g., FREQ=DAILY or RRULE:FREQ=WEEKLY;BYDAY=MO)',
+    path: ['recurrence_rule'],
   }
 );
 

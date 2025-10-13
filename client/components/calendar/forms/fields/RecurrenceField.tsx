@@ -2,6 +2,7 @@
 
 import { UseFormReturn } from 'react-hook-form';
 import { Repeat } from 'lucide-react';
+import { FormControl, FormField, FormItem } from '@/components/ui/form';
 import { CustomSelect, SelectOption } from '@/components/ui/custom-select';
 import type { EventFormData } from '../event-form.schema';
 
@@ -18,27 +19,40 @@ const recurrenceOptions: SelectOption[] = [
 ];
 
 export function RecurrenceField({ form }: RecurrenceFieldProps) {
-  const recurrenceRule = form.watch('recurrence_rule');
-
-  const handleRecurrenceChange = (value: string) => {
-    if (value === 'NONE') {
-      // Set to undefined instead of empty string for better API handling
-      form.setValue('recurrence_rule', undefined as any, { shouldValidate: true });
-    } else {
-      form.setValue('recurrence_rule', value, { shouldValidate: true });
-    }
-  };
-
   return (
-    <div className="flex items-center gap-3 py-3 border-b border-border/40">
-      <Repeat className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-      <CustomSelect
-        value={recurrenceRule || 'NONE'}
-        onValueChange={handleRecurrenceChange}
-        options={recurrenceOptions}
-        placeholder="Does not repeat"
-        className="flex-1 border-0"
-      />
-    </div>
+    <FormField
+      control={form.control}
+      name="recurrence_rule"
+      render={({ field }) => {
+        // Strip RRULE: prefix for display
+        const displayValue = field.value?.startsWith('RRULE:') 
+          ? field.value.substring(6) 
+          : field.value || 'NONE';
+
+        return (
+          <FormItem>
+            <div className="flex items-center gap-3 py-3 border-b border-border/40">
+              <Repeat className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+              <FormControl>
+                <CustomSelect
+                  value={displayValue}
+                  onValueChange={(value) => {
+                    if (value === 'NONE') {
+                      field.onChange(undefined);
+                    } else {
+                      // Add RRULE: prefix for backend
+                      field.onChange(`RRULE:${value}`);
+                    }
+                  }}
+                  options={recurrenceOptions}
+                  placeholder="Does not repeat"
+                  className="flex-1 border-0"
+                />
+              </FormControl>
+            </div>
+          </FormItem>
+        );
+      }}
+    />
   );
 }

@@ -37,7 +37,6 @@ export function CalendarField({ form }: CalendarFieldProps) {
 
   const calendars = calendarsData?.data?.items || [];
 
-  // Auto-select first calendar if no calendar is selected
   useEffect(() => {
     if (calendars.length > 0 && !form.getValues('calendar_id')) {
       form.setValue('calendar_id', calendars[0].id, { shouldValidate: true });
@@ -49,11 +48,6 @@ export function CalendarField({ form }: CalendarFieldProps) {
     return {
       value: calendar.id,
       label: calendar.name || calendar.google_calendar_id || 'Unnamed Calendar',
-      icon: (
-        <div className="flex items-center gap-2">
-          <div className={`h-3 w-3 rounded-full ${color.bg}`} />
-        </div>
-      ),
     };
   });
 
@@ -61,7 +55,7 @@ export function CalendarField({ form }: CalendarFieldProps) {
     <FormField
       control={form.control}
       name="calendar_id"
-      render={({ field }) => (
+      render={({ field, fieldState }) => (
         <FormItem>
           <div className="flex items-center gap-3 py-3 border-b border-border/40">
             <CalendarIcon className="h-5 w-5 text-muted-foreground flex-shrink-0" />
@@ -73,6 +67,10 @@ export function CalendarField({ form }: CalendarFieldProps) {
             ) : isError ? (
               <div className="text-sm text-destructive">
                 Error loading calendars
+              </div>
+            ) : calendars.length === 0 ? (
+              <div className="text-sm text-muted-foreground">
+                No calendars available. Please create a calendar first.
               </div>
             ) : (
               <FormControl>
@@ -86,7 +84,9 @@ export function CalendarField({ form }: CalendarFieldProps) {
               </FormControl>
             )}
           </div>
-          <FormMessage />
+          {fieldState.error && (
+            <p className="text-sm text-destructive pl-8 -mt-2 mb-2">{fieldState.error.message}</p>
+          )}
         </FormItem>
       )}
     />

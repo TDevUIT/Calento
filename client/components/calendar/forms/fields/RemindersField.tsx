@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
+import { FormControl, FormField, FormItem } from '@/components/ui/form';
 import { CustomSelect, SelectOption } from '@/components/ui/custom-select';
 import type { EventFormData } from '../event-form.schema';
 
@@ -26,51 +26,37 @@ const timePresetOptions: SelectOption[] = timePresets.map((preset) => ({
 }));
 
 export function RemindersField({ form }: RemindersFieldProps) {
-  const reminders = form.watch('reminders') || [];
-  const [localValue, setLocalValue] = useState<string>(() => {
-    if (reminders.length === 0) return '-1';
-    const minutes = reminders[0]?.minutes;
-    return minutes !== undefined ? minutes.toString() : '30';
-  });
-
-  // Sync local value with form value
-  useEffect(() => {
-    if (reminders.length === 0) {
-      setLocalValue('-1');
-    } else {
-      const minutes = reminders[0]?.minutes;
-      if (minutes !== undefined) {
-        setLocalValue(minutes.toString());
-      }
-    }
-  }, [reminders]);
-
-  const handleReminderChange = (value: string) => {
-    setLocalValue(value); // Update local state immediately for responsive UI
-    
-    const minutes = parseInt(value);
-    
-    if (minutes === -1) {
-      form.setValue('reminders', [], { shouldValidate: true, shouldDirty: true, shouldTouch: true });
-    } else {
-      form.setValue('reminders', [
-        {
-          method: 'popup' as const,
-          minutes,
-        },
-      ], { shouldValidate: true, shouldDirty: true, shouldTouch: true });
-    }
-  };
-
   return (
-    <div className="flex-1">
-      <CustomSelect
-        value={localValue}
-        onValueChange={handleReminderChange}
-        options={timePresetOptions}
-        placeholder="Select notification time"
-        className="w-full border-0"
-      />
-    </div>
+    <FormField
+      control={form.control}
+      name="reminders"
+      render={({ field }) => {
+        const reminders = field.value || [];
+        const currentValue = reminders.length === 0 
+          ? '-1' 
+          : (reminders[0]?.minutes?.toString() || '30');
+
+        return (
+          <FormItem className="flex-1">
+            <FormControl>
+              <CustomSelect
+                value={currentValue}
+                onValueChange={(value) => {
+                  const minutes = parseInt(value, 10);
+                  if (minutes === -1) {
+                    field.onChange([]);
+                  } else {
+                    field.onChange([{ method: 'popup' as const, minutes }]);
+                  }
+                }}
+                options={timePresetOptions}
+                placeholder="Select notification time"
+                className="w-full border-0"
+              />
+            </FormControl>
+          </FormItem>
+        );
+      }}
+    />
   );
 }

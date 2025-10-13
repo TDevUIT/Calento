@@ -48,13 +48,11 @@ export function CustomSelect({
     };
 
     const handleScroll = () => {
-      // Close dropdown when scrolling for better UX
       setIsOpen(false);
     };
 
     if (isOpen) {
       updatePosition();
-      // Use capture phase to catch scroll events on any scrollable container
       window.addEventListener('scroll', handleScroll, true);
       window.addEventListener('resize', updatePosition);
       return () => {
