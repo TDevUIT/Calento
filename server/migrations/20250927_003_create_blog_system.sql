@@ -4,7 +4,7 @@
 -- Description: Create comprehensive blog system with posts, categories, tags, and comments
 
 -- Create blog_categories table
-CREATE TABLE blog_categories (
+CREATE TABLE IF NOT EXISTS blog_categories (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     slug VARCHAR(100) NOT NULL UNIQUE,
@@ -17,7 +17,7 @@ CREATE TABLE blog_categories (
 );
 
 -- Create blog_tags table
-CREATE TABLE blog_tags (
+CREATE TABLE IF NOT EXISTS blog_tags (
     id SERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL UNIQUE,
     slug VARCHAR(50) NOT NULL UNIQUE,
@@ -26,7 +26,7 @@ CREATE TABLE blog_tags (
 );
 
 -- Create blog_posts table
-CREATE TABLE blog_posts (
+CREATE TABLE IF NOT EXISTS blog_posts (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     slug VARCHAR(255) NOT NULL UNIQUE,
@@ -49,7 +49,7 @@ CREATE TABLE blog_posts (
 );
 
 -- Create blog_post_tags junction table (many-to-many)
-CREATE TABLE blog_post_tags (
+CREATE TABLE IF NOT EXISTS blog_post_tags (
     id SERIAL PRIMARY KEY,
     post_id INTEGER NOT NULL REFERENCES blog_posts(id) ON DELETE CASCADE,
     tag_id INTEGER NOT NULL REFERENCES blog_tags(id) ON DELETE CASCADE,
@@ -58,7 +58,7 @@ CREATE TABLE blog_post_tags (
 );
 
 -- Create blog_comments table
-CREATE TABLE blog_comments (
+CREATE TABLE IF NOT EXISTS blog_comments (
     id SERIAL PRIMARY KEY,
     post_id INTEGER NOT NULL REFERENCES blog_posts(id) ON DELETE CASCADE,
     author_name VARCHAR(100) NOT NULL,
@@ -74,7 +74,7 @@ CREATE TABLE blog_comments (
 );
 
 -- Create blog_views table for analytics
-CREATE TABLE blog_views (
+CREATE TABLE IF NOT EXISTS blog_views (
     id SERIAL PRIMARY KEY,
     post_id INTEGER NOT NULL REFERENCES blog_posts(id) ON DELETE CASCADE,
     ip_address INET,
@@ -86,33 +86,33 @@ CREATE TABLE blog_views (
 -- Create indexes for performance
 
 -- Blog posts indexes
-CREATE INDEX idx_blog_posts_slug ON blog_posts(slug);
-CREATE INDEX idx_blog_posts_status ON blog_posts(status);
-CREATE INDEX idx_blog_posts_published_at ON blog_posts(published_at DESC);
-CREATE INDEX idx_blog_posts_author_id ON blog_posts(author_id);
-CREATE INDEX idx_blog_posts_category_id ON blog_posts(category_id);
-CREATE INDEX idx_blog_posts_is_featured ON blog_posts(is_featured);
-CREATE INDEX idx_blog_posts_status_published ON blog_posts(status, published_at DESC);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_slug ON blog_posts(slug);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_status ON blog_posts(status);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_published_at ON blog_posts(published_at DESC);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_author_id ON blog_posts(author_id);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_category_id ON blog_posts(category_id);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_is_featured ON blog_posts(is_featured);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_status_published ON blog_posts(status, published_at DESC);
 
 -- Blog categories indexes
-CREATE INDEX idx_blog_categories_slug ON blog_categories(slug);
-CREATE INDEX idx_blog_categories_is_active ON blog_categories(is_active);
-CREATE INDEX idx_blog_categories_sort_order ON blog_categories(sort_order);
+CREATE INDEX IF NOT EXISTS idx_blog_categories_slug ON blog_categories(slug);
+CREATE INDEX IF NOT EXISTS idx_blog_categories_is_active ON blog_categories(is_active);
+CREATE INDEX IF NOT EXISTS idx_blog_categories_sort_order ON blog_categories(sort_order);
 
 -- Blog tags indexes
-CREATE INDEX idx_blog_tags_slug ON blog_tags(slug);
-CREATE INDEX idx_blog_tags_usage_count ON blog_tags(usage_count DESC);
+CREATE INDEX IF NOT EXISTS idx_blog_tags_slug ON blog_tags(slug);
+CREATE INDEX IF NOT EXISTS idx_blog_tags_usage_count ON blog_tags(usage_count DESC);
 
 -- Blog comments indexes
-CREATE INDEX idx_blog_comments_post_id ON blog_comments(post_id);
-CREATE INDEX idx_blog_comments_status ON blog_comments(status);
-CREATE INDEX idx_blog_comments_parent_id ON blog_comments(parent_id);
-CREATE INDEX idx_blog_comments_created_at ON blog_comments(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_blog_comments_post_id ON blog_comments(post_id);
+CREATE INDEX IF NOT EXISTS idx_blog_comments_status ON blog_comments(status);
+CREATE INDEX IF NOT EXISTS idx_blog_comments_parent_id ON blog_comments(parent_id);
+CREATE INDEX IF NOT EXISTS idx_blog_comments_created_at ON blog_comments(created_at DESC);
 
 -- Blog views indexes
-CREATE INDEX idx_blog_views_post_id ON blog_views(post_id);
-CREATE INDEX idx_blog_views_viewed_at ON blog_views(viewed_at DESC);
-CREATE INDEX idx_blog_views_ip_address ON blog_views(ip_address);
+CREATE INDEX IF NOT EXISTS idx_blog_views_post_id ON blog_views(post_id);
+CREATE INDEX IF NOT EXISTS idx_blog_views_viewed_at ON blog_views(viewed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_blog_views_ip_address ON blog_views(ip_address);
 
 -- Create triggers for updated_at timestamps
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -123,14 +123,17 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+DROP TRIGGER IF EXISTS update_blog_categories_updated_at ON blog_categories;
 CREATE TRIGGER update_blog_categories_updated_at 
     BEFORE UPDATE ON blog_categories 
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_blog_posts_updated_at ON blog_posts;
 CREATE TRIGGER update_blog_posts_updated_at 
     BEFORE UPDATE ON blog_posts 
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_blog_comments_updated_at ON blog_comments;
 CREATE TRIGGER update_blog_comments_updated_at 
     BEFORE UPDATE ON blog_comments 
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
@@ -150,6 +153,7 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+DROP TRIGGER IF EXISTS update_tag_usage_count_trigger ON blog_post_tags;
 CREATE TRIGGER update_tag_usage_count_trigger
     AFTER INSERT OR DELETE ON blog_post_tags
     FOR EACH ROW EXECUTE FUNCTION update_tag_usage_count();
@@ -160,7 +164,8 @@ INSERT INTO blog_categories (name, slug, description, color, sort_order) VALUES
 ('Best Practices', 'best-practices', 'Tips and best practices for calendar management', '#3b82f6', 2),
 ('AI & Technology', 'ai-technology', 'Insights into AI-powered scheduling and productivity', '#8b5cf6', 3),
 ('Company News', 'company-news', 'Company announcements and milestones', '#f59e0b', 4),
-('Integrations', 'integrations', 'Guides for Google Calendar, Slack, and other integrations', '#06b6d4', 5);
+('Integrations', 'integrations', 'Guides for Google Calendar, Slack, and other integrations', '#06b6d4', 5)
+ON CONFLICT (slug) DO NOTHING;
 
 -- Insert sample blog tags
 INSERT INTO blog_tags (name, slug) VALUES
@@ -173,7 +178,8 @@ INSERT INTO blog_tags (name, slug) VALUES
 ('automation', 'automation'),
 ('meeting-management', 'meeting-management'),
 ('work-life-balance', 'work-life-balance'),
-('remote-work', 'remote-work');
+('remote-work', 'remote-work')
+ON CONFLICT (slug) DO NOTHING;
 
 -- Add comments to document table purposes
 COMMENT ON TABLE blog_categories IS 'Categories for organizing blog posts';

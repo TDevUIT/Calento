@@ -48,19 +48,19 @@ CREATE TABLE IF NOT EXISTS bookings (
 );
 
 -- Indexes for performance
-CREATE INDEX idx_booking_links_user_id ON booking_links(user_id);
-CREATE INDEX idx_booking_links_slug ON booking_links(slug);
-CREATE INDEX idx_booking_links_is_active ON booking_links(is_active) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_booking_links_user_id ON booking_links(user_id);
+CREATE INDEX IF NOT EXISTS idx_booking_links_slug ON booking_links(slug);
+CREATE INDEX IF NOT EXISTS idx_booking_links_is_active ON booking_links(is_active) WHERE is_active = true;
 
-CREATE INDEX idx_bookings_booking_link_id ON bookings(booking_link_id);
-CREATE INDEX idx_bookings_user_id ON bookings(user_id);
-CREATE INDEX idx_bookings_event_id ON bookings(event_id);
-CREATE INDEX idx_bookings_start_time ON bookings(start_time);
-CREATE INDEX idx_bookings_status ON bookings(status);
-CREATE INDEX idx_bookings_booker_email ON bookings(booker_email);
-CREATE INDEX idx_bookings_confirmation_token ON bookings(confirmation_token);
-CREATE INDEX idx_bookings_user_status ON bookings(user_id, status);
-CREATE INDEX idx_bookings_link_time ON bookings(booking_link_id, start_time);
+CREATE INDEX IF NOT EXISTS idx_bookings_booking_link_id ON bookings(booking_link_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_user_id ON bookings(user_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_event_id ON bookings(event_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_start_time ON bookings(start_time);
+CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);
+CREATE INDEX IF NOT EXISTS idx_bookings_booker_email ON bookings(booker_email);
+CREATE INDEX IF NOT EXISTS idx_bookings_confirmation_token ON bookings(confirmation_token);
+CREATE INDEX IF NOT EXISTS idx_bookings_user_status ON bookings(user_id, status);
+CREATE INDEX IF NOT EXISTS idx_bookings_link_time ON bookings(booking_link_id, start_time);
 
 -- Auto-update updated_at trigger for booking_links
 CREATE OR REPLACE FUNCTION update_booking_links_updated_at()
@@ -71,6 +71,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_update_booking_links_timestamp ON booking_links;
 CREATE TRIGGER trigger_update_booking_links_timestamp
     BEFORE UPDATE ON booking_links
     FOR EACH ROW
@@ -85,6 +86,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_update_bookings_timestamp ON bookings;
 CREATE TRIGGER trigger_update_bookings_timestamp
     BEFORE UPDATE ON bookings
     FOR EACH ROW

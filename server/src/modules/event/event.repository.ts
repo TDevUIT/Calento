@@ -36,6 +36,144 @@ export class EventRepository extends BaseRepository<Event> {
     return ['created_at', 'updated_at', 'start_time', 'end_time', 'title'];
   }
 
+  /**
+   * Properly serialize JSON fields for PostgreSQL JSONB columns
+   * Handles null/undefined values and prevents double-encoding
+   */
+  private serializeJsonField(value: any): any {
+    if (value === null || value === undefined) {
+      return null;
+    }
+    
+    // If it's already a string, try to parse it back to object to prevent double-encoding
+    if (typeof value === 'string') {
+      try {
+        // If it's a JSON string, parse it back to object
+        const parsed = JSON.parse(value);
+        this.logger.debug(`Parsed JSON string back to object:`, { original: value, parsed });
+        return parsed;
+      } catch (error) {
+        // If it's not valid JSON, return as-is
+        this.logger.debug(`String is not JSON, returning as-is:`, value);
+        return value;
+      }
+    }
+    
+    // For objects and arrays, return as-is - PostgreSQL driver will handle JSON serialization
+    this.logger.debug(`Returning object/array as-is:`, value);
+    return value;
+  }
+
+  /**
+   * Properly deserialize JSON fields from PostgreSQL JSONB columns
+   * Handles null values and provides fallback defaults
+   */
+  private deserializeJsonField(value: any, defaultValue: any = null): any {
+    if (value === null || value === undefined) {
+      return defaultValue;
+    }
+    
+    // If it's already an object/array, return as-is
+    if (typeof value === 'object') {
+      return value;
+    }
+    
+    // If it's a string, try to parse it
+    if (typeof value === 'string') {
+      try {
+        return JSON.parse(value);
+      } catch (error) {
+        this.logger.warn(`Failed to parse JSON field: ${value}`, error);
+        return defaultValue;
+      }
+    }
+    
+    return defaultValue;
+  }
+
+  /**
+   * Create method with proper JSON field handling for PostgreSQL JSONB columns
+   * This method ensures JSON fields are properly formatted before database insertion
+   */
+  private async createWithJsonHandling(data: Partial<Event>): Promise<Event> {
+    const jsonFields = ['attendees', 'reminders', 'conference_data'];
+    const processedData = { ...data };
+
+    // Process JSON fields to ensure they're in the correct format
+    for (const field of jsonFields) {
+      if (processedData[field] !== undefined) {
+        const value = processedData[field];
+        
+        if (value === null || value === undefined) {
+          processedData[field] = null;
+        } else if (typeof value === 'string') {
+          try {
+            // If it's a JSON string, parse it first, then stringify it properly
+            const parsed = JSON.parse(value);
+            processedData[field] = JSON.stringify(parsed);
+            this.logger.debug(`Parsed and stringified JSON field ${field}:`, { original: value, result: processedData[field] });
+          } catch (error) {
+            this.logger.warn(`Invalid JSON in field ${field}, setting to null:`, value);
+            processedData[field] = null;
+          }
+        } else if (typeof value === 'object') {
+          // If it's an object, stringify it for PostgreSQL JSONB
+          processedData[field] = JSON.stringify(value);
+          this.logger.debug(`Stringified object field ${field}:`, { original: value, result: processedData[field] });
+        } else {
+          this.logger.warn(`Unexpected type for JSON field ${field}, setting to null:`, typeof value);
+          processedData[field] = null;
+        }
+      }
+    }
+
+    this.logger.debug('Final processed data for database:', processedData);
+
+    // Use the parent create method with processed data
+    return await super.create(processedData);
+  }
+
+  /**
+   * Update method with proper JSON field handling for PostgreSQL JSONB columns
+   */
+  private async updateWithJsonHandling(id: string, data: Partial<Event>): Promise<Event | null> {
+    const jsonFields = ['attendees', 'reminders', 'conference_data'];
+    const processedData = { ...data };
+
+    // Process JSON fields to ensure they're in the correct format
+    for (const field of jsonFields) {
+      if (processedData[field] !== undefined) {
+        const value = processedData[field];
+        
+        if (value === null || value === undefined) {
+          processedData[field] = null;
+        } else if (typeof value === 'string') {
+          try {
+            // If it's a JSON string, parse it first, then stringify it properly
+            const parsed = JSON.parse(value);
+            processedData[field] = JSON.stringify(parsed);
+            this.logger.debug(`Parsed and stringified JSON field ${field} for update:`, { original: value, result: processedData[field] });
+          } catch (error) {
+            this.logger.warn(`Invalid JSON in field ${field} for update, setting to null:`, value);
+            processedData[field] = null;
+          }
+        } else if (typeof value === 'object') {
+          // If it's an object, stringify it for PostgreSQL JSONB
+          processedData[field] = JSON.stringify(value);
+          this.logger.debug(`Stringified object field ${field} for update:`, { original: value, result: processedData[field] });
+        } else {
+          this.logger.warn(`Unexpected type for JSON field ${field} in update, setting to null:`, typeof value);
+          processedData[field] = null;
+        }
+      }
+    }
+
+    this.logger.debug('Final processed data for update:', processedData);
+
+    // Use the parent update method with processed data
+    return await super.update(id, processedData);
+  }
+
   private normalizeEventData(event: Event): Event {
     let start_time: Date;
     let end_time: Date;
@@ -77,8 +215,9 @@ export class EventRepository extends BaseRepository<Event> {
       ...event,
       start_time,
       end_time,
-      attendees: event.attendees || [],
-      reminders: event.reminders || [],
+      attendees: this.deserializeJsonField(event.attendees, []),
+      reminders: this.deserializeJsonField(event.reminders, []),
+      conference_data: this.deserializeJsonField(event.conference_data, null),
       status: event.status || 'confirmed',
       color: event.color || 'blue',
       is_all_day: event.is_all_day ?? false,
@@ -102,8 +241,19 @@ export class EventRepository extends BaseRepository<Event> {
       eventDto.recurrence_rule,
     );
 
+    // Debug: Log incoming DTO data
+    this.logger.debug('CreateEvent DTO received:', {
+      attendees: eventDto.attendees,
+      attendees_type: typeof eventDto.attendees,
+      reminders: eventDto.reminders,
+      reminders_type: typeof eventDto.reminders,
+      conference_data: eventDto.conference_data,
+      conference_data_type: typeof eventDto.conference_data,
+    });
+
     const eventData: Partial<Event> = {
       calendar_id: eventDto.calendar_id,
+      google_event_id: undefined, // NULL for manually created events
       title: eventDto.title,
       description: eventDto.description,
       start_time: new Date(eventDto.start_time),
@@ -119,10 +269,21 @@ export class EventRepository extends BaseRepository<Event> {
       visibility: eventDto.visibility || 'default',
     };
 
+    // Debug: Log processed event data
+    this.logger.debug('Processed event data:', {
+      attendees: eventData.attendees,
+      attendees_type: typeof eventData.attendees,
+      reminders: eventData.reminders,
+      reminders_type: typeof eventData.reminders,
+      conference_data: eventData.conference_data,
+      conference_data_type: typeof eventData.conference_data,
+    });
+
     try {
-      const event = await this.create(eventData);
+      const event = await this.createWithJsonHandling(eventData);
       return this.normalizeEventData(event);
     } catch (error) {
+      this.logger.error('Failed to create event:', error);
       throw new EventCreationFailedException(
         this.messageService.get('error.internal_server_error'),
       );
@@ -292,9 +453,13 @@ export class EventRepository extends BaseRepository<Event> {
     if (eventDto.is_all_day !== undefined) eventData.is_all_day = eventDto.is_all_day;
     if (eventDto.color !== undefined) eventData.color = eventDto.color;
     if (eventDto.recurrence_rule !== undefined) eventData.recurrence_rule = eventDto.recurrence_rule;
+    if (eventDto.attendees !== undefined) eventData.attendees = eventDto.attendees;
+    if (eventDto.conference_data !== undefined) eventData.conference_data = eventDto.conference_data;
+    if (eventDto.reminders !== undefined) eventData.reminders = eventDto.reminders;
+    if (eventDto.visibility !== undefined) eventData.visibility = eventDto.visibility;
 
     try {
-      const updatedEvent = await this.update(eventId, eventData);
+      const updatedEvent = await this.updateWithJsonHandling(eventId, eventData);
       if (!updatedEvent) {
         throw new EventCreationFailedException(
           this.messageService.get('calendar.event_not_found'),
