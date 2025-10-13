@@ -24,10 +24,14 @@ import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 import { CalendarSidebar } from '@/components/calendar/sidebar/CalendarSidebar';
 import { CreateEventDialog, EditEventDialog } from '@/components/calendar/dialogs';
 import { CalendarSettingsDialog } from '@/components/calendar/settings/CalendarSettingsDialog';
+import { useControllerStore } from '@/store/controller.store';
+
 export default function Page() {
   const [showShortcuts, setShowShortcuts] = useState(false);
-  const [showSidebar, setShowSidebar] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  
+  // Use controller store for sidebar state with localStorage persistence
+  const { expandedCalendarSidebar, toggleCalendarSidebar } = useControllerStore();
   const [currentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [visibleCalendarIds, setVisibleCalendarIds] = useState<Set<string>>(new Set());
@@ -159,8 +163,8 @@ export default function Page() {
                 <QuickActions onCreateEvent={() => setOpenEventDialog(true)} />
                 <div className="h-6 w-px bg-border" />
                 <HeaderActions 
-                  showSidebar={showSidebar}
-                  onToggleSidebar={() => setShowSidebar(!showSidebar)}
+                  showSidebar={expandedCalendarSidebar}
+                  onToggleSidebar={toggleCalendarSidebar}
                   onOpenSettings={() => setShowSettings(true)}
                   onOpenShortcuts={() => setShowShortcuts(true)}
                 />
@@ -181,7 +185,7 @@ export default function Page() {
         </div>
       </div>
 
-      {showSidebar && (
+      {expandedCalendarSidebar && (
         <div 
           className="fixed right-0 top-14 w-[460px] animate-in slide-in-from-right duration-300 z-50"
           style={{ height: 'calc(100vh - 3.5rem)' }}
@@ -190,7 +194,7 @@ export default function Page() {
             selectedDate={selectedDate}
             onDateSelect={setSelectedDate}
             onCreateEvent={() => setOpenEventDialog(true)}
-            onClose={() => setShowSidebar(false)}
+            onClose={toggleCalendarSidebar}
             visibleCalendarIds={visibleCalendarIds}
             onVisibleCalendarIdsChange={setVisibleCalendarIds}
           />

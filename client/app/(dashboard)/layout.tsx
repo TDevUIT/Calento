@@ -1,8 +1,9 @@
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { SidebarInset } from "@/components/ui/sidebar";
 import SidebarDashboard from "@/components/dashboard/Sidebar";
 import { DashboardProviders } from "@/components/dashboard/DashboardProviders";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { ChatButton } from "@/components/dashboard/ChatButton";
+import { DashboardSidebarProvider } from "@/components/dashboard/DashboardSidebarProvider";
 
 export default function DashboardLayout({
   children,
@@ -11,7 +12,7 @@ export default function DashboardLayout({
 }>) {
   return (
     <DashboardProviders>
-      <SidebarProvider>
+      <DashboardSidebarProvider>
         <SidebarDashboard />
         <SidebarInset className="flex flex-col h-screen overflow-hidden">
           <DashboardHeader notificationCount={3} />
@@ -20,7 +21,7 @@ export default function DashboardLayout({
           </main>
         </SidebarInset>
         <ChatButton />
-      </SidebarProvider>
+      </DashboardSidebarProvider>
     </DashboardProviders>
   );
 }
