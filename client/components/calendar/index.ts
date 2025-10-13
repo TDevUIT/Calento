@@ -13,13 +13,18 @@ export {
   type CalendarEvent,
 } from './views/FullCalendar';
 
-export { EventPreview } from './views/EventPreview';
-export { CalendarSidebar } from './sidebar';
-export { EventDialog } from './dialogs/EventDialog';
-export { EventSearch, type EventSearchFilters } from './search';
-export { CalendarSettingsDialog } from './settings';
+export * from './forms';
+export * from './shared';
+export * from './views';
+export * from './header';
+export * from './sidebar';
+export * from './dialogs';
+export * from './settings';
+export * from './search';
+export * from './chat';
 export { MiniCalendar } from './MiniCalendar';
 export { KeyboardShortcuts } from './KeyboardShortcuts';
+export { KEYBOARD_SHORTCUTS } from './keyboard-shortcuts-data';
 
 export type {
   CalendarSettings,

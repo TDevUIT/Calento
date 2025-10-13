@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 interface MiniCalendarProps {
   onDateSelect?: (date: Date) => void;
   selectedDate?: Date;
-  eventsCount?: Record<string, number>; // Mock: { '2024-12-15': 3 }
+  eventsCount?: Record<string, number>;
 }
 
 export function MiniCalendar({ onDateSelect, selectedDate = new Date(), eventsCount = {} }: MiniCalendarProps) {
@@ -25,7 +25,6 @@ export function MiniCalendar({ onDateSelect, selectedDate = new Date(), eventsCo
   let days = [];
   let day = startDate;
 
-  // Generate calendar grid
   while (day <= endDate) {
     for (let i = 0; i < 7; i++) {
       const formattedDate = format(day, 'yyyy-MM-dd');
@@ -73,7 +72,6 @@ export function MiniCalendar({ onDateSelect, selectedDate = new Date(), eventsCo
 
   return (
     <div className="w-full space-y-2 p-3 rounded-lg border bg-card">
-      {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <Button
           variant="ghost"
@@ -98,7 +96,6 @@ export function MiniCalendar({ onDateSelect, selectedDate = new Date(), eventsCo
         </Button>
       </div>
 
-      {/* Week days */}
       <div className="grid grid-cols-7 gap-1 mb-1">
         {weekDays.map(day => (
           <div key={day} className="h-8 flex items-center justify-center text-xs font-medium text-muted-foreground">
@@ -107,12 +104,10 @@ export function MiniCalendar({ onDateSelect, selectedDate = new Date(), eventsCo
         ))}
       </div>
 
-      {/* Calendar grid */}
       <div className="space-y-1">
         {rows}
       </div>
 
-      {/* Quick actions */}
       <div className="pt-2 border-t mt-2">
         <Button
           variant="outline"

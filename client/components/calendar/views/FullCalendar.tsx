@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { VariantProps, cva } from 'class-variance-authority';
+import { cva } from 'class-variance-authority';
 import {
   Locale,
   addDays,
@@ -36,6 +36,8 @@ import {
   useState,
 } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { EventHoverCard } from '../shared/EventHoverCard';
+import type { Event } from '@/interface/event.interface';
 
 const monthEventVariants = cva('size-2 rounded-full transition-transform hover:scale-125', {
   variants: {
@@ -97,6 +99,25 @@ export type CalendarEvent = {
   description?: string;
   calendarId?: string;
 };
+
+/**
+ * Helper function to convert CalendarEvent to Event interface for EventHoverCard
+ */
+function convertToFullEvent(calendarEvent: CalendarEvent): Event {
+  return {
+    id: calendarEvent.id,
+    user_id: '',
+    calendar_id: calendarEvent.calendarId || '',
+    title: calendarEvent.title,
+    start_time: calendarEvent.start,
+    end_time: calendarEvent.end,
+    description: calendarEvent.description,
+    color: calendarEvent.color,
+    is_all_day: false,
+    created_at: new Date(),
+    updated_at: new Date(),
+  };
+}
 
 type CalendarProps = {
   children: ReactNode;
@@ -214,23 +235,31 @@ const EventGroup = ({
           const startPosition = event.start.getMinutes() / 60;
 
           return (
-            <div
+            <EventHoverCard
               key={event.id}
-              className={cn(
-                'absolute left-0 right-0 mx-1',
-                dayEventVariants({ variant: event.color })
-              )}
-              style={{
-                top: `${startPosition * 100}%`,
-                height: `${hoursDifference * 100}%`,
-              }}
-              onClick={() => onEventClick?.(event)}
+              event={convertToFullEvent(event)}
+              side="right"
+              align="start"
+              onEdit={() => onEventClick?.(event)}
+              onDelete={() => {}}
             >
-              <div className="font-semibold truncate">{event.title}</div>
-              <div className="text-[10px] opacity-70 mt-0.5">
-                {format(event.start, 'HH:mm')} - {format(event.end, 'HH:mm')}
+              <div
+                className={cn(
+                  'absolute left-0 right-0 mx-1',
+                  dayEventVariants({ variant: event.color })
+                )}
+                style={{
+                  top: `${startPosition * 100}%`,
+                  height: `${hoursDifference * 100}%`,
+                }}
+                onClick={() => onEventClick?.(event)}
+              >
+                <div className="font-semibold truncate">{event.title}</div>
+                <div className="text-[10px] opacity-70 mt-0.5">
+                  {format(event.start, 'HH:mm')} - {format(event.end, 'HH:mm')}
+                </div>
               </div>
-            </div>
+            </EventHoverCard>
           );
         })}
     </div>
@@ -399,22 +428,30 @@ const CalendarMonthView = () => {
               <div className="space-y-1">
                 {currentEvents.slice(0, 3).map((event) => {
                   return (
-                    <div
+                    <EventHoverCard
                       key={event.id}
-                      className="px-2 py-1 rounded-md text-xs flex items-center gap-1.5 hover:bg-accent/50 transition-colors cursor-pointer"
-                      onClick={() => onEventClick?.(event)}
+                      event={convertToFullEvent(event)}
+                      side="right"
+                      align="start"
+                      onEdit={() => onEventClick?.(event)}
+                      onDelete={() => {}}
                     >
                       <div
-                        className={cn(
-                          'shrink-0',
-                          monthEventVariants({ variant: event.color })
-                        )}
-                      ></div>
-                      <span className="flex-1 truncate font-medium">{event.title}</span>
-                      <time className="tabular-nums text-muted-foreground/60 text-[10px]" suppressHydrationWarning>
-                        {format(event.start, 'HH:mm')}
-                      </time>
-                    </div>
+                        className="px-2 py-1 rounded-md text-xs flex items-center gap-1.5 hover:bg-accent/50 transition-colors cursor-pointer"
+                        onClick={() => onEventClick?.(event)}
+                      >
+                        <div
+                          className={cn(
+                            'shrink-0',
+                            monthEventVariants({ variant: event.color })
+                          )}
+                        ></div>
+                        <span className="flex-1 truncate font-medium">{event.title}</span>
+                        <time className="tabular-nums text-muted-foreground/60 text-[10px]" suppressHydrationWarning>
+                          {format(event.start, 'HH:mm')}
+                        </time>
+                      </div>
+                    </EventHoverCard>
                   );
                 })}
                 {currentEvents.length > 3 && (
