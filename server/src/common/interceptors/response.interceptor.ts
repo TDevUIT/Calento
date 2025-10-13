@@ -35,6 +35,19 @@ export class ResponseInterceptor<T>
       map((data) => {
         const requestId = request.headers['x-request-id'] as string;
 
+        const isResponseDto = data && typeof data === 'object' && 'status' in data && 'message' in data;
+
+        if (isResponseDto) {
+          return {
+            success: true,
+            message: data.message,
+            data: data.data,
+            timestamp: data.timestamp || new Date().toISOString(),
+            requestId,
+            path: request.url,
+          };
+        }
+
         let message = this.messageService.get('success.retrieved');
 
         switch (request.method) {

@@ -11,6 +11,13 @@ import {
   registerDecorator,
   ValidationOptions,
   ValidationArguments,
+  IsEmail,
+  IsEnum,
+  IsArray,
+  ValidateNested,
+  IsUrl,
+  IsNumber,
+  Min,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
@@ -40,6 +47,140 @@ export function IsAfterStartTime(
       },
     });
   };
+}
+
+// DTO Classes for nested objects
+export class EventAttendeeDto {
+  @ApiProperty({
+    description: 'Attendee email address',
+    example: 'john.doe@example.com',
+  })
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @ApiPropertyOptional({
+    description: 'Attendee name',
+    example: 'John Doe',
+  })
+  @IsString()
+  @IsOptional()
+  name?: string;
+
+  @ApiProperty({
+    description: 'Attendee response status',
+    enum: ['accepted', 'declined', 'tentative', 'needsAction'],
+    default: 'needsAction',
+  })
+  @IsEnum(['accepted', 'declined', 'tentative', 'needsAction'])
+  @IsOptional()
+  response_status?: 'accepted' | 'declined' | 'tentative' | 'needsAction' = 'needsAction';
+
+  @ApiPropertyOptional({
+    description: 'Whether the attendee is optional',
+    example: false,
+  })
+  @IsBoolean()
+  @IsOptional()
+  is_optional?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Whether the attendee is the organizer',
+    example: false,
+  })
+  @IsBoolean()
+  @IsOptional()
+  is_organizer?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Attendee comment',
+    maxLength: 500,
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(500)
+  comment?: string;
+}
+
+export class ConferenceDataDto {
+  @ApiProperty({
+    description: 'Conference type',
+    enum: ['google_meet', 'zoom', 'ms_teams', 'custom'],
+    example: 'google_meet',
+  })
+  @IsEnum(['google_meet', 'zoom', 'ms_teams', 'custom'])
+  @IsNotEmpty()
+  type: 'google_meet' | 'zoom' | 'ms_teams' | 'custom';
+
+  @ApiProperty({
+    description: 'Conference URL/link',
+    example: 'https://meet.google.com/abc-defg-hij',
+  })
+  @IsUrl()
+  @IsNotEmpty()
+  url: string;
+
+  @ApiPropertyOptional({
+    description: 'Conference ID/Meeting ID',
+    example: '123-456-789',
+  })
+  @IsString()
+  @IsOptional()
+  id?: string;
+
+  @ApiPropertyOptional({
+    description: 'Conference password',
+    example: 'secret123',
+  })
+  @IsString()
+  @IsOptional()
+  password?: string;
+
+  @ApiPropertyOptional({
+    description: 'Phone number for dial-in',
+    example: '+1-234-567-8900',
+  })
+  @IsString()
+  @IsOptional()
+  phone?: string;
+
+  @ApiPropertyOptional({
+    description: 'PIN for phone dial-in',
+    example: '123456',
+  })
+  @IsString()
+  @IsOptional()
+  pin?: string;
+
+  @ApiPropertyOptional({
+    description: 'Additional notes',
+    maxLength: 500,
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(500)
+  notes?: string;
+}
+
+export class EventReminderDto {
+  @ApiProperty({
+    description: 'Reminder method',
+    enum: ['email', 'popup', 'sms'],
+    example: 'popup',
+  })
+  @IsEnum(['email', 'popup', 'sms'])
+  @IsNotEmpty()
+  method: 'email' | 'popup' | 'sms';
+
+  @ApiProperty({
+    description: 'Minutes before event to send reminder',
+    example: 30,
+    minimum: 0,
+  })
+  @IsNumber()
+  @Min(0)
+  @IsNotEmpty()
+  minutes: number;
 }
 
 export class CreateEventDto {
@@ -125,6 +266,44 @@ export class CreateEventDto {
   @IsOptional()
   @MaxLength(500)
   recurrence_rule?: string;
+
+  @ApiPropertyOptional({
+    description: 'List of event attendees',
+    type: [EventAttendeeDto],
+  })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => EventAttendeeDto)
+  @IsOptional()
+  attendees?: EventAttendeeDto[];
+
+  @ApiPropertyOptional({
+    description: 'Video conference information',
+    type: ConferenceDataDto,
+  })
+  @ValidateNested()
+  @Type(() => ConferenceDataDto)
+  @IsOptional()
+  conference_data?: ConferenceDataDto;
+
+  @ApiPropertyOptional({
+    description: 'Event reminders',
+    type: [EventReminderDto],
+  })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => EventReminderDto)
+  @IsOptional()
+  reminders?: EventReminderDto[];
+
+  @ApiPropertyOptional({
+    description: 'Event visibility level',
+    enum: ['default', 'public', 'private', 'confidential'],
+    example: 'default',
+  })
+  @IsEnum(['default', 'public', 'private', 'confidential'])
+  @IsOptional()
+  visibility?: 'default' | 'public' | 'private' | 'confidential';
 }
 
 export class UpdateEventDto {
@@ -200,6 +379,53 @@ export class UpdateEventDto {
   @IsOptional()
   @MaxLength(500)
   recurrence_rule?: string;
+
+  @ApiPropertyOptional({
+    description: 'List of event attendees',
+    type: [EventAttendeeDto],
+  })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => EventAttendeeDto)
+  @IsOptional()
+  attendees?: EventAttendeeDto[];
+
+  @ApiPropertyOptional({
+    description: 'Video conference information',
+    type: ConferenceDataDto,
+  })
+  @ValidateNested()
+  @Type(() => ConferenceDataDto)
+  @IsOptional()
+  conference_data?: ConferenceDataDto;
+
+  @ApiPropertyOptional({
+    description: 'Event reminders',
+    type: [EventReminderDto],
+  })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => EventReminderDto)
+  @IsOptional()
+  reminders?: EventReminderDto[];
+
+  @ApiPropertyOptional({
+    description: 'Event visibility level',
+    enum: ['default', 'public', 'private', 'confidential'],
+    example: 'default',
+  })
+  @IsEnum(['default', 'public', 'private', 'confidential'])
+  @IsOptional()
+  visibility?: 'default' | 'public' | 'private' | 'confidential';
+
+  @ApiPropertyOptional({
+    description: 'User response status',
+    enum: ['accepted', 'declined', 'tentative', 'needsAction'],
+    example: 'accepted',
+  })
+  @IsEnum(['accepted', 'declined', 'tentative', 'needsAction'])
+  @IsOptional()
+  response_status?: 'accepted' | 'declined' | 'tentative' | 'needsAction';
 }
 
 export class EventResponseDto {
@@ -257,17 +483,41 @@ export class EventResponseDto {
   })
   color?: string;
 
-  @ApiProperty({
-    description: 'Event attendees',
-    example: [],
+  @ApiPropertyOptional({
+    description: 'Organizer user ID (internal)',
+    example: '789e0123-e89b-12d3-a456-426614174002',
   })
-  attendees: any[];
+  organizer_id?: string;
 
-  @ApiProperty({
-    description: 'Event reminders',
-    example: [],
+  @ApiPropertyOptional({
+    description: 'Organizer email',
+    example: 'organizer@example.com',
   })
-  reminders: any[];
+  organizer_email?: string;
+
+  @ApiPropertyOptional({
+    description: 'Organizer display name',
+    example: 'Jane Smith',
+  })
+  organizer_name?: string;
+
+  @ApiPropertyOptional({
+    description: 'Event attendees',
+    type: [EventAttendeeDto],
+  })
+  attendees?: EventAttendeeDto[];
+
+  @ApiPropertyOptional({
+    description: 'Video conference information',
+    type: ConferenceDataDto,
+  })
+  conference_data?: ConferenceDataDto;
+
+  @ApiPropertyOptional({
+    description: 'Event reminders',
+    type: [EventReminderDto],
+  })
+  reminders?: EventReminderDto[];
 
   @ApiPropertyOptional({
     description: 'Event location',
@@ -286,6 +536,20 @@ export class EventResponseDto {
     example: 'FREQ=WEEKLY;BYDAY=MO',
   })
   recurrence_rule?: string;
+
+  @ApiPropertyOptional({
+    description: 'Event visibility level',
+    enum: ['default', 'public', 'private', 'confidential'],
+    example: 'default',
+  })
+  visibility?: 'default' | 'public' | 'private' | 'confidential';
+
+  @ApiPropertyOptional({
+    description: 'User response status',
+    enum: ['accepted', 'declined', 'tentative', 'needsAction'],
+    example: 'accepted',
+  })
+  response_status?: 'accepted' | 'declined' | 'tentative' | 'needsAction';
 
   @ApiProperty({
     description: 'Created timestamp',

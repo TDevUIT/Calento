@@ -1,3 +1,27 @@
+export interface EventAttendee {
+  email: string;
+  name?: string;
+  response_status?: 'accepted' | 'declined' | 'tentative' | 'needsAction';
+  is_optional?: boolean;
+  is_organizer?: boolean;
+  comment?: string;
+}
+
+export interface ConferenceData {
+  type: 'google_meet' | 'zoom' | 'ms_teams' | 'custom';
+  url: string;
+  id?: string;
+  password?: string;
+  phone?: string;
+  pin?: string;
+  notes?: string;
+}
+
+export interface EventReminder {
+  method: 'email' | 'popup' | 'sms';
+  minutes: number;
+}
+
 export interface Event {
   id: string;
   calendar_id: string;
@@ -13,8 +37,21 @@ export interface Event {
   recurrence_rule?: string;
   status?: 'confirmed' | 'tentative' | 'cancelled';
   color?: string;
-  attendees?: any;
-  reminders?: any;
+  
+  // Organizer information
+  organizer_id?: string;
+  organizer_email?: string;
+  organizer_name?: string;
+  
+  // Attendees and conference
+  attendees?: EventAttendee[];
+  conference_data?: ConferenceData;
+  reminders?: EventReminder[];
+  
+  // Privacy and response
+  visibility?: 'default' | 'public' | 'private' | 'confidential';
+  response_status?: 'accepted' | 'declined' | 'tentative' | 'needsAction';
+  
   created_at: Date;
   updated_at: Date;
   deleted_at?: Date;

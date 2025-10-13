@@ -36,28 +36,41 @@ export class EventRepository extends BaseRepository<Event> {
     return ['created_at', 'updated_at', 'start_time', 'end_time', 'title'];
   }
 
-  /**
-   * Normalize event data to ensure frontend compatibility
-   * - Convert null attendees/reminders to empty arrays
-   * - Ensure all required fields have valid values
-   * - Validate date fields to prevent "Invalid time value" errors
-   */
   private normalizeEventData(event: Event): Event {
-    // Ensure dates are valid Date objects
-    const start_time = event.start_time instanceof Date 
-      ? event.start_time 
-      : new Date(event.start_time);
-    
-    const end_time = event.end_time instanceof Date
-      ? event.end_time
-      : new Date(event.end_time);
+    let start_time: Date;
+    let end_time: Date;
 
-    // Check for invalid dates
-    if (isNaN(start_time.getTime())) {
-      this.logger.warn(`Invalid start_time for event ${event.id}`);
-    }
-    if (isNaN(end_time.getTime())) {
-      this.logger.warn(`Invalid end_time for event ${event.id}`);
+    try {
+      if (event.start_time instanceof Date) {
+        start_time = event.start_time;
+      } else if (event.start_time) {
+        start_time = new Date(event.start_time);
+      } else {
+        this.logger.error(`Missing start_time for event ${event.id}, using current time`);
+        start_time = new Date();
+      }
+
+      if (event.end_time instanceof Date) {
+        end_time = event.end_time;
+      } else if (event.end_time) {
+        end_time = new Date(event.end_time);
+      } else {
+        this.logger.error(`Missing end_time for event ${event.id}, using start_time + 1 hour`);
+        end_time = new Date(start_time.getTime() + 3600000);
+      }
+
+      if (isNaN(start_time.getTime())) {
+        this.logger.error(`Invalid start_time for event ${event.id}: ${event.start_time}`);
+        start_time = new Date();
+      }
+      if (isNaN(end_time.getTime())) {
+        this.logger.error(`Invalid end_time for event ${event.id}: ${event.end_time}`);
+        end_time = new Date(start_time.getTime() + 3600000); 
+      }
+    } catch (error) {
+      this.logger.error(`Error parsing dates for event ${event.id}:`, error);
+      start_time = new Date();
+      end_time = new Date(start_time.getTime() + 3600000);
     }
 
     return {
@@ -99,6 +112,11 @@ export class EventRepository extends BaseRepository<Event> {
       is_all_day: eventDto.is_all_day || false,
       color: eventDto.color || 'blue',
       recurrence_rule: eventDto.recurrence_rule,
+      organizer_id: userId, // Set current user as organizer
+      attendees: eventDto.attendees || [],
+      conference_data: eventDto.conference_data,
+      reminders: eventDto.reminders || [],
+      visibility: eventDto.visibility || 'default',
     };
 
     try {
