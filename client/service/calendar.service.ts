@@ -1,6 +1,5 @@
 import { api, getErrorMessage } from '../config/axios';
 import {
-  Calendar,
   CreateCalendarRequest,
   UpdateCalendarRequest,
   CalendarQueryParams,
@@ -24,9 +23,6 @@ export const getCalendars = async (params?: CalendarQueryParams): Promise<Pagina
   }
 };
 
-/**
- * Get primary calendar
- */
 export const getPrimaryCalendar = async (): Promise<CalendarResponse> => {
   try {
     const response = await api.get<CalendarResponse>(
@@ -39,9 +35,7 @@ export const getPrimaryCalendar = async (): Promise<CalendarResponse> => {
   }
 };
 
-/**
- * Search calendars
- */
+
 export const searchCalendars = async (
   searchTerm: string,
   params?: Omit<CalendarQueryParams, 'search'>
@@ -63,9 +57,7 @@ export const searchCalendars = async (
   }
 };
 
-/**
- * Get calendar by ID
- */
+
 export const getCalendarById = async (id: string): Promise<CalendarResponse> => {
   try {
     const response = await api.get<CalendarResponse>(
@@ -78,9 +70,7 @@ export const getCalendarById = async (id: string): Promise<CalendarResponse> => 
   }
 };
 
-/**
- * Create new calendar
- */
+
 export const createCalendar = async (data: CreateCalendarRequest): Promise<CalendarResponse> => {
   try {
     const response = await api.post<CalendarResponse>(
@@ -94,9 +84,7 @@ export const createCalendar = async (data: CreateCalendarRequest): Promise<Calen
   }
 };
 
-/**
- * Update existing calendar
- */
+
 export const updateCalendar = async (
   id: string,
   data: UpdateCalendarRequest
@@ -113,9 +101,7 @@ export const updateCalendar = async (
   }
 };
 
-/**
- * Delete calendar
- */
+
 export const deleteCalendar = async (id: string): Promise<void> => {
   try {
     await api.delete(

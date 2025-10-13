@@ -10,11 +10,11 @@ export function useApiData<T>(
   refetch: () => void;
 } {
   const { data, isLoading, error, refetch } = queryResult;
-  const nestedData = data?.data?.data;
+  const responseData = data?.data;
   
   return {
-    items: nestedData?.items || [],
-    meta: nestedData?.meta,
+    items: responseData?.items || [],
+    meta: responseData?.meta,
     isLoading,
     error,
     refetch,
@@ -30,10 +30,10 @@ export function useApiItem<T>(
   refetch: () => void;
 } {
   const { data, isLoading, error, refetch } = queryResult;
-  const nestedData = data?.data?.data;
+  const responseData = data?.data;
   
   return {
-    item: nestedData || null,
+    item: responseData || null,
     isLoading,
     error,
     refetch,
