@@ -21,8 +21,7 @@ import { useApiData } from '@/hook/use-api-data';
 import type { Event } from '@/interface/event.interface';
 import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 import { CalendarSidebar } from '@/components/calendar/sidebar/CalendarSidebar';
-import { EventDialog } from '@/components/calendar/dialogs/EventDialog';
-import { EditEventDialog } from '@/components/calendar/dialogs/EditEventDialog';
+import { CreateEventDialog, EditEventDialog } from '@/components/calendar/dialogs';
 import { CalendarSettingsDialog } from '@/components/calendar/settings/CalendarSettingsDialog';
 export default function Page() {
   const [openEventDialog, setOpenEventDialog] = useState(false);
@@ -65,6 +64,13 @@ export default function Page() {
   const filteredEvents = calendarEvents.filter(event => 
     visibleCalendarIds.size === 0 || visibleCalendarIds.has(event.calendarId || '')
   );
+
+  // Debug: Log filtering
+  console.log('🔍 Event Filtering:', {
+    totalCalendarEvents: calendarEvents.length,
+    visibleCalendarIds: Array.from(visibleCalendarIds),
+    filteredEventsCount: filteredEvents.length,
+  });
 
   function mapCalendarIdToColor(calendarId: string): CalendarEvent['color'] {
     const colorMap: Record<string, CalendarEvent['color']> = {
@@ -178,10 +184,10 @@ export default function Page() {
         </div>
       )}
 
-      <EventDialog
+      <CreateEventDialog
         open={openEventDialog}
         onOpenChange={setOpenEventDialog}
-        defaultDate={selectedDate}
+        defaultStartTime={selectedDate}
       />
 
       <KeyboardShortcuts
