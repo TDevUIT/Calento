@@ -1,71 +1,26 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import {
-  isProtectedRoute,
-  isGuestOnlyRoute,
-  isApiRoute,
-  PROTECTED_ROUTES,
-  getLoginRedirectUrl,
-} from '@/constants/routes';
 
-async function verifyAuthFromServer(request: NextRequest): Promise<boolean> {
+function verifyAuthFromToken(request: NextRequest): boolean {
   try {
-    // Fix API URL for production
-    let apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    const accessToken: string | undefined = request.cookies.get('access_token')?.value;
+    const refreshToken: string | undefined = request.cookies.get('refresh_token')?.value;
     
-    if (!apiUrl) {
-      if (process.env.NODE_ENV === 'production') {
-        // For qa.calento.space -> api.calento.space
-        const hostname = request.nextUrl.hostname;
-        if (hostname.includes('calento.space')) {
-          apiUrl = 'https://api.calento.space';
-        } else {
-          apiUrl = `https://api.${hostname.replace('www.', '').replace('qa.', '')}`;
-        }
-      } else {
-        apiUrl = 'http://localhost:8000';
-      }
-    }
+    const isAuthenticated: boolean = Boolean(accessToken || refreshToken);
     
-    const verifyUrl = `${apiUrl}/api/v1/auth/verify`;
-    
-    console.log('[Middleware] Verifying auth with:', verifyUrl);
-    console.log('[Middleware] Hostname:', request.nextUrl.hostname);
-    console.log('[Middleware] NODE_ENV:', process.env.NODE_ENV);
-    console.log('[Middleware] NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
-    
-    const cookieHeader = request.headers.get('cookie') || '';
-    
-    if (!cookieHeader) {
-      console.log('[Middleware] No cookies found in request');
+    if (!isAuthenticated) {
+      console.log('[Middleware] No authentication tokens found');
       return false;
     }
     
-    console.log('[Middleware] Cookies found:', cookieHeader.substring(0, 100) + '...');
-    
-    const response = await fetch(verifyUrl, {
-      method: 'GET',
-      headers: {
-        'Cookie': cookieHeader,
-        'Content-Type': 'application/json',
-        'User-Agent': request.headers.get('user-agent') || 'Next.js Middleware',
-      },
-      credentials: 'include',
-      cache: 'no-store',
+    console.log('[Middleware] Authentication tokens found', {
+      hasAccessToken: Boolean(accessToken),
+      hasRefreshToken: Boolean(refreshToken)
     });
-
-    if (!response.ok) {
-      console.log('[Middleware] Auth verification response not OK:', response.status);
-      return false;
-    }
-
-    const data = await response.json();
-    const isAuthenticated = data?.data?.authenticated === true;
-    console.log('[Middleware] Auth status:', isAuthenticated);
+    return true;
     
-    return isAuthenticated;
   } catch (error) {
-    console.error('[Middleware] Auth verification failed:', error);
+    console.log('[Middleware] Token verification failed:', error);
     return false;
   }
 }
@@ -75,23 +30,31 @@ export async function middleware(request: NextRequest) {
   
   console.log('[Middleware] Running for pathname:', pathname);
   
-  if (isApiRoute(pathname)) {
-    console.log('[Middleware] Skipping API route:', pathname);
+  if (pathname.startsWith('/api/')) {
     return NextResponse.next();
   }
 
-  const isAuthenticated = await verifyAuthFromServer(request);
-
-  if (isProtectedRoute(pathname) && !isAuthenticated) {
-    const loginUrl = getLoginRedirectUrl(pathname);
-    return NextResponse.redirect(new URL(loginUrl, request.url));
+  const protectedPrefixes = ['/dashboard', '/calendar', '/events', '/profile', '/settings'];
+  
+  const guestOnlyRoutes = ['/login', '/register', '/forgot-password'];
+  
+  const isAuthenticated = verifyAuthFromToken(request);
+  
+  const requiresAuth = protectedPrefixes.some(
+    (prefix) => pathname === prefix || pathname.startsWith(prefix + '/')
+  );
+  
+  if (requiresAuth && !isAuthenticated) {
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('returnUrl', pathname);
+    return NextResponse.redirect(loginUrl);
   }
-
-  if (isGuestOnlyRoute(pathname) && isAuthenticated) {
+  
+  if (guestOnlyRoutes.includes(pathname) && isAuthenticated) {
     const returnUrl = searchParams.get('returnUrl');
-    const redirectTo = returnUrl && isProtectedRoute(returnUrl) 
-      ? returnUrl 
-      : PROTECTED_ROUTES.DASHBOARD;
+    const redirectTo = returnUrl && protectedPrefixes.some(prefix => 
+      returnUrl === prefix || returnUrl.startsWith(prefix + '/')
+    ) ? returnUrl : '/dashboard';
     
     return NextResponse.redirect(new URL(redirectTo, request.url));
   }
@@ -102,6 +65,13 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/dashboard/:path*',
+    '/calendar/:path*', 
+    '/events/:path*',
+    '/profile/:path*',
+    '/settings/:path*',
+    '/login',
+    '/register',
+    '/forgot-password'
   ],
 };
