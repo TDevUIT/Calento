@@ -48,11 +48,12 @@ export default function GoogleCallbackPage() {
         
         setTimeout(() => router.push('/dashboard/calendar'), 500);
 
-      } catch (error: any) {
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Login failed. Please try again.';
         setStatus('error');
-        setMessage(error.message || 'Login failed. Please try again.');
+        setMessage(errorMessage);
         toast.error('Google Login Failed', { 
-          description: error.message || 'An error occurred' 
+          description: errorMessage
         });
         setTimeout(() => router.push('/auth/login'), 3000);
       }

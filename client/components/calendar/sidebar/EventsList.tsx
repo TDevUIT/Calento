@@ -115,8 +115,8 @@ function EventsSectionByVisibility({ config, events, onEditEvent, isLoading }: E
                       variant="ghost" 
                       size="icon" 
                       className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={(e) => {
-                        e.stopPropagation();
+                      onClick={() => {
+                        localStorage.stopPropagation();
                         onEditEvent(event);
                       }}
                     >
@@ -137,20 +137,16 @@ export function EventsList() {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   
-  // Fetch events from API
   const { data: eventsData, isLoading } = useEvents({ page: 1, limit: 100 });
-  const apiEvents = eventsData?.data?.items || [];
 
-  // Filter out expanded recurring instances, keep only parent events
   const filteredEvents = useMemo(() => {
+    const apiEvents = eventsData?.data?.items || [];
     return apiEvents.filter((event) => {
       const expandedEvent = event as ExpandedEvent;
-      // Keep event if it's NOT a recurring instance (i.e., it's a parent event)
       return !expandedEvent.is_recurring_instance && !expandedEvent.original_event_id;
     });
-  }, [apiEvents]);
+  }, [eventsData?.data?.items]);
 
-  // Define visibility sections configuration
   const visibilitySections: VisibilitySectionConfig[] = [
     {
       title: 'Public Events',
@@ -182,7 +178,6 @@ export function EventsList() {
     },
   ];
 
-  // Group events by visibility
   const eventsByVisibility = useMemo(() => {
     const grouped: Record<string, Event[]> = {
       public: [],

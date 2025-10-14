@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Clock, TrendingUp, Users, Video, BarChart3, ArrowUp, ArrowDown } from "lucide-react";
+import { Calendar, Clock, TrendingUp, Users, Video, ArrowUp, ArrowDown } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const stats = [

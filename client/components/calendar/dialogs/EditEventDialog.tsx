@@ -22,7 +22,7 @@ export function EditEventDialog({ open, onOpenChange, eventId }: EditEventDialog
     [eventId]
   );
   
-  const { data: eventResponse, isLoading, error } = useEventById(originalId);
+  const { data: eventResponse, isLoading } = useEventById(originalId);
   const event = eventResponse?.data;
 
   useEffect(() => {
@@ -70,7 +70,7 @@ export function EditEventDialog({ open, onOpenChange, eventId }: EditEventDialog
                 Editing Recurring Event Series
               </h4>
               <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
-                You're editing occurrence #{occurrenceIndex! + 1}. Changes will apply to the entire recurring event series, not just this instance.
+                You&apos;re editing occurrence #{occurrenceIndex! + 1}. Changes will apply to the entire recurring event series, not just this instance.
               </p>
             </div>
           </div>

@@ -47,14 +47,14 @@ export function EventHoverCard({
     <HoverCard open={open && !isClicking} onOpenChange={setOpen} openDelay={500} closeDelay={100}>
       <HoverCardTrigger 
         asChild
-        onPointerDown={(e) => {
+        onPointerDown={() => {
           setIsClicking(true);
           setOpen(false);
         }}
-        onPointerUp={(e) => {
+        onPointerUp={() => {
           setTimeout(() => setIsClicking(false), 300);
         }}
-        onClick={(e) => {
+        onClick={() => {
           setOpen(false);
         }}
       >
@@ -66,7 +66,7 @@ export function EventHoverCard({
         className="w-auto p-0 border-0 bg-transparent shadow-none event-hover-card pointer-events-auto"
         sideOffset={8}
         style={{ zIndex: 999999, pointerEvents: 'auto' }}
-        onPointerDownOutside={(e) => {
+        onPointerDownOutside={() => {
           setOpen(false);
         }}
       >

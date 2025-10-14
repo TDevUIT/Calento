@@ -72,7 +72,7 @@ const LoginForm: React.FC<LoginFormProps> = ({
     try {
       await loginWithGoogle()
       onGoogleLogin?.()
-    } catch (error) {
+    } catch {
       // Error handling is done in the hook
     }
   }

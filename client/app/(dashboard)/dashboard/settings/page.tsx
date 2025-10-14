@@ -23,7 +23,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
-  Settings,
   User,
   Bell,
   Shield,
