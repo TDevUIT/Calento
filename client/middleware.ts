@@ -34,7 +34,8 @@ async function verifyAuthFromCookies(request: NextRequest): Promise<boolean> {
 async function verifyAuthFromAPI(request: NextRequest): Promise<boolean> {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-    const verifyUrl = `${apiUrl}/api/v1/auth/verify`;
+    const apiPrefix = process.env.NEXT_PUBLIC_API_PREFIX || 'api/v1';
+    const verifyUrl = `${apiUrl}/${apiPrefix}/auth/verify`;
     
     console.log('[Middleware] Attempting API verification:', verifyUrl);
     

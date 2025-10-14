@@ -34,8 +34,6 @@ api.interceptors.response.use(
     
     logger.error(status || 'Network', originalRequest?.method, originalRequest?.url);
     
-    // ⭐ QUAN TRỌNG: Backend tự động xử lý refresh token
-    // Frontend CHỈ CẦN kiểm tra flag requiresLogin để redirect login
     if (responseData?.requiresLogin) {
       logger.warn('Session expired, redirecting to login');
       
@@ -50,12 +48,10 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
     
-    // Retry logic cho các lỗi khác (rate limit, network)
     if (!shouldRetryRequest(error, originalRequest)) {
       return Promise.reject(error);
     }
     
-    // Handle rate limit
     if (status === HTTP_STATUS.TOO_MANY_REQUESTS) {
       const retryCount = originalRequest!._retryCount || 0;
       const retryDelay = getRetryDelay(retryCount);
@@ -67,7 +63,6 @@ api.interceptors.response.use(
       return api(originalRequest!);
     }
     
-    // Handle network errors
     if (!error.response) {
       const retryCount = originalRequest!._retryCount || 0;
       const retryDelay = getRetryDelay(retryCount);

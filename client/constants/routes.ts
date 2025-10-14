@@ -62,38 +62,38 @@ export const PROTECTED_ROUTES = {
 
 export const API_ROUTES = {
   // Auth
-  AUTH_LOGIN: '/api/v1/auth/login',
-  AUTH_REGISTER: '/api/v1/auth/register',
-  AUTH_LOGOUT: '/api/v1/auth/logout',
-  AUTH_REFRESH: '/api/v1/auth/refresh',
-  AUTH_ME: '/api/v1/auth/me',
-  AUTH_GOOGLE_LOGIN: '/api/v1/auth/google/login',
+  AUTH_LOGIN: '/auth/login',
+  AUTH_REGISTER: '/auth/register',
+  AUTH_LOGOUT: '/auth/logout',
+  AUTH_REFRESH: '/auth/refresh',
+  AUTH_ME: '/auth/me',
+  AUTH_GOOGLE_LOGIN: '/auth/google/login',
   
   // Events
-  EVENTS: '/api/v1/events',
-  EVENT_CREATE: '/api/v1/events',
-  EVENT_DETAIL: (id: string) => `/api/v1/events/${id}`,
-  EVENT_UPDATE: (id: string) => `/api/v1/events/${id}`,
-  EVENT_DELETE: (id: string) => `/api/v1/events/${id}`,
-  EVENT_RECURRING_EXPAND: '/api/v1/events/recurring/expand',
+  EVENTS: '/events',
+  EVENT_CREATE: '/events',
+  EVENT_DETAIL: (id: string) => `/events/${id}`,
+  EVENT_UPDATE: (id: string) => `/events/${id}`,
+  EVENT_DELETE: (id: string) => `/events/${id}`,
+  EVENT_RECURRING_EXPAND: '/events/recurring/expand',
   
   // Calendars (containers)
-  CALENDARS: '/api/v1/calendars',
-  CALENDAR_CREATE: '/api/v1/calendars',
-  CALENDAR_DETAIL: (id: string) => `/api/v1/calendars/${id}`,
-  CALENDAR_UPDATE: (id: string) => `/api/v1/calendars/${id}`,
-  CALENDAR_DELETE: (id: string) => `/api/v1/calendars/${id}`,
-  CALENDAR_PRIMARY: '/api/v1/calendars/primary',
-  CALENDAR_SEARCH: '/api/v1/calendars/search',
-  CALENDAR_SYNC: '/api/v1/calendar/sync',
+  CALENDARS: '/calendars',
+  CALENDAR_CREATE: '/calendars',
+  CALENDAR_DETAIL: (id: string) => `/calendars/${id}`,
+  CALENDAR_UPDATE: (id: string) => `/calendars/${id}`,
+  CALENDAR_DELETE: (id: string) => `/calendars/${id}`,
+  CALENDAR_PRIMARY: '/calendars/primary',
+  CALENDAR_SEARCH: '/calendars/search',
+  CALENDAR_SYNC: '/calendar/sync',
   
   // Google Integration
-  GOOGLE_AUTH_URL: '/api/v1/auth/google/url',
-  GOOGLE_STATUS: '/api/v1/google/status',
-  GOOGLE_DISCONNECT: '/api/v1/google/disconnect',
-  GOOGLE_CALENDARS_SYNC: '/api/v1/google/calendars/sync',
-  GOOGLE_CALENDARS_LIST: '/api/v1/google/calendars/list',
-  GOOGLE_TOKEN_REFRESH: '/api/v1/google/token/refresh',
+  GOOGLE_AUTH_URL: '/auth/google/url',
+  GOOGLE_STATUS: '/google/status',
+  GOOGLE_DISCONNECT: '/google/disconnect',
+  GOOGLE_CALENDARS_SYNC: '/google/calendars/sync',
+  GOOGLE_CALENDARS_LIST: '/google/calendars/list',
+  GOOGLE_TOKEN_REFRESH: '/google/token/refresh',
 } as const;
 
 export const PUBLIC_ROUTE_PATTERNS = [

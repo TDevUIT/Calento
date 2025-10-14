@@ -1,3 +1,6 @@
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_PREFIX = process.env.NEXT_PUBLIC_API_PREFIX || '';
+
 export const HTTP_CONFIG = {
   TIMEOUT: 10000,
   MAX_RETRIES: {
@@ -5,7 +8,7 @@ export const HTTP_CONFIG = {
     NETWORK: 2,
   },
   RETRY_DELAY: (attemptIndex: number) => Math.pow(2, attemptIndex) * 1000,
-  BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
+  BASE_URL: API_PREFIX ? `${API_URL}/${API_PREFIX}` : API_URL,
 } as const;
 
 export const HTTP_STATUS = {
