@@ -283,7 +283,7 @@ function CalendarWrapper({
       {expandedCalendarSidebar && (
         <div 
           className="fixed right-0 top-14 w-[460px] animate-in slide-in-from-right duration-300"
-          style={{ height: 'calc(100vh - 3.5rem)', zIndex: 1000 }}
+          style={{ height: 'calc(100vh - 3.5rem)', zIndex: 2500 }}
         >
           <CalendarSidebar
             selectedDate={selectedDate}
