@@ -14,7 +14,7 @@ const dbConfig = {
   port: parseInt(process.env.DB_PORT || '5432', 10),
   user: process.env.DB_USER || 'postgres',
   password: process.env.DB_PASSWORD || 'postgres',
-  database: process.env.DB_NAME || 'tempra',
+  database: process.env.DB_NAME || 'calento',
 };
 
 const migrationsPath = path.join(__dirname, '../../migrations');

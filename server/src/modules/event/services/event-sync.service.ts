@@ -92,7 +92,7 @@ export class EventSyncService {
       const googleEvent = await this.googleCalendarService.createEvent(
         userId,
         'primary',
-        EventMappers.tempraEventToGoogleInput(event),
+        EventMappers.calentoEventToGoogleInput(event),
       );
 
       this.logger.log(
@@ -139,7 +139,7 @@ export class EventSyncService {
         userId,
         'primary',
         googleEventId!,
-        EventMappers.tempraEventToGoogleInput(event),
+        EventMappers.calentoEventToGoogleInput(event),
       );
 
       this.logger.log(`Synced update for event ${eventId} to Google`);

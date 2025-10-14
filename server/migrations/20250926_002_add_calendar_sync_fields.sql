@@ -36,12 +36,12 @@ CREATE INDEX IF NOT EXISTS idx_sync_log_status ON sync_log(status);
 CREATE TABLE IF NOT EXISTS event_conflicts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    tempra_event_id UUID REFERENCES events(id) ON DELETE CASCADE,
+    calento_event_id UUID REFERENCES events(id) ON DELETE CASCADE,
     google_event_id VARCHAR(255),
     conflict_reason VARCHAR(100) NOT NULL, -- 'duplicate', 'time_overlap', 'missing_mapping'
-    resolution VARCHAR(100), -- 'prefer_tempra', 'prefer_google', 'keep_both', 'manual'
+    resolution VARCHAR(100), -- 'prefer_calento', 'prefer_google', 'keep_both', 'manual'
     resolved BOOLEAN DEFAULT false,
-    tempra_event_data JSONB,
+    calento_event_data JSONB,
     google_event_data JSONB,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     resolved_at TIMESTAMP

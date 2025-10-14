@@ -6,7 +6,7 @@
 
 ```bash
 # Option A: Docker (Recommended)
-docker run -d --name tempra-redis -p 6379:6379 redis:alpine
+docker run -d --name calento-redis -p 6379:6379 redis:alpine
 
 # Option B: Windows (Chocolatey)
 choco install redis-64
@@ -164,7 +164,7 @@ POST http://localhost:8000/api/queues/event-sync/resume
 redis-cli ping
 
 # Start Redis (Docker)
-docker start tempra-redis
+docker start calento-redis
 
 # Start Redis (Windows)
 redis-server

@@ -17,7 +17,7 @@ export class SendEmailDto {
 
   @ApiProperty({
     description: 'Email subject',
-    example: 'Welcome to Tempra',
+    example: 'Welcome to Calento',
   })
   @IsString()
   subject: string;
@@ -32,7 +32,7 @@ export class SendEmailDto {
 
   @ApiPropertyOptional({
     description: 'Email text content',
-    example: 'Welcome to Tempra',
+    example: 'Welcome to Calento',
   })
   @IsOptional()
   @IsString()

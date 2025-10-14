@@ -255,7 +255,7 @@ export class EmailService {
     return this.sendEmail(
       {
         to: email,
-        subject: 'Welcome to Tempra!',
+        subject: 'Welcome to Calento!',
         template: 'welcome',
         context: { userName },
       },

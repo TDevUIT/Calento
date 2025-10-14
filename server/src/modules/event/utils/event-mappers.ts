@@ -17,7 +17,7 @@ export class EventMappers {
     };
   }
 
-  static tempraEventToGoogleInput(
+  static calentoEventToGoogleInput(
     event: Event | CreateEventDto,
   ): GoogleEventInput {
     return {

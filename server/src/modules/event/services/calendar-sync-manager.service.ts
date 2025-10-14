@@ -206,7 +206,7 @@ export class CalendarSyncManagerService {
             userId,
             'primary',
             conflict.googleEventId,
-            EventMappers.tempraEventToGoogleInput(conflict.calendoEvent),
+            EventMappers.calentoEventToGoogleInput(conflict.calendoEvent),
           );
 
           await this.saveEventMapping(

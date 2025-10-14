@@ -32,7 +32,7 @@ export class EmailQueueService
     const jobData: EmailJobData = {
       userId,
       to: email,
-      subject: 'Welcome to Tempra!',
+      subject: 'Welcome to Calento!',
       template: 'welcome',
       context: {
         userName,

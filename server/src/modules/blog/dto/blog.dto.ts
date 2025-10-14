@@ -118,7 +118,7 @@ export class CreateBlogPostDto {
 
   @ApiPropertyOptional({
     description: 'SEO title (max 60 chars)',
-    example: 'AI Scheduling Guide | Tempra Blog',
+    example: 'AI Scheduling Guide | Calento Blog',
     maxLength: 60,
   })
   @IsString()

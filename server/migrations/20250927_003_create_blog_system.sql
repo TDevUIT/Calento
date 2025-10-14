@@ -160,7 +160,7 @@ CREATE TRIGGER update_tag_usage_count_trigger
 
 -- Insert default blog categories
 INSERT INTO blog_categories (name, slug, description, color, sort_order) VALUES
-('Product Updates', 'product-updates', 'Latest features and improvements to Tempra', '#10b981', 1),
+('Product Updates', 'product-updates', 'Latest features and improvements to Tcalento', '#10b981', 1),
 ('Best Practices', 'best-practices', 'Tips and best practices for calendar management', '#3b82f6', 2),
 ('AI & Technology', 'ai-technology', 'Insights into AI-powered scheduling and productivity', '#8b5cf6', 3),
 ('Company News', 'company-news', 'Company announcements and milestones', '#f59e0b', 4),
