@@ -10,28 +10,45 @@ import {
 
 async function verifyAuthFromServer(request: NextRequest): Promise<boolean> {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 
+                   (process.env.NODE_ENV === 'production' 
+                     ? `https://api.${request.nextUrl.hostname.replace('www.', '')}`
+                     : 'http://localhost:8000');
+    
     const verifyUrl = `${apiUrl}/api/v1/auth/verify`;
     
+    console.log('[Middleware] Verifying auth with:', verifyUrl);
+    
     const cookieHeader = request.headers.get('cookie') || '';
+    
+    if (!cookieHeader) {
+      console.log('[Middleware] No cookies found in request');
+      return false;
+    }
     
     const response = await fetch(verifyUrl, {
       method: 'GET',
       headers: {
         'Cookie': cookieHeader,
         'Content-Type': 'application/json',
+        'User-Agent': request.headers.get('user-agent') || 'Next.js Middleware',
       },
       credentials: 'include',
+      cache: 'no-store',
     });
 
     if (!response.ok) {
+      console.log('[Middleware] Auth verification response not OK:', response.status);
       return false;
     }
 
     const data = await response.json();
-    return data?.data?.authenticated === true;
+    const isAuthenticated = data?.data?.authenticated === true;
+    console.log('[Middleware] Auth status:', isAuthenticated);
+    
+    return isAuthenticated;
   } catch (error) {
-    console.error('Auth verification failed:', error);
+    console.error('[Middleware] Auth verification failed:', error);
     return false;
   }
 }
