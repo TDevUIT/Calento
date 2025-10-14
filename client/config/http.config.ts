@@ -1,5 +1,5 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-const API_PREFIX = process.env.NEXT_PUBLIC_API_PREFIX || '';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.calento.space';
+const API_PREFIX = process.env.NEXT_PUBLIC_API_PREFIX || 'api/v1';
 
 export const HTTP_CONFIG = {
   TIMEOUT: 10000,
