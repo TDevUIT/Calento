@@ -54,7 +54,7 @@ if [ -f "/etc/letsencrypt/live/api.calento.space/fullchain.pem" ]; then
     
     # Setup auto-renewal
     echo "⏰ Setting up auto-renewal..."
-    (crontab -l 2>/dev/null; echo "0 12 * * * /usr/bin/certbot renew --quiet --deploy-hook 'cd /path/to/tempra && docker compose -f provision/docker-compose.yml restart nginx'") | crontab -
+    (crontab -l 2>/dev/null; echo "0 12 * * * /usr/bin/certbot renew --quiet --deploy-hook 'cd /path/to/calento && docker compose -f provision/docker-compose.yml restart nginx'") | crontab -
     
     echo ""
     echo "🎉 Production SSL setup complete!"

@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: tempra-postgres
+    container_name: calento-postgres
     env_file:
       - ../server/.env
     ports:
@@ -10,7 +10,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
     restart: always
     networks:
-      - tempra-network
+      - calento-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
       interval: 30s
@@ -19,7 +19,7 @@ services:
 
   redis:
     image: redis:alpine
-    container_name: tempra-redis
+    container_name: calento-redis
     command: redis-server --appendonly yes
     ports:
       - "6379:6379"
@@ -27,7 +27,7 @@ services:
       - redis_data:/data
     restart: always
     networks:
-      - tempra-network
+      - calento-network
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 30s
@@ -38,7 +38,7 @@ services:
     build:
       context: ../server
       dockerfile: Dockerfile
-    container_name: tempra-server
+    container_name: calento-server
     env_file:
       - ../server/.env
     ports:
@@ -52,7 +52,7 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - tempra-network
+      - calento-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
       interval: 30s
@@ -64,7 +64,7 @@ services:
     build:
       context: ../client
       dockerfile: Dockerfile
-    container_name: tempra-client
+    container_name: calento-client
     env_file:
       - ../client/.env
     restart: always
@@ -72,7 +72,7 @@ services:
       server:
         condition: service_healthy
     networks:
-      - tempra-network
+      - calento-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]
       interval: 30s
@@ -84,7 +84,7 @@ services:
     build:
       context: ../client
       dockerfile: Dockerfile.nginx
-    container_name: tempra-nginx
+    container_name: calento-nginx
     ports:
       - "80:80"
       - "443:443"
@@ -95,7 +95,7 @@ services:
       - client
       - server
     networks:
-      - tempra-network
+      - calento-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost"]
       interval: 30s
@@ -103,7 +103,7 @@ services:
       retries: 3
 
 networks:
-  tempra-network:
+  calento-network:
     driver: bridge
 
 volumes:

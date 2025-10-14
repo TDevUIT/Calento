@@ -17,9 +17,9 @@ Write-Host "🔧 Generating certificate using Docker..." -ForegroundColor Yellow
 $dockerCommand = @"
 docker run --rm -v "${PWD}/../client/ssl:/certs" alpine/openssl req -x509 -nodes -days 365 \
   -newkey rsa:2048 \
-  -keyout /certs/tempra.key \
-  -out /certs/tempra.crt \
-  -subj "/C=VN/ST=HCM/L=HoChiMinh/O=Tempra/CN=localhost" \
+  -keyout /certs/calento.key \
+  -out /certs/calento.crt \
+  -subj "/C=VN/ST=HCM/L=HoChiMinh/O=Calento/CN=localhost" \
   -addext "subjectAltName=DNS:localhost,DNS:*.localhost,IP:127.0.0.1"
 "@
 
@@ -29,11 +29,11 @@ try {
     Write-Host "✅ SSL certificates generated successfully!" -ForegroundColor Green
     Write-Host "📁 Certificates location: ../client/ssl/" -ForegroundColor Cyan
     
-    $keySize = (Get-Item "../client/ssl/tempra.key").Length / 1KB
-    $crtSize = (Get-Item "../client/ssl/tempra.crt").Length / 1KB
+    $keySize = (Get-Item "../client/ssl/calento.key").Length / 1KB
+    $crtSize = (Get-Item "../client/ssl/calento.crt").Length / 1KB
     
-    Write-Host "🔑 Private key: tempra.key ($([math]::Round($keySize, 1)) KB)" -ForegroundColor Cyan
-    Write-Host "📜 Certificate: tempra.crt ($([math]::Round($crtSize, 1)) KB)" -ForegroundColor Cyan
+    Write-Host "🔑 Private key: calento.key ($([math]::Round($keySize, 1)) KB)" -ForegroundColor Cyan
+    Write-Host "📜 Certificate: calento.crt ($([math]::Round($crtSize, 1)) KB)" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "🔧 Certificate includes Subject Alternative Names:" -ForegroundColor Yellow
     Write-Host "   - DNS: localhost, *.localhost"
