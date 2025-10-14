@@ -10,14 +10,29 @@ import {
 
 async function verifyAuthFromServer(request: NextRequest): Promise<boolean> {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 
-                   (process.env.NODE_ENV === 'production' 
-                     ? `https://api.${request.nextUrl.hostname.replace('www.', '')}`
-                     : 'http://localhost:8000');
+    // Fix API URL for production
+    let apiUrl = process.env.NEXT_PUBLIC_API_URL;
+    
+    if (!apiUrl) {
+      if (process.env.NODE_ENV === 'production') {
+        // For qa.calento.space -> api.calento.space
+        const hostname = request.nextUrl.hostname;
+        if (hostname.includes('calento.space')) {
+          apiUrl = 'https://api.calento.space';
+        } else {
+          apiUrl = `https://api.${hostname.replace('www.', '').replace('qa.', '')}`;
+        }
+      } else {
+        apiUrl = 'http://localhost:8000';
+      }
+    }
     
     const verifyUrl = `${apiUrl}/api/v1/auth/verify`;
     
     console.log('[Middleware] Verifying auth with:', verifyUrl);
+    console.log('[Middleware] Hostname:', request.nextUrl.hostname);
+    console.log('[Middleware] NODE_ENV:', process.env.NODE_ENV);
+    console.log('[Middleware] NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
     
     const cookieHeader = request.headers.get('cookie') || '';
     
@@ -25,6 +40,8 @@ async function verifyAuthFromServer(request: NextRequest): Promise<boolean> {
       console.log('[Middleware] No cookies found in request');
       return false;
     }
+    
+    console.log('[Middleware] Cookies found:', cookieHeader.substring(0, 100) + '...');
     
     const response = await fetch(verifyUrl, {
       method: 'GET',
@@ -56,7 +73,10 @@ async function verifyAuthFromServer(request: NextRequest): Promise<boolean> {
 export async function middleware(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
   
+  console.log('[Middleware] Running for pathname:', pathname);
+  
   if (isApiRoute(pathname)) {
+    console.log('[Middleware] Skipping API route:', pathname);
     return NextResponse.next();
   }
 
