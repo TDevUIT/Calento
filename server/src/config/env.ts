@@ -56,6 +56,10 @@ const envSchema = z.object({
   CORS_CREDENTIALS: z.coerce.boolean().default(true),
   CORS_EXPOSED_HEADERS: z.string().default('Content-Length,Content-Type'),
   CORS_MAX_AGE: z.string().transform(Number).default(86400),
+
+  // Frontend Configuration (for cookie domain)
+  FRONTEND_URL: z.string().url().default('http://localhost:3000'),
+  FRONTEND_DOMAIN: z.string().default('localhost'),
   // File Upload Configuration
   MAX_FILE_SIZE: z.string().transform(Number).default(10485760),
   UPLOAD_PATH: z.string().default('./uploads'),

@@ -12,11 +12,14 @@ export class CookieAuthService {
 
   setAuthCookies(response: Response, tokens: AuthTokens): void {
     const isProd = env.NODE_ENV === 'production';
+    const frontendDomain = env.FRONTEND_DOMAIN || 'localhost';
+    
     const cookieOptions: CookieOptions = {
       httpOnly: true,
       secure: isProd,
       sameSite: isProd ? 'none' : 'lax',
       path: '/',
+      ...(isProd && frontendDomain !== 'localhost' && { domain: `.${frontendDomain}` }),
     };
 
     response.cookie('access_token', tokens.access_token, {
@@ -29,22 +32,35 @@ export class CookieAuthService {
       maxAge: this.parseExpirationTime(env.JWT_REFRESH_EXPIRES_IN) * 1000,
     });
 
-    this.logger.debug('Authentication cookies set successfully');
+    this.logger.debug('Authentication cookies set successfully', {
+      domain: cookieOptions.domain || 'no-domain',
+      secure: cookieOptions.secure,
+      sameSite: cookieOptions.sameSite,
+      isProd,
+      frontendDomain
+    });
   }
 
   clearAuthCookies(response: Response): void {
     const isProd = env.NODE_ENV === 'production';
+    const frontendDomain = env.FRONTEND_DOMAIN || 'localhost';
+    
     const cookieOptions: CookieOptions = {
       httpOnly: true,
       secure: isProd,
       sameSite: isProd ? 'none' : 'lax',
       path: '/',
+      ...(isProd && frontendDomain !== 'localhost' && { domain: `.${frontendDomain}` }),
     };
 
     response.clearCookie('access_token', cookieOptions);
     response.clearCookie('refresh_token', cookieOptions);
 
-    this.logger.debug('Authentication cookies cleared');
+    this.logger.debug('Authentication cookies cleared', {
+      domain: cookieOptions.domain || 'no-domain',
+      secure: cookieOptions.secure,
+      sameSite: cookieOptions.sameSite
+    });
   }
 
   extractTokenFromCookies(request: Request): string | null {
