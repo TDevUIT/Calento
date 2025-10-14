@@ -107,32 +107,32 @@ export default function SettingsPage() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <div className="border-b border-border pb-0 mb-6">
-            <TabsList className="grid w-full grid-cols-4 h-auto p-0 bg-transparent gap-4">
+          <div className="border-2 border-black dark:border-white rounded-lg p-2 mb-6 bg-muted/30">
+            <TabsList className="grid w-full grid-cols-4 h-auto p-1 bg-transparent gap-2">
               <TabsTrigger 
                 value="account" 
-                className="gap-2 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none pb-3 px-1 justify-start"
+                className="gap-2 data-[state=active]:bg-background data-[state=active]:border-2 data-[state=active]:border-black data-[state=active]:dark:border-white data-[state=active]:shadow-md rounded-md py-3 px-3 justify-start transition-all hover:bg-background/50 border-2 border-transparent"
               >
                 <User className="h-4 w-4" />
                 <span className="hidden sm:inline font-medium">Account</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="notifications" 
-                className="gap-2 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none pb-3 px-1 justify-start"
+                className="gap-2 data-[state=active]:bg-background data-[state=active]:border-2 data-[state=active]:border-black data-[state=active]:dark:border-white data-[state=active]:shadow-md rounded-md py-3 px-3 justify-start transition-all hover:bg-background/50 border-2 border-transparent"
               >
                 <Bell className="h-4 w-4" />
                 <span className="hidden sm:inline font-medium">Notifications</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="security" 
-                className="gap-2 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none pb-3 px-1 justify-start"
+                className="gap-2 data-[state=active]:bg-background data-[state=active]:border-2 data-[state=active]:border-black data-[state=active]:dark:border-white data-[state=active]:shadow-md rounded-md py-3 px-3 justify-start transition-all hover:bg-background/50 border-2 border-transparent"
               >
                 <Shield className="h-4 w-4" />
                 <span className="hidden sm:inline font-medium">Security</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="appearance" 
-                className="gap-2 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none pb-3 px-1 justify-start"
+                className="gap-2 data-[state=active]:bg-background data-[state=active]:border-2 data-[state=active]:border-black data-[state=active]:dark:border-white data-[state=active]:shadow-md rounded-md py-3 px-3 justify-start transition-all hover:bg-background/50 border-2 border-transparent"
               >
                 <Palette className="h-4 w-4" />
                 <span className="hidden sm:inline font-medium">Appearance</span>
@@ -141,7 +141,7 @@ export default function SettingsPage() {
           </div>
 
           <TabsContent value="account" className="space-y-6">
-            <Card>
+            <Card className="border-2 border-black dark:border-white">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Globe className="h-5 w-5" />
@@ -257,7 +257,7 @@ export default function SettingsPage() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="border-2 border-black dark:border-white">
               <CardHeader>
                 <CardTitle>Account Information</CardTitle>
                 <CardDescription>
@@ -290,7 +290,7 @@ export default function SettingsPage() {
           </TabsContent>
 
           <TabsContent value="notifications" className="space-y-6">
-            <Card>
+            <Card className="border-2 border-black dark:border-white">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Bell className="h-5 w-5" />
@@ -465,7 +465,7 @@ export default function SettingsPage() {
           </TabsContent>
 
           <TabsContent value="security" className="space-y-6">
-            <Card>
+            <Card className="border-2 border-black dark:border-white">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Shield className="h-5 w-5" />
@@ -572,7 +572,7 @@ export default function SettingsPage() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="border-2 border-black dark:border-white">
               <CardHeader>
                 <CardTitle>Password</CardTitle>
                 <CardDescription>
@@ -616,7 +616,7 @@ export default function SettingsPage() {
               </CardContent>
             </Card>
 
-            <Card className="border-red-200 dark:border-red-900">
+            <Card className="border-2 border-red-600 dark:border-red-400">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-red-600">
                   <AlertTriangle className="h-5 w-5" />
@@ -641,7 +641,7 @@ export default function SettingsPage() {
           </TabsContent>
 
           <TabsContent value="appearance" className="space-y-6">
-            <Card>
+            <Card className="border-2 border-black dark:border-white">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Palette className="h-5 w-5" />
