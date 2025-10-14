@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { AUTH_ROUTES } from '@/constants/routes';
 import {
   BarChart,
   Bar,
@@ -112,7 +113,7 @@ export const ProductivitySection: React.FC = () => {
             <div className="text-cod-gray-400 dark:text-cod-gray-300 text-sm transition-colors duration-300">Join 10,000+ professionals optimizing their time</div>
           </div>
           <Link
-            href="/auth/signup"
+            href={AUTH_ROUTES.REGISTER}
             className="inline-flex items-center gap-2 px-5 py-2.5 theme-btn-primary font-medium rounded-md transition-colors text-sm shadow-md"
           >
             Get started

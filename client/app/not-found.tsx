@@ -1,13 +1,25 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
+import { PUBLIC_ROUTES } from '@/constants/routes';
 
 export default function NotFound() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-white px-4">
+    
       <div className="max-w-md text-center">
-        <h1 className="mb-4 text-9xl font-bold text-gray-900">404</h1>
-
+        <div className='flex items-center justify-center'>
+            <h1 className="mb-4 text-9xl font-bold text-gray-900">4</h1>
+            <Image 
+              src="/icon-192x192.png"
+              alt="logo"
+              width={120}
+              height={120}
+              className='-rotate-90'
+            />  
+            <h1 className="mb-4 text-9xl font-bold text-gray-900">4</h1>
+        </div>
         <h2 className="mb-2 text-2xl font-bold text-gray-900">
           Page not found
         </h2>
@@ -18,7 +30,7 @@ export default function NotFound() {
 
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
           <Link
-            href="/"
+            href={PUBLIC_ROUTES.HOME}
             className="rounded-lg bg-black px-6 py-3 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
           >
             Go to homepage
@@ -34,16 +46,16 @@ export default function NotFound() {
         <div className="mt-12 pt-8 border-t border-gray-200">
           <p className="mb-4 text-sm text-gray-600">You might be interested in:</p>
           <div className="flex flex-wrap justify-center gap-4 text-sm">
-            <Link href="/features" className="text-black hover:underline">
+            <Link href={PUBLIC_ROUTES.FEATURES} className="text-black hover:underline">
               Features
             </Link>
-            <Link href="/pricing" className="text-black hover:underline">
+            <Link href={PUBLIC_ROUTES.PRICING} className="text-black hover:underline">
               Pricing
             </Link>
-            <Link href="/blog" className="text-black hover:underline">
+            <Link href={PUBLIC_ROUTES.BLOG} className="text-black hover:underline">
               Blog
             </Link>
-            <Link href="/contact" className="text-black hover:underline">
+            <Link href={PUBLIC_ROUTES.CONTACT} className="text-black hover:underline">
               Contact
             </Link>
           </div>

@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
-import { startOfMonth, endOfMonth, format } from 'date-fns';
+import { startOfMonth, endOfMonth } from 'date-fns';
 import {
   Calendar,
   CalendarDayView,
@@ -69,7 +69,6 @@ export default function Page() {
   const regularEventsQuery = useEvents(queryParams);
   const recurringEventsQuery = useRecurringEvents(recurringQueryParams);
 
-  // Force refetch when month changes
   useEffect(() => {
     queryClient.invalidateQueries({ 
       queryKey: EVENT_QUERY_KEYS.all,
@@ -164,7 +163,6 @@ export default function Page() {
   );
 }
 
-// Separate component to handle calendar rendering
 function CalendarWrapper({
   currentMonth,
   setCurrentMonth,
@@ -209,7 +207,6 @@ function CalendarWrapper({
   setVisibleCalendarIds: (ids: Set<string>) => void;
 }) {
   
-  // Sync helper component
   const CalendarDateSync = ({ onDateChange }: { onDateChange: (date: Date) => void }) => {
     const { date } = useCalendar();
     
@@ -227,7 +224,6 @@ function CalendarWrapper({
       onEventClick={handleEventClick}
       defaultDate={currentMonth}
     >
-      {/* Sync calendar date changes with currentMonth for event queries */}
       <CalendarDateSync onDateChange={setCurrentMonth} />
       
       <div className="bg-background flex -mx-2">
@@ -286,8 +282,8 @@ function CalendarWrapper({
 
       {expandedCalendarSidebar && (
         <div 
-          className="fixed right-0 top-14 w-[460px] animate-in slide-in-from-right duration-300 z-50"
-          style={{ height: 'calc(100vh - 3.5rem)' }}
+          className="fixed right-0 top-14 w-[460px] animate-in slide-in-from-right duration-300"
+          style={{ height: 'calc(100vh - 3.5rem)', zIndex: 1000 }}
         >
           <CalendarSidebar
             selectedDate={selectedDate}

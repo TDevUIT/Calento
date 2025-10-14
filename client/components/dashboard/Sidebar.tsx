@@ -32,32 +32,33 @@ import { CREDITS_CONFIG, formatCredits } from "@/constants/dashboard-preview.con
 import { Logo } from "../ui/logo";
 import { useCurrentUser } from "@/hook/store/use-auth-store";
 import { useAuthStore } from "@/store/auth.store";
+import { PROTECTED_ROUTES } from "@/constants/routes";
 import Image from "next/image";
 
 const calendarScheduleItems = [
   {
     title: "Calendar",
-    href: "/dashboard/calendar",
+    href: PROTECTED_ROUTES.DASHBOARD_CALENDAR,
     icon: CalendarDays,
   },
   {
     title: "Schedule",
-    href: "/dashboard/schedule",
+    href: PROTECTED_ROUTES.DASHBOARD_SCHEDULE,
     icon: CalendarClock,
   },
   {
     title: "Calendar Sync",
-    href: "/dashboard/calendar-sync",
+    href: PROTECTED_ROUTES.DASHBOARD_CALENDAR_SYNC,
     icon: RefreshCw,
   },
   {
     title: "Meetings",
-    href: "/dashboard/meetings",
+    href: PROTECTED_ROUTES.DASHBOARD_MEETINGS,
     icon: Video,
   },
   {
     title: "Analytics",
-    href: "/dashboard/analytics",
+    href: PROTECTED_ROUTES.DASHBOARD_ANALYTICS,
     icon: BarChart3,
   },
 ];
@@ -65,12 +66,12 @@ const calendarScheduleItems = [
 const footerItems = [
   {
     title: "Settings",
-    href: "/dashboard/settings",
+    href: PROTECTED_ROUTES.DASHBOARD_SETTINGS,
     icon: Settings,
   },
   {
     title: "Help",
-    href: "/dashboard/help",
+    href: PROTECTED_ROUTES.DASHBOARD_HELP,
     icon: HelpCircle,
   },
 ];
@@ -106,7 +107,7 @@ const SidebarDashboard = () => {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/dashboard">
+              <Link href={PROTECTED_ROUTES.DASHBOARD}>
                 <div className="flex items-center gap-2 leading-none">
                   {state === "collapsed" ? (
                     <Image 
@@ -181,7 +182,7 @@ const SidebarDashboard = () => {
           
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/dashboard/profile">
+              <Link href={PROTECTED_ROUTES.DASHBOARD_PROFILE}>
                 <Avatar className="size-8">
                   <AvatarImage src={user?.avatar || undefined} />
                   <AvatarFallback className="bg-persian-blue-100 text-persian-blue-700 font-semibold">

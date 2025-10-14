@@ -211,34 +211,19 @@ const HourEvents = ({
               onDelete={() => {}}
             >
               <div
-                className="absolute left-0 right-0 mx-1 font-medium rounded-md p-2.5 text-xs shadow-sm cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02] hover:-translate-y-0.5 backdrop-blur-sm"
+                className="absolute left-0 right-0 mx-1 font-medium rounded-md p-2.5 text-xs shadow-sm cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02] hover:-translate-y-0.5 border border-black/10"
                 style={{
                   top: `${startPosition * 100}%`,
                   height: `${hoursDifference * 100}%`,
-                  backgroundColor: event.color ? `${event.color}26` : 'rgba(59, 130, 246, 0.15)',
-                  background: event.color 
-                    ? `linear-gradient(to right, ${event.color}40, ${event.color}20)` 
-                    : 'linear-gradient(to right, rgba(59, 130, 246, 0.25), rgba(59, 130, 246, 0.12))',
+                  backgroundColor: event.color || '#3b82f6',
                   ...getEventZIndexStyle(event, events, { baseZIndex: 200 }),
                 }}
                 onClick={() => onEventClick?.(event)}
               >
-                <div 
-                  className="font-semibold truncate drop-shadow-sm" 
-                  style={{ 
-                    color: event.color || '#1e40af',
-                    textShadow: '0 0 8px rgba(255, 255, 255, 0.8)'
-                  }}
-                >
+                <div className="font-bold truncate text-gray-900">
                   {event.title}
                 </div>
-                <div 
-                  className="text-[10px] opacity-80 mt-0.5 drop-shadow-sm"
-                  style={{ 
-                    color: event.color || '#1e40af',
-                    textShadow: '0 0 6px rgba(255, 255, 255, 0.7)'
-                  }}
-                >
+                <div className="text-[10px] mt-0.5 text-gray-800 font-medium">
                   {format(event.start, 'HH:mm')} - {format(event.end, 'HH:mm')}
                 </div>
               </div>
@@ -420,29 +405,18 @@ const CalendarMonthView = () => {
                       onDelete={() => {}}
                     >
                       <div
-                        className="px-2 py-1.5 rounded-md text-xs flex items-center gap-2 transition-all cursor-pointer hover:shadow-md hover:scale-[1.01] relative"
+                        className="px-2 py-1.5 rounded-md text-xs flex items-center gap-2 transition-all cursor-pointer hover:shadow-md hover:scale-[1.01] relative border border-black/10"
                         style={{
-                          backgroundColor: event.color ? `${event.color}20` : 'rgba(59, 130, 246, 0.12)',
+                          backgroundColor: event.color || '#3b82f6',
                           ...getEventZIndexStyle(event, currentEvents, { baseZIndex: 150 }),
                         }}
                         onClick={() => onEventClick?.(event)}
                       >
-                        <div
-                          className="shrink-0 size-2 rounded-full transition-transform hover:scale-125 shadow-sm"
-                          style={{
-                            backgroundColor: event.color || '#3b82f6',
-                            boxShadow: `0 0 4px ${event.color || '#3b82f6'}`,
-                          }}
-                        ></div>
-                        <span 
-                          className="flex-1 truncate font-semibold"
-                          style={{ color: event.color || '#1e40af' }}
-                        >
+                        <span className="flex-1 truncate font-bold text-gray-900">
                           {event.title}
                         </span>
                         <time 
-                          className="tabular-nums text-[10px] font-medium" 
-                          style={{ color: event.color || '#1e40af', opacity: 0.7 }}
+                          className="tabular-nums text-[10px] font-semibold text-gray-800" 
                           suppressHydrationWarning
                         >
                           {format(event.start, 'HH:mm')}

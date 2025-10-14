@@ -51,7 +51,7 @@ export const useControllerStore = create<ControllerStore>()(
       reset: () => set(initialState),
     }),
     {
-      name: 'tempra-controller-storage', 
+      name: 'calento-controller-storage', 
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         expandedSidebar: state.expandedSidebar,

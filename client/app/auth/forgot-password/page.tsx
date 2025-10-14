@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { AUTH_ROUTES } from '@/constants/routes'
 
 export default function ForgotPasswordPage() {
   return (
@@ -40,7 +41,7 @@ export default function ForgotPasswordPage() {
       <div className="text-center">
         <p className="text-sm text-muted-foreground">
           Remember your password?{' '}
-          <Link href="/auth/login" className="text-primary hover:underline font-medium">
+          <Link href={AUTH_ROUTES.LOGIN} className="text-primary hover:underline font-medium">
             Sign in
           </Link>
         </p>

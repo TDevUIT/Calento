@@ -14,6 +14,7 @@ import {
   ERROR_TOAST_DURATION,
   SUCCESS_TOAST_DURATION
 } from '@/constants/auth.constants'
+import { PROTECTED_ROUTES } from '@/constants/routes'
 import {
   ProgressIndicator,
   RegisterSocialOptions,
@@ -48,7 +49,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
         duration: SUCCESS_TOAST_DURATION,
       })
       setTimeout(() => {
-        router.push('/dashboard')
+        router.push(PROTECTED_ROUTES.DASHBOARD_CALENDAR)
       }, REDIRECT_DELAY_MS)
     }
   }, [isSuccess, router])

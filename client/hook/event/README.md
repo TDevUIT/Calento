@@ -1,6 +1,6 @@
 # Event Hooks Documentation
 
-Complete React Query hooks for Event/Calendar operations in Tempra.
+Complete React Query hooks for Event/Calendar operations in Tcalento.
 
 ## 📁 Structure
 

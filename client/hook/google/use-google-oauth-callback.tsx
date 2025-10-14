@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { googleService } from '../../service/google.service';
 import { useGoogleAuth } from './use-google-auth';
+import { PROTECTED_ROUTES } from '@/constants/routes';
 
 export const useGoogleOAuthCallback = () => {
   const router = useRouter();
@@ -37,7 +38,7 @@ export const useGoogleOAuthCallback = () => {
             return;
           }
 
-          router.push('/settings/integrations?success=google_connected');
+          router.push(`${PROTECTED_ROUTES.SETTINGS_INTEGRATIONS}?success=google_connected`);
         } else if (callbackParams.error) {
           if (window.opener) {
             window.opener.postMessage({
@@ -48,7 +49,7 @@ export const useGoogleOAuthCallback = () => {
             return;
           }
 
-          router.push(`/settings/integrations?error=${encodeURIComponent(callbackParams.error)}`);
+          router.push(`${PROTECTED_ROUTES.SETTINGS_INTEGRATIONS}?error=${encodeURIComponent(callbackParams.error)}`);
         }
       } catch (error) {
         console.error('Error handling OAuth callback:', error);
@@ -60,7 +61,7 @@ export const useGoogleOAuthCallback = () => {
           }, window.location.origin);
           window.close();
         } else {
-          router.push('/settings/integrations?error=processing_failed');
+          router.push(`${PROTECTED_ROUTES.SETTINGS_INTEGRATIONS}?error=processing_failed`);
         }
       } finally {
         setIsProcessing(false);

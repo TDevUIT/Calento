@@ -14,7 +14,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Tempra - AI Calendar Assistant',
+  title: 'Calento - AI Calendar Assistant',
   description: 'Smart calendar management with AI-powered scheduling'
 };
 

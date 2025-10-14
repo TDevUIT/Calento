@@ -20,6 +20,7 @@ import { useAuthStore } from "@/store/auth.store";
 import { getUserInitials, getUserFullName } from "@/utils/user.utils";
 import { useRouter } from "next/navigation";
 import React from "react";
+import { AUTH_ROUTES, PROTECTED_ROUTES } from "@/constants/routes";
 
 interface UserAvatarMenuProps {
   userName?: string;
@@ -44,7 +45,7 @@ export function UserAvatarMenu(props?: UserAvatarMenuProps) {
     try {
       setIsLoggingOut(true);
       await logoutFromStore();
-      router.push("/login");
+      router.push(AUTH_ROUTES.LOGIN);
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {
@@ -53,15 +54,15 @@ export function UserAvatarMenu(props?: UserAvatarMenuProps) {
   };
 
   const handleProfileClick = () => {
-    router.push("/profile");
+    router.push(PROTECTED_ROUTES.PROFILE);
   };
 
   const handleSettingsClick = () => {
-    router.push("/settings");
+    router.push(PROTECTED_ROUTES.SETTINGS);
   };
 
   const handleBillingClick = () => {
-    router.push("/billing");
+    router.push(PROTECTED_ROUTES.BILLING);
   };
 
   return (

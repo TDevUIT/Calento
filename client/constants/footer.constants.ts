@@ -70,27 +70,27 @@ export const FOOTER_SECTIONS: FooterSectionData[] = [
 export const SOCIAL_PLATFORMS: Omit<SocialPlatform, 'icon'>[] = [
   {
     name: "Twitter",
-    href: "https://twitter.com/tempra_ai",
+    href: "https://twitter.com/calento_ai",
     color: "hover:bg-[#1DA1F2] hover:text-white"
   },
   {
     name: "LinkedIn", 
-    href: "https://linkedin.com/company/tempra-ai",
+    href: "https://linkedin.com/company/calento-ai",
     color: "hover:bg-[#0A66C2] hover:text-white"
   },
   {
     name: "YouTube",
-    href: "https://youtube.com/@tempra-ai",
+    href: "https://youtube.com/@calento-ai",
     color: "hover:bg-[#FF0000] hover:text-white"
   },
   {
     name: "Instagram",
-    href: "https://instagram.com/tempra.ai",
+    href: "https://instagram.com/calento.space",
     color: "hover:bg-gradient-to-br hover:from-[#833AB4] hover:via-[#FD1D1D] hover:to-[#F77737] hover:text-white"
   },
   {
     name: "Facebook",
-    href: "https://facebook.com/tempra.ai",
+    href: "https://facebook.com/calento.space",
     color: "hover:bg-[#1877F2] hover:text-white"
   }
 ];

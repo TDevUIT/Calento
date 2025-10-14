@@ -1,6 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
+import { AUTH_ROUTES } from '@/constants/routes';
 
 export default function AuthLayout({
   children,
@@ -8,7 +9,7 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const isRegisterPage = pathname === '/auth/register';
+  const isRegisterPage = pathname === AUTH_ROUTES.REGISTER;
 
   if (isRegisterPage) {
     return <>{children}</>;

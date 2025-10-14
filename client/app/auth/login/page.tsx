@@ -1,12 +1,13 @@
 import Link from 'next/link'
 import { LoginForm } from "@/components/auth/login-form"
+import { PUBLIC_ROUTES, AUTH_ROUTES } from '@/constants/routes'
 import Image from 'next/image'
 
 const LoginPage = () => {
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2 flex flex-col justify-center items-center">
-        <Link href="/" className="flex items-center gap-2">
+        <Link href={PUBLIC_ROUTES.HOME} className="flex items-center gap-2">
           <Image 
             src='/icon-192x192.png'
             alt='logo'
@@ -24,7 +25,7 @@ const LoginPage = () => {
       <div className="text-center">
         <p className="text-sm text-muted-foreground">
           Don&apos;t have an account?{' '}
-          <Link href="/auth/register" className="text-primary hover:underline font-medium">
+          <Link href={AUTH_ROUTES.REGISTER} className="text-primary hover:underline font-medium">
             Sign up
           </Link>
         </p>

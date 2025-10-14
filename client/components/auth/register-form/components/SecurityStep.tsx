@@ -63,7 +63,7 @@ export const SecurityStep: React.FC<SecurityStepProps> = ({
           className="h-9 md:h-10 2xl:h-11 text-sm md:text-base 2xl:text-base border-gray-300 dark:border-gray-600 focus-visible:ring-2 focus-visible:ring-blue-500 dark:focus-visible:ring-blue-400 transition-all"
         />
         <p className="text-[10px] md:text-xs text-muted-foreground">
-          Your display name on Tempra (cannot be changed later)
+          Your display name on Calento (cannot be changed later)
         </p>
       </div>
 

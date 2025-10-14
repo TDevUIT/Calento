@@ -204,14 +204,13 @@ export function EventFormModal({
   if (!mounted) return null;
 
   const modalContent = (
-    <div className="fixed inset-0 flex items-center justify-center modal-backdrop">
+    <div className="fixed inset-0 flex items-center justify-center" style={{ zIndex: 10000 }}>
       <div 
         className="absolute inset-0 bg-black/50 animate-in fade-in duration-200"
         onClick={() => onOpenChange(false)}
-        style={{ zIndex: 9999998 }}
       />
 
-      <div className="relative w-full h-full modal-content" style={{ zIndex: 9999999 }}>
+      <div className="relative w-full h-full" style={{ zIndex: 10001 }}>
         <div className="w-full h-full bg-background animate-in zoom-in-95 fade-in duration-200">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full w-full">

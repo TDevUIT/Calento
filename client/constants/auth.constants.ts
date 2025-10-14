@@ -76,7 +76,7 @@ export const AUTH_ERROR_MESSAGES = {
 export const AUTH_SUCCESS_MESSAGES = {
   register: {
     title: 'Registration successful!',
-    description: 'Welcome to Tempra. Redirecting...',
+    description: 'Welcome to Calento. Redirecting...',
   },
   login: {
     title: 'Login successful!',

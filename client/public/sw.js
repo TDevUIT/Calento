@@ -3,9 +3,9 @@
  * Provides offline functionality and caching strategies
  */
 
-const CACHE_NAME = 'tempra-v1';
-const STATIC_CACHE = 'tempra-static-v1';
-const DYNAMIC_CACHE = 'tempra-dynamic-v1';
+const CACHE_NAME = 'calento-v1';
+const STATIC_CACHE = 'calento-static-v1';
+const DYNAMIC_CACHE = 'calento-dynamic-v1';
 
 // Assets to cache on install
 const STATIC_ASSETS = [
@@ -104,7 +104,7 @@ self.addEventListener('sync', (event) => {
 self.addEventListener('push', (event) => {
   console.log('[SW] Push notification received');
   const data = event.data ? event.data.json() : {};
-  const title = data.title || 'Tempra Notification';
+  const title = data.title || 'Calento Notification';
   const options = {
     body: data.body || 'You have a new notification',
     icon: '/icon-192x192.png',

@@ -74,7 +74,6 @@ export function EventDialog({ open, onOpenChange, defaultDate, defaultTime }: Ev
   const [selectedColor, setSelectedColor] = useState<string>('blue');
   const { mutate: createEvent, isPending } = useCreateEvent();
   
-  // Fetch user's calendars
   const calendarsQuery = useCalendars({ page: 1, limit: 50 });
   const { items: calendars = [] } = useApiData<CalendarType>(calendarsQuery);
 
@@ -92,10 +91,9 @@ export function EventDialog({ open, onOpenChange, defaultDate, defaultTime }: Ev
       is_all_day: false,
       color: 'blue',
     },
-    mode: 'onChange', // Enable real-time validation
+    mode: 'onChange',
   });
 
-  // Set default calendar when calendars load
   useEffect(() => {
     if (calendars.length > 0 && !form.getValues('calendar_id')) {
       const primaryCalendar = calendars.find(cal => cal.is_primary);
@@ -108,7 +106,6 @@ export function EventDialog({ open, onOpenChange, defaultDate, defaultTime }: Ev
     }
   }, [calendars, form]);
 
-  // Reset form when dialog opens
   useEffect(() => {
     if (open) {
       form.reset({
@@ -129,7 +126,6 @@ export function EventDialog({ open, onOpenChange, defaultDate, defaultTime }: Ev
   }, [open, defaultDate, defaultTime, calendars, form]);
 
   const onSubmit = (data: EventFormData) => {
-    // Combine date and time into ISO format
     const startDateTime = `${data.start_date}T${data.start_time}:00.000Z`;
     const endDateTime = `${data.end_date}T${data.end_time}:00.000Z`;
 
@@ -159,11 +155,6 @@ export function EventDialog({ open, onOpenChange, defaultDate, defaultTime }: Ev
       }
     );
   };
-
-  // Debug info
-  console.log('Calendars loaded:', calendars.length);
-  console.log('Selected calendar_id:', form.watch('calendar_id'));
-  console.log('Calendars query loading:', calendarsQuery.isLoading);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

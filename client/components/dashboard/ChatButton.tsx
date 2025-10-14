@@ -11,8 +11,8 @@ export function ChatButton() {
     <>
       {showChatBox && (
         <div 
-          className="fixed right-0 top-14 w-[440px] animate-in slide-in-from-right duration-300 z-[60]"
-          style={{ height: 'calc(100vh - 3.5rem)' }}
+          className="fixed right-0 top-14 w-[440px] animate-in slide-in-from-right duration-300"
+          style={{ height: 'calc(100vh - 3.5rem)', zIndex: 1000 }}
         >
           <ChatBox onClose={() => setShowChatBox(false)} />
         </div>

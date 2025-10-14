@@ -1,6 +1,6 @@
 # Calendar Hooks Documentation
 
-Complete React Query hooks for Calendar container operations in Tempra.
+Complete React Query hooks for Calendar container operations in Tcalento.
 
 ## 📁 Structure
 

@@ -32,7 +32,7 @@ export const OrganizationSchema: FC = () => {
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'Customer Service',
-      email: 'support@calento.com',
+      email: 'support@calento.space',
       availableLanguage: ['English', 'Vietnamese'],
     },
   };

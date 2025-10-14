@@ -463,4 +463,4 @@ export function RecurringEventsView() {
 }
 ```
 
-These examples cover all major use cases for Event APIs in Tempra!
+These examples cover all major use cases for Event APIs in Tcalento!

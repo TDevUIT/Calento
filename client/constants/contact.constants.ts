@@ -30,7 +30,7 @@ export const CONTACT_INFO: ContactInfo[] = [
     type: 'location',
     title: 'Location',
     content: [
-      'Tempra Headquarters',
+      'Calento Headquarters',
       '123 Tech Street',
       'San Francisco, CA 94105',
       'Monday-Sunday | 08:00 - 22:00',
@@ -51,7 +51,7 @@ export const CONTACT_INFO: ContactInfo[] = [
     type: 'email',
     title: 'Email',
     content: [
-      APP_CONFIG.support.email || 'hello@tempra.ai'
+      APP_CONFIG.support.email || 'hello@calento.space'
     ]
   },
   {

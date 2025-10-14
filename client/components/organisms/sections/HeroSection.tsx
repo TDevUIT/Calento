@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { FEATURES } from "@/config/app.config";
+import { AUTH_ROUTES } from "@/constants/routes";
 import Marquee from "react-fast-marquee";
 import DashboardPreview from "./DashboardPreview";
 
@@ -49,7 +50,7 @@ export const HeroSection = () => {
           className="mb-8 flex flex-col items-center justify-center gap-4 sm:flex-row"
         >
           <a
-            href="/auth/signup"
+            href={AUTH_ROUTES.REGISTER}
             className="inline-flex h-12 w-full items-center justify-center rounded-lg theme-btn-primary px-8 text-base font-semibold shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-[0.98] sm:w-auto"
           >
             {FEATURES.hero.cta.primary}

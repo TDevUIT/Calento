@@ -182,6 +182,6 @@ export const PRICING_FAQS: FAQ[] = [
   },
   {
     question: "Can I use it on mobile?",
-    answer: "Yes! Tempra works seamlessly on all devices with native mobile apps for iOS and Android, plus a responsive web interface."
+      answer: "Yes! Calento works seamlessly on all devices with native mobile apps for iOS and Android, plus a responsive web interface."
   }
 ];

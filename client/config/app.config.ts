@@ -6,8 +6,8 @@ export const APP_CONFIG = {
   description: 'The smartest way to manage your time. Automatically schedule meetings, sync calendars, and get AI-powered suggestions to maximize your productivity.',
   url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
   support: {
-    email: 'support@calento.com',
-    salesEmail: 'sales@calento.com',
+    email: 'support@calento.space',
+    salesEmail: 'sales@calento.space',
   },
 } as const;
 

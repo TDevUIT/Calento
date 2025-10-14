@@ -67,7 +67,7 @@ export const EmailLoginForm: React.FC<EmailLoginFormProps> = ({
             className="h-11 rounded-lg border-gray-300 dark:border-gray-600 focus-visible:ring-2 focus-visible:ring-blue-500 dark:focus-visible:ring-blue-400 transition-all"
           />
           <p className="text-xs text-muted-foreground">
-            Enter the email you registered with Tempra
+            Enter the email you registered with Calento
           </p>
         </div>
 

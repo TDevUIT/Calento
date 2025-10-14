@@ -6,6 +6,7 @@ export const PUBLIC_ROUTES = {
   CONTACT: '/contact',
   PRICING: '/pricing',
   FEATURES: '/features',
+  BLOG: '/blog',
 } as const;
 
 
@@ -18,7 +19,16 @@ export const AUTH_ROUTES = {
 } as const;
 
 export const PROTECTED_ROUTES = {
+  // Dashboard
   DASHBOARD: '/dashboard',
+  DASHBOARD_CALENDAR: '/dashboard/calendar',
+  DASHBOARD_SCHEDULE: '/dashboard/schedule',
+  DASHBOARD_CALENDAR_SYNC: '/dashboard/calendar-sync',
+  DASHBOARD_MEETINGS: '/dashboard/meetings',
+  DASHBOARD_ANALYTICS: '/dashboard/analytics',
+  DASHBOARD_SETTINGS: '/dashboard/settings',
+  DASHBOARD_HELP: '/dashboard/help',
+  DASHBOARD_PROFILE: '/dashboard/profile',
   
   // Events
   EVENTS: '/events',
@@ -28,6 +38,10 @@ export const PROTECTED_ROUTES = {
   
   // Calendar
   CALENDAR: '/calendar',
+  
+  // User
+  PROFILE: '/profile',
+  BILLING: '/billing',
   
   // Settings
   SETTINGS: '/settings',
@@ -124,7 +138,7 @@ export const API_ROUTE_PATTERNS = [
 ] as const;
 
 
-export const DEFAULT_LOGIN_REDIRECT = PROTECTED_ROUTES.DASHBOARD;
+export const DEFAULT_LOGIN_REDIRECT = PROTECTED_ROUTES.DASHBOARD_CALENDAR;
 
 
 export const DEFAULT_LOGOUT_REDIRECT = AUTH_ROUTES.LOGIN;
@@ -201,7 +215,7 @@ export const ROUTE_METADATA: Record<string, RouteMetadata> = {
   home: {
     path: PUBLIC_ROUTES.HOME,
     title: 'Home',
-    description: 'Welcome to Tempra',
+    description: 'Welcome to Tcalento',
     requiresAuth: false,
     showInNav: true,
   },
