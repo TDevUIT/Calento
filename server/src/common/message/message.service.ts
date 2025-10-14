@@ -54,6 +54,8 @@ export class MessageService {
         email_verified: 'Email verified successfully',
         duplicate_email: 'Email already exists',
         duplicate_username: 'Username already exists',
+        authenticated: 'Authentication verified',
+        not_authenticated: 'Not authenticated',
       },
       user: {
         not_found: 'User not found',
@@ -166,6 +168,8 @@ export class MessageService {
         email_verified: 'Xác thực email thành công',
         duplicate_email: 'Email đã tồn tại',
         duplicate_username: 'Tên người dùng đã tồn tại',
+        authenticated: 'Xác thực thành công',
+        not_authenticated: 'Chưa xác thực',
       },
       user: {
         not_found: 'Không tìm thấy người dùng',

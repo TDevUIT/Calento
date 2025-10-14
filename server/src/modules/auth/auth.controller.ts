@@ -216,6 +216,88 @@ export class AuthController {
   }
 
   @Public()
+  @Get('verify')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Verify authentication status',
+    description: 'Check if user is authenticated via cookies (for middleware)',
+  })
+  @ApiCookieAuth()
+  @ApiResponse({
+    status: 200,
+    description: 'Authentication status verified',
+    schema: {
+      example: {
+        status: 200,
+        message: 'Authentication verified',
+        data: {
+          authenticated: true,
+          user: {
+            id: 'user-id',
+            email: 'user@example.com',
+            username: 'username',
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Not authenticated',
+    schema: {
+      example: {
+        status: 200,
+        message: 'Not authenticated',
+        data: {
+          authenticated: false,
+        },
+      },
+    },
+  })
+  async verifyAuth(
+    @Req() request: Request,
+  ): Promise<SuccessResponseDto<{ authenticated: boolean; user?: any }>> {
+    try {
+      const token = this.cookieAuthService.extractTokenFromCookies(request);
+      
+      if (!token) {
+        return new SuccessResponseDto(
+          this.messageService.get('auth.not_authenticated'),
+          { authenticated: false },
+        );
+      }
+
+      // Verify token và get user info
+      const user = await this.authService.validateAccessToken(token);
+      
+      if (!user) {
+        return new SuccessResponseDto(
+          this.messageService.get('auth.not_authenticated'),
+          { authenticated: false },
+        );
+      }
+
+      return new SuccessResponseDto(
+        this.messageService.get('auth.authenticated'),
+        {
+          authenticated: true,
+          user: {
+            id: user.id,
+            email: user.email,
+            username: user.username,
+          },
+        },
+      );
+    } catch (error) {
+      this.logger.warn(`Auth verification failed: ${error.message}`);
+      return new SuccessResponseDto(
+        this.messageService.get('auth.not_authenticated'),
+        { authenticated: false },
+      );
+    }
+  }
+
+  @Public()
   @Get('google/url')
   @ApiOperation({
     summary: '🔗 Get Google OAuth URL for Login',

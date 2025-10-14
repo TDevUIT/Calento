@@ -172,4 +172,16 @@ export class UserValidationService {
       throw new Error(this.messageService.get('error.internal_server_error'));
     }
   }
+
+  async findUserById(userId: string): Promise<any | null> {
+    const query = 'SELECT * FROM users WHERE id = $1 AND is_active = true';
+    const params = [userId];
+
+    try {
+      const result = await this.databaseService.query(query, params);
+      return result.rows[0] || null;
+    } catch (error) {
+      throw new Error(this.messageService.get('error.internal_server_error'));
+    }
+  }
 }

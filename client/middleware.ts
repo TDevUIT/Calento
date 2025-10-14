@@ -8,15 +8,42 @@ import {
   getLoginRedirectUrl,
 } from '@/constants/routes';
 
-export function middleware(request: NextRequest) {
+async function verifyAuthFromServer(request: NextRequest): Promise<boolean> {
+  try {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    const verifyUrl = `${apiUrl}/auth/verify`;
+    
+    const cookieHeader = request.headers.get('cookie') || '';
+    
+    const response = await fetch(verifyUrl, {
+      method: 'GET',
+      headers: {
+        'Cookie': cookieHeader,
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      return false;
+    }
+
+    const data = await response.json();
+    return data?.data?.authenticated === true;
+  } catch (error) {
+    console.error('Auth verification failed:', error);
+    return false;
+  }
+}
+
+export async function middleware(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
   
   if (isApiRoute(pathname)) {
     return NextResponse.next();
   }
 
-  const accessToken = request.cookies.get('access_token')?.value;
-  const isAuthenticated = !!accessToken;
+  const isAuthenticated = await verifyAuthFromServer(request);
 
   if (isProtectedRoute(pathname) && !isAuthenticated) {
     const loginUrl = getLoginRedirectUrl(pathname);
@@ -31,7 +58,6 @@ export function middleware(request: NextRequest) {
     
     return NextResponse.redirect(new URL(redirectTo, request.url));
   }
-
 
   return NextResponse.next();
 }

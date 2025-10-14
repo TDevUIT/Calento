@@ -256,6 +256,32 @@ export class AuthService {
     return null;
   }
 
+  async validateAccessToken(token: string): Promise<any> {
+    try {
+      const payload = this.jwtService.verify<JwtPayload>(token, {
+        secret: this.configService.jwtSecret,
+      });
+
+      if (payload.type !== 'access') {
+        this.logger.warn('Invalid token type, expected access token');
+        return null;
+      }
+
+      const user = await this.userValidationService.findUserById(payload.sub);
+      
+      if (!user) {
+        this.logger.warn(`User not found for token: ${payload.sub}`);
+        return null;
+      }
+
+      const { password_hash, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    } catch (error) {
+      this.logger.warn(`Token validation failed: ${error.message}`);
+      return null;
+    }
+  }
+
   private async generateTokens(user: any): Promise<AuthTokens> {
     try {
       this.logger.debug(`Generating tokens for user: ${user.email}`);
