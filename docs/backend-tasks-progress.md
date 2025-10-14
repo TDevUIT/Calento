@@ -91,7 +91,7 @@
 - [X] Conflict resolution API
 - [X] Event mapping utilities (EventMappers)
 - [X] Sync validation (SyncChecker)
-- [X] Bidirectional sync (Tempra ↔ Google)
+- [X] Bidirectional sync (Calento ↔ Google)
 - [X] Disconnect handling (preserve events)
 - [X] Type-safe sync system
 - [ ] 🔄 Real-time sync with webhooks

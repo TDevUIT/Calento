@@ -478,20 +478,20 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | Tempra - AI Calendar Assistant',
-    default: 'Tempra - AI Calendar Assistant for Work & Life',
+    template: '%s | Calento - AI Calendar Assistant',
+    default: 'Calento - AI Calendar Assistant for Work & Life',
   },
   description: 'Intelligent calendar management with AI-powered scheduling, availability optimization, and seamless integrations.',
   keywords: ['calendar', 'AI', 'scheduling', 'productivity', 'time management'],
-  authors: [{ name: 'Tempra Team' }],
-  creator: 'Tempra',
-  publisher: 'Tempra',
+  authors: [{ name: 'Calento Team' }],
+  creator: 'Calento',
+  publisher: 'Calento',
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://tempra.app'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://calento.space'),
   alternates: {
     canonical: '/',
   },
@@ -499,24 +499,24 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: '/',
-    siteName: 'Tempra',
-    title: 'Tempra - AI Calendar Assistant',
+    siteName: 'Calento',
+    title: 'Calento - AI Calendar Assistant',
     description: 'Intelligent calendar management with AI-powered scheduling',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'Tempra - AI Calendar Assistant',
+        alt: 'Calento - AI Calendar Assistant',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Tempra - AI Calendar Assistant',
+    title: 'Calento - AI Calendar Assistant',
     description: 'Intelligent calendar management with AI-powered scheduling',
     images: ['/og-image.png'],
-    creator: '@tempra',
+    creator: '@calento',
   },
   robots: {
     index: true,
@@ -572,10 +572,10 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Features',
-  description: 'Discover powerful features of Tempra AI Calendar Assistant including smart scheduling, availability optimization, and seamless integrations.',
+  description: 'Discover powerful features of Calento AI Calendar Assistant including smart scheduling, availability optimization, and seamless integrations.',
   openGraph: {
-    title: 'Features - Tempra AI Calendar Assistant',
-    description: 'Discover powerful features of Tempra AI Calendar Assistant',
+    title: 'Features - Calento AI Calendar Assistant',
+    description: 'Discover powerful features of Calento AI Calendar Assistant',
     url: '/features',
   },
 };
@@ -594,20 +594,20 @@ export default function FeaturesPage() {
 export const organizationSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: 'Tempra',
-  url: 'https://tempra.app',
-  logo: 'https://tempra.app/logo.png',
+  name: 'Calento',
+  url: 'https://calento.space',
+  logo: 'https://calento.space/logo.png',
   description: 'AI-powered calendar assistant for intelligent scheduling and time management',
   sameAs: [
-    'https://twitter.com/tempra',
-    'https://linkedin.com/company/tempra',
+    'https://twitter.com/calento',
+    'https://linkedin.com/company/calento',
   ],
 };
 
 export const softwareApplicationSchema = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
-  name: 'Tempra',
+  name: 'Calento',
   applicationCategory: 'BusinessApplication',
   operatingSystem: 'Web',
   description: 'AI calendar assistant that helps optimize your schedule and manage time effectively',

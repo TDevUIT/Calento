@@ -318,6 +318,6 @@ console.log(`Avg time per event: ${avgTime}ms`);
 
 ---
 
-**Tác giả**: Tempra Team
+**Tác giả**: Calento Team
 **Ngày cập nhật**: 2025-10-02
 **Version**: 1.0.0

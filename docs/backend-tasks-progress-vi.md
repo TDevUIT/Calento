@@ -98,7 +98,7 @@
 - [X] API giải quyết xung đột
 - [X] Event mapping utilities (EventMappers)
 - [X] Sync validation (SyncChecker)
-- [X] Đồng bộ hai chiều (Tempra ↔ Google)
+- [X] Đồng bộ hai chiều (Calento ↔ Google)
 - [X] Xử lý disconnect (giữ lại events)
 - [X] Hệ thống sync type-safe
 - [X] Tối ưu hóa batch sync
@@ -1181,7 +1181,7 @@ CREATE TABLE webhook_deliveries (
 - ✅ Tight integration với AvailabilityModule
 - ✅ Ready cho Event auto-creation (future)
 - ✅ Ready cho Email notifications (future)
-- ✅ Follows Tempra's hybrid architecture
+- ✅ Follows Calento's hybrid architecture
 
 **Files Created**: 10 core files (~3500+ lines)
 **Tiến độ Booking Module**: 0% → 100%
@@ -1247,7 +1247,7 @@ CREATE TABLE webhook_deliveries (
 - ✅ Uses PaginationService & MessageService
 - ✅ Compatible với existing Event module
 - ✅ Ready cho Booking module integration
-- ✅ Follows Tempra's hybrid architecture
+- ✅ Follows Calento's hybrid architecture
 
 **Files Created**: 7 core files (~2000+ lines)
 **Tiến độ Availability Module**: 0% → 100%

@@ -146,11 +146,11 @@ NEXT_PUBLIC_ENABLE_ERROR_REPORTING=true
 
 ```bash
 # .env.production
-NEXT_PUBLIC_APP_URL=https://tempra.app
-NEXT_PUBLIC_API_BASE_URL=https://api.tempra.app/api/v1
-NEXT_PUBLIC_WS_URL=wss://api.tempra.app/ws
-NEXT_PUBLIC_GOOGLE_AUTH_URL=https://api.tempra.app/api/v1/auth/google
-NEXT_PUBLIC_SLACK_AUTH_URL=https://api.tempra.app/api/v1/auth/slack
+NEXT_PUBLIC_APP_URL=https://calento.space
+NEXT_PUBLIC_API_BASE_URL=https://api.calento.space/api/v1
+NEXT_PUBLIC_WS_URL=wss://api.calento.space/ws
+NEXT_PUBLIC_GOOGLE_AUTH_URL=https://api.calento.space/api/v1/auth/google
+NEXT_PUBLIC_SLACK_AUTH_URL=https://api.calento.space/api/v1/auth/slack
 
 NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 NEXT_PUBLIC_HOTJAR_ID=XXXXXXX
@@ -269,7 +269,7 @@ export default function RootLayout({
 ### 3.4 Service Worker for Caching
 ```typescript
 // public/sw.js
-const CACHE_NAME = 'tempra-v1';
+const CACHE_NAME = 'calento-v1';
 const urlsToCache = [
   '/',
   '/dashboard',
