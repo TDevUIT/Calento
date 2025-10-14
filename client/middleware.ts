@@ -11,7 +11,7 @@ import {
 async function verifyAuthFromServer(request: NextRequest): Promise<boolean> {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-    const verifyUrl = `${apiUrl}/auth/verify`;
+    const verifyUrl = `${apiUrl}/api/v1/auth/verify`;
     
     const cookieHeader = request.headers.get('cookie') || '';
     
