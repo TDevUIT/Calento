@@ -101,14 +101,13 @@ export default function Page() {
       description: event.description,
       calendarId: event.calendar_id,
       color: getColorHex(event.color),
+      creator: event.creator,
     }));
   }, [apiEvents]);
 
   const filteredEvents = calendarEvents.filter(event => 
     visibleCalendarIds.size === 0 || visibleCalendarIds.has(event.calendarId || '')
   );
-
-
 
   if (isLoading) {
     return (

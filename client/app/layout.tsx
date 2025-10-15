@@ -26,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} antialiased`} suppressHydrationWarning>
+      <body className={`${inter.variable} antialiased bg-[#F7F8FC]`} suppressHydrationWarning>
         <QueryProvider>
           <AuthProvider>
             <MainLayoutProvider>

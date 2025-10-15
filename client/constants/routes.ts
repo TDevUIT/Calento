@@ -94,6 +94,7 @@ export const API_ROUTES = {
   GOOGLE_CALENDARS_SYNC: '/google/calendars/sync',
   GOOGLE_CALENDARS_LIST: '/google/calendars/list',
   GOOGLE_TOKEN_REFRESH: '/google/token/refresh',
+  GOOGLE_MEET_CREATE: '/google/meet/create',
 } as const;
 
 export const PUBLIC_ROUTE_PATTERNS = [
