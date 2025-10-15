@@ -319,10 +319,15 @@ export class EventController {
     @Body() updateEventDto: UpdateEventDto,
     @CurrentUserId() userId: string,
   ): Promise<SuccessResponseDto> {
+    // Get existing event to retrieve google_event_id if exists
+    const existingEvent = await this.eventService.getEventById(eventId, userId);
+    const googleEventId = existingEvent?.google_event_id;
+
     const event = await this.eventService.replaceEvent(
       eventId,
       updateEventDto,
       userId,
+      googleEventId,
     );
 
     return new SuccessResponseDto(
@@ -376,10 +381,15 @@ export class EventController {
     @Body() partialUpdateEventDto: PartialUpdateEventDto,
     @CurrentUserId() userId: string,
   ): Promise<SuccessResponseDto> {
+    // Get existing event to retrieve google_event_id if exists
+    const existingEvent = await this.eventService.getEventById(eventId, userId);
+    const googleEventId = existingEvent?.google_event_id;
+
     const event = await this.eventService.updateEvent(
       eventId,
       partialUpdateEventDto,
       userId,
+      googleEventId,
     );
 
     return new SuccessResponseDto(
@@ -419,7 +429,15 @@ export class EventController {
     @Param('id') eventId: string,
     @CurrentUserId() userId: string,
   ): Promise<SuccessResponseDto> {
-    const deleted = await this.eventService.deleteEvent(eventId, userId);
+    // Get existing event to retrieve google_event_id if exists
+    const existingEvent = await this.eventService.getEventById(eventId, userId);
+    const googleEventId = existingEvent?.google_event_id;
+
+    const deleted = await this.eventService.deleteEvent(
+      eventId,
+      userId,
+      googleEventId,
+    );
 
     if (!deleted) {
       throw new NotFoundException(

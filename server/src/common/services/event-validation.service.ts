@@ -45,6 +45,7 @@ export class EventValidationService {
     startTime: Date,
     endTime: Date,
     excludeEventId?: string,
+    throwOnConflict: boolean = false,
   ): Promise<void> {
     try {
       let query = `
@@ -71,9 +72,11 @@ export class EventValidationService {
           `Event conflict detected with event ${conflictingEvent.id}: ${conflictingEvent.title}`,
         );
 
-        throw new EventValidationException(
-          `Event time conflicts with existing event: "${conflictingEvent.title}" (${conflictingEvent.start_time} - ${conflictingEvent.end_time})`,
-        );
+        if (throwOnConflict) {
+          throw new EventValidationException(
+            `Event time conflicts with existing event: "${conflictingEvent.title}" (${conflictingEvent.start_time} - ${conflictingEvent.end_time})`,
+          );
+        }
       }
 
       this.logger.debug(

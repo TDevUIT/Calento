@@ -20,9 +20,28 @@ export class EventMappers {
   static calentoEventToGoogleInput(
     event: Event | CreateEventDto,
   ): GoogleEventInput {
-    return {
-      summary: 'title' in event ? event.title : (event as any).title,
-      description: event.description,
+    const title = 'title' in event ? event.title : (event as any).title;
+    const description = event.description;
+    const conferenceData = (event as any).conference_data;
+
+    // Build enhanced description with source attribution
+    let enhancedDescription = description || '';
+    if (enhancedDescription) {
+      enhancedDescription += '\n\n';
+    }
+    enhancedDescription += '━━━━━━━━━━━━━━━━━━━━\n';
+    enhancedDescription += '📅 Created with Tempra\n';
+    enhancedDescription += 'View source: https://tempra.app\n';
+
+    // Add Google Meet info if exists
+    if (conferenceData?.url) {
+      enhancedDescription += '\n🎥 Video Conference:\n';
+      enhancedDescription += `${conferenceData.url}\n`;
+    }
+
+    const googleEvent: GoogleEventInput = {
+      summary: title,
+      description: enhancedDescription,
       start:
         'start_time' in event
           ? new Date(event.start_time)
@@ -32,7 +51,20 @@ export class EventMappers {
           ? new Date(event.end_time)
           : (event as any).end_time,
       location: event.location,
+      source: {
+        title: 'Tempra',
+        url: 'https://tempra.app',
+      },
     };
+
+    // If there's existing conference data from Tempra, include it
+    if (conferenceData?.url) {
+      // Don't create new conference, just preserve the URL in description
+      // Google Calendar will show the URL as clickable link
+      googleEvent.hangoutLink = conferenceData.url;
+    }
+
+    return googleEvent;
   }
 
   static isValidGoogleEvent(googleEvent: any): boolean {

@@ -591,6 +591,18 @@ export class EventResponseDto {
   })
   calendar_id: string;
 
+  @ApiPropertyOptional({
+    description: 'Google Calendar event ID (if synced)',
+    example: 'abc123def456',
+  })
+  google_event_id?: string;
+
+  @ApiPropertyOptional({
+    description: 'Whether the event was successfully synced to Google Calendar',
+    example: true,
+  })
+  synced_to_google?: boolean;
+
   @ApiProperty({
     description: 'User ID who owns the event',
     example: '456e7890-e89b-12d3-a456-426614174001',
@@ -651,6 +663,22 @@ export class EventResponseDto {
     example: 'Jane Smith',
   })
   organizer_name?: string;
+
+  @ApiPropertyOptional({
+    description: 'Creator information (user who created the event)',
+    example: {
+      id: '789e0123-e89b-12d3-a456-426614174002',
+      name: 'John Doe',
+      email: 'john@example.com',
+      avatar: 'https://example.com/avatar.jpg',
+    },
+  })
+  creator?: {
+    id: string;
+    name?: string;
+    email?: string;
+    avatar?: string;
+  };
 
   @ApiPropertyOptional({
     description: 'Event attendees',

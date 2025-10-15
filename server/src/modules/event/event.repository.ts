@@ -37,6 +37,48 @@ export class EventRepository extends BaseRepository<Event> {
   }
 
   /**
+   * Override buildSelectQuery to automatically JOIN with users table for creator info
+   * This ensures ALL queries return creator information without manual JOIN in each method
+   */
+  protected buildSelectQuery(includeDeleted = false): string {
+    let query = `
+      SELECT 
+        e.*,
+        u.id as creator_id,
+        COALESCE(
+          NULLIF(TRIM(CONCAT(u.first_name, ' ', u.last_name)), ''),
+          u.username,
+          u.email
+        ) as creator_name,
+        u.email as creator_email,
+        u.avatar as creator_avatar
+      FROM ${this.tableName} e
+      LEFT JOIN users u ON e.organizer_id = u.id
+    `;
+    if (!includeDeleted && this.isSoftDeletable()) {
+      query += ` WHERE e.deleted_at IS NULL`;
+    }
+    return query;
+  }
+
+  /**
+   * Override findById to use table alias in WHERE clause
+   * This prevents "column reference 'id' is ambiguous" error when JOINing with users table
+   */
+  async findById(id: string): Promise<Event | null> {
+    const query = `${this.buildSelectQuery()} WHERE e.id = $1`;
+
+    try {
+      const result = await this.databaseService.query<any>(query, [id]);
+      if (!result.rows[0]) return null;
+      return this.normalizeEventDataWithCreator(result.rows[0]);
+    } catch (error) {
+      this.logger.error(`Failed to find ${this.tableName} by ID ${id}:`, error);
+      throw new Error(this.messageService.get('error.internal_server_error'));
+    }
+  }
+
+  /**
    * Properly serialize JSON fields for PostgreSQL JSONB columns
    * Handles null/undefined values and prevents double-encoding
    */
@@ -220,6 +262,60 @@ export class EventRepository extends BaseRepository<Event> {
     };
   }
 
+  /**
+   * Normalize event data with creator information from JOIN query
+   * Extracts creator fields from row and attaches them to the event object
+   */
+  private normalizeEventDataWithCreator(row: any): Event {
+    // Extract creator fields
+    const creator_id = row.creator_id;
+    const creator_name = row.creator_name;
+    const creator_email = row.creator_email;
+    const creator_avatar = row.creator_avatar;
+
+    // Debug logging
+    this.logger.debug('normalizeEventDataWithCreator - Raw row data:', {
+      event_id: row.id,
+      event_title: row.title,
+      organizer_id: row.organizer_id,
+      creator_id,
+      creator_name,
+      creator_email,
+      creator_avatar,
+    });
+
+    // If organizer_id is null, this is likely a data issue
+    if (!row.organizer_id) {
+      this.logger.warn(`Event ${row.id} has null organizer_id - creator info will be missing`);
+    }
+
+    // Remove creator fields from row to avoid duplication
+    const { creator_id: _, creator_name: __, creator_email: ___, creator_avatar: ____, ...eventData } = row;
+
+    // Normalize the event data first
+    const normalizedEvent = this.normalizeEventData(eventData as Event);
+
+    // Attach creator info if available
+    if (creator_id) {
+      const creatorInfo = {
+        id: creator_id,
+        name: creator_name || undefined,
+        email: creator_email || undefined,
+        avatar: creator_avatar || undefined,
+      };
+      
+      this.logger.debug('normalizeEventDataWithCreator - Attaching creator:', creatorInfo);
+      
+      return {
+        ...normalizedEvent,
+        creator: creatorInfo,
+      };
+    }
+
+    this.logger.warn('normalizeEventDataWithCreator - No creator_id found, returning event without creator');
+    return normalizedEvent;
+  }
+
   async createEvent(eventDto: CreateEventDto, userId: string): Promise<Event> {
     await this.userValidationService.validateUserExists(userId);
     await this.calendarValidationService.validateCalendarExists(userId);
@@ -271,7 +367,9 @@ export class EventRepository extends BaseRepository<Event> {
 
     try {
       const event = await this.createWithJsonHandling(eventData);
-      return this.normalizeEventData(event);
+      // After creating, fetch the event with creator info using the JOIN query
+      const eventWithCreator = await this.findById(event.id);
+      return eventWithCreator || this.normalizeEventData(event);
     } catch (error) {
       this.logger.error('Failed to create event:', error);
       throw new EventCreationFailedException(
@@ -330,9 +428,15 @@ export class EventRepository extends BaseRepository<Event> {
       `;
 
       const dataQuery = `
-        SELECT e.* 
+        SELECT 
+          e.*,
+          u.id as creator_id,
+          CONCAT(u.first_name, ' ', u.last_name) as creator_name,
+          u.email as creator_email,
+          u.avatar as creator_avatar
         FROM events e
         INNER JOIN calendars c ON e.calendar_id = c.id
+        LEFT JOIN users u ON e.organizer_id = u.id
         WHERE ${whereClause}
         ORDER BY e.${safeSortBy} ${safeSortOrder}
         LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
@@ -344,7 +448,7 @@ export class EventRepository extends BaseRepository<Event> {
       ]);
 
       const total = parseInt(countResult.rows[0].count);
-      const items = dataResult.rows.map(event => this.normalizeEventData(event));
+      const items = dataResult.rows.map(row => this.normalizeEventDataWithCreator(row));
 
       return this.paginationService.createPaginatedResult(
         items,
@@ -368,15 +472,16 @@ export class EventRepository extends BaseRepository<Event> {
     await this.userValidationService.validateUserExists(userId);
 
     const searchPattern = `%${searchTerm}%`;
+    // Use 'e.' alias because buildSelectQuery joins with users table
     const whereCondition =
-      'user_id = $1 AND (title ILIKE $2 OR description ILIKE $2)';
+      'e.user_id = $1 AND (e.title ILIKE $2 OR e.description ILIKE $2)';
     const whereParams = [userId, searchPattern];
 
     try {
       const result = await this.search(whereCondition, whereParams, paginationOptions);
       return {
         ...result,
-        data: result.data.map(event => this.normalizeEventData(event)),
+        data: result.data.map(event => this.normalizeEventDataWithCreator(event)),
       };
     } catch (error) {
       this.logger.error('Failed to search events:', error);
@@ -404,20 +509,15 @@ export class EventRepository extends BaseRepository<Event> {
           return null;
         }
 
-        const normalizedEvent = this.normalizeEventData(originalEvent);
         const occurrence = this.recurringEventsService.getOccurrenceById(
-          normalizedEvent,
+          originalEvent,
           occurrenceIndex,
         );
 
         return occurrence;
       }
 
-      const event = await this.findById(eventId);
-      if (event) {
-        return this.normalizeEventData(event);
-      }
-      return null;
+      return await this.findById(eventId);
     } catch (error) {
       this.logger.error(`Failed to get event ${eventId}:`, error);
       throw new EventCreationFailedException(
@@ -433,7 +533,6 @@ export class EventRepository extends BaseRepository<Event> {
   ): Promise<Event> {
     await this.userValidationService.validateUserExists(userId);
 
-    // Extract original ID if it's an occurrence virtual ID
     const actualId = eventId.includes('_occurrence_') 
       ? eventId.split('_occurrence_')[0] 
       : eventId;
@@ -479,7 +578,9 @@ export class EventRepository extends BaseRepository<Event> {
           this.messageService.get('calendar.event_not_found'),
         );
       }
-      return this.normalizeEventData(updatedEvent);
+      // After updating, fetch the event with creator info using the JOIN query
+      const eventWithCreator = await this.findById(actualId);
+      return eventWithCreator || this.normalizeEventData(updatedEvent);
     } catch (error) {
       this.logger.error(`Failed to replace event ${actualId}:`, error);
       throw new EventCreationFailedException(
@@ -495,7 +596,6 @@ export class EventRepository extends BaseRepository<Event> {
   ): Promise<Event> {
     await this.userValidationService.validateUserExists(userId);
 
-    // Extract original ID if it's an occurrence virtual ID
     const actualId = eventId.includes('_occurrence_') 
       ? eventId.split('_occurrence_')[0] 
       : eventId;
@@ -543,7 +643,9 @@ export class EventRepository extends BaseRepository<Event> {
           this.messageService.get('calendar.event_not_found'),
         );
       }
-      return this.normalizeEventData(updatedEvent);
+      // After updating, fetch the event with creator info using the JOIN query
+      const eventWithCreator = await this.findById(actualId);
+      return eventWithCreator || this.normalizeEventData(updatedEvent);
     } catch (error) {
       this.logger.error(`Failed to update event ${actualId}:`, error);
       throw new EventCreationFailedException(
@@ -586,14 +688,14 @@ export class EventRepository extends BaseRepository<Event> {
     await this.userValidationService.validateUserExists(userId);
 
     const whereCondition =
-      'user_id = $1 AND start_time <= $3 AND end_time >= $2';
+      'e.user_id = $1 AND e.start_time <= $3 AND e.end_time >= $2';
     const whereParams = [userId, startDate, endDate];
 
     try {
       const result = await this.search(whereCondition, whereParams, options);
       return {
         ...result,
-        data: result.data.map(event => this.normalizeEventData(event)),
+        data: result.data.map(event => this.normalizeEventDataWithCreator(event)),
       };
     } catch (error) {
       this.logger.error(
@@ -616,10 +718,10 @@ export class EventRepository extends BaseRepository<Event> {
 
     const searchPattern = `%${searchTerm}%`;
     const whereCondition = `
-            user_id = $1 
-            AND start_time <= $4 
-            AND end_time >= $3 
-            AND (title ILIKE $2 OR description ILIKE $2)
+            e.user_id = $1 
+            AND e.start_time <= $4 
+            AND e.end_time >= $3 
+            AND (e.title ILIKE $2 OR e.description ILIKE $2)
         `;
     const whereParams = [userId, searchPattern, startDate, endDate];
 
@@ -627,7 +729,7 @@ export class EventRepository extends BaseRepository<Event> {
       const result = await this.search(whereCondition, whereParams, options);
       return {
         ...result,
-        data: result.data.map(event => this.normalizeEventData(event)),
+        data: result.data.map(event => this.normalizeEventDataWithCreator(event)),
       };
     } catch (error) {
       this.logger.error('Failed to search events by date range:', error);
@@ -645,9 +747,19 @@ export class EventRepository extends BaseRepository<Event> {
     await this.userValidationService.validateUserExists(userId);
 
     const query = `
-      SELECT e.* 
+      SELECT 
+        e.*,
+        u.id as creator_id,
+        COALESCE(
+          NULLIF(TRIM(CONCAT(u.first_name, ' ', u.last_name)), ''),
+          u.username,
+          u.email
+        ) as creator_name,
+        u.email as creator_email,
+        u.avatar as creator_avatar
       FROM ${this.tableName} e
       INNER JOIN calendars c ON e.calendar_id = c.id
+      LEFT JOIN users u ON e.organizer_id = u.id
       WHERE c.user_id = $1 
         AND e.recurrence_rule IS NOT NULL 
         AND e.recurrence_rule != ''
@@ -660,7 +772,19 @@ export class EventRepository extends BaseRepository<Event> {
         userId,
         endDate,
       ]);
-      return result.rows.map(event => this.normalizeEventData(event));
+      
+      this.logger.debug('findRecurringEventsForExpansion - Raw query results:', {
+        count: result.rows.length,
+        sample: result.rows[0] ? {
+          id: result.rows[0].id,
+          title: result.rows[0].title,
+          organizer_id: result.rows[0].organizer_id,
+          creator_id: result.rows[0].creator_id,
+          creator_name: result.rows[0].creator_name,
+        } : null,
+      });
+      
+      return result.rows.map(row => this.normalizeEventDataWithCreator(row));
     } catch (error) {
       this.logger.error(
         'Failed to find recurring events for expansion:',

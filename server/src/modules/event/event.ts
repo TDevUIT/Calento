@@ -43,6 +43,14 @@ export interface Event {
   organizer_email?: string;
   organizer_name?: string;
   
+  // Creator information (user who created the event)
+  creator?: {
+    id: string;
+    name?: string;
+    email?: string;
+    avatar?: string;
+  };
+  
   // Attendees and conference
   attendees?: EventAttendee[];
   conference_data?: ConferenceData;

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import {
   PaginatedResult,
   PaginationOptions,
@@ -6,33 +6,139 @@ import {
 import { Event } from './event';
 import { CreateEventDto, UpdateEventDto, PartialUpdateEventDto } from './dto/events.dto';
 import { EventRepository } from './event.repository';
+import { EventSyncService } from './services/event-sync.service';
 
 @Injectable()
 export class EventService {
-  constructor(private readonly eventRepository: EventRepository) {}
+  private readonly logger = new Logger(EventService.name);
 
-  async createEvent(eventDto: CreateEventDto, userId: string): Promise<Event> {
-    return this.eventRepository.createEvent(eventDto, userId);
+  constructor(
+    private readonly eventRepository: EventRepository,
+    private readonly eventSyncService: EventSyncService,
+  ) {}
+
+  async createEvent(
+    eventDto: CreateEventDto,
+    userId: string,
+  ): Promise<Event & { syncedToGoogle?: boolean; googleEventId?: string }> {
+    try {
+      // Use sync service which will auto-sync to Google if connected
+      const result = await this.eventSyncService.createEventWithSync(
+        eventDto,
+        userId,
+      );
+
+      if (result.syncedToGoogle) {
+        this.logger.log(
+          `Event ${result.event.id} created and synced to Google Calendar`,
+        );
+      } else {
+        this.logger.log(
+          `Event ${result.event.id} created locally (not synced to Google)`,
+        );
+      }
+
+      return {
+        ...result.event,
+        syncedToGoogle: result.syncedToGoogle,
+        googleEventId: result.googleEventId,
+      };
+    } catch (error) {
+      this.logger.error(`Failed to create event: ${error.message}`);
+      throw error;
+    }
   }
 
   async replaceEvent(
     eventId: string,
     eventDto: UpdateEventDto,
     userId: string,
-  ): Promise<Event> {
-    return this.eventRepository.replaceEvent(eventId, eventDto, userId);
+    googleEventId?: string,
+  ): Promise<Event & { syncedToGoogle?: boolean }> {
+    try {
+      // Use sync service for update
+      const result = await this.eventSyncService.updateEventWithSync(
+        eventId,
+        eventDto,
+        userId,
+        googleEventId,
+      );
+
+      if (result.syncedToGoogle) {
+        this.logger.log(
+          `Event ${eventId} updated and synced to Google Calendar`,
+        );
+      }
+
+      return {
+        ...result.event,
+        syncedToGoogle: result.syncedToGoogle,
+      };
+    } catch (error) {
+      this.logger.error(`Failed to replace event: ${error.message}`);
+      throw error;
+    }
   }
 
   async updateEvent(
     eventId: string,
     eventDto: PartialUpdateEventDto,
     userId: string,
-  ): Promise<Event> {
-    return this.eventRepository.updateEvent(eventId, eventDto, userId);
+    googleEventId?: string,
+  ): Promise<Event & { syncedToGoogle?: boolean }> {
+    try {
+      // Convert partial update to full update for sync
+      const fullDto = eventDto as UpdateEventDto;
+      const result = await this.eventSyncService.updateEventWithSync(
+        eventId,
+        fullDto,
+        userId,
+        googleEventId,
+      );
+
+      if (result.syncedToGoogle) {
+        this.logger.log(
+          `Event ${eventId} updated and synced to Google Calendar`,
+        );
+      }
+
+      return {
+        ...result.event,
+        syncedToGoogle: result.syncedToGoogle,
+      };
+    } catch (error) {
+      this.logger.error(`Failed to update event: ${error.message}`);
+      throw error;
+    }
   }
 
-  async deleteEvent(eventId: string, userId: string): Promise<boolean> {
-    return this.eventRepository.deleteEvent(eventId, userId);
+  async deleteEvent(
+    eventId: string,
+    userId: string,
+    googleEventId?: string,
+  ): Promise<boolean> {
+    try {
+      const result = await this.eventSyncService.deleteEventWithSync(
+        eventId,
+        userId,
+        googleEventId,
+      );
+
+      if (result.deletedFromGoogle) {
+        this.logger.log(
+          `Event ${eventId} deleted from both local and Google Calendar`,
+        );
+      } else if (result.deleted) {
+        this.logger.log(
+          `Event ${eventId} deleted locally (not synced to Google)`,
+        );
+      }
+
+      return result.deleted;
+    } catch (error) {
+      this.logger.error(`Failed to delete event: ${error.message}`);
+      throw error;
+    }
   }
 
   async getEventById(eventId: string, userId: string): Promise<Event | null> {
