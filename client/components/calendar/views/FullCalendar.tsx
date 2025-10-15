@@ -31,17 +31,18 @@ import {
   forwardRef,
   useCallback,
   useContext,
-  useEffect,
+  // useEffect,
   useMemo,
   useState,
 } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { EventHoverCard } from '../shared/EventHoverCard';
 import type { Event } from '@/interface/event.interface';
-import { calculateEventLayouts, getEventLayoutStyles, getEventTextClasses, type EventLayout } from '@/utils/event-display';
+import { calculateEventLayouts, getEventLayoutStyles, getEventTextClasses } from '@/utils/event-display';
+// import type { EventLayout } from '@/utils/event-display';
 import { getStoredCalendarView, saveCalendarView } from '@/utils/calendar-storage';
 import { useCalendarSettings } from '../shared/CalendarSettingsProvider';
-import { formatTimeWithSettings, formatDateWithSettings } from '@/utils/calendar-format';
+// import { formatTimeWithSettings, formatDateWithSettings } from '@/utils/calendar-format';
 
 type View = 'day' | 'week' | 'month' | 'year';
 

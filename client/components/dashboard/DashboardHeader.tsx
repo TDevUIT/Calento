@@ -10,8 +10,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { ViewSelector } from "./ViewSelector";
+// import { ViewSelector } from "./ViewSelector";
 import { UserAvatarMenu } from "./UserAvatarMenu";
+import { UpcomingEvents } from "./UpcomingEvents";
 
 interface DashboardHeaderProps {
   notificationCount?: number;
@@ -43,7 +44,9 @@ export function DashboardHeader({ notificationCount = 3 }: DashboardHeaderProps)
       <SidebarTrigger className="-ml-1" />
       
       <div className="flex flex-1 items-center gap-3">
-        <ViewSelector />
+        {/* <ViewSelector /> */}
+        
+        <UpcomingEvents />
 
         <Button 
           variant="ghost" 

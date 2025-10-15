@@ -29,4 +29,7 @@ export const EVENT_QUERY_KEYS = {
   
   recurring: (params: RecurringEventsQueryParams) =>
     [...EVENT_QUERY_KEYS.all, 'recurring', params] as const,
+  
+  upcoming: (startDate: string, endDate: string, maxEvents?: number) =>
+    [...EVENT_QUERY_KEYS.all, 'upcoming', { startDate, endDate, maxEvents }] as const,
 } as const;

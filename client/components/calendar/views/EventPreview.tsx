@@ -1,6 +1,6 @@
 'use client';
 
-import { format } from 'date-fns';
+// import { format } from 'date-fns';
 import { Clock, MapPin, Users, Video, Bell, Repeat, ExternalLink, User } from 'lucide-react';
 import { useCalendarSettings } from '../shared/CalendarSettingsProvider';
 import { formatTimeWithSettings, formatDateWithSettings } from '@/utils/calendar-format';
@@ -16,13 +16,13 @@ interface EventPreviewProps {
 export function EventPreview({ event }: EventPreviewProps) {
   const { timeFormat, dateFormat } = useCalendarSettings();
   
-  const colorClasses: Record<string, string> = {
-    blue: 'bg-blue-500',
-    green: 'bg-green-500',
-    pink: 'bg-pink-500',
-    purple: 'bg-purple-500',
-    orange: 'bg-orange-500',
-  };
+  // const colorClasses: Record<string, string> = {
+  //   blue: 'bg-blue-500',
+  //   green: 'bg-green-500',
+  //   pink: 'bg-pink-500',
+  //   purple: 'bg-purple-500',
+  //   orange: 'bg-orange-500',
+  // };
 
   const startDate = typeof event.start_time === 'string' ? new Date(event.start_time) : event.start_time;
   const endDate = typeof event.end_time === 'string' ? new Date(event.end_time) : event.end_time;

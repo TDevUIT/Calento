@@ -2,8 +2,8 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
-import { startOfMonth, endOfMonth } from 'date-fns';
-import { enUS } from 'date-fns/locale';
+import { startOfYear, endOfYear, startOfMonth, endOfMonth } from 'date-fns';
+import { enUS, type Locale } from 'date-fns/locale';
 import {
   Calendar,
   CalendarDayView,
@@ -221,9 +221,9 @@ function CalendarWrapper({
   defaultView,
   enableKeyboardShortcuts,
   calendarLocale,
-  timeFormat,
-  dateFormat,
-  showWeekNumbers,
+  // timeFormat,
+  // dateFormat, 
+  // showWeekNumbers,
   highlightWeekends,
   compactMode,
 }: {
@@ -249,7 +249,7 @@ function CalendarWrapper({
   setVisibleCalendarIds: (ids: Set<string>) => void;
   defaultView: 'day' | 'week' | 'month' | 'year';
   enableKeyboardShortcuts: boolean;
-  calendarLocale: any;
+  calendarLocale: Locale;
   timeFormat: '12h' | '24h';
   dateFormat: 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD';
   showWeekNumbers: boolean;
