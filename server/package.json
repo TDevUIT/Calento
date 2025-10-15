@@ -19,9 +19,11 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "env:generate": "node scripts/generate-env.js",
-    "migrate:up": "ts-node src/cli/migrate.ts up",
+    "migrate:up:dev": "ts-node src/cli/migrate.ts up",
+    "migrate:up": "node src/cli/migrate-standalone.js",
     "migrate:down": "ts-node src/cli/migrate.ts down",
-    "migrate:generate": "ts-node src/cli/migrate.ts generate"
+    "migrate:generate": "ts-node src/cli/migrate.ts generate",
+    "backfill:organizer": "ts-node src/cli/backfill-organizer.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { GoogleAuthService } from '../../google/services/google-auth.service';
 import { GoogleCalendarService } from '../../google/services/google-calendar.service';
 import { WebhookChannelRepository } from '../repositories/webhook-channel.repository';
+import { DatabaseService } from '../../../database/database.service';
 import { TIME_CONSTANTS } from '../../../common/constants';
 import {
   CreateWebhookChannelDto,
@@ -26,6 +27,7 @@ export class WebhookService {
     private readonly googleAuthService: GoogleAuthService,
     private readonly googleCalendarService: GoogleCalendarService,
     private readonly webhookChannelRepo: WebhookChannelRepository,
+    private readonly databaseService: DatabaseService,
   ) {}
 
   async watchCalendar(
@@ -188,42 +190,59 @@ export class WebhookService {
   async handleNotification(event: WebhookNotificationEvent): Promise<void> {
     try {
       this.logger.log(
-        `Received webhook notification for channel ${event.channel_id}`,
+        `🔔 ===== WEBHOOK NOTIFICATION RECEIVED =====`,
       );
+      this.logger.log(`📨 Channel ID: ${event.channel_id}`);
+      this.logger.log(`📦 Resource ID: ${event.resource_id}`);
+      this.logger.log(`📊 Resource State: ${event.resource_state}`);
+      this.logger.log(`🔗 Resource URI: ${event.resource_uri}`);
+      this.logger.log(`#️⃣ Message Number: ${event.message_number}`);
+      this.logger.log(`⏰ Timestamp: ${event.timestamp}`);
+      this.logger.log(`========================================`);
+      
+      console.log('\n🔍 Full Webhook Event Data:', JSON.stringify(event, null, 2));
 
       const channel = await this.webhookChannelRepo.findByChannelId(
         event.channel_id,
       );
 
       if (!channel) {
-        this.logger.warn(`Channel ${event.channel_id} not found in database`);
+        this.logger.warn(`❌ Channel ${event.channel_id} not found in database`);
+        this.logger.warn(`🔍 Searched for channel_id: ${event.channel_id}`);
         return;
       }
 
+      this.logger.log(`✅ Channel found: ${channel.channel_id}`);
+      this.logger.log(`👤 User ID: ${channel.user_id}`);
+      this.logger.log(`📅 Calendar ID: ${channel.calendar_id}`);
+      console.log('📋 Channel Details:', JSON.stringify(channel, null, 2));
+
       if (!channel.is_active) {
-        this.logger.warn(`Channel ${event.channel_id} is not active`);
+        this.logger.warn(`⚠️ Channel ${event.channel_id} is not active`);
         return;
       }
 
       if (event.resource_state === 'sync') {
         this.logger.log(
-          `Sync notification received for channel ${event.channel_id}`,
+          `🔄 Sync notification (initial setup) - ignoring`,
         );
         return;
       }
 
       if (event.resource_state === 'exists') {
         this.logger.log(
-          `Change detected for user ${channel.user_id}, calendar ${channel.calendar_id}`,
+          `🎯 Change detected for user ${channel.user_id}, calendar ${channel.calendar_id}`,
         );
+        console.log('🚀 Starting calendar sync...\n');
 
         await this.syncCalendarEvents(channel.user_id, channel.calendar_id);
       }
     } catch (error) {
       this.logger.error(
-        `Error handling webhook notification: ${error.message}`,
+        `❌ Error handling webhook notification: ${error.message}`,
         error.stack,
       );
+      console.error('💥 Full Error:', error);
     }
   }
 
@@ -233,8 +252,10 @@ export class WebhookService {
   ): Promise<void> {
     try {
       this.logger.log(
-        `Syncing calendar events for user ${userId}, calendar ${calendarId}`,
+        `📥 ===== SYNCING CALENDAR EVENTS =====`,
       );
+      this.logger.log(`👤 User ID: ${userId}`);
+      this.logger.log(`📅 Calendar ID: ${calendarId}`);
 
       const timeMin = new Date();
       timeMin.setDate(timeMin.getDate() - 30);
@@ -242,7 +263,10 @@ export class WebhookService {
       const timeMax = new Date();
       timeMax.setDate(timeMax.getDate() + 90);
 
-      const events = await this.googleCalendarService.listEvents(
+      this.logger.log(`📆 Time Range: ${timeMin.toISOString()} to ${timeMax.toISOString()}`);
+      console.log('⏱️ Fetching events from Google Calendar...');
+
+      const googleEvents = await this.googleCalendarService.listEvents(
         userId,
         calendarId,
         {
@@ -252,13 +276,281 @@ export class WebhookService {
         },
       );
 
-      this.logger.log(`Synced ${events.length} events for user ${userId}`);
+      this.logger.log(
+        `✅ Fetched ${googleEvents.length} events from Google Calendar`,
+      );
+
+      // Log first 3 events for debugging
+      if (googleEvents.length > 0) {
+        console.log('\n📋 Sample Events from Google Calendar (first 3):');
+        googleEvents.slice(0, 3).forEach((event, index) => {
+          console.log(`\n  Event ${index + 1}:`);
+          console.log(`    ID: ${event.id}`);
+          console.log(`    Title: ${event.summary}`);
+          console.log(`    Start: ${event.start?.dateTime}`);
+          console.log(`    End: ${event.end?.dateTime}`);
+          console.log(`    Status: ${event.status}`);
+          console.log(`    Meet Link: ${event.hangoutLink || 'N/A'}`);
+        });
+        console.log('');
+      }
+
+      const tempraCalendarId = await this.getTempraCalendarId(
+        userId,
+        calendarId,
+      );
+
+      if (!tempraCalendarId) {
+        this.logger.warn(
+          `No Tempra calendar found for user ${userId}, skipping sync`,
+        );
+        return;
+      }
+
+      let created = 0;
+      let updated = 0;
+      let deleted = 0;
+      // Process each Google Calendar event
+      console.log(`\n🔄 Processing ${googleEvents.length} events...`);
+      
+      for (const googleEvent of googleEvents) {
+        try {
+          if (!this.isValidGoogleEvent(googleEvent)) {
+            console.log(`⚠️ Skipping invalid event: ${googleEvent.id}`);
+            continue;
+          }
+
+          // Check if event already exists in Tempra
+          const existingEvent = await this.findEventByGoogleId(
+            userId,
+            googleEvent.id!,
+          );
+
+          // Event was deleted in Google Calendar
+          if (googleEvent.status === 'cancelled') {
+            if (existingEvent) {
+              await this.deleteEventFromTempra(existingEvent.id, userId);
+              deleted++;
+              console.log(`🗑️ Deleted event: "${googleEvent.summary}" (${googleEvent.id})`);
+            }
+            continue;
+          }
+
+          // Map Google event to Tempra format
+          const eventData = this.mapGoogleEventToTempra(
+            googleEvent,
+            tempraCalendarId,
+          );
+
+          if (existingEvent) {
+            // Update existing event
+            await this.updateEventInTempra(
+              existingEvent.id,
+              eventData,
+              userId,
+            );
+            updated++;
+            console.log(`✏️ Updated event: "${googleEvent.summary}" (${googleEvent.id})`);
+          } else {
+            // Create new event
+            await this.createEventInTempra(
+              eventData,
+              userId,
+              googleEvent.id!,
+            );
+            created++;
+            console.log(`✨ Created new event: "${googleEvent.summary}" (${googleEvent.id})`);
+            console.log(`   Start: ${googleEvent.start?.dateTime}`);
+            console.log(`   End: ${googleEvent.end?.dateTime}`);
+          }
+        } catch (error) {
+          console.error(`❌ Failed to sync event ${googleEvent.id}:`, error.message);
+          this.logger.error(
+            `Failed to sync event ${googleEvent.id}: ${error.message}`,
+          );
+        }
+      }
+
+      this.logger.log(
+        `✅ ===== SYNC COMPLETED =====`,
+      );
+      this.logger.log(`📊 Summary for user ${userId}:`);
+      this.logger.log(`   ✨ Created: ${created}`);
+      this.logger.log(`   ✏️ Updated: ${updated}`);
+      this.logger.log(`   🗑️ Deleted: ${deleted}`);
+      console.log('\n');
     } catch (error) {
       this.logger.error(
         `Failed to sync calendar events: ${error.message}`,
         error.stack,
       );
+      console.error('💥 Sync Error:', error);
     }
+  }
+
+  private isValidGoogleEvent(event: any): boolean {
+    return !!(
+      event.id &&
+      event.summary &&
+      event.start?.dateTime &&
+      event.end?.dateTime
+    );
+  }
+
+  private async getTempraCalendarId(
+    userId: string,
+    googleCalendarId: string,
+  ): Promise<string | null> {
+    try {
+      const result = await this.databaseService.query(
+        `SELECT id FROM calendars WHERE user_id = $1 AND google_calendar_id = $2 LIMIT 1`,
+        [userId, googleCalendarId],
+      );
+
+      if (result.rows.length > 0) {
+        return result.rows[0].id;
+      }
+
+      const primaryResult = await this.databaseService.query(
+        `SELECT id FROM calendars WHERE user_id = $1 ORDER BY created_at ASC LIMIT 1`,
+        [userId],
+      );
+
+      return primaryResult.rows.length > 0 ? primaryResult.rows[0].id : null;
+    } catch (error) {
+      this.logger.error(`Failed to get Tempra calendar ID: ${error.message}`);
+      return null;
+    }
+  }
+
+  private async findEventByGoogleId(
+    userId: string,
+    googleEventId: string,
+  ): Promise<any> {
+    try {
+      const result = await this.databaseService.query(
+        `SELECT e.* FROM events e
+         INNER JOIN calendars c ON e.calendar_id = c.id
+         WHERE c.user_id = $1 AND e.google_event_id = $2`,
+        [userId, googleEventId],
+      );
+
+      return result.rows.length > 0 ? result.rows[0] : null;
+    } catch (error) {
+      this.logger.error(
+        `Failed to find event by Google ID: ${error.message}`,
+      );
+      return null;
+    }
+  }
+
+  private mapGoogleEventToTempra(
+    googleEvent: any,
+    calendarId: string,
+  ): any {
+    return {
+      calendar_id: calendarId,
+      title: googleEvent.summary || 'Untitled Event',
+      description: googleEvent.description || undefined,
+      location: googleEvent.location || undefined,
+      start_time: new Date(googleEvent.start.dateTime),
+      end_time: new Date(googleEvent.end.dateTime),
+      is_all_day: false,
+      timezone: googleEvent.start.timeZone || 'UTC',
+      status: googleEvent.status === 'confirmed' ? 'confirmed' : 'tentative',
+      color: googleEvent.colorId || undefined,
+      recurrence_rule: googleEvent.recurrence?.[0] || undefined,
+      conference_data: googleEvent.hangoutLink
+        ? {
+            type: 'google_meet',
+            url: googleEvent.hangoutLink,
+          }
+        : undefined,
+    };
+  }
+
+  private async createEventInTempra(
+    eventData: any,
+    userId: string,
+    googleEventId: string,
+  ): Promise<void> {
+    const { v4: uuidv4 } = await import('uuid');
+    const eventId = uuidv4();
+
+    await this.databaseService.query(
+      `INSERT INTO events (
+        id, calendar_id, google_event_id, title, description, location,
+        start_time, end_time, is_all_day, timezone, status, color,
+        recurrence_rule, conference_data, created_at, updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW(), NOW())`,
+      [
+        eventId,
+        eventData.calendar_id,
+        googleEventId,
+        eventData.title,
+        eventData.description,
+        eventData.location,
+        eventData.start_time,
+        eventData.end_time,
+        eventData.is_all_day,
+        eventData.timezone,
+        eventData.status,
+        eventData.color,
+        eventData.recurrence_rule,
+        eventData.conference_data
+          ? JSON.stringify(eventData.conference_data)
+          : null,
+      ],
+    );
+  }
+
+  private async updateEventInTempra(
+    eventId: string,
+    eventData: any,
+    userId: string,
+  ): Promise<void> {
+    await this.databaseService.query(
+      `UPDATE events SET
+        title = $2,
+        description = $3,
+        location = $4,
+        start_time = $5,
+        end_time = $6,
+        timezone = $7,
+        status = $8,
+        color = $9,
+        recurrence_rule = $10,
+        conference_data = $11,
+        updated_at = NOW()
+      WHERE id = $1`,
+      [
+        eventId,
+        eventData.title,
+        eventData.description,
+        eventData.location,
+        eventData.start_time,
+        eventData.end_time,
+        eventData.timezone,
+        eventData.status,
+        eventData.color,
+        eventData.recurrence_rule,
+        eventData.conference_data
+          ? JSON.stringify(eventData.conference_data)
+          : null,
+      ],
+    );
+  }
+
+  private async deleteEventFromTempra(
+    eventId: string,
+    userId: string,
+  ): Promise<void> {
+    await this.databaseService.query(
+      `DELETE FROM events 
+       WHERE id = $1 
+       AND calendar_id IN (SELECT id FROM calendars WHERE user_id = $2)`,
+      [eventId, userId],
+    );
   }
 
   async getUserChannels(userId: string): Promise<WebhookChannelResponseDto[]> {
