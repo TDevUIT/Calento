@@ -118,23 +118,41 @@ export class EmailService {
       return this.templateCache.get(templateName)!;
     }
 
-    const templatePath = path.join(
-      __dirname,
-      '..',
-      'templates',
-      `${templateName}.hbs`,
-    );
+    const possiblePaths = [
+      path.join(__dirname, '..', 'templates', `${templateName}.hbs`),
+      path.join(process.cwd(), 'src', 'modules', 'email', 'templates', `${templateName}.hbs`),
+      path.join(__dirname, '..', '..', '..', 'src', 'modules', 'email', 'templates', `${templateName}.hbs`),
+    ];
+
+    let templateSource: string | null = null;
+    let usedPath: string | null = null;
+
+    for (const templatePath of possiblePaths) {
+      try {
+        if (fs.existsSync(templatePath)) {
+          templateSource = fs.readFileSync(templatePath, 'utf-8');
+          usedPath = templatePath;
+          this.logger.log(`✅ Loaded template ${templateName} from: ${templatePath}`);
+          break;
+        }
+      } catch (error) {
+        // Continue to next path
+        continue;
+      }
+    }
+
+    if (!templateSource || !usedPath) {
+      this.logger.error(`Failed to load template ${templateName}. Tried paths:`, possiblePaths);
+      throw new Error(`Template ${templateName} not found in any expected location`);
+    }
 
     try {
-      const templateSource = fs.readFileSync(templatePath, 'utf-8');
       const template = Handlebars.compile(templateSource);
-
       this.templateCache.set(templateName, template);
-
       return template;
     } catch (error) {
-      this.logger.error(`Failed to load template ${templateName}:`, error);
-      throw new Error(`Template ${templateName} not found`);
+      this.logger.error(`Failed to compile template ${templateName}:`, error);
+      throw new Error(`Template ${templateName} compilation failed`);
     }
   }
 
@@ -165,6 +183,29 @@ export class EmailService {
     userId?: string,
   ): Promise<SendEmailResult> {
     try {
+      // Check if SMTP is configured
+      if (!this.emailConfig.auth.user || !this.emailConfig.auth.pass) {
+        this.logger.warn('⚠️  SMTP credentials not configured - Email will not be sent');
+        this.logger.warn('📧 Email details:', {
+          to: options.to,
+          subject: options.subject,
+          template: options.template,
+        });
+        
+        // In development, just log and return success
+        if (process.env.NODE_ENV === 'development') {
+          this.logger.log('🔧 Development mode: Skipping email send (SMTP not configured)');
+          return {
+            success: true,
+            messageId: `dev-${Date.now()}`,
+          };
+        }
+        
+        throw new Error(
+          'SMTP credentials not configured. Please set SMTP_USER and SMTP_PASSWORD environment variables.'
+        );
+      }
+
       let html = options.html;
       const text = options.text;
 
@@ -204,7 +245,7 @@ export class EmailService {
 
       const info = await this.transporter.sendMail(mailOptions);
 
-      this.logger.log(`Email sent successfully: ${info.messageId}`);
+      this.logger.log(`✅ Email sent successfully: ${info.messageId}`);
 
       if (logId) {
         await this.updateEmailLog(
