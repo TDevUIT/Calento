@@ -1,25 +1,14 @@
 'use client';
 
 import { format } from 'date-fns';
-import { Clock, MapPin, Users, Video, Bell, Repeat, ExternalLink } from 'lucide-react';
+import { Clock, MapPin, Users, Video, Bell, Repeat, ExternalLink, User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Event } from '@/interface/event.interface';
 interface EventPreviewProps {
-  event: {
-    id: string;
-    title: string;
-    start: Date;
-    end: Date;
-    description?: string;
-    location?: string;
-    attendees?: string[];
-    videoLink?: string;
-    reminder?: string;
-    recurrence?: string;
-    color?: string;
-  };
+  event: Event;
 }
 
 export function EventPreview({ event }: EventPreviewProps) {
@@ -31,10 +20,12 @@ export function EventPreview({ event }: EventPreviewProps) {
     orange: 'bg-orange-500',
   };
 
+  const startDate = typeof event.start_time === 'string' ? new Date(event.start_time) : event.start_time;
+  const endDate = typeof event.end_time === 'string' ? new Date(event.end_time) : event.end_time;
+
   return (
     <div className="w-80 p-4 space-y-3">
       <div className="flex items-start gap-3">
-        <div className={`h-2 w-2 rounded-full mt-2 ${colorClasses[event.color || 'blue']}`} />
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-base leading-tight truncate">
             {event.title}
@@ -46,13 +37,35 @@ export function EventPreview({ event }: EventPreviewProps) {
         <Clock className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
         <div>
           <p className="font-medium">
-            {format(event.start, 'EEEE, MMMM d, yyyy')}
+            {format(startDate, 'EEEE, MMMM d, yyyy')}
           </p>
           <p className="text-muted-foreground">
-            {format(event.start, 'h:mm a')} - {format(event.end, 'h:mm a')}
+            {format(startDate, 'h:mm a')} - {format(endDate, 'h:mm a')}
           </p>
         </div>
       </div>
+
+      {event.creator && (
+        <div className="flex items-center gap-2 text-sm">
+          <User className="h-4 w-4 text-muted-foreground shrink-0" />
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <Avatar className="h-6 w-6">
+              <AvatarImage src={event.creator.avatar} alt={event.creator.name || 'Creator'} />
+              <AvatarFallback className="text-xs">
+                {event.creator.name ? event.creator.name.charAt(0).toUpperCase() : 'U'}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <p className="truncate font-medium">
+                {event.creator.name || 'Unknown'}
+              </p>
+              <p className="text-xs text-muted-foreground truncate">
+                Người tổ chức
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {event.description && (
         <>
@@ -75,7 +88,7 @@ export function EventPreview({ event }: EventPreviewProps) {
         </div>
       )}
 
-      {event.videoLink && (
+      {event.conference_data && (
         <div className="flex items-center gap-2">
           <Video className="h-4 w-4 text-muted-foreground" />
           <Button variant="link" className="h-auto p-0 text-sm text-primary">
@@ -91,7 +104,7 @@ export function EventPreview({ event }: EventPreviewProps) {
             <div className="flex flex-wrap gap-1">
               {event.attendees.slice(0, 3).map((attendee, i) => (
                 <Badge key={i} variant="secondary" className="text-xs">
-                  {attendee}
+                  {attendee.name || attendee.email}
                 </Badge>
               ))}
               {event.attendees.length > 3 && (
@@ -105,16 +118,16 @@ export function EventPreview({ event }: EventPreviewProps) {
       )}
 
       <div className="flex items-center gap-3 text-xs text-muted-foreground">
-        {event.reminder && (
+        {event.reminders && event.reminders.length > 0 && (
           <div className="flex items-center gap-1">
             <Bell className="h-3 w-3" />
-            <span>{event.reminder}</span>
+            <span>{event.reminders[0].minutes} min before</span>
           </div>
         )}
-        {event.recurrence && (
+        {event.recurrence_rule && (
           <div className="flex items-center gap-1">
             <Repeat className="h-3 w-3" />
-            <span>{event.recurrence}</span>
+            <span>Recurring</span>
           </div>
         )}
       </div>

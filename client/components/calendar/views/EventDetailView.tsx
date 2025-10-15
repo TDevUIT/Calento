@@ -167,23 +167,31 @@ export function EventDetailView({ event, onEdit, onDelete, onClose }: EventDetai
           </div>
         </div>
 
-        {/* Organizer */}
-        {event.organizer_name && (
+        {/* Creator/Organizer */}
+        {(event.creator || event.organizer_name) && (
           <div className="flex items-center gap-3">
             <User className="h-5 w-5 text-muted-foreground flex-shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium">{event.organizer_name}</p>
-              {event.organizer_email && (
-                <p className="text-xs text-muted-foreground truncate">{event.organizer_email}</p>
+              <p className="text-sm font-medium">
+                {event.creator?.name || event.organizer_name || 'Unknown'}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {event.creator?.name ? 'Người tạo' : 'Người tổ chức'}
+              </p>
+              {(event.creator?.email || event.organizer_email) && (
+                <p className="text-xs text-muted-foreground truncate">
+                  {event.creator?.email || event.organizer_email}
+                </p>
               )}
             </div>
-            {event.organizer_email && (
+            {(event.creator?.email || event.organizer_email) && (
               <Button
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 flex-shrink-0"
                 onClick={() => {
-                  window.location.href = `mailto:${event.organizer_email}`;
+                  const email = event.creator?.email || event.organizer_email;
+                  window.location.href = `mailto:${email}`;
                 }}
               >
                 <Mail className="h-4 w-4" />
@@ -217,7 +225,7 @@ export function EventDetailView({ event, onEdit, onDelete, onClose }: EventDetai
         {event.attendees && event.attendees.length > 0 && (
           <>
             <Separator />
-            <AttendeesList attendees={event.attendees} organizerEmail={event.organizer_email} />
+            <AttendeesList attendees={event.attendees} organizerEmail={event.creator?.email || event.organizer_email} />
           </>
         )}
 

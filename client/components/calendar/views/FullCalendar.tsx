@@ -31,6 +31,7 @@ import {
   forwardRef,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -38,6 +39,7 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { EventHoverCard } from '../shared/EventHoverCard';
 import type { Event } from '@/interface/event.interface';
 import { getEventZIndexStyle } from '@/utils/event-display';
+import { getStoredCalendarView, saveCalendarView } from '@/utils/calendar-storage';
 
 type View = 'day' | 'week' | 'month' | 'year';
 
@@ -65,6 +67,12 @@ export type CalendarEvent = {
   color?: string; // Hex color code (e.g., #3b82f6) or preset name
   description?: string;
   calendarId?: string;
+  creator?: {
+    id: string;
+    name?: string;
+    email?: string;
+    avatar?: string;
+  };
 };
 
 function convertToFullEvent(calendarEvent: CalendarEvent): Event {
@@ -80,6 +88,7 @@ function convertToFullEvent(calendarEvent: CalendarEvent): Event {
     is_all_day: false,
     created_at: new Date(),
     updated_at: new Date(),
+    creator: calendarEvent.creator,
   };
 }
 
@@ -104,15 +113,22 @@ const Calendar = ({
   events: defaultEvents = [],
   onChangeView,
 }: CalendarProps) => {
-  const [view, setView] = useState<View>(_defaultMode);
+  const [view, setView] = useState<View>(() => {
+    if (typeof window !== 'undefined') {
+      return getStoredCalendarView();
+    }
+    return _defaultMode || 'day';
+  });
+  
   const [date, setDate] = useState(defaultDate);
   const [events, setEvents] = useState<CalendarEvent[]>(defaultEvents);
   
   const today = useMemo(() => new Date(), []);
 
-  const changeView = (view: View) => {
-    setView(view);
-    onChangeView?.(view);
+  const changeView = (newView: View) => {
+    setView(newView);
+    saveCalendarView(newView); // Save to localStorage
+    onChangeView?.(newView);
   };
 
   useHotkeys('m', () => changeView('month'), {
@@ -171,6 +187,7 @@ const CalendarViewTrigger = forwardRef<
       {...props}
       onClick={() => {
         setView(view);
+        saveCalendarView(view); // Save to localStorage
         onChangeView?.(view);
       }}
     >
@@ -188,9 +205,6 @@ const HourEvents = ({
   hour: Date;
 }) => {
   const { onEventClick } = useCalendar();
-  // const [hoveredEventId, setHoveredEventId] = useState<string | null>(null);
-  // const handleMouseOver = (eventId: string) => setHoveredEventId(eventId);
-  // const handleMouseLeave = () => setHoveredEventId(null);
   
   return (
     <div className="h-20 border-t last:border-b relative group hover:bg-accent/5 transition-colors">

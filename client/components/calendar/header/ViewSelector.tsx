@@ -3,6 +3,7 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CalendarDays, CalendarRange, Calendar as CalendarIcon } from 'lucide-react';
 import { useCalendar } from '../views/FullCalendar';
+import { saveCalendarView } from '@/utils/calendar-storage';
 
 export function ViewSelector() {
   const { view, setView, onChangeView } = useCalendar();
@@ -22,6 +23,7 @@ export function ViewSelector() {
       value={view}
       onValueChange={(v: 'day' | 'week' | 'month' | 'year') => {
         setView(v);
+        saveCalendarView(v); // Save to localStorage
         onChangeView?.(v);
       }}
     >
@@ -31,7 +33,7 @@ export function ViewSelector() {
           <SelectValue placeholder="Select view" />
         </div>
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className="z-[9999]">
         <SelectItem value="day">Day</SelectItem>
         <SelectItem value="week">Week</SelectItem>
         <SelectItem value="month">Month</SelectItem>

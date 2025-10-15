@@ -38,6 +38,7 @@ export function CalendarEventItem({
     is_all_day: false,
     created_at: new Date(),
     updated_at: new Date(),
+    creator: event.creator,
   };
 
   // If hover is disabled, just render children
