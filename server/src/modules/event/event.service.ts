@@ -7,6 +7,8 @@ import { Event } from './event';
 import { CreateEventDto, UpdateEventDto, PartialUpdateEventDto } from './dto/events.dto';
 import { EventRepository } from './event.repository';
 import { EventSyncService } from './services/event-sync.service';
+import { EventInvitationService } from './services/event-invitation.service';
+import { UserService } from '../users/user.service';
 
 @Injectable()
 export class EventService {
@@ -15,6 +17,8 @@ export class EventService {
   constructor(
     private readonly eventRepository: EventRepository,
     private readonly eventSyncService: EventSyncService,
+    private readonly invitationService: EventInvitationService,
+    private readonly userService: UserService,
   ) {}
 
   async createEvent(
@@ -204,5 +208,138 @@ export class EventService {
       maxOccurrences,
       options,
     );
+  }
+
+  // ===================== Invitation Management =====================
+
+  async sendEventInvitations(
+    eventId: string,
+    userId: string,
+    emails?: string[],
+    showAttendees = true,
+  ): Promise<{ sent: number; failed: number; results: any[] }> {
+    try {
+      // Get event with attendees
+      const event = await this.eventRepository.findById(eventId);
+      if (!event || event.creator?.id !== userId) {
+        throw new Error('Event not found or access denied');
+      }
+
+      // Get user info for organizer details
+      const user = await this.userService.getUserById(userId);
+      
+      if (!user || !user.email) {
+        throw new Error('User not found or user email is missing');
+      }
+      const organizerName = `${user.first_name} ${user.last_name}`.trim() || user.email;
+
+      // Debug: Log all attendees
+      this.logger.debug(`📧 SendEventInvitations Debug:`, {
+        eventId,
+        totalAttendees: event.attendees?.length || 0,
+        attendees: event.attendees,
+        organizerEmail: user.email,
+      });
+
+      // Filter attendees if specific emails provided
+      let attendeesToInvite = event.attendees || [];
+      if (emails && emails.length > 0) {
+        attendeesToInvite = attendeesToInvite.filter(a => emails.includes(a.email));
+      }
+
+      // Debug: Log filtered attendees
+      this.logger.debug(`📧 Attendees to invite:`, {
+        count: attendeesToInvite.length,
+        attendees: attendeesToInvite.map(a => ({
+          email: a.email,
+          is_organizer: a.is_organizer,
+        })),
+      });
+
+      // Send invitations
+      const result = await this.invitationService.sendBulkInvitations(
+        event,
+        attendeesToInvite,
+        userId,
+        organizerName,
+        user.email,
+        user.avatar ?? undefined,
+        showAttendees,
+      );
+
+      this.logger.log(`📧 Invitation results: sent=${result.sent}, failed=${result.failed}`);
+      return result;
+    } catch (error) {
+      this.logger.error(`Failed to send invitations: ${error.message}`);
+      throw error;
+    }
+  }
+
+  async sendInvitationReminders(
+    eventId: string,
+    userId: string,
+  ): Promise<{ sent: number; failed: number }> {
+    return this.invitationService.sendReminders(eventId, userId);
+  }
+
+  async getInvitationDetails(token: string): Promise<any> {
+    return this.invitationService.getInvitationByToken(token);
+  }
+
+  async respondToInvitation(
+    token: string,
+    action: 'accept' | 'decline' | 'tentative',
+    comment?: string,
+  ): Promise<any> {
+    return this.invitationService.respondToInvitation(token, action, comment);
+  }
+
+  /**
+   * One-time migration: Sync all event attendees to event_attendees table
+   * This fixes the 404 invitation token error for events created before the fix
+   */
+  async syncAllEventAttendeesToDatabase(userId: string): Promise<{ synced: number; failed: number }> {
+    try {
+      this.logger.log(`🔄 Starting attendees sync for user ${userId}`);
+      
+      // Get user email for organizer detection
+      const user = await this.userService.getUserById(userId);
+      if (!user?.email) {
+        throw new Error('User not found or email missing');
+      }
+
+      // Get all user's events with pagination
+      const result = await this.eventRepository.getEvents(userId, {
+        page: 1,
+        limit: 1000, // Get all events
+      });
+
+      let synced = 0;
+      let failed = 0;
+
+      for (const event of result.data) {
+        try {
+          if (event.attendees && event.attendees.length > 0) {
+            await this.eventRepository.syncAttendeesToDatabase(
+              event.id,
+              event.attendees,
+              user.email,
+            );
+            synced++;
+            this.logger.debug(`✅ Synced ${event.attendees.length} attendees for event ${event.id}`);
+          }
+        } catch (error) {
+          this.logger.error(`Failed to sync attendees for event ${event.id}: ${error.message}`);
+          failed++;
+        }
+      }
+
+      this.logger.log(`✅ Sync complete: ${synced} events synced, ${failed} failed out of ${result.data.length} events`);
+      
+      return { synced, failed };
+    } catch (error) {
+      this.logger.error(`Failed to sync attendees: ${error.message}`);
+      throw error;
+    }
   }
 }

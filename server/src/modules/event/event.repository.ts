@@ -5,7 +5,7 @@ import {
   PaginatedResult,
   PaginationOptions,
 } from '../../common/interfaces/pagination.interface';
-import { Event } from './event';
+import { Event, EventAttendee } from './event';
 import { CreateEventDto, UpdateEventDto, PartialUpdateEventDto } from './dto/events.dto';
 import { UserValidationService } from '../../common/services/user-validation.service';
 import { CalendarValidationService } from '../../common/services/calendar-validation.service';
@@ -66,7 +66,11 @@ export class EventRepository extends BaseRepository<Event> {
    * This prevents "column reference 'id' is ambiguous" error when JOINing with users table
    */
   async findById(id: string): Promise<Event | null> {
-    const query = `${this.buildSelectQuery()} WHERE e.id = $1`;
+    const baseQuery = this.buildSelectQuery();
+    // Check if the query already has a WHERE clause (from soft delete check)
+    const hasWhereClause = baseQuery.toUpperCase().includes('WHERE');
+    const connector = hasWhereClause ? 'AND' : 'WHERE';
+    const query = `${baseQuery} ${connector} e.id = $1`;
 
     try {
       const result = await this.databaseService.query<any>(query, [id]);
@@ -263,6 +267,66 @@ export class EventRepository extends BaseRepository<Event> {
   }
 
   /**
+   * Sync event attendees to event_attendees table for invitation system
+   * This ensures attendees are available for token-based invitations
+   */
+  async syncAttendeesToDatabase(
+    eventId: string,
+    attendees: EventAttendee[],
+    organizerEmail: string,
+  ): Promise<void> {
+    if (!attendees || attendees.length === 0) {
+      this.logger.debug(`No attendees to sync for event ${eventId}`);
+      return;
+    }
+
+    this.logger.log(`📧 Syncing ${attendees.length} attendees to database for event ${eventId}`);
+
+    try {
+      // First, delete existing attendees for this event (to handle updates)
+      await this.databaseService.query(
+        `DELETE FROM event_attendees WHERE event_id = $1`,
+        [eventId],
+      );
+
+      // Insert each attendee into event_attendees table
+      for (const attendee of attendees) {
+        const isOrganizer = attendee.email.toLowerCase() === organizerEmail.toLowerCase();
+        
+        await this.databaseService.query(
+          `INSERT INTO event_attendees 
+           (event_id, email, name, response_status, is_organizer, is_optional, comment)
+           VALUES ($1, $2, $3, $4, $5, $6, $7)
+           ON CONFLICT (event_id, email) 
+           DO UPDATE SET 
+             name = EXCLUDED.name,
+             response_status = EXCLUDED.response_status,
+             is_organizer = EXCLUDED.is_organizer,
+             is_optional = EXCLUDED.is_optional,
+             comment = EXCLUDED.comment,
+             updated_at = NOW()`,
+          [
+            eventId,
+            attendee.email,
+            attendee.name || null,
+            attendee.response_status || 'needsAction',
+            isOrganizer,
+            attendee.is_optional || false,
+            attendee.comment || null,
+          ],
+        );
+
+        this.logger.debug(`✅ Synced attendee: ${attendee.email} (is_organizer: ${isOrganizer})`);
+      }
+
+      this.logger.log(`✅ Successfully synced ${attendees.length} attendees to database`);
+    } catch (error) {
+      this.logger.error(`Failed to sync attendees to database: ${error.message}`, error.stack);
+      // Don't throw - this is non-critical, event is already created
+    }
+  }
+
+  /**
    * Normalize event data with creator information from JOIN query
    * Extracts creator fields from row and attaches them to the event object
    */
@@ -367,6 +431,23 @@ export class EventRepository extends BaseRepository<Event> {
 
     try {
       const event = await this.createWithJsonHandling(eventData);
+      
+      // Get user email for attendee sync
+      const userResult = await this.databaseService.query(
+        'SELECT email FROM users WHERE id = $1',
+        [userId],
+      );
+      const organizerEmail = userResult.rows[0]?.email;
+      
+      // Sync attendees to event_attendees table for invitation system
+      if (eventDto.attendees && eventDto.attendees.length > 0 && organizerEmail) {
+        await this.syncAttendeesToDatabase(
+          event.id,
+          eventDto.attendees,
+          organizerEmail,
+        );
+      }
+      
       // After creating, fetch the event with creator info using the JOIN query
       const eventWithCreator = await this.findById(event.id);
       return eventWithCreator || this.normalizeEventData(event);
@@ -474,7 +555,7 @@ export class EventRepository extends BaseRepository<Event> {
     const searchPattern = `%${searchTerm}%`;
     // Use 'e.' alias because buildSelectQuery joins with users table
     const whereCondition =
-      'e.user_id = $1 AND (e.title ILIKE $2 OR e.description ILIKE $2)';
+      'e.organizer_id = $1 AND (e.title ILIKE $2 OR e.description ILIKE $2)';
     const whereParams = [userId, searchPattern];
 
     try {
@@ -578,6 +659,23 @@ export class EventRepository extends BaseRepository<Event> {
           this.messageService.get('calendar.event_not_found'),
         );
       }
+      
+      // Get user email for attendee sync
+      const userResult = await this.databaseService.query(
+        'SELECT email FROM users WHERE id = $1',
+        [userId],
+      );
+      const organizerEmail = userResult.rows[0]?.email;
+      
+      // Sync attendees to event_attendees table for invitation system
+      if (eventDto.attendees && organizerEmail) {
+        await this.syncAttendeesToDatabase(
+          actualId,
+          eventDto.attendees,
+          organizerEmail,
+        );
+      }
+      
       // After updating, fetch the event with creator info using the JOIN query
       const eventWithCreator = await this.findById(actualId);
       return eventWithCreator || this.normalizeEventData(updatedEvent);
@@ -643,6 +741,25 @@ export class EventRepository extends BaseRepository<Event> {
           this.messageService.get('calendar.event_not_found'),
         );
       }
+      
+      // Get user email for attendee sync if attendees are being updated
+      if (eventDto.attendees !== undefined) {
+        const userResult = await this.databaseService.query(
+          'SELECT email FROM users WHERE id = $1',
+          [userId],
+        );
+        const organizerEmail = userResult.rows[0]?.email;
+        
+        // Sync attendees to event_attendees table for invitation system
+        if (organizerEmail) {
+          await this.syncAttendeesToDatabase(
+            actualId,
+            eventDto.attendees,
+            organizerEmail,
+          );
+        }
+      }
+      
       // After updating, fetch the event with creator info using the JOIN query
       const eventWithCreator = await this.findById(actualId);
       return eventWithCreator || this.normalizeEventData(updatedEvent);
@@ -688,7 +805,7 @@ export class EventRepository extends BaseRepository<Event> {
     await this.userValidationService.validateUserExists(userId);
 
     const whereCondition =
-      'e.user_id = $1 AND e.start_time <= $3 AND e.end_time >= $2';
+      'e.organizer_id = $1 AND e.start_time <= $3 AND e.end_time >= $2';
     const whereParams = [userId, startDate, endDate];
 
     try {
@@ -718,7 +835,7 @@ export class EventRepository extends BaseRepository<Event> {
 
     const searchPattern = `%${searchTerm}%`;
     const whereCondition = `
-            e.user_id = $1 
+            e.organizer_id = $1 
             AND e.start_time <= $4 
             AND e.end_time >= $3 
             AND (e.title ILIKE $2 OR e.description ILIKE $2)

@@ -4,6 +4,7 @@ import { EventRepository } from '../event.repository';
 import { GoogleCalendarService } from '../../google/services/google-calendar.service';
 import { GoogleAuthService } from '../../google/services/google-auth.service';
 import { CalendarValidationService } from '../../../common/services/calendar-validation.service';
+import { DatabaseService } from '../../../database/database.service';
 import { Event } from '../event';
 import { CreateEventDto } from '../dto/events.dto';
 import { SyncStatus } from '../types/sync.types';
@@ -27,6 +28,7 @@ export class EventSyncService {
     private readonly calendarValidationService: CalendarValidationService,
     private readonly syncChecker: SyncChecker,
     private readonly configService: ConfigService,
+    private readonly databaseService: DatabaseService,
   ) {
     this.BATCH_SIZE = this.configService.get<number>(
       'BATCH_SYNC_BATCH_SIZE',
@@ -284,7 +286,7 @@ export class EventSyncService {
             RETURNING id
         `;
 
-    const result = await this.eventRepository['databaseService'].query(
+    const result = await this.databaseService.query(
       query,
       params,
     );

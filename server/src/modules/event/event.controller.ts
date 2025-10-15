@@ -33,7 +33,7 @@ import {
   SuccessResponseDto,
   PaginatedResponseDto,
 } from '../../common/dto/base-response.dto';
-import { PaginationQueryDto, EventQueryDto } from '../../common/dto/pagination.dto';
+import { EventQueryDto } from '../../common/dto/pagination.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUserId } from '../../common/decorators/current-user.decorator';
 import { SwaggerExamples } from '../../common/swagger/swagger-examples';
@@ -319,7 +319,6 @@ export class EventController {
     @Body() updateEventDto: UpdateEventDto,
     @CurrentUserId() userId: string,
   ): Promise<SuccessResponseDto> {
-    // Get existing event to retrieve google_event_id if exists
     const existingEvent = await this.eventService.getEventById(eventId, userId);
     const googleEventId = existingEvent?.google_event_id;
 
@@ -381,7 +380,6 @@ export class EventController {
     @Body() partialUpdateEventDto: PartialUpdateEventDto,
     @CurrentUserId() userId: string,
   ): Promise<SuccessResponseDto> {
-    // Get existing event to retrieve google_event_id if exists
     const existingEvent = await this.eventService.getEventById(eventId, userId);
     const googleEventId = existingEvent?.google_event_id;
 
@@ -429,7 +427,6 @@ export class EventController {
     @Param('id') eventId: string,
     @CurrentUserId() userId: string,
   ): Promise<SuccessResponseDto> {
-    // Get existing event to retrieve google_event_id if exists
     const existingEvent = await this.eventService.getEventById(eventId, userId);
     const googleEventId = existingEvent?.google_event_id;
 
@@ -448,6 +445,128 @@ export class EventController {
     return new SuccessResponseDto(
       this.messageService.get('calendar.event_deleted'),
       { deleted: true },
+    );
+  }
+
+
+  @Post('sync-attendees')
+  @ApiOperation({
+    summary: '🔄 Sync all event attendees to database',
+    description: 'One-time migration to sync attendees from events.attendees JSONB to event_attendees table',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '✅ Attendees synced successfully',
+  })
+  async syncAllEventAttendees(
+    @CurrentUserId() userId: string,
+  ): Promise<SuccessResponseDto> {
+    const result = await this.eventService.syncAllEventAttendeesToDatabase(userId);
+    return new SuccessResponseDto(
+      'Attendees synced successfully',
+      result,
+    );
+  }
+
+  @Post(':id/invitations/send')
+  @ApiOperation({
+    summary: '📧 Send invitations to event attendees',
+    description: 'Send email invitations to all or specific attendees of an event',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '✅ Invitations sent successfully',
+    schema: {
+      example: {
+        success: true,
+        message: 'Invitations sent successfully',
+        data: {
+          sent: 5,
+          failed: 0,
+          results: [
+            { email: 'guest@example.com', success: true, messageId: 'msg-id' },
+          ],
+        },
+      },
+    },
+  })
+  async sendInvitations(
+    @Param('id') eventId: string,
+    @CurrentUserId() userId: string,
+    @Body() body?: { emails?: string[]; showAttendees?: boolean },
+  ): Promise<SuccessResponseDto> {
+    const result = await this.eventService.sendEventInvitations(
+      eventId,
+      userId,
+      body?.emails,
+      body?.showAttendees ?? true,
+    );
+    return new SuccessResponseDto(
+      this.messageService.get('invitation.sent_successfully') || 'Invitations sent successfully',
+      result,
+    );
+  }
+
+  @Post(':id/invitations/remind')
+  @ApiOperation({
+    summary: '🔔 Send reminders to pending attendees',
+    description: 'Send reminder emails to attendees who haven\'t responded yet',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '✅ Reminders sent successfully',
+  })
+  async sendReminders(
+    @Param('id') eventId: string,
+    @CurrentUserId() userId: string,
+  ): Promise<SuccessResponseDto> {
+    const result = await this.eventService.sendInvitationReminders(eventId, userId);
+    return new SuccessResponseDto(
+      this.messageService.get('invitation.reminders_sent') || 'Reminders sent successfully',
+      result,
+    );
+  }
+
+  @Get('invitation/:token')
+  @ApiOperation({
+    summary: '🔍 Get invitation details by token',
+    description: 'Retrieve event details and invitation info using invitation token',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '✅ Invitation details retrieved',
+  })
+  async getInvitationDetails(
+    @Param('token') token: string,
+  ): Promise<SuccessResponseDto> {
+    const invitation = await this.eventService.getInvitationDetails(token);
+    return new SuccessResponseDto(
+      this.messageService.get('invitation.details_retrieved') || 'Invitation details retrieved',
+      invitation,
+    );
+  }
+
+  @Post('invitation/:token/respond')
+  @ApiOperation({
+    summary: '✅ Respond to event invitation',
+    description: 'Accept, decline, or tentatively accept an event invitation',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '✅ Response recorded successfully',
+  })
+  async respondToInvitation(
+    @Param('token') token: string,
+    @Body() body: { action: 'accept' | 'decline' | 'tentative'; comment?: string },
+  ): Promise<SuccessResponseDto> {
+    const result = await this.eventService.respondToInvitation(
+      token,
+      body.action,
+      body.comment,
+    );
+    return new SuccessResponseDto(
+      this.messageService.get('invitation.response_recorded') || 'Response recorded successfully',
+      result,
     );
   }
 }
