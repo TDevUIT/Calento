@@ -18,7 +18,6 @@ export interface CalendarSettings {
   timeFormat: '12h' | '24h';
   dateFormat: 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD';
   
-  theme: 'light' | 'dark' | 'system';
   compactMode: boolean;
   showWeekNumbers: boolean;
   highlightWeekends: boolean;

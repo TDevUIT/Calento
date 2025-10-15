@@ -3,10 +3,13 @@ import { useEffect } from 'react';
 interface UseKeyboardShortcutsProps {
   onShowShortcuts: () => void;
   onCreateEvent: () => void;
+  enabled?: boolean;
 }
 
-export function useKeyboardShortcuts({ onShowShortcuts, onCreateEvent }: UseKeyboardShortcutsProps) {
+export function useKeyboardShortcuts({ onShowShortcuts, onCreateEvent, enabled = true }: UseKeyboardShortcutsProps) {
   useEffect(() => {
+    if (!enabled) return;
+    
     const handleKeyPress = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
       const isTyping = 
@@ -31,5 +34,5 @@ export function useKeyboardShortcuts({ onShowShortcuts, onCreateEvent }: UseKeyb
     
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
-  }, [onShowShortcuts, onCreateEvent]);
+  }, [onShowShortcuts, onCreateEvent, enabled]);
 }

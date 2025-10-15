@@ -40,6 +40,8 @@ import { EventHoverCard } from '../shared/EventHoverCard';
 import type { Event } from '@/interface/event.interface';
 import { getEventZIndexStyle } from '@/utils/event-display';
 import { getStoredCalendarView, saveCalendarView } from '@/utils/calendar-storage';
+import { useCalendarSettings } from '../shared/CalendarSettingsProvider';
+import { formatTimeWithSettings, formatDateWithSettings } from '@/utils/calendar-format';
 
 type View = 'day' | 'week' | 'month' | 'year';
 
@@ -127,7 +129,7 @@ const Calendar = ({
 
   const changeView = (newView: View) => {
     setView(newView);
-    saveCalendarView(newView); // Save to localStorage
+    saveCalendarView(newView);
     onChangeView?.(newView);
   };
 
@@ -187,7 +189,7 @@ const CalendarViewTrigger = forwardRef<
       {...props}
       onClick={() => {
         setView(view);
-        saveCalendarView(view); // Save to localStorage
+        saveCalendarView(view);
         onChangeView?.(view);
       }}
     >
@@ -269,9 +271,13 @@ const CalendarDayView = () => {
 
 const CalendarWeekView = () => {
   const { view, date, locale, events } = useCalendar();
+  const { weekStartsOn, highlightWeekends } = useCalendarSettings();
+  
+  const weekStartsOnDay = weekStartsOn === 'sunday' ? 0 : weekStartsOn === 'monday' ? 1 : 6;
+  const weekendIndices = getWeekendIndices(weekStartsOnDay);
 
   const weekDates = useMemo(() => {
-    const start = startOfWeek(date, { weekStartsOn: 0 });
+    const start = startOfWeek(date, { weekStartsOn: weekStartsOnDay });
     const weekDates = [];
 
     for (let i = 0; i < 7; i++) {
@@ -281,16 +287,16 @@ const CalendarWeekView = () => {
     }
 
     return weekDates;
-  }, [date]);
+  }, [date, weekStartsOnDay]);
 
   const headerDays = useMemo(() => {
     const daysOfWeek = [];
     for (let i = 0; i < 7; i++) {
-      const result = addDays(startOfWeek(date, { weekStartsOn: 0 }), i);
+      const result = addDays(startOfWeek(date, { weekStartsOn: weekStartsOnDay }), i);
       daysOfWeek.push(result);
     }
     return daysOfWeek;
-  }, [date]);
+  }, [date, weekStartsOnDay]);
 
   if (view !== 'week') return null;
 
@@ -303,7 +309,7 @@ const CalendarWeekView = () => {
             key={date.toString()}
             className={cn(
               'text-center flex-1 gap-2 py-3 text-sm font-medium flex flex-col items-center justify-center transition-colors',
-              [0, 6].includes(i) && 'bg-accent/5'
+              highlightWeekends && weekendIndices.includes(i) && 'bg-accent/5 weekend'
             )}
           >
             <div className="text-xs text-muted-foreground uppercase tracking-wider">
@@ -332,7 +338,7 @@ const CalendarWeekView = () => {
               <div
                 className={cn(
                   'h-full text-sm text-muted-foreground border-l first:border-l-0',
-                  [0, 6].includes(i) && 'bg-accent/5'
+                  highlightWeekends && weekendIndices.includes(i) && 'bg-accent/5 weekend'
                 )}
                 key={hours[0].toString()}
               >
@@ -354,9 +360,13 @@ const CalendarWeekView = () => {
 
 const CalendarMonthView = () => {
   const { date, view, events, locale, onEventClick } = useCalendar();
+  const { weekStartsOn, highlightWeekends } = useCalendarSettings();
+  
+  const weekStartsOnDay = weekStartsOn === 'sunday' ? 0 : weekStartsOn === 'monday' ? 1 : 6;
+  const weekendIndices = getWeekendIndices(weekStartsOnDay);
 
-  const monthDates = useMemo(() => getDaysInMonth(date), [date]);
-  const weekDays = useMemo(() => generateWeekdays(locale), [locale]);
+  const monthDates = useMemo(() => getDaysInMonth(date, weekStartsOnDay), [date, weekStartsOnDay]);
+  const weekDays = useMemo(() => generateWeekdays(locale, weekStartsOnDay), [locale, weekStartsOnDay]);
 
   if (view !== 'month') return null;
 
@@ -368,7 +378,9 @@ const CalendarMonthView = () => {
             key={day}
             className={cn(
               'py-3 text-center text-xs font-semibold uppercase tracking-wider',
-              [0, 6].includes(i) ? 'text-muted-foreground/70 bg-accent/5' : 'text-muted-foreground'
+              highlightWeekends && weekendIndices.includes(i) 
+                ? 'text-muted-foreground/70 bg-accent/5 weekend' 
+                : 'text-muted-foreground'
             )}
           >
             {day}
@@ -376,16 +388,21 @@ const CalendarMonthView = () => {
         ))}
       </div>
       <div className="grid overflow-auto flex-1 auto-rows-fr grid-cols-7 gap-px bg-border">
-        {monthDates.map((_date) => {
+        {monthDates.map((_date, index) => {
           const currentEvents = events.filter((event) =>
             isSameDay(event.start, _date)
           );
+          
+          const dayIndex = index % 7;
+          const isWeekend = highlightWeekends && weekendIndices.includes(dayIndex);
 
           return (
             <div
               className={cn(
                 'bg-card p-2 text-sm overflow-auto hover:bg-accent/5 transition-colors group cursor-pointer',
-                !isSameMonth(date, _date) && 'bg-muted/30 text-muted-foreground/50'
+                !isSameMonth(date, _date) && 'bg-muted/30 text-muted-foreground/50',
+                isWeekend && 'weekend',
+                isWeekend && isToday(_date) && 'weekend today'
               )}
               key={_date.toString()}
             >
@@ -455,6 +472,9 @@ const CalendarMonthView = () => {
 
 const CalendarYearView = () => {
   const { view, date, today, locale } = useCalendar();
+  const { weekStartsOn } = useCalendarSettings();
+  
+  const weekStartsOnDay = weekStartsOn === 'sunday' ? 0 : weekStartsOn === 'monday' ? 1 : 6;
 
   const months = useMemo(() => {
     if (!view) {
@@ -462,11 +482,11 @@ const CalendarYearView = () => {
     }
 
     return Array.from({ length: 12 }).map((_, i) => {
-      return getDaysInMonth(setMonth(date, i));
+      return getDaysInMonth(setMonth(date, i), weekStartsOnDay);
     });
-  }, [date, view]);
+  }, [date, view, weekStartsOnDay]);
 
-  const weekDays = useMemo(() => generateWeekdays(locale), [locale]);
+  const weekDays = useMemo(() => generateWeekdays(locale, weekStartsOnDay), [locale, weekStartsOnDay]);
 
   if (view !== 'year') return null;
 
@@ -629,16 +649,45 @@ CalendarTodayTrigger.displayName = 'CalendarTodayTrigger';
 
 const CalendarCurrentDate = () => {
   const { date, view } = useCalendar();
+  const { dateFormat } = useCalendarSettings();
+
+  const getDateFormat = () => {
+    if (view === 'day') {
+      switch (dateFormat) {
+        case 'DD/MM/YYYY':
+          return 'EEEE, dd MMMM yyyy';
+        case 'MM/DD/YYYY':
+          return 'EEEE, MMMM dd, yyyy';
+        case 'YYYY-MM-DD':
+          return 'EEEE, yyyy MMMM dd';
+        default:
+          return 'EEEE, dd MMMM yyyy';
+      }
+    }
+    return 'MMMM yyyy';
+  };
 
   return (
     <time dateTime={date.toISOString()} className="tabular-nums" suppressHydrationWarning>
-      {format(date, view === 'day' ? 'dd MMMM yyyy' : 'MMMM yyyy')}
+      {format(date, getDateFormat())}
     </time>
   );
 };
 
 const TimeTable = () => {
   const now = new Date();
+  const { timeFormat } = useCalendarSettings();
+
+  const formatHour = (hour: number) => {
+    const actualHour = hour === 24 ? 0 : hour;
+    const date = new Date();
+    date.setHours(actualHour, 0, 0, 0);
+    
+    if (timeFormat === '12h') {
+      return format(date, 'h a');
+    }
+    return `${actualHour.toString().padStart(2, '0')}:00`;
+  };
 
   return (
     <div className="pr-3 w-14 text-right pt-3">
@@ -663,7 +712,7 @@ const TimeTable = () => {
               </div>
             )}
             <p className="top-0 -translate-y-1/2 bg-card px-1">
-              {hour === 24 ? '00' : hour.toString().padStart(2, '0')}:00
+              {formatHour(hour)}
             </p>
           </div>
         );
@@ -672,10 +721,10 @@ const TimeTable = () => {
   );
 };
 
-const getDaysInMonth = (date: Date) => {
+const getDaysInMonth = (date: Date, weekStartsOnDay: 0 | 1 | 6 = 0) => {
   const startOfMonthDate = startOfMonth(date);
   const startOfWeekForMonth = startOfWeek(startOfMonthDate, {
-    weekStartsOn: 0,
+    weekStartsOn: weekStartsOnDay,
   });
 
   let currentDate = startOfWeekForMonth;
@@ -689,13 +738,20 @@ const getDaysInMonth = (date: Date) => {
   return calendar;
 };
 
-const generateWeekdays = (locale: Locale) => {
+const generateWeekdays = (locale: Locale, weekStartsOnDay: 0 | 1 | 6 = 0) => {
   const daysOfWeek = [];
   for (let i = 0; i < 7; i++) {
-    const date = addDays(startOfWeek(new Date(), { weekStartsOn: 0 }), i);
+    const date = addDays(startOfWeek(new Date(), { weekStartsOn: weekStartsOnDay }), i);
     daysOfWeek.push(format(date, 'EEEEEE', { locale }));
   }
   return daysOfWeek;
+};
+
+const getWeekendIndices = (weekStartsOnDay: 0 | 1 | 6) => {
+  const weekendDays = [0, 6];
+  return weekendDays.map(day => {
+    return (day - weekStartsOnDay + 7) % 7;
+  });
 };
 
 export {

@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { startOfMonth, endOfMonth } from 'date-fns';
+import { enUS } from 'date-fns/locale';
 import {
   Calendar,
   CalendarDayView,
@@ -24,10 +25,14 @@ import { useQueryClient } from '@tanstack/react-query';
 import { EVENT_QUERY_KEYS } from '@/hook/event/query-keys';
 import { getColorHex } from '@/utils/colors';
 import { useKeyboardShortcuts } from './useKeyboardShortcuts';
+import { getWeekStartDay } from '@/utils/calendar-format';
+import { getCalendarStyles } from '@/utils/calendar-styles';
 import { CalendarSidebar } from '@/components/calendar/sidebar/CalendarSidebar';
 import { CreateEventDialog, EditEventDialog } from '@/components/calendar/dialogs';
 import { CalendarSettingsDialog } from '@/components/calendar/settings/CalendarSettingsDialog';
+import { CalendarSettingsProvider } from '@/components/calendar/shared/CalendarSettingsProvider';
 import { useControllerStore } from '@/store/controller.store';
+import { useCalendarSettingsStore } from '@/store/calendar-settings.store';
 
 export default function Page() {
   const queryClient = useQueryClient();
@@ -35,6 +40,16 @@ export default function Page() {
   const [showSettings, setShowSettings] = useState(false);
   
   const { expandedCalendarSidebar, toggleCalendarSidebar } = useControllerStore();
+  
+  const defaultView = useCalendarSettingsStore((state) => state.defaultView);
+  const enableKeyboardShortcuts = useCalendarSettingsStore((state) => state.enableKeyboardShortcuts);
+  const weekStartsOn = useCalendarSettingsStore((state) => state.weekStartsOn);
+  const timeFormat = useCalendarSettingsStore((state) => state.timeFormat);
+  const dateFormat = useCalendarSettingsStore((state) => state.dateFormat);
+  const showWeekNumbers = useCalendarSettingsStore((state) => state.showWeekNumbers);
+  const highlightWeekends = useCalendarSettingsStore((state) => state.highlightWeekends);
+  const compactMode = useCalendarSettingsStore((state) => state.compactMode);
+  
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [visibleCalendarIds, setVisibleCalendarIds] = useState<Set<string>>(new Set());
@@ -46,6 +61,7 @@ export default function Page() {
   useKeyboardShortcuts({
     onShowShortcuts: () => setShowShortcuts(true),
     onCreateEvent: () => setOpenEventDialog(true),
+    enabled: enableKeyboardShortcuts,
   });
 
   const startDate = useMemo(() => startOfMonth(currentMonth).toISOString(), [currentMonth]);
@@ -88,6 +104,17 @@ export default function Page() {
   const apiEvents = useMemo(() => {
     return [...regularEvents, ...recurringEvents];
   }, [regularEvents, recurringEvents]);
+
+  const calendarLocale = useMemo(() => {
+    const weekStartsOnDay = getWeekStartDay(weekStartsOn);
+    return {
+      ...enUS,
+      options: {
+        ...enUS.options,
+        weekStartsOn: weekStartsOnDay,
+      },
+    };
+  }, [weekStartsOn]);
   
   const isLoading = regularEventsQuery.isLoading || recurringEventsQuery.isLoading;
   const error = regularEventsQuery.error || recurringEventsQuery.error;
@@ -158,6 +185,14 @@ export default function Page() {
       setShowEditDialog={setShowEditDialog}
       visibleCalendarIds={visibleCalendarIds}
       setVisibleCalendarIds={setVisibleCalendarIds}
+      defaultView={defaultView}
+      enableKeyboardShortcuts={enableKeyboardShortcuts}
+      calendarLocale={calendarLocale}
+      timeFormat={timeFormat}
+      dateFormat={dateFormat}
+      showWeekNumbers={showWeekNumbers}
+      highlightWeekends={highlightWeekends}
+      compactMode={compactMode}
     />
   );
 }
@@ -183,6 +218,14 @@ function CalendarWrapper({
   setShowEditDialog,
   visibleCalendarIds,
   setVisibleCalendarIds,
+  defaultView,
+  enableKeyboardShortcuts,
+  calendarLocale,
+  timeFormat,
+  dateFormat,
+  showWeekNumbers,
+  highlightWeekends,
+  compactMode,
 }: {
   currentMonth: Date;
   setCurrentMonth: (date: Date) => void;
@@ -204,7 +247,17 @@ function CalendarWrapper({
   setShowEditDialog: (show: boolean) => void;
   visibleCalendarIds: Set<string>;
   setVisibleCalendarIds: (ids: Set<string>) => void;
+  defaultView: 'day' | 'week' | 'month' | 'year';
+  enableKeyboardShortcuts: boolean;
+  calendarLocale: any;
+  timeFormat: '12h' | '24h';
+  dateFormat: 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD';
+  showWeekNumbers: boolean;
+  highlightWeekends: boolean;
+  compactMode: boolean;
 }) {
+  
+  const calendarStyles = getCalendarStyles(compactMode, highlightWeekends);
   
   const CalendarDateSync = ({ onDateChange }: { onDateChange: (date: Date) => void }) => {
     const { date } = useCalendar();
@@ -217,15 +270,18 @@ function CalendarWrapper({
   };
 
   return (
-    <>
-    <Calendar 
-      events={filteredEvents}
-      onEventClick={handleEventClick}
-      defaultDate={currentMonth}
-    >
+    <CalendarSettingsProvider>
+      <Calendar 
+        events={filteredEvents}
+        onEventClick={handleEventClick}
+        defaultDate={currentMonth}
+        view={defaultView}
+        enableHotkeys={enableKeyboardShortcuts}
+        locale={calendarLocale}
+      >
       <CalendarDateSync onDateChange={setCurrentMonth} />
       
-      <div className="bg-background flex -mx-2">
+      <div className={`bg-background flex -mx-2 ${calendarStyles.container}`}>
         <div className="flex-1 flex flex-col min-h-screen">
           <div className="px-4 md:px-6">
             <div className="flex flex-wrap items-center gap-3 mb-4 pt-2">
@@ -321,7 +377,7 @@ function CalendarWrapper({
           eventId={selectedEventId}
         />
       )}
-    </Calendar>
-    </>
+      </Calendar>
+    </CalendarSettingsProvider>
   );
 }

@@ -467,3 +467,35 @@ html body[data-scroll-locked] {
 .dark .scrollbar-thin {
   scrollbar-color: rgb(55 65 81) transparent;
 }
+
+/* Calendar Settings Styles */
+.calendar-compact {
+  --calendar-spacing: 0.25rem;
+  --calendar-event-height: 1.5rem;
+  --calendar-cell-padding: 0.125rem;
+}
+
+.calendar-compact .calendar-event {
+  height: var(--calendar-event-height);
+  padding: 0.125rem 0.25rem;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.calendar-compact .calendar-cell {
+  padding: var(--calendar-cell-padding);
+  min-height: 2rem;
+}
+
+.calendar-compact .calendar-header {
+  padding: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.calendar-highlight-weekends .weekend {
+  background-color: hsl(var(--muted) / 0.3);
+}
+
+.calendar-highlight-weekends .weekend.today {
+  background-color: hsl(var(--primary) / 0.1);
+}

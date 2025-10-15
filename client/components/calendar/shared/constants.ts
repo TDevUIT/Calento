@@ -8,7 +8,6 @@ export const DEFAULT_CALENDAR_SETTINGS: CalendarSettings = {
   weekStartsOn: 'monday',
   timeFormat: '24h',
   dateFormat: 'DD/MM/YYYY',
-  theme: 'system',
   compactMode: false,
   showWeekNumbers: true,
   highlightWeekends: true,

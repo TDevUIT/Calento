@@ -3,65 +3,19 @@
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Palette, Sun, Moon, Monitor } from 'lucide-react';
-import { CalendarSettings } from '../shared/types';
+import { CalendarSettings } from '@/store/calendar-settings.store';
 
 interface AppearanceSettingsProps {
   settings: CalendarSettings;
-  updateSetting: (key: keyof CalendarSettings, value: string | boolean) => void;
+  updateSetting: <K extends keyof CalendarSettings>(
+    key: K,
+    value: CalendarSettings[K]
+  ) => void;
 }
 
 export function AppearanceSettings({ settings, updateSetting }: AppearanceSettingsProps) {
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="space-y-0.5">
-          <Label className="flex items-center gap-2">
-            <Palette className="h-4 w-4" />
-            Theme
-          </Label>
-          <p className="text-sm text-muted-foreground">
-            Choose your color theme
-          </p>
-        </div>
-        <Select
-          value={settings.theme}
-          onValueChange={(value) => updateSetting('theme', value)}
-        >
-          <SelectTrigger className="w-32">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="light">
-              <div className="flex items-center gap-2">
-                <Sun className="h-4 w-4" />
-                Light
-              </div>
-            </SelectItem>
-            <SelectItem value="dark">
-              <div className="flex items-center gap-2">
-                <Moon className="h-4 w-4" />
-                Dark
-              </div>
-            </SelectItem>
-            <SelectItem value="system">
-              <div className="flex items-center gap-2">
-                <Monitor className="h-4 w-4" />
-                System
-              </div>
-            </SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <Separator />
 
       <div className="flex items-center justify-between">
         <div className="space-y-0.5">

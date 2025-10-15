@@ -2,6 +2,8 @@
 
 import { format } from 'date-fns';
 import { Clock, MapPin, Users, Video, Bell, Repeat, ExternalLink, User } from 'lucide-react';
+import { useCalendarSettings } from '../shared/CalendarSettingsProvider';
+import { formatTimeWithSettings, formatDateWithSettings } from '@/utils/calendar-format';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -12,6 +14,8 @@ interface EventPreviewProps {
 }
 
 export function EventPreview({ event }: EventPreviewProps) {
+  const { timeFormat, dateFormat } = useCalendarSettings();
+  
   const colorClasses: Record<string, string> = {
     blue: 'bg-blue-500',
     green: 'bg-green-500',
@@ -37,10 +41,10 @@ export function EventPreview({ event }: EventPreviewProps) {
         <Clock className="h-4 w-4 mt-0.5 text-muted-foreground shrink-0" />
         <div>
           <p className="font-medium">
-            {format(startDate, 'EEEE, MMMM d, yyyy')}
+            {formatDateWithSettings(startDate, dateFormat)}
           </p>
           <p className="text-muted-foreground">
-            {format(startDate, 'h:mm a')} - {format(endDate, 'h:mm a')}
+            {event.is_all_day ? 'Cả ngày' : `${formatTimeWithSettings(startDate, timeFormat)} - ${formatTimeWithSettings(endDate, timeFormat)}`}
           </p>
         </div>
       </div>

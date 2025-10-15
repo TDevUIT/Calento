@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React from 'react';
 import {
   Dialog,
   DialogContent,
@@ -13,43 +13,69 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Calendar } from 'lucide-react';
-import { DEFAULT_CALENDAR_SETTINGS } from '../shared/constants';
-import { CalendarSettings } from '../shared/types';
+import { useCalendarSettingsStore } from '@/store/calendar-settings.store';
 import { GeneralSettings } from './GeneralSettings';
 import { AppearanceSettings } from './AppearanceSettings';
 import { NotificationSettings } from './NotificationSettings';
 import { BehaviorSettings } from './BehaviorSettings';
+import { toast } from 'sonner';
 
 interface CalendarSettingsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  initialSettings?: Partial<CalendarSettings>;
-  onSave?: (settings: CalendarSettings) => void;
 }
 
 export function CalendarSettingsDialog({ 
   open, 
   onOpenChange,
-  initialSettings,
-  onSave,
 }: CalendarSettingsDialogProps) {
-  const [settings, setSettings] = useState<CalendarSettings>({
-    ...DEFAULT_CALENDAR_SETTINGS,
-    ...initialSettings,
-  });
+  const defaultView = useCalendarSettingsStore((state) => state.defaultView);
+  const weekStartsOn = useCalendarSettingsStore((state) => state.weekStartsOn);
+  const timeFormat = useCalendarSettingsStore((state) => state.timeFormat);
+  const dateFormat = useCalendarSettingsStore((state) => state.dateFormat);
+  const compactMode = useCalendarSettingsStore((state) => state.compactMode);
+  const showWeekNumbers = useCalendarSettingsStore((state) => state.showWeekNumbers);
+  const highlightWeekends = useCalendarSettingsStore((state) => state.highlightWeekends);
+  const enableNotifications = useCalendarSettingsStore((state) => state.enableNotifications);
+  const eventReminders = useCalendarSettingsStore((state) => state.eventReminders);
+  const reminderTime = useCalendarSettingsStore((state) => state.reminderTime);
+  const soundEnabled = useCalendarSettingsStore((state) => state.soundEnabled);
+  const autoSync = useCalendarSettingsStore((state) => state.autoSync);
+  const showDeclinedEvents = useCalendarSettingsStore((state) => state.showDeclinedEvents);
+  const defaultEventDuration = useCalendarSettingsStore((state) => state.defaultEventDuration);
+  const enableKeyboardShortcuts = useCalendarSettingsStore((state) => state.enableKeyboardShortcuts);
+  
+  const updateSetting = useCalendarSettingsStore((state) => state.updateSetting);
+  const resetSettings = useCalendarSettingsStore((state) => state.resetSettings);
 
-  const updateSetting = (key: keyof CalendarSettings, value: string | boolean) => {
-    setSettings(prev => ({ ...prev, [key]: value }));
+  const dialogRef = React.useRef<HTMLDivElement>(null);
+
+  const settings = {
+    defaultView,
+    weekStartsOn,
+    timeFormat,
+    dateFormat,
+    compactMode,
+    showWeekNumbers,
+    highlightWeekends,
+    enableNotifications,
+    eventReminders,
+    reminderTime,
+    soundEnabled,
+    autoSync,
+    showDeclinedEvents,
+    defaultEventDuration,
+    enableKeyboardShortcuts,
   };
 
-  const handleSave = () => {
-    onSave?.(settings);
-    onOpenChange(false);
+  const handleReset = () => {
+    resetSettings();
+    toast.success('Settings reset to default');
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
+      <DialogContent ref={dialogRef} className="max-w-2xl max-h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
@@ -60,7 +86,7 @@ export function CalendarSettingsDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs defaultValue="general" className="flex-1 overflow-hidden">
+        <Tabs defaultValue="general" className="flex-1 flex flex-col overflow-hidden">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="general">General</TabsTrigger>
             <TabsTrigger value="appearance">Appearance</TabsTrigger>
@@ -68,9 +94,13 @@ export function CalendarSettingsDialog({
             <TabsTrigger value="behavior">Behavior</TabsTrigger>
           </TabsList>
 
-          <div className="mt-4 overflow-y-auto max-h-[calc(85vh-200px)]">
+          <div className="mt-4 overflow-y-auto flex-1 pr-2">
             <TabsContent value="general" className="space-y-6">
-              <GeneralSettings settings={settings} updateSetting={updateSetting} />
+              <GeneralSettings 
+                settings={settings} 
+                updateSetting={updateSetting}
+                portalContainer={dialogRef.current}
+              />
             </TabsContent>
 
             <TabsContent value="appearance" className="space-y-6">
@@ -78,11 +108,19 @@ export function CalendarSettingsDialog({
             </TabsContent>
 
             <TabsContent value="notifications" className="space-y-6">
-              <NotificationSettings settings={settings} updateSetting={updateSetting} />
+              <NotificationSettings 
+                settings={settings} 
+                updateSetting={updateSetting}
+                portalContainer={dialogRef.current}
+              />
             </TabsContent>
 
             <TabsContent value="behavior" className="space-y-6">
-              <BehaviorSettings settings={settings} updateSetting={updateSetting} />
+              <BehaviorSettings 
+                settings={settings} 
+                updateSetting={updateSetting}
+                portalContainer={dialogRef.current}
+              />
             </TabsContent>
           </div>
         </Tabs>
@@ -94,11 +132,11 @@ export function CalendarSettingsDialog({
             Changes are saved automatically
           </Badge>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Close
+            <Button variant="outline" onClick={handleReset}>
+              Reset to Default
             </Button>
-            <Button onClick={handleSave}>
-              Save Changes
+            <Button onClick={() => onOpenChange(false)}>
+              Close
             </Button>
           </div>
         </div>

@@ -11,15 +11,19 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Bell } from 'lucide-react';
-import { CalendarSettings } from '../shared/types';
+import { CalendarSettings } from '@/store/calendar-settings.store';
 import { REMINDER_TIME_OPTIONS } from '../shared/constants';
 
 interface NotificationSettingsProps {
   settings: CalendarSettings;
-  updateSetting: (key: keyof CalendarSettings, value: string | boolean) => void;
+  updateSetting: <K extends keyof CalendarSettings>(
+    key: K,
+    value: CalendarSettings[K]
+  ) => void;
+  portalContainer?: HTMLElement | null;
 }
 
-export function NotificationSettings({ settings, updateSetting }: NotificationSettingsProps) {
+export function NotificationSettings({ settings, updateSetting, portalContainer }: NotificationSettingsProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -71,7 +75,7 @@ export function NotificationSettings({ settings, updateSetting }: NotificationSe
           <SelectTrigger className="w-32">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent position="popper" sideOffset={5} container={portalContainer}>
             {REMINDER_TIME_OPTIONS.map((option) => (
               <SelectItem key={option.value} value={option.value}>
                 {option.label}

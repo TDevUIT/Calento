@@ -2,6 +2,8 @@
 
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { useCalendarSettings } from '../shared/CalendarSettingsProvider';
+import { formatTimeWithSettings, formatDateWithSettings } from '@/utils/calendar-format';
 import { 
   Clock, 
   MapPin, 
@@ -37,6 +39,7 @@ interface EventDetailViewProps {
 export function EventDetailView({ event, onEdit, onDelete, onClose }: EventDetailViewProps) {
   const startDate = new Date(event.start_time);
   const endDate = new Date(event.end_time);
+  const { timeFormat, dateFormat } = useCalendarSettings();
 
   const colorClasses: Record<string, string> = {
     blue: 'bg-blue-500',
@@ -72,14 +75,14 @@ export function EventDetailView({ event, onEdit, onDelete, onClose }: EventDetai
   const formatTimeRange = () => {
     if (event.is_all_day) {
       return {
-        dayName: format(startDate, 'EEEE, d MMMM', { locale: vi }),
+        dayName: formatDateWithSettings(startDate, dateFormat),
         timeRange: 'Cả ngày',
       };
     }
 
-    const dayName = format(startDate, 'EEEE, d MMMM', { locale: vi });
-    const startTime = format(startDate, 'HH:mm');
-    const endTime = format(endDate, 'HH:mm');
+    const dayName = formatDateWithSettings(startDate, dateFormat);
+    const startTime = formatTimeWithSettings(startDate, timeFormat);
+    const endTime = formatTimeWithSettings(endDate, timeFormat);
     
     return {
       dayName,

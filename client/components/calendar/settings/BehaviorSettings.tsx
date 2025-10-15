@@ -11,15 +11,19 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { CheckCircle2 } from 'lucide-react';
-import { CalendarSettings } from '../shared/types';
+import { CalendarSettings } from '@/store/calendar-settings.store';
 import { EVENT_DURATION_OPTIONS } from '../shared/constants';
 
 interface BehaviorSettingsProps {
   settings: CalendarSettings;
-  updateSetting: (key: keyof CalendarSettings, value: string | boolean) => void;
+  updateSetting: <K extends keyof CalendarSettings>(
+    key: K,
+    value: CalendarSettings[K]
+  ) => void;
+  portalContainer?: HTMLElement | null;
 }
 
-export function BehaviorSettings({ settings, updateSetting }: BehaviorSettingsProps) {
+export function BehaviorSettings({ settings, updateSetting, portalContainer }: BehaviorSettingsProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -69,7 +73,7 @@ export function BehaviorSettings({ settings, updateSetting }: BehaviorSettingsPr
           <SelectTrigger className="w-32">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent position="popper" sideOffset={5} container={portalContainer}>
             {EVENT_DURATION_OPTIONS.map((option) => (
               <SelectItem key={option.value} value={option.value}>
                 {option.label}

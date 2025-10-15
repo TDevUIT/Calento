@@ -2,6 +2,8 @@
 
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import { useCalendarSettings } from './CalendarSettingsProvider';
+import { formatTimeWithSettings, formatDateWithSettings } from '@/utils/calendar-format';
 import { 
   MapPin, 
   Video,
@@ -30,6 +32,8 @@ interface EventQuickPreviewProps {
 export function EventQuickPreview({ event }: EventQuickPreviewProps) {
   const startDate = new Date(event.start_time);
   const endDate = new Date(event.end_time);
+  const { timeFormat, dateFormat } = useCalendarSettings();
+  
   const colorClasses: Record<string, string> = {
     blue: 'bg-blue-500',
     green: 'bg-green-500',
@@ -56,8 +60,8 @@ export function EventQuickPreview({ event }: EventQuickPreviewProps) {
     if (event.is_all_day) {
       return 'Cả ngày';
     }
-    const startTime = format(startDate, 'h:mma', { locale: vi });
-    const endTime = format(endDate, 'h:mma', { locale: vi });
+    const startTime = formatTimeWithSettings(startDate, timeFormat);
+    const endTime = formatTimeWithSettings(endDate, timeFormat);
     return `${startTime} – ${endTime}`;
   };
 
@@ -139,7 +143,7 @@ export function EventQuickPreview({ event }: EventQuickPreviewProps) {
         
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-sm font-medium">
-            <span>{format(startDate, 'EEEE, d MMMM', { locale: vi })}</span>
+            <span>{formatDateWithSettings(startDate, dateFormat)}</span>
             <span className="text-muted-foreground">⋅</span>
             <span>{formatTimeRange()}</span>
           </div>
