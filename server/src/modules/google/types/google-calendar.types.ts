@@ -13,6 +13,19 @@ export interface GoogleEventInput {
   location?: string;
   attendees?: string[];
   recurrence?: string[];
+  source?: {
+    title: string;
+    url?: string;
+  };
+  conferenceData?: {
+    createRequest?: {
+      requestId: string;
+      conferenceSolutionKey: {
+        type: string;
+      };
+    };
+  };
+  hangoutLink?: string;
 }
 
 export interface GoogleCalendarSyncResult {

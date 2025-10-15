@@ -4,6 +4,7 @@ import {
   Post,
   Delete,
   Query,
+  Body,
   HttpStatus,
   UseGuards,
   Res,
@@ -26,6 +27,8 @@ import { CurrentUserId } from '../../common/decorators/current-user.decorator';
 import {
   GoogleConnectionStatusDto,
   SyncCalendarsResponseDto,
+  CreateGoogleMeetDto,
+  GoogleMeetResponseDto,
 } from './dto/google-auth.dto';
 
 @ApiTags('Google Calendar Integration')
@@ -253,5 +256,64 @@ export class GoogleController {
       { refreshed },
       refreshed ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE,
     );
+  }
+
+  @Post('meet/create')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('bearer')
+  @ApiCookieAuth('cookie')
+  @ApiOperation({
+    summary: '📹 Create Google Meet Link',
+    description:
+      'Generate a Google Meet conference link for an event. Requires Google Calendar connection.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '✅ Google Meet link created',
+    type: SuccessResponseDto,
+  })
+  @ApiResponse({
+    status: 401,
+    description: '❌ Not connected to Google Calendar',
+  })
+  async createGoogleMeet(
+    @CurrentUserId() userId: string,
+    @Body() createMeetDto: CreateGoogleMeetDto,
+  ): Promise<SuccessResponseDto> {
+    const isConnected = await this.googleAuthService.isConnected(userId);
+
+    if (!isConnected) {
+      return new SuccessResponseDto(
+        'Not connected to Google Calendar',
+        { connected: false },
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    const meetData = await this.googleCalendarService.createGoogleMeet(
+      userId,
+      {
+        summary: createMeetDto.summary,
+        description: createMeetDto.description,
+        start_time: createMeetDto.start_time,
+        end_time: createMeetDto.end_time,
+      },
+    );
+
+    if (!meetData) {
+      return new SuccessResponseDto(
+        'Failed to create Google Meet link',
+        { success: false },
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
+    }
+
+    const response: GoogleMeetResponseDto = {
+      url: meetData.url,
+      id: meetData.id,
+      entry_points: meetData.entry_points,
+    };
+
+    return new SuccessResponseDto('Google Meet link created', response);
   }
 }

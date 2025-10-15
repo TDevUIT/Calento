@@ -114,6 +114,11 @@ export class GoogleCalendarService {
       start: Date;
       end: Date;
       location?: string;
+      source?: {
+        title: string;
+        url?: string;
+      };
+      hangoutLink?: string;
     },
   ): Promise<calendar_v3.Schema$Event> {
     try {
@@ -122,24 +127,37 @@ export class GoogleCalendarService {
         throw new Error('Not connected to Google Calendar');
       }
 
+      const requestBody: any = {
+        summary: event.summary,
+        description: event.description,
+        location: event.location,
+        start: {
+          dateTime: event.start.toISOString(),
+          timeZone: 'UTC',
+        },
+        end: {
+          dateTime: event.end.toISOString(),
+          timeZone: 'UTC',
+        },
+      };
+
+      if (event.source) {
+        requestBody.source = event.source;
+      }
+
+      if (event.hangoutLink) {
+        requestBody.description = requestBody.description || '';
+        if (!requestBody.description.includes(event.hangoutLink)) {
+          requestBody.description += `\n\n🔗 Meeting Link: ${event.hangoutLink}`;
+        }
+      }
+
       const response = await calendar.events.insert({
         calendarId,
-        requestBody: {
-          summary: event.summary,
-          description: event.description,
-          location: event.location,
-          start: {
-            dateTime: event.start.toISOString(),
-            timeZone: 'UTC',
-          },
-          end: {
-            dateTime: event.end.toISOString(),
-            timeZone: 'UTC',
-          },
-        },
+        requestBody,
       });
 
-      this.logger.log(`Created event in Google Calendar for user ${userId}`);
+      this.logger.log(`Created event in Google Calendar for user ${userId} with source attribution`);
       return response.data;
     } catch (error) {
       this.logger.error(`Failed to create event for user ${userId}:`, error);
@@ -157,6 +175,11 @@ export class GoogleCalendarService {
       start?: Date;
       end?: Date;
       location?: string;
+      source?: {
+        title: string;
+        url?: string;
+      };
+      hangoutLink?: string;
     },
   ): Promise<calendar_v3.Schema$Event> {
     try {
@@ -165,7 +188,7 @@ export class GoogleCalendarService {
         throw new Error('Not connected to Google Calendar');
       }
 
-      const updateData: calendar_v3.Schema$Event = {};
+      const updateData: any = {};
 
       if (event.summary) updateData.summary = event.summary;
       if (event.description) updateData.description = event.description;
@@ -185,13 +208,23 @@ export class GoogleCalendarService {
         };
       }
 
+      if (event.source) {
+        updateData.source = event.source;
+      }
+
+      if (event.hangoutLink && updateData.description) {
+        if (!updateData.description.includes(event.hangoutLink)) {
+          updateData.description += `\n\n🔗 Meeting Link: ${event.hangoutLink}`;
+        }
+      }
+
       const response = await calendar.events.patch({
         calendarId,
         eventId,
         requestBody: updateData,
       });
 
-      this.logger.log(`Updated event ${eventId} in Google Calendar`);
+      this.logger.log(`Updated event ${eventId} in Google Calendar with source attribution`);
       return response.data;
     } catch (error) {
       this.logger.error(`Failed to update event ${eventId}:`, error);
@@ -243,6 +276,87 @@ export class GoogleCalendarService {
         success: false,
         count: 0,
       };
+    }
+  }
+
+  async createGoogleMeet(
+    userId: string,
+    eventData: {
+      summary: string;
+      description?: string;
+      start_time: string;
+      end_time: string;
+    },
+  ): Promise<{
+    url: string;
+    id?: string;
+    entry_points?: any[];
+  } | null> {
+    try {
+      const calendar = await this.getCalendarClient(userId);
+      if (!calendar) {
+        throw new Error('Not connected to Google Calendar');
+      }
+
+      const response = await calendar.events.insert({
+        calendarId: 'primary',
+        conferenceDataVersion: 1,
+        requestBody: {
+          summary: eventData.summary,
+          description: eventData.description,
+          start: {
+            dateTime: eventData.start_time,
+            timeZone: 'UTC',
+          },
+          end: {
+            dateTime: eventData.end_time,
+            timeZone: 'UTC',
+          },
+          conferenceData: {
+            createRequest: {
+              requestId: `meet-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+              conferenceSolutionKey: {
+                type: 'hangoutsMeet',
+              },
+            },
+          },
+        },
+      });
+
+      const conferenceData = response.data.conferenceData;
+      if (!conferenceData || !conferenceData.entryPoints) {
+        this.logger.warn('No conference data returned from Google');
+        return null;
+      }
+
+      const videoEntry = conferenceData.entryPoints.find(
+        (entry) => entry.entryPointType === 'video',
+      );
+
+      if (!videoEntry || !videoEntry.uri) {
+        this.logger.warn('No video entry point found');
+        return null;
+      }
+
+      if (response.data.id) {
+        await calendar.events.delete({
+          calendarId: 'primary',
+          eventId: response.data.id,
+        });
+      }
+
+      this.logger.log(`Created Google Meet link for user ${userId}`);
+      return {
+        url: videoEntry.uri,
+        id: conferenceData.conferenceId || undefined,
+        entry_points: conferenceData.entryPoints,
+      };
+    } catch (error) {
+      this.logger.error(
+        `Failed to create Google Meet for user ${userId}:`,
+        error,
+      );
+      throw new Error('Failed to create Google Meet link');
     }
   }
 }

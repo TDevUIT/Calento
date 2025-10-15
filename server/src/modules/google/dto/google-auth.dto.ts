@@ -57,3 +57,56 @@ export class SyncCalendarsResponseDto {
   })
   calendar_ids?: string[];
 }
+
+export class CreateGoogleMeetDto {
+  @ApiProperty({
+    description: 'Event title/summary',
+    example: 'Team Meeting',
+  })
+  @IsString()
+  @IsNotEmpty()
+  summary: string;
+
+  @ApiPropertyOptional({
+    description: 'Event description',
+    example: 'Discuss project updates',
+  })
+  @IsString()
+  @IsOptional()
+  description?: string;
+
+  @ApiProperty({
+    description: 'Event start time (ISO 8601)',
+    example: '2024-01-15T10:00:00Z',
+  })
+  @IsString()
+  @IsNotEmpty()
+  start_time: string;
+
+  @ApiProperty({
+    description: 'Event end time (ISO 8601)',
+    example: '2024-01-15T11:00:00Z',
+  })
+  @IsString()
+  @IsNotEmpty()
+  end_time: string;
+}
+
+export class GoogleMeetResponseDto {
+  @ApiProperty({
+    description: 'Google Meet conference URL',
+    example: 'https://meet.google.com/abc-defg-hij',
+  })
+  url: string;
+
+  @ApiPropertyOptional({
+    description: 'Conference ID',
+    example: 'abc-defg-hij',
+  })
+  id?: string;
+
+  @ApiPropertyOptional({
+    description: 'Entry points for joining the conference',
+  })
+  entry_points?: any[];
+}
