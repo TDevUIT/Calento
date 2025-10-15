@@ -71,3 +71,16 @@ export interface GoogleServiceConfig {
   accessType: 'offline';
   prompt: 'consent' | 'select_account' | 'none';
 }
+
+export interface CreateGoogleMeetRequest {
+  summary: string;
+  description?: string;
+  start_time: string;
+  end_time: string;
+}
+
+export interface GoogleMeetResponse {
+  url: string;
+  id?: string;
+  entry_points?: any[];
+}

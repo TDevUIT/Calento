@@ -35,10 +35,19 @@ export interface Event {
   recurrence_rule?: string;
   color?: string;
   
-  // Organizer information
+  // Creator information (người tạo event)
+  creator?: {
+    id: string;
+    name?: string;
+    email?: string;
+    avatar?: string;
+  };
+  
+  // Organizer information (người tổ chức - có thể khác creator)
   organizer_id?: string;
   organizer_email?: string;
   organizer_name?: string;
+  organizer_avatar?: string; // Avatar URL của người tổ chức
   
   // Attendees and conference
   attendees?: EventAttendee[];
@@ -48,6 +57,11 @@ export interface Event {
   // Privacy and response
   visibility?: 'default' | 'public' | 'private' | 'confidential';
   response_status?: 'accepted' | 'declined' | 'tentative' | 'needsAction';
+  
+  // External integration
+  google_calendar_url?: string; // Link đến Google Calendar
+  source?: string; // Nguồn tạo event (e.g., "Reclaim.ai", "Manual", "Google Calendar")
+  source_url?: string; // URL của ứng dụng tạo event
   
   created_at: Date | string;
   updated_at: Date | string;

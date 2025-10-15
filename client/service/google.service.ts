@@ -6,6 +6,8 @@ import {
   GoogleCalendarsListResponse, 
   RefreshTokenResponse,
   GoogleOAuthCallbackParams,
+  CreateGoogleMeetRequest,
+  GoogleMeetResponse,
 } from '../interface/google.interface';
 import { API_ROUTES } from '../constants/routes';
 
@@ -197,6 +199,18 @@ export const loginWithGoogle = async (): Promise<void> => {
   }
 };
 
+export const createGoogleMeet = async (data: CreateGoogleMeetRequest): Promise<GoogleMeetResponse> => {
+  try {
+    const response = await api.post<{ status: number; message: string; data: GoogleMeetResponse }>(
+      API_ROUTES.GOOGLE_MEET_CREATE,
+      data
+    );
+    return response.data.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+};
+
 export const googleService = {
   getAuthUrl,
   getConnectionStatus,
@@ -210,6 +224,7 @@ export const googleService = {
   isTokenExpired,
   ensureValidToken,
   loginWithGoogle,
+  createGoogleMeet,
 };
 
 export default googleService;

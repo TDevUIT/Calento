@@ -16,12 +16,9 @@ export const COLOR_PALETTE = {
   orange: '#f97316',
   teal: '#14b8a6',
   
-  // Neutral colors
   gray: '#6b7280',
   slate: '#64748b',
   zinc: '#71717a',
-  
-  // Extended palette
   emerald: '#10b981',
   lime: '#84cc16',
   amber: '#f59e0b',
@@ -34,11 +31,6 @@ export const COLOR_PALETTE = {
 } as const;
 
 export type ColorName = keyof typeof COLOR_PALETTE;
-
-/**
- * Convert color string to hex code
- * Supports both hex codes and color names
- */
 export function getColorHex(color?: string): string {
   if (!color) return COLOR_PALETTE.default;
   
@@ -52,9 +44,7 @@ export function getColorHex(color?: string): string {
   return COLOR_PALETTE[colorName] || COLOR_PALETTE.default;
 }
 
-/**
- * Get color variants for different UI elements
- */
+
 export function getColorVariants(color?: string) {
   const hex = getColorHex(color);
   
@@ -68,48 +58,52 @@ export function getColorVariants(color?: string) {
   };
 }
 
-/**
- * Generate random color from palette
- */
+
 export function getRandomColor(): string {
   const colors = Object.values(COLOR_PALETTE);
   const randomIndex = Math.floor(Math.random() * colors.length);
   return colors[randomIndex];
 }
 
-/**
- * Get contrasting text color (black or white) for a given background color
- */
+
 export function getContrastColor(backgroundColor: string): string {
   const hex = getColorHex(backgroundColor);
   
-  // Remove # if present
   const cleanHex = hex.replace('#', '');
   
-  // Convert to RGB
   const r = parseInt(cleanHex.substr(0, 2), 16);
   const g = parseInt(cleanHex.substr(2, 2), 16);
   const b = parseInt(cleanHex.substr(4, 2), 16);
   
-  // Calculate luminance
   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
   
-  // Return black for light backgrounds, white for dark backgrounds
   return luminance > 0.5 ? '#000000' : '#ffffff';
 }
 
-/**
- * Predefined color options for event form
- */
+
 export const EVENT_COLOR_OPTIONS = [
+  // Row 1: Primary colors
   { name: 'Blue', value: 'blue', hex: COLOR_PALETTE.blue },
   { name: 'Red', value: 'red', hex: COLOR_PALETTE.red },
   { name: 'Green', value: 'green', hex: COLOR_PALETTE.green },
-  { name: 'Purple', value: 'purple', hex: COLOR_PALETTE.purple },
-  { name: 'Orange', value: 'orange', hex: COLOR_PALETTE.orange },
-  { name: 'Pink', value: 'pink', hex: COLOR_PALETTE.pink },
-  { name: 'Cyan', value: 'cyan', hex: COLOR_PALETTE.cyan },
   { name: 'Yellow', value: 'yellow', hex: COLOR_PALETTE.yellow },
+  { name: 'Purple', value: 'purple', hex: COLOR_PALETTE.purple },
+  { name: 'Pink', value: 'pink', hex: COLOR_PALETTE.pink },
+  { name: 'Orange', value: 'orange', hex: COLOR_PALETTE.orange },
+  { name: 'Cyan', value: 'cyan', hex: COLOR_PALETTE.cyan },
+  
+  // Row 2: Extended palette
   { name: 'Indigo', value: 'indigo', hex: COLOR_PALETTE.indigo },
   { name: 'Teal', value: 'teal', hex: COLOR_PALETTE.teal },
+  { name: 'Emerald', value: 'emerald', hex: COLOR_PALETTE.emerald },
+  { name: 'Lime', value: 'lime', hex: COLOR_PALETTE.lime },
+  { name: 'Amber', value: 'amber', hex: COLOR_PALETTE.amber },
+  { name: 'Rose', value: 'rose', hex: COLOR_PALETTE.rose },
+  { name: 'Violet', value: 'violet', hex: COLOR_PALETTE.violet },
+  { name: 'Sky', value: 'sky', hex: COLOR_PALETTE.sky },
+  
+  // Row 3: Neutral colors
+  { name: 'Gray', value: 'gray', hex: COLOR_PALETTE.gray },
+  { name: 'Slate', value: 'slate', hex: COLOR_PALETTE.slate },
+  { name: 'Zinc', value: 'zinc', hex: COLOR_PALETTE.zinc },
 ] as const;
