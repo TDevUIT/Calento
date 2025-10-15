@@ -6,10 +6,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { Resolver } from 'react-hook-form';
 import { format } from 'date-fns';
-import { X, Loader2, MapPin, Bell } from 'lucide-react';
+import { X, Loader2, MapPin, Bell, AlertTriangle } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { eventFormSchema, type EventFormData } from './event-form.schema';
 import type { Event } from '@/interface/event.interface';
@@ -45,6 +46,7 @@ export function EventFormModal({
   defaultEndTime,
 }: EventFormModalProps) {
   const [mounted, setMounted] = useState(false);
+  const [showUnsavedWarning, setShowUnsavedWarning] = useState(false);
   
   useEffect(() => {
     setMounted(true);
@@ -102,8 +104,6 @@ export function EventFormModal({
 
   const onSubmit = async (data: EventFormData) => {
     try {
-      console.log('Form submission started:', { mode, data });
-      
       if (!data.calendar_id) {
         toast.error('Please select a calendar');
         return;
@@ -129,14 +129,10 @@ export function EventFormModal({
         conference_data: cleanedConferenceData,
       };
 
-      console.log('Cleaned data:', cleanedData);
-
       if (mode === 'create') {
         await createEvent.mutateAsync(cleanedData);
-        console.log('Event created successfully');
       } else if (mode === 'edit' && event) {
         await updateEvent.mutateAsync({ id: event.id, data: cleanedData });
-        console.log('Event updated successfully');
       }
       
       setTimeout(() => {
@@ -200,6 +196,25 @@ export function EventFormModal({
     form.setValue('attendees', attendees.filter((_, i) => i !== index));
   };
 
+  const handleClose = () => {
+    if (form.formState.isDirty) {
+      setShowUnsavedWarning(true);
+    } else {
+      onOpenChange(false);
+      form.reset();
+    }
+  };
+
+  const confirmClose = () => {
+    setShowUnsavedWarning(false);
+    onOpenChange(false);
+    form.reset();
+  };
+
+  const cancelClose = () => {
+    setShowUnsavedWarning(false);
+  };
+
   if (!open) return null;
   if (!mounted) return null;
 
@@ -207,7 +222,7 @@ export function EventFormModal({
     <div className="fixed inset-0 flex items-center justify-center" style={{ zIndex: 10000 }}>
       <div 
         className="absolute inset-0 bg-black/50 animate-in fade-in duration-200"
-        onClick={() => onOpenChange(false)}
+        onClick={handleClose}
       />
 
       <div className="relative w-full h-full" style={{ zIndex: 10001 }}>
@@ -251,7 +266,7 @@ export function EventFormModal({
                     type="button"
                     variant="ghost"
                     size="icon"
-                    onClick={() => onOpenChange(false)}
+                    onClick={handleClose}
                     className="h-10 w-10"
                   >
                     <X className="h-5 w-5" />
@@ -264,9 +279,9 @@ export function EventFormModal({
                   <div className="flex-1 overflow-y-auto min-w-0">
                     <div className="w-full h-full">
                       <div className="px-6 py-4 space-y-0">
-                          <div className="space-y-2 pb-2 border-b border-border/40">
+                          <div className="space-y-2 pb-3 border-b border-border/40">
                             <TimeRangeField form={form} />
-                            <div className="pl-8 pb-2">
+                            <div className="pl-8">
                               <AllDayField form={form} />
                             </div>
                           </div>
@@ -385,5 +400,41 @@ export function EventFormModal({
     </div>
   );
 
-  return createPortal(modalContent, document.body);
+  return (
+    <>
+      {createPortal(modalContent, document.body)}
+      <Dialog open={showUnsavedWarning} onOpenChange={setShowUnsavedWarning}>
+        <DialogContent className="sm:max-w-md" style={{ zIndex: 10003 }}>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              Unsaved Changes
+            </DialogTitle>
+            <DialogDescription>
+              You have unsaved changes. Are you sure you want to close this form? All changes will be lost.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <div className='flex gap-x-2'>
+              <Button
+                  type="button"
+                  variant="outline"
+                  onClick={cancelClose}
+                  className='ml-2'
+                >
+                  Continue Editing
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={confirmClose}
+              >
+                Discard Changes
+              </Button>
+            </div>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
 }
