@@ -499,3 +499,87 @@ html body[data-scroll-locked] {
 .calendar-highlight-weekends .weekend.today {
   background-color: hsl(var(--primary) / 0.1);
 }
+
+/* Event Column Layout Styles */
+.event-column {
+  box-sizing: border-box;
+  min-width: 0; /* Allow text truncation */
+  overflow: hidden;
+}
+
+/* Responsive text sizing for narrow columns */
+.event-column[style*="width: 33%"] {
+  font-size: 0.6875rem; /* 11px */
+  padding: 3px 4px !important;
+}
+
+.event-column[style*="width: 25%"] {
+  font-size: 0.625rem; /* 10px */
+  padding: 2px 3px !important;
+}
+
+.event-column[style*="width: 20%"] {
+  font-size: 0.5625rem; /* 9px */
+  padding: 1px 2px !important;
+}
+
+/* Hover effects for column events */
+.event-column:hover {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000 !important;
+}
+
+/* Smooth transitions for column positioning */
+.event-column {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Better text contrast for overlapping events */
+.event-column .font-bold {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced text readability for dark backgrounds */
+.event-column .text-white {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.event-column .text-gray-100 {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Enhanced text readability for light backgrounds */
+.event-column .text-gray-900 {
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+}
+
+.event-column .text-gray-800 {
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.3);
+}
+
+/* Improved border for better separation */
+.event-column {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* Focus states for accessibility */
+.event-column:focus {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 1px;
+}
+@keyframes eventSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+.event-column {
+  animation: eventSlideIn 0.3s ease-out;
+}

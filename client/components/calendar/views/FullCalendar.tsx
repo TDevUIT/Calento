@@ -38,7 +38,7 @@ import {
 import { useHotkeys } from 'react-hotkeys-hook';
 import { EventHoverCard } from '../shared/EventHoverCard';
 import type { Event } from '@/interface/event.interface';
-import { getEventZIndexStyle } from '@/utils/event-display';
+import { calculateEventLayouts, getEventLayoutStyles, getEventTextClasses, type EventLayout } from '@/utils/event-display';
 import { getStoredCalendarView, saveCalendarView } from '@/utils/calendar-storage';
 import { useCalendarSettings } from '../shared/CalendarSettingsProvider';
 import { formatTimeWithSettings, formatDateWithSettings } from '@/utils/calendar-format';
@@ -208,44 +208,66 @@ const HourEvents = ({
 }) => {
   const { onEventClick } = useCalendar();
   
+  // Filter events for this hour
+  const hourEvents = events.filter((event) => isSameHour(event.start, hour));
+  
+  // Calculate layouts for overlapping events
+  const eventLayouts = calculateEventLayouts(hourEvents);
+  
   return (
     <div className="h-20 border-t last:border-b relative group hover:bg-accent/5 transition-colors">
-      {events
-        .filter((event) => isSameHour(event.start, hour))
-        .map((event) => {
-          const hoursDifference =
-            differenceInMinutes(event.end, event.start) / 60;
-          const startPosition = event.start.getMinutes() / 60;
-
-          return (
-            <EventHoverCard
-              key={event.id}
-              event={convertToFullEvent(event)}
-              side="right"
-              align="start"
-              onEdit={() => onEventClick?.(event)}
-              onDelete={() => {}}
+      {eventLayouts.map((layout) => {
+        const { event } = layout;
+        const hoursDifference = differenceInMinutes(event.end, event.start) / 60;
+        const startPosition = event.start.getMinutes() / 60;
+        
+        // Get layout styles for column positioning
+        const layoutStyles = getEventLayoutStyles(layout);
+        
+        // Get appropriate text colors based on background color
+        const eventColor = event.color || '#3b82f6';
+        const { titleClass, timeClass } = getEventTextClasses(eventColor);
+        
+        return (
+          <EventHoverCard
+            key={event.id}
+            event={convertToFullEvent(event)}
+            side="right"
+            align="start"
+            onEdit={() => onEventClick?.(event)}
+            onDelete={() => {}}
+          >
+            <div
+              className="absolute mx-0.5 font-medium rounded-md p-2 text-xs shadow-sm cursor-pointer transition-all hover:shadow-lg hover:scale-[1.01] hover:-translate-y-0.5 border border-black/10 event-column"
+              style={{
+                top: `${startPosition * 100}%`,
+                height: `${hoursDifference * 100}%`,
+                backgroundColor: eventColor,
+                ...layoutStyles,
+                // Reduce padding for narrow columns
+                padding: layout.totalColumns > 2 ? '4px 6px' : '8px 10px',
+              }}
+              onClick={() => onEventClick?.(event)}
             >
-              <div
-                className="absolute left-0 right-0 mx-1 font-medium rounded-md p-2.5 text-xs shadow-sm cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02] hover:-translate-y-0.5 border border-black/10"
-                style={{
-                  top: `${startPosition * 100}%`,
-                  height: `${hoursDifference * 100}%`,
-                  backgroundColor: event.color || '#3b82f6',
-                  ...getEventZIndexStyle(event, events, { baseZIndex: 200 }),
-                }}
-                onClick={() => onEventClick?.(event)}
-              >
-                <div className="font-bold truncate text-gray-900">
-                  {event.title}
-                </div>
-                <div className="text-[10px] mt-0.5 text-gray-800 font-medium">
+              <div className={`font-bold truncate leading-tight ${titleClass}`}>
+                {event.title}
+              </div>
+              {/* Only show time if there's enough space */}
+              {layout.width > 30 && (
+                <div className={`text-[10px] mt-0.5 font-medium leading-tight ${timeClass}`}>
                   {format(event.start, 'HH:mm')} - {format(event.end, 'HH:mm')}
                 </div>
-              </div>
-            </EventHoverCard>
-          );
-        })}
+              )}
+              {/* Show abbreviated time for narrow columns */}
+              {layout.width <= 30 && (
+                <div className={`text-[9px] mt-0.5 font-medium leading-tight ${timeClass}`}>
+                  {format(event.start, 'HH:mm')}
+                </div>
+              )}
+            </div>
+          </EventHoverCard>
+        );
+      })}
     </div>
   );
 };
@@ -425,7 +447,10 @@ const CalendarMonthView = () => {
               </div>
 
               <div className="space-y-1">
-                {currentEvents.slice(0, 3).map((event) => {
+                {currentEvents.slice(0, 3).map((event, eventIndex) => {
+                  const eventColor = event.color || '#3b82f6';
+                  const { titleClass, timeClass } = getEventTextClasses(eventColor);
+                  
                   return (
                     <EventHoverCard
                       key={event.id}
@@ -438,16 +463,16 @@ const CalendarMonthView = () => {
                       <div
                         className="px-2 py-1.5 rounded-md text-xs flex items-center gap-2 transition-all cursor-pointer hover:shadow-md hover:scale-[1.01] relative border border-black/10"
                         style={{
-                          backgroundColor: event.color || '#3b82f6',
-                          ...getEventZIndexStyle(event, currentEvents, { baseZIndex: 150 }),
+                          backgroundColor: eventColor,
+                          zIndex: 150 + eventIndex,
                         }}
                         onClick={() => onEventClick?.(event)}
                       >
-                        <span className="flex-1 truncate font-bold text-gray-900">
+                        <span className={`flex-1 truncate font-bold ${titleClass}`}>
                           {event.title}
                         </span>
                         <time 
-                          className="tabular-nums text-[10px] font-semibold text-gray-800" 
+                          className={`tabular-nums text-[10px] font-semibold ${timeClass}`}
                           suppressHydrationWarning
                         >
                           {format(event.start, 'HH:mm')}
