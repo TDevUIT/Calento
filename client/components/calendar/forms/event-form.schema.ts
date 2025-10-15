@@ -32,8 +32,8 @@ export const eventFormSchema = z.object({
   start_time: z.string().min(1, 'Start time is required'),
   end_time: z.string().min(1, 'End time is required'),
   location: z.string().max(255, 'Location must be at most 255 characters').optional(),
-  is_all_day: z.boolean().default(false),
-  color: z.string().regex(/^(#[0-9A-Fa-f]{6}|blue|green|pink|purple|orange|red|yellow|cyan|indigo|teal|default)$/, 'Color must be a valid hex code or preset name').default('#3b82f6'),
+  is_all_day: z.boolean().optional().default(false),
+  color: z.string().regex(/^(#[0-9A-Fa-f]{6}|blue|green|pink|purple|orange|red|yellow|cyan|indigo|teal|default)$/, 'Color must be a valid hex code or preset name').optional().default('#3b82f6'),
   recurrence_rule: z.string().max(500, 'Recurrence rule must be at most 500 characters').optional(),
   
   attendees: z.array(attendeeSchema).optional(),
@@ -43,7 +43,7 @@ export const eventFormSchema = z.object({
     z.null(),
   ]).optional(),
   reminders: z.array(reminderSchema).optional(),
-  visibility: z.enum(['default', 'public', 'private', 'confidential']).default('default'),
+  visibility: z.enum(['default', 'public', 'private', 'confidential']).optional().default('default'),
 }).refine(
   (data) => {
     if (!data.start_time || !data.end_time) return true;

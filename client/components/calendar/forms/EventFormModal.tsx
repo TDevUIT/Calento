@@ -24,7 +24,9 @@ import { RecurrenceField } from './fields/RecurrenceField';
 import { ConferenceField } from './fields/ConferenceField';
 import { RemindersField } from './fields/RemindersField';
 import { CalendarField } from './fields/CalendarField';
+import { GuestsField } from './fields/GuestsField';
 import { useCreateEvent, useUpdateEvent } from '@/hook';
+import { useSendInvitations, useSendReminders } from '@/hooks/api/invitations';
 
 interface EventFormModalProps {
   open: boolean;
@@ -47,6 +49,7 @@ export function EventFormModal({
 }: EventFormModalProps) {
   const [mounted, setMounted] = useState(false);
   const [showUnsavedWarning, setShowUnsavedWarning] = useState(false);
+  const [shouldSendInvitations, setShouldSendInvitations] = useState(false);
   
   useEffect(() => {
     setMounted(true);
@@ -55,6 +58,8 @@ export function EventFormModal({
   
   const createEvent = useCreateEvent();
   const updateEvent = useUpdateEvent();
+  const { mutate: sendInvitations, isPending: isSendingInvitations } = useSendInvitations();
+  const { mutate: sendReminders, isPending: isSendingReminders } = useSendReminders();
 
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventFormSchema) as Resolver<EventFormData>,
@@ -129,8 +134,25 @@ export function EventFormModal({
         conference_data: cleanedConferenceData,
       };
 
+      let createdEventId: string | undefined;
+      
       if (mode === 'create') {
-        await createEvent.mutateAsync(cleanedData);
+        const result = await createEvent.mutateAsync(cleanedData);
+        createdEventId = result.data.id;
+        
+        // Auto-send invitations for new events with guests
+        if (cleanedData.attendees && cleanedData.attendees.length > 0) {
+          const shouldSend = confirm(
+            `Gửi lời mời đến ${cleanedData.attendees.length} người tham dự?`
+          );
+          
+          if (shouldSend && createdEventId) {
+            sendInvitations({
+              eventId: createdEventId,
+              data: { showAttendees: true }
+            });
+          }
+        }
       } else if (mode === 'edit' && event) {
         await updateEvent.mutateAsync({ id: event.id, data: cleanedData });
       }
@@ -169,32 +191,6 @@ export function EventFormModal({
     }
   };
 
-  const [attendeeEmail, setAttendeeEmail] = useState('');
-
-  const attendees = form.watch('attendees') || [];
-
-  const addAttendee = () => {
-    if (!attendeeEmail || !attendeeEmail.includes('@')) {
-      toast.error('Please enter a valid email');
-      return;
-    }
-    if (attendees.some(a => a.email === attendeeEmail)) {
-      toast.error('Email already exists');
-      return;
-    }
-    const newAttendee = {
-      email: attendeeEmail,
-      response_status: 'needsAction' as const,
-      is_optional: false,
-      is_organizer: false,
-    };
-    form.setValue('attendees', [...attendees, newAttendee]);
-    setAttendeeEmail('');
-  };
-
-  const removeAttendee = (index: number) => {
-    form.setValue('attendees', attendees.filter((_, i) => i !== index));
-  };
 
   const handleClose = () => {
     if (form.formState.isDirty) {
@@ -333,62 +329,25 @@ export function EventFormModal({
                     </div>
 
                   <div className="w-96 border-l overflow-y-auto flex-shrink-0">
-                    <div className="p-6 space-y-4">
-                      <div>
-                        <h3 className="text-base font-semibold mb-4">Guests</h3>
-                        <div className="space-y-2">
-                          <Input
-                            type="email"
-                            placeholder="Add guests"
-                            value={attendeeEmail}
-                            onChange={(e) => setAttendeeEmail(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') {
-                                e.preventDefault();
-                                addAttendee();
-                              }
-                            }}
-                            className="h-10"
-                          />
-                          {attendees.length > 0 && (
-                            <div className="space-y-1 mt-4">
-                              {attendees.map((attendee, index) => (
-                                <div 
-                                  key={index}
-                                  className="flex items-center justify-between p-2 rounded-lg hover:bg-muted text-sm group"
-                                >
-                                  <span className="truncate">{attendee.email}</span>
-                                  <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-7 w-7 opacity-0 group-hover:opacity-100"
-                                    onClick={() => removeAttendee(index)}
-                                  >
-                                    <X className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="pt-4 border-t space-y-3">
-                        <h4 className="text-sm font-semibold">Guest permissions</h4>
-                        <label className="flex items-center gap-2 text-sm cursor-pointer">
-                          <input type="checkbox" className="rounded" defaultChecked />
-                          <span>Modify event</span>
-                        </label>
-                        <label className="flex items-center gap-2 text-sm cursor-pointer">
-                          <input type="checkbox" className="rounded" defaultChecked />
-                          <span>Invite others</span>
-                        </label>
-                        <label className="flex items-center gap-2 text-sm cursor-pointer">
-                          <input type="checkbox" className="rounded" defaultChecked />
-                          <span>See guest list</span>
-                        </label>
-                      </div>
+                    <div className="p-6">
+                      <GuestsField 
+                        form={form}
+                        eventId={mode === 'edit' ? event?.id : undefined}
+                        onSendInvitations={() => {
+                          if (event?.id) {
+                            sendInvitations({
+                              eventId: event.id,
+                              data: { showAttendees: true }
+                            });
+                          }
+                        }}
+                        onSendReminders={() => {
+                          if (event?.id) {
+                            sendReminders(event.id);
+                          }
+                        }}
+                        showInvitationActions={mode === 'edit' && !!event?.id}
+                      />
                     </div>
                   </div>
                 </div>
