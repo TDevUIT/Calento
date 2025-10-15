@@ -126,9 +126,14 @@ export class PaginationService {
       this.validatePaginationOptions(options);
 
     // Build WHERE clause
-    const whereClause = additionalWhereConditions
-      ? `WHERE ${additionalWhereConditions}`
-      : '';
+    let whereClause = '';
+    if (additionalWhereConditions) {
+      // Check if baseQuery already has a WHERE clause
+      const hasWhereClause = baseQuery.toUpperCase().includes('WHERE');
+      whereClause = hasWhereClause
+        ? `AND ${additionalWhereConditions}`
+        : `WHERE ${additionalWhereConditions}`;
+    }
 
     // Build ORDER BY clause
     const orderByClause = this.buildOrderByClause(

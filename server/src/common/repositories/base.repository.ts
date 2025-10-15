@@ -41,7 +41,10 @@ export abstract class BaseRepository<T extends BaseEntity> {
   }
 
   async findById(id: string, options?: RepositoryOptions): Promise<T | null> {
-    const query = `${this.buildSelectQuery(options?.includeDeleted)} ${this.isSoftDeletable() && !options?.includeDeleted ? 'AND' : 'WHERE'} id = $1`;
+    const baseQuery = this.buildSelectQuery(options?.includeDeleted);
+    const hasWhereClause = baseQuery.toUpperCase().includes('WHERE');
+    const connector = hasWhereClause ? 'AND' : 'WHERE';
+    const query = `${baseQuery} ${connector} id = $1`;
 
     try {
       const result = await this.databaseService.query<T>(query, [id]);
