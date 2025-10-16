@@ -30,6 +30,10 @@ export const PROTECTED_ROUTES = {
   DASHBOARD_HELP: '/dashboard/help',
   DASHBOARD_PROFILE: '/dashboard/profile',
   
+  // Booking
+  DASHBOARD_BOOKINGS: '/dashboard/bookings',
+  BOOKING_DETAIL: (id: string) => `/dashboard/bookings/${id}`,
+  
   // Events
   EVENTS: '/events',
   EVENT_CREATE: '/events/create',
@@ -95,6 +99,27 @@ export const API_ROUTES = {
   GOOGLE_CALENDARS_LIST: '/google/calendars/list',
   GOOGLE_TOKEN_REFRESH: '/google/token/refresh',
   GOOGLE_MEET_CREATE: '/google/meet/create',
+  
+  // Booking Links
+  BOOKING_LINKS: '/api/booking-links',
+  BOOKING_LINK_DETAIL: (id: string) => `/api/booking-links/${id}`,
+  BOOKING_LINK_TOGGLE: (id: string) => `/api/booking-links/${id}/toggle`,
+  BOOKING_LINK_STATS: (id: string) => `/api/booking-links/${id}/stats`,
+  
+  // Bookings Management
+  BOOKINGS: '/api/bookings',
+  BOOKING_DETAIL: (id: string) => `/api/bookings/${id}`,
+  BOOKING_CANCEL: (id: string) => `/api/bookings/${id}/cancel`,
+  BOOKING_RESCHEDULE: (id: string) => `/api/bookings/${id}/reschedule`,
+  BOOKING_COMPLETE: (id: string) => `/api/bookings/${id}/complete`,
+  BOOKING_STATS: '/api/bookings/stats',
+  
+  // Public Booking APIs
+  PUBLIC_BOOKING_LINK: (slug: string) => `/api/bookings/public/${slug}`,
+  PUBLIC_BOOKING_SLOTS: (slug: string) => `/api/bookings/public/${slug}/slots`,
+  PUBLIC_BOOKING_CREATE: (slug: string) => `/api/bookings/public/${slug}/book`,
+  PUBLIC_BOOKING_CANCEL: (token: string) => `/api/bookings/public/cancel/${token}`,
+  PUBLIC_BOOKING_RESCHEDULE: (token: string) => `/api/bookings/public/reschedule/${token}`,
 } as const;
 
 export const PUBLIC_ROUTE_PATTERNS = [
@@ -108,6 +133,7 @@ export const PUBLIC_ROUTE_PATTERNS = [
   '/auth/forgot-password',
   '/auth/reset-password',
   '/auth/verify-email',
+  '/book/*', // Public booking pages
 ] as const;
 
 

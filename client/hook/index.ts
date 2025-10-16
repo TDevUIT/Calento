@@ -1,4 +1,5 @@
 export * from './auth';
+export * from './booking';
 export * from './calendar';
 export * from './event';
 export * from './google';

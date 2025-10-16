@@ -1,90 +1,59 @@
 "use client";
 
 import { useState } from "react";
-import { Clock, Plus, Calendar, Users, Edit, Trash2, Copy } from "lucide-react";
+import { Clock, Plus, Calendar, Users, Link2, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { BookingLinkCard } from "@/components/booking/BookingLinkCard";
+import { CreateBookingLinkDialog } from "@/components/booking/CreateBookingLinkDialog";
+import { DraggableBookingLinkList } from "@/components/booking/DraggableBookingLinkList";
+import { DragDropHint } from "@/components/booking/DragDropHint";
+import { BookingNotificationDemo } from "@/components/booking/BookingNotificationDemo";
+import { useBookingLinks, useBookingStats } from "@/hook/booking";
+import { BookingLink } from "@/service/booking.service";
 
-const scheduleLinks = [
-  {
-    id: "1",
-    name: "30 Min Meeting",
-    duration: "30 min",
-    description: "Quick 30-minute meeting for brief discussions",
-    url: "tempra.com/schedule/30min",
-    bookings: 12,
-    active: true
-  },
-  {
-    id: "2",
-    name: "1 Hour Consultation",
-    duration: "60 min",
-    description: "In-depth consultation for detailed planning",
-    url: "tempra.com/schedule/1hour",
-    bookings: 8,
-    active: true
-  },
-  {
-    id: "3",
-    name: "Coffee Chat",
-    duration: "15 min",
-    description: "Informal coffee chat or quick catch-up",
-    url: "tempra.com/schedule/coffee",
-    bookings: 24,
-    active: true
-  },
-  {
-    id: "4",
-    name: "Team Workshop",
-    duration: "2 hours",
-    description: "Extended workshop session for team collaboration",
-    url: "tempra.com/schedule/workshop",
-    bookings: 3,
-    active: false
-  }
-];
 
-const upcomingMeetings = [
-  {
-    id: "1",
-    title: "Product Demo",
-    date: "Oct 15, 2025",
-    time: "10:00 AM",
-    attendee: "Sarah Johnson",
-    type: "30 Min Meeting"
-  },
-  {
-    id: "2",
-    title: "Strategy Session",
-    date: "Oct 15, 2025",
-    time: "2:30 PM",
-    attendee: "Michael Chen",
-    type: "1 Hour Consultation"
-  },
-  {
-    id: "3",
-    title: "Quick Sync",
-    date: "Oct 16, 2025",
-    time: "9:00 AM",
-    attendee: "Emily Davis",
-    type: "Coffee Chat"
-  }
-];
 
-const stats = [
-  { label: "Active Links", value: "3", icon: Calendar },
-  { label: "Total Bookings", value: "47", icon: Users },
-  { label: "This Week", value: "12", icon: Clock }
-];
 
 export default function SchedulePage() {
-  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [editingBookingLink, setEditingBookingLink] = useState<BookingLink | null>(null);
 
-  const handleCopyLink = (url: string, id: string) => {
-    navigator.clipboard.writeText(url);
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
+  // Fetch data
+  const { data: bookingLinks, isLoading: isLoadingLinks } = useBookingLinks();
+  const { data: stats, isLoading: isLoadingStats } = useBookingStats();
+
+  const handleEdit = (bookingLink: BookingLink) => {
+    setEditingBookingLink(bookingLink);
+    setCreateDialogOpen(true);
   };
+
+  const handleViewBookings = (bookingLink: BookingLink) => {
+    // TODO: Navigate to bookings page with filter
+    console.log('View bookings for:', bookingLink.slug);
+  };
+
+  const handleReorderBookingLinks = (reorderedLinks: BookingLink[]) => {
+    // TODO: Implement API call to save new order
+    console.log('Reordered booking links:', reorderedLinks.map(link => link.title));
+  };
+
+  const handleCloseDialog = () => {
+    setCreateDialogOpen(false);
+    setEditingBookingLink(null);
+  };
+
+  // Calculate stats from data
+  const activeLinksCount = bookingLinks?.filter((link: BookingLink) => link.is_active).length || 0;
+  const totalBookings = stats?.total_bookings || 0;
+  const thisWeekBookings = stats?.this_week_bookings || 0;
+
+  const statsData = [
+    { label: "Active Links", value: activeLinksCount.toString(), icon: Link2 },
+    { label: "Total Bookings", value: totalBookings.toString(), icon: Users },
+    { label: "This Week", value: thisWeekBookings.toString(), icon: TrendingUp }
+  ];
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
@@ -96,126 +65,129 @@ export default function SchedulePage() {
             Create and manage your scheduling links
           </p>
         </div>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Create New Link
-        </Button>
+        <div className="flex items-center gap-3">
+          <BookingNotificationDemo />
+          <Button onClick={() => setCreateDialogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Create New Link
+          </Button>
+        </div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {stats.map((stat) => (
-          <Card key={stat.label}>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardDescription>{stat.label}</CardDescription>
-              <stat.icon className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      {/* Scheduling Links */}
-      <div>
-        <h2 className="text-xl font-semibold mb-4">Your Scheduling Links</h2>
-        <div className="grid gap-4">
-          {scheduleLinks.map((link) => (
-            <Card key={link.id}>
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3">
-                      <CardTitle>{link.name}</CardTitle>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        link.active 
-                          ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                          : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400"
-                      }`}>
-                        {link.active ? "Active" : "Inactive"}
-                      </span>
-                    </div>
-                    <CardDescription className="mt-1">
-                      {link.description}
-                    </CardDescription>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="ghost" size="icon">
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
+        {isLoadingStats ? (
+          Array.from({ length: 3 }).map((_, i) => (
+            <Card key={i}>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-4 w-4" />
               </CardHeader>
               <CardContent>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-6 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4" />
-                      {link.duration}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4" />
-                      {link.bookings} bookings
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <code className="text-sm bg-muted px-3 py-1 rounded">
-                      {link.url}
-                    </code>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleCopyLink(link.url, link.id)}
-                    >
-                      <Copy className="mr-2 h-4 w-4" />
-                      {copiedId === link.id ? "Copied!" : "Copy Link"}
-                    </Button>
-                  </div>
-                </div>
+                <Skeleton className="h-8 w-12" />
               </CardContent>
             </Card>
-          ))}
-        </div>
+          ))
+        ) : (
+          statsData.map((stat) => (
+            <Card key={stat.label}>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardDescription>{stat.label}</CardDescription>
+                <stat.icon className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stat.value}</div>
+              </CardContent>
+            </Card>
+          ))
+        )}
       </div>
 
-      {/* Upcoming Meetings */}
+      {/* Booking Links */}
       <div>
-        <h2 className="text-xl font-semibold mb-4">Upcoming Meetings</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold">Your Booking Links</h2>
+          {bookingLinks && bookingLinks.length > 0 && (
+            <Button variant="outline" onClick={() => setCreateDialogOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Link
+            </Button>
+          )}
+        </div>
+        
+        {isLoadingLinks ? (
+          <div className="grid gap-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Card key={i}>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-6 w-48" />
+                      <Skeleton className="h-4 w-64" />
+                    </div>
+                    <Skeleton className="h-6 w-16" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-6">
+                      <Skeleton className="h-4 w-20" />
+                      <Skeleton className="h-4 w-24" />
+                    </div>
+                    <Skeleton className="h-8 w-full" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : bookingLinks && bookingLinks.length > 0 ? (
+          <div>
+            <DragDropHint />
+            <DraggableBookingLinkList
+              bookingLinks={bookingLinks}
+              onEdit={handleEdit}
+              onViewBookings={handleViewBookings}
+              onReorder={handleReorderBookingLinks}
+            />
+          </div>
+        ) : (
+          <Card className="text-center py-12">
+            <CardContent>
+              <div className="mx-auto w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-4">
+                <Link2 className="h-12 w-12 text-muted-foreground" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">No booking links yet</h3>
+              <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+                Create your first booking link to let others schedule time with you.
+              </p>
+              <Button onClick={() => setCreateDialogOpen(true)}>
+                <Plus className="mr-2 h-4 w-4" />
+                Create Your First Link
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      {/* Recent Activity */}
+      <div>
+        <h2 className="text-xl font-semibold mb-4">Recent Activity</h2>
         <Card>
           <CardContent className="pt-6">
-            <div className="space-y-4">
-              {upcomingMeetings.map((meeting, index) => (
-                <div
-                  key={meeting.id}
-                  className={`flex items-center justify-between p-4 rounded-lg border ${
-                    index !== upcomingMeetings.length - 1 ? "mb-2" : ""
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-persian-blue-100 dark:bg-persian-blue-900/30 rounded-lg">
-                      <Calendar className="h-5 w-5 text-persian-blue-600 dark:text-persian-blue-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium">{meeting.title}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        with {meeting.attendee} • {meeting.type}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium">{meeting.date}</p>
-                    <p className="text-sm text-muted-foreground">{meeting.time}</p>
-                  </div>
-                </div>
-              ))}
+            <div className="text-center py-8 text-muted-foreground">
+              <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>Recent bookings and activity will appear here</p>
             </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Create/Edit Dialog */}
+      <CreateBookingLinkDialog
+        open={createDialogOpen}
+        onOpenChange={handleCloseDialog}
+        bookingLink={editingBookingLink}
+      />
     </div>
   );
 }
