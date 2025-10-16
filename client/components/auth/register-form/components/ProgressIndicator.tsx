@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils'
-import type { RegistrationStep } from '@/types/auth.types'
+import type { RegistrationStep } from '@/interface/auth.interface'
 
 type ProgressIndicatorProps = {
   currentStep: RegistrationStep

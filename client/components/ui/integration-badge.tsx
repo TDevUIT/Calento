@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { IntegrationBadgeProps } from '@/types/components.types';
+import { IntegrationBadgeProps } from '@/interface/components.interface';
 
 export function IntegrationBadge({
   name,

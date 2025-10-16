@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
-import type { RegisterFormProps, RegistrationStep } from '@/types/auth.types'
+import type { RegisterFormProps, RegistrationStep } from '@/interface/auth.interface'
 import { 
   PASSWORD_MIN_LENGTH, 
   AUTH_ROUTES,

@@ -1,112 +1,100 @@
-import api from '@/config/axios';
-import type { ApiResponse } from '@/interface/api-response.interface';
+import { api, getErrorMessage } from '../config/axios';
+import { API_ROUTES } from '../constants/routes';
+import {
+  InvitationResponse,
+  InvitationDetails,
+  SendInvitationsRequest,
+  SendInvitationsResponse,
+  SendRemindersResponse,
+  RespondToInvitationRequest,
+  InvitationDetailsResponse,
+  SendInvitationsApiResponse,
+  SendRemindersApiResponse,
+  RespondToInvitationApiResponse,
+} from '../interface/invitation.interface';
 
-export interface InvitationResponse {
-  success: boolean;
-  message: string;
-  eventAddedToCalendar: boolean;
-  needsSignup?: boolean;
-  icsFileUrl?: string;
-}
+// Re-export types for convenience
+export type {
+  InvitationResponse,
+  InvitationDetails,
+  SendInvitationsRequest,
+  SendInvitationsResponse,
+  SendRemindersResponse,
+  RespondToInvitationRequest,
+  GoogleCalendarEvent,
+  InvitationAction,
+} from '../interface/invitation.interface';
 
-export interface InvitationDetails {
-  id: string;
-  title: string;
-  description?: string;
-  start_time: string;
-  end_time: string;
-  location?: string;
-  attendee_email: string;
-  attendee_name?: string;
-  response_status: string;
-  is_optional: boolean;
-  comment?: string;
-  organizer_name: string;
-  organizer_email: string;
-  organizer_avatar?: string;
-}
-
-export interface SendInvitationsRequest {
-  emails?: string[];
-  showAttendees?: boolean;
-}
-
-export interface SendInvitationsResponse {
-  sent: number;
-  failed: number;
-  results: {
-    email: string;
-    success: boolean;
-    messageId?: string;
-    error?: string;
-  }[];
-}
-
-export class InvitationService {
-  static async sendInvitations(
-    eventId: string,
-    data?: SendInvitationsRequest,
-  ): Promise<ApiResponse<SendInvitationsResponse>> {
-    const response = await api.post(
-      `/events/${eventId}/invitations/send`,
+/**
+ * Send invitations for an event
+ */
+export const sendInvitations = async (
+  eventId: string,
+  data?: SendInvitationsRequest
+): Promise<SendInvitationsResponse> => {
+  try {
+    const response = await api.post<SendInvitationsApiResponse>(
+      API_ROUTES.SEND_INVITATIONS(eventId),
       data,
+      { withCredentials: true }
     );
-    return response.data;
+    return response.data.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
   }
+};
 
-  static async sendReminders(
-    eventId: string,
-  ): Promise<ApiResponse<{ sent: number; failed: number }>> {
-    const response = await api.post(
-      `/events/${eventId}/invitations/remind`,
+/**
+ * Send reminders for an event
+ */
+export const sendReminders = async (
+  eventId: string
+): Promise<SendRemindersResponse> => {
+  try {
+    const response = await api.post<SendRemindersApiResponse>(
+      API_ROUTES.SEND_REMINDERS(eventId),
+      {},
+      { withCredentials: true }
     );
-    return response.data;
+    return response.data.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
   }
+};
 
-  static async getInvitationDetails(
-    token: string,
-  ): Promise<ApiResponse<InvitationDetails>> {
-    const response = await api.get(`/events/invitation/${token}`);
-    return response.data;
-  }
-
-  static async respondToInvitation(
-    token: string,
-    action: 'accept' | 'decline' | 'tentative',
-    comment?: string,
-    addToCalento?: boolean,
-  ): Promise<ApiResponse<InvitationResponse>> {
-    const response = await api.post(
-      `/events/invitation/${token}/respond`,
-      { action, comment, addToCalento },
+/**
+ * Get invitation details by token
+ */
+export const getInvitationDetails = async (
+  token: string
+): Promise<InvitationDetails> => {
+  try {
+    const response = await api.get<InvitationDetailsResponse>(
+      API_ROUTES.INVITATION_DETAILS(token)
     );
-    return response.data;
+    return response.data.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
   }
+};
 
-  static generateGoogleCalendarLink(event: {
-    title: string;
-    description?: string;
-    location?: string;
-    start_time: string;
-    end_time: string;
-  }): string {
-    const formatDateForGoogle = (date: string) => {
-      return new Date(date)
-        .toISOString()
-        .replace(/-|:|\.\d+/g, '');
-    };
-
-    const startTime = formatDateForGoogle(event.start_time);
-    const endTime = formatDateForGoogle(event.end_time);
-
-    const params = new URLSearchParams({
-      action: 'TEMPLATE',
-      text: event.title,
-      dates: `${startTime}/${endTime}`,
-      details: event.description || '',
-      location: event.location || '',
-    });
-
-    return `https://calendar.google.com/calendar/render?${params.toString()}`;
+/**
+ * Respond to an invitation
+ */
+export const respondToInvitation = async (
+  token: string,
+  data: RespondToInvitationRequest
+): Promise<InvitationResponse> => {
+  try {
+    const response = await api.post<RespondToInvitationApiResponse>(
+      API_ROUTES.RESPOND_TO_INVITATION(token),
+      data
+    );
+    return response.data.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
   }
-}
+};
+
+// Export the utility function (moved to utils)
+export { generateGoogleCalendarLink } from '../utils/invitation.utils';

@@ -30,9 +30,9 @@ export function UpcomingEvents({ maxEvents = 5 }: UpcomingEventsProps) {
     const end = new Date(endTime);
     
     if (isToday(start)) {
-      return `Hôm nay ${format(start, 'HH:mm')} - ${format(end, 'HH:mm')}`;
+      return `Today ${format(start, 'HH:mm')} - ${format(end, 'HH:mm')}`;
     } else if (isTomorrow(start)) {
-      return `Ngày mai ${format(start, 'HH:mm')} - ${format(end, 'HH:mm')}`;
+      return `Tomorrow ${format(start, 'HH:mm')} - ${format(end, 'HH:mm')}`;
     } else {
       return `${format(start, 'dd/MM HH:mm', { locale: vi })} - ${format(end, 'HH:mm')}`;
     }
@@ -44,13 +44,13 @@ export function UpcomingEvents({ maxEvents = 5 }: UpcomingEventsProps) {
     const diffInMinutes = Math.floor((eventTime.getTime() - now.getTime()) / (1000 * 60));
     
     if (diffInMinutes < 60) {
-      return `${diffInMinutes} phút nữa`;
+      return `${diffInMinutes} minutes`;
     } else if (diffInMinutes < 24 * 60) {
       const hours = Math.floor(diffInMinutes / 60);
-      return `${hours} giờ nữa`;
+      return `${hours} hours`;
     } else {
       const days = Math.floor(diffInMinutes / (24 * 60));
-      return `${days} ngày nữa`;
+      return `${days} days`;
     }
   };
 
@@ -68,7 +68,7 @@ export function UpcomingEvents({ maxEvents = 5 }: UpcomingEventsProps) {
           {isLoading ? (
             <div className="flex items-center gap-2">
               <div className="animate-pulse h-4 w-4 bg-muted rounded"></div>
-              <span className="text-muted-foreground">Đang tải...</span>
+              <span className="text-muted-foreground">Loading...</span>
             </div>
           ) : nextEvent ? (
             <div className="flex items-center gap-2">
@@ -80,7 +80,7 @@ export function UpcomingEvents({ maxEvents = 5 }: UpcomingEventsProps) {
               </Badge>
             </div>
           ) : (
-            <span className="text-muted-foreground">Không có sự kiện</span>
+            <span className="text-muted-foreground">No events</span>
           )}
           <ChevronRight className="h-3 w-3" />
         </Button>
@@ -97,7 +97,7 @@ export function UpcomingEvents({ maxEvents = 5 }: UpcomingEventsProps) {
         <div className="p-4 border-b">
           <h3 className="font-semibold text-sm flex items-center gap-2">
             <Calendar className="h-4 w-4" />
-            Sự kiện sắp tới
+            Upcoming Events
           </h3>
         </div>
         
@@ -105,12 +105,12 @@ export function UpcomingEvents({ maxEvents = 5 }: UpcomingEventsProps) {
           {isLoading ? (
             <div className="p-6 text-center text-muted-foreground">
               <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full mx-auto mb-2"></div>
-              <p className="text-sm">Đang tải sự kiện...</p>
+              <p className="text-sm">Loading events...</p>
             </div>
           ) : isError ? (
             <div className="p-6 text-center text-muted-foreground">
               <Calendar className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">Không thể tải sự kiện</p>
+              <p className="text-sm">Unable to load events</p>
             </div>
           ) : upcomingEvents.length > 0 ? (
             <div className="p-2 space-y-2">
@@ -151,13 +151,13 @@ export function UpcomingEvents({ maxEvents = 5 }: UpcomingEventsProps) {
                           {event.attendees && (
                             <div className="flex items-center gap-1">
                               <Users className="h-3 w-3" />
-                              <span>{event.attendees} người tham gia</span>
+                              <span>{event.attendees} attendees</span>
                             </div>
                           )}
                           
                           {event.creator?.name && (
                             <span className="text-xs">
-                              bởi {event.creator.name}
+                              by {event.creator.name}
                             </span>
                           )}
                         </div>
@@ -170,7 +170,7 @@ export function UpcomingEvents({ maxEvents = 5 }: UpcomingEventsProps) {
           ) : (
             <div className="p-6 text-center text-muted-foreground">
               <Calendar className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">Không có sự kiện nào trong 7 ngày tới</p>
+              <p className="text-sm">No events in the next 7 days</p>
             </div>
           )}
         </div>
@@ -187,7 +187,7 @@ export function UpcomingEvents({ maxEvents = 5 }: UpcomingEventsProps) {
                 console.log("Navigate to calendar");
               }}
             >
-              Xem tất cả trong lịch
+              View all in calendar
               <ChevronRight className="h-3 w-3 ml-1" />
             </Button>
           </div>

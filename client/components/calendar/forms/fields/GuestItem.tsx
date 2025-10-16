@@ -51,7 +51,7 @@ export function GuestItem({
   onRemove, 
   onUpdate, 
   isOrganizer = false,
-  showPermissions = false 
+  showPermissions: _showPermissions = false 
 }: GuestItemProps) {
   const [showDetails, setShowDetails] = useState(false);
   

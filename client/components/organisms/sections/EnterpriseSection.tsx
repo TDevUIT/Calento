@@ -1,8 +1,8 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ENTERPRISE_FEATURES_DATA } from '@/config/landing-data.config';
-import type { EnterpriseFeature } from '@/types/landing.types';
+import { ENTERPRISE_FEATURES_DATA } from '@/constants/landing.constants';
+import type { EnterpriseFeature } from '@/interface/landing.interface';
 
 export const EnterpriseSection: React.FC = () => {
   return (

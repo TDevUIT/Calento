@@ -58,7 +58,7 @@ export function EventQuickPreview({ event }: EventQuickPreviewProps) {
 
   const formatTimeRange = () => {
     if (event.is_all_day) {
-      return 'Cả ngày';
+      return 'All day';
     }
     const startTime = formatTimeWithSettings(startDate, timeFormat);
     const endTime = formatTimeWithSettings(endDate, timeFormat);
@@ -68,11 +68,11 @@ export function EventQuickPreview({ event }: EventQuickPreviewProps) {
   const formatReminderTime = () => {
     if (!event.reminders || event.reminders.length === 0) return '';
     const firstReminder = event.reminders[0];
-    if (firstReminder.minutes === 0) return 'Đúng giờ';
-    if (firstReminder.minutes < 60) return `${firstReminder.minutes} phút trước`;
-    if (firstReminder.minutes === 60) return '1 giờ trước';
+    if (firstReminder.minutes === 0) return 'At event time';
+    if (firstReminder.minutes < 60) return `${firstReminder.minutes} minutes before`;
+    if (firstReminder.minutes === 60) return '1 hour before';
     const hours = Math.floor(firstReminder.minutes / 60);
-    return `${hours} giờ trước`;
+    return `${hours} hours before`;
   };
 
   const getResponseStatusIcon = (status?: string) => {
@@ -94,12 +94,12 @@ export function EventQuickPreview({ event }: EventQuickPreviewProps) {
   
   
   const displayRole = event.creator?.name 
-    ? 'Người tạo' 
+    ? 'Creator' 
     : event.organizer_name 
-      ? 'Người tổ chức' 
+      ? 'Organizer' 
       : organizerAttendee?.name
-        ? 'Người tổ chức'
-        : 'Người tổ chức';
+        ? 'Organizer'
+        : 'Organizer';
   
   const getOrganizerInitials = () => {
     const name = organizerName?.trim();
@@ -151,7 +151,7 @@ export function EventQuickPreview({ event }: EventQuickPreviewProps) {
           {event.recurrence_rule && (
             <Badge variant="secondary" className="text-xs px-2 py-0.5 gap-1">
               <Repeat className="h-3 w-3" />
-              Lặp lại
+              Recurring
             </Badge>
           )}
         </div>
@@ -181,9 +181,9 @@ export function EventQuickPreview({ event }: EventQuickPreviewProps) {
         {event.attendees && event.attendees.length > 0 && (
           <div className="flex items-center gap-2 text-sm">
             <Users className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-            <span>{totalAttendees} khách</span>
+            <span>{totalAttendees} guests</span>
             <Separator orientation="vertical" className="h-4" />
-            <span className="text-green-600 font-medium">{acceptedCount} người chấp nhận</span>
+            <span className="text-green-600 font-medium">{acceptedCount} accepted</span>
           </div>
         )}
 
@@ -265,7 +265,7 @@ export function EventQuickPreview({ event }: EventQuickPreviewProps) {
               onClick={(e) => e.stopPropagation()}
             >
               <Calendar className="h-4 w-4" />
-              Xem nguồn trong Google Calendar
+              View in Google Calendar
               <ExternalLink className="h-3 w-3" />
             </a>
           </div>
@@ -275,7 +275,7 @@ export function EventQuickPreview({ event }: EventQuickPreviewProps) {
       <Separator />
       <div className="px-4 py-2 bg-muted/10">
         <p className="text-xs text-muted-foreground text-center">
-          Click để xem và chỉnh sửa chi tiết đầy đủ
+          Click to view and edit full details
         </p>
       </div>
     </div>

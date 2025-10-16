@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { SectionProps } from '@/types/components.types';
+import { SectionProps } from '@/interface/components.interface';
 
 interface SectionContainerProps extends SectionProps {
   as?: 'section' | 'div' | 'article';

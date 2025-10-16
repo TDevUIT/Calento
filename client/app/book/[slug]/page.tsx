@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
-import { Calendar, Clock, User, Mail, Phone, MessageSquare, ArrowLeft, Check } from "lucide-react";
+import { Calendar, Clock, ArrowLeft, Check } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,8 +44,8 @@ export default function PublicBookingPage() {
 
   // Generate next 30 days for date selection
   const availableDates = Array.from({ length: 30 }, (_, i) => {
-    const date = addDays(new Date(), i);
-    return format(date, 'yyyy-MM-dd');
+    const dateObj = addDays(new Date(), i);
+    return format(dateObj, 'yyyy-MM-dd');
   });
 
   const handleDateSelect = (date: string) => {
@@ -103,7 +103,7 @@ export default function PublicBookingPage() {
   };
 
   const formatDateDisplay = (dateString: string) => {
-    const date = parseISO(dateString + 'T00:00:00');
+    const dateObj = parseISO(dateString + 'T00:00:00');
     const today = startOfDay(new Date());
     const tomorrow = addDays(today, 1);
     const selectedDateObj = parseISO(dateString + 'T00:00:00');
@@ -146,7 +146,7 @@ export default function PublicBookingPage() {
             <CardContent className="text-center py-12">
               <h1 className="text-2xl font-bold text-red-600 mb-4">Booking Link Not Found</h1>
               <p className="text-muted-foreground mb-6">
-                The booking link you're looking for doesn't exist or has been deactivated.
+                The booking link you&apos;re looking for doesn&apos;t exist or has been deactivated.
               </p>
               <Button onClick={() => window.history.back()}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
@@ -193,7 +193,7 @@ export default function PublicBookingPage() {
               </div>
               <h1 className="text-2xl font-bold text-green-600 mb-4">Booking Confirmed!</h1>
               <p className="text-muted-foreground mb-6">
-                Your booking has been confirmed. You'll receive a confirmation email shortly with all the details.
+                Your booking has been confirmed. You&apos;ll receive a confirmation email shortly with all the details.
               </p>
               <div className="bg-muted p-4 rounded-lg text-left max-w-md mx-auto mb-6">
                 <h3 className="font-semibold mb-2">{bookingLink.title}</h3>
@@ -309,7 +309,7 @@ export default function PublicBookingPage() {
                   </div>
                 ) : availableSlots && availableSlots.length > 0 ? (
                   <div className="space-y-2 max-h-64 overflow-y-auto">
-                    {availableSlots.map((slot: any) => (
+                    {availableSlots.map((slot: { start_time: string; available: boolean }) => (
                       <button
                         key={slot.start_time}
                         onClick={() => handleSlotSelect(slot.start_time)}

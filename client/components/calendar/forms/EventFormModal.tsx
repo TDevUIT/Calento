@@ -49,7 +49,7 @@ export function EventFormModal({
 }: EventFormModalProps) {
   const [mounted, setMounted] = useState(false);
   const [showUnsavedWarning, setShowUnsavedWarning] = useState(false);
-  const [shouldSendInvitations, setShouldSendInvitations] = useState(false);
+  // const [shouldSendInvitations, setShouldSendInvitations] = useState(false);
   
   useEffect(() => {
     setMounted(true);
@@ -58,8 +58,10 @@ export function EventFormModal({
   
   const createEvent = useCreateEvent();
   const updateEvent = useUpdateEvent();
-  const { mutate: sendInvitations, isPending: isSendingInvitations } = useSendInvitations();
-  const { mutate: sendReminders, isPending: isSendingReminders } = useSendReminders();
+  const { mutate: sendInvitations } = useSendInvitations();
+  const { mutate: sendReminders } = useSendReminders();
+  // const { mutate: sendInvitations, isPending: isSendingInvitations } = useSendInvitations();
+  // const { mutate: sendReminders, isPending: isSendingReminders } = useSendReminders();
 
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventFormSchema) as Resolver<EventFormData>,

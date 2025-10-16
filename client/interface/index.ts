@@ -3,3 +3,8 @@ export * from './google.interface';
 export * from './api-response.interface';
 export * from './http.interface';
 export * from './booking.interface';
+export * from './invitation.interface';
+export * from './components.interface';
+export * from './contact.interface';
+export * from './landing.interface';
+export * from './pricing.interface';

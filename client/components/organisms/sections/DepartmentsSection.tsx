@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { DEPARTMENTS_DATA } from '@/config/landing-data.config';
+import { DEPARTMENTS_DATA } from '@/constants/landing.constants';
 import { ArrowRight } from 'lucide-react';
 
 export const DepartmentsSection: React.FC = () => {

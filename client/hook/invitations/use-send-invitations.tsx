@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient, type UseMutationResult } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { InvitationService, type SendInvitationsRequest } from '@/service/invitation.service';
+import { sendInvitations, type SendInvitationsRequest, type SendInvitationsResponse } from '@/service/invitation.service';
 import { EVENT_QUERY_KEYS } from '@/hook/event/query-keys';
 
 interface SendInvitationsVariables {
@@ -8,14 +8,9 @@ interface SendInvitationsVariables {
   data?: SendInvitationsRequest;
 }
 
-interface SendInvitationsResult {
-  sent: number;
-  failed: number;
-  results: Array<{ success: boolean; email: string }>;
-}
 
 export function useSendInvitations(): UseMutationResult<
-  SendInvitationsResult,
+  SendInvitationsResponse,
   Error,
   SendInvitationsVariables
 > {
@@ -23,17 +18,16 @@ export function useSendInvitations(): UseMutationResult<
 
   return useMutation({
     mutationFn: async ({ eventId, data }: SendInvitationsVariables) => {
-      const response = await InvitationService.sendInvitations(eventId, data);
-      return response.data;
+      return await sendInvitations(eventId, data);
     },
     onSuccess: (result, variables) => {
       if (result.sent > 0) {
         toast.success(
-          `Đã gửi lời mời thành công đến ${result.sent} người`,
+          `Successfully sent invitations to ${result.sent} people`,
           {
             description: result.failed > 0 
-              ? `${result.failed} lời mời gửi thất bại` 
-              : 'Tất cả lời mời đã được gửi',
+              ? `${result.failed} invitations failed to send` 
+              : 'All invitations have been sent',
           }
         );
       }
@@ -44,7 +38,7 @@ export function useSendInvitations(): UseMutationResult<
           .map((r) => r.email)
           .join(', ');
         
-        toast.error(`Không thể gửi lời mời đến: ${failedEmails}`);
+        toast.error(`Unable to send invitations to: ${failedEmails}`);
       }
 
       queryClient.invalidateQueries({ 
@@ -52,7 +46,7 @@ export function useSendInvitations(): UseMutationResult<
       });
     },
     onError: (error: Error) => {
-      toast.error('Gửi lời mời thất bại', {
+      toast.error('Failed to send invitations', {
         description: (error as any)?.response?.data?.message || error.message,
       });
     },

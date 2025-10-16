@@ -12,8 +12,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useInvitationDetails, useRespondToInvitation } from '@/hook/invitations/use-respond-invitation';
-import { InvitationService } from '@/service/invitation.service';
-import { toast } from 'sonner';
+import { generateGoogleCalendarLink } from '@/service/invitation.service';
 
 function InvitationResponseContent() {
   const searchParams = useSearchParams();
@@ -32,7 +31,8 @@ function InvitationResponseContent() {
     if (token && action && invitation && !hasResponded && !respondMutation.isPending) {
       handleResponse(action);
     }
-  }, [token, action, invitation]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, action, invitation, hasResponded, respondMutation.isPending]);
 
   const handleResponse = async (responseAction: 'accept' | 'decline' | 'tentative') => {
     if (!token || hasResponded) return;
@@ -45,14 +45,15 @@ function InvitationResponseContent() {
         addToCalento: responseAction === 'accept' ? addToCalento : false,
       });
       setHasResponded(true);
-    } catch (error) {
+    } catch {
+      // Error is handled by the mutation hook
     }
   };
 
   const handleAddToGoogleCalendar = () => {
     if (!invitation) return;
     
-    const calendarLink = InvitationService.generateGoogleCalendarLink({
+    const calendarLink = generateGoogleCalendarLink({
       title: invitation.title,
       description: invitation.description,
       location: invitation.location,
@@ -81,7 +82,7 @@ function InvitationResponseContent() {
         <Card className="w-full max-w-md">
           <CardContent className="p-12 text-center">
             <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
-            <p className="text-muted-foreground">Đang tải thông tin lời mời...</p>
+            <p className="text-muted-foreground">Loading invitation details...</p>
           </CardContent>
         </Card>
       </div>
@@ -94,12 +95,12 @@ function InvitationResponseContent() {
         <Card className="w-full max-w-md">
           <CardContent className="p-12 text-center">
             <AlertCircle className="h-12 w-12 mx-auto mb-4 text-destructive" />
-            <h2 className="text-2xl font-bold mb-2">Lời mời không hợp lệ</h2>
+            <h2 className="text-2xl font-bold mb-2">Invalid Invitation</h2>
             <p className="text-muted-foreground mb-6">
-              Lời mời này có thể đã hết hạn hoặc không tồn tại.
+              This invitation may have expired or does not exist.
             </p>
             <Button onClick={() => router.push('/dashboard/calendar')}>
-              Về trang lịch
+              Go to Calendar
             </Button>
           </CardContent>
         </Card>
@@ -109,9 +110,9 @@ function InvitationResponseContent() {
 
   if (hasResponded || respondMutation.isSuccess) {
     const actionText = {
-      accept: 'chấp nhận',
-      decline: 'từ chối',
-      tentative: 'có thể tham gia',
+      accept: 'accepted',
+      decline: 'declined',
+      tentative: 'might attend',
     }[action || 'accept'];
 
     return (
@@ -135,11 +136,11 @@ function InvitationResponseContent() {
                 </div>
               )}
             </div>
-            <h2 className="text-2xl font-bold mb-2">Đã ghi nhận phản hồi!</h2>
+            <h2 className="text-2xl font-bold mb-2">Response Recorded!</h2>
             <p className="text-muted-foreground mb-6">
-              Bạn đã {actionText} lời mời tham gia sự kiện.
+              You have {actionText} the event invitation.
               <br />
-              Người tổ chức sẽ nhận được thông báo.
+              The organizer will be notified.
             </p>
             <div className="space-y-3">
               {action === 'accept' && (
@@ -151,9 +152,9 @@ function InvitationResponseContent() {
                           <Sparkles className="h-5 w-5 text-violet-600 dark:text-violet-400" />
                         </div>
                         <div className="flex-1">
-                          <p className="font-medium text-sm">Đã thêm vào Calento</p>
+                          <p className="font-medium text-sm">Added to Calento</p>
                           <p className="text-xs text-muted-foreground mt-1">
-                            Sự kiện đã được đồng bộ vào lịch Calento của bạn
+                            Event has been synced to your Calento calendar
                           </p>
                         </div>
                       </div>
@@ -172,7 +173,7 @@ function InvitationResponseContent() {
                     className="w-full"
                   >
                     <Plus className="mr-2 h-4 w-4" />
-                    Thêm vào Google Calendar
+                    Add to Google Calendar
                   </Button>
                 </>
               )}
@@ -182,7 +183,7 @@ function InvitationResponseContent() {
                   variant="outline"
                   className="w-full"
                 >
-                  Về trang lịch
+                  Go to Calendar
                 </Button>
               )}
             </div>
@@ -205,7 +206,7 @@ function InvitationResponseContent() {
                 </AvatarFallback>
               </Avatar>
               <div>
-                <p className="text-sm opacity-90">Bạn được mời bởi</p>
+                <p className="text-sm opacity-90">You are invited by</p>
                 <p className="font-semibold">{invitation.organizer_name}</p>
               </div>
             </div>
@@ -222,7 +223,7 @@ function InvitationResponseContent() {
               <div className="flex items-start gap-3">
                 <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
                 <div>
-                  <p className="font-medium">Thời gian</p>
+                  <p className="font-medium">Time</p>
                   <p className="text-sm text-muted-foreground">
                     {formatDateTime(invitation.start_time)}
                   </p>
@@ -233,7 +234,7 @@ function InvitationResponseContent() {
                 <div className="flex items-start gap-3">
                   <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
                   <div>
-                    <p className="font-medium">Địa điểm</p>
+                    <p className="font-medium">Location</p>
                     <p className="text-sm text-muted-foreground">{invitation.location}</p>
                   </div>
                 </div>
@@ -242,13 +243,13 @@ function InvitationResponseContent() {
               {invitation.is_optional && (
                 <Badge variant="secondary" className="mt-2">
                   <Users className="h-3 w-3 mr-1" />
-                  Tùy chọn tham gia
+                  Optional Attendance
                 </Badge>
               )}
             </div>
 
             <div className="border-t pt-6">
-              <h3 className="font-semibold mb-4">Bạn có tham gia sự kiện này không?</h3>
+              <h3 className="font-semibold mb-4">Will you attend this event?</h3>
               
               <div className="grid grid-cols-3 gap-3 mb-6">
                 <Button
@@ -257,7 +258,7 @@ function InvitationResponseContent() {
                   className="bg-green-600 hover:bg-green-700 h-auto py-4 flex-col gap-1"
                 >
                   <Check className="h-5 w-5" />
-                  <span className="text-sm font-medium">Tham gia</span>
+                  <span className="text-sm font-medium">Join</span>
                 </Button>
                 <Button
                   onClick={() => handleResponse('tentative')}
@@ -266,7 +267,7 @@ function InvitationResponseContent() {
                   className="border-yellow-600 text-yellow-600 hover:bg-yellow-50 h-auto py-4 flex-col gap-1"
                 >
                   <AlertCircle className="h-5 w-5" />
-                  <span className="text-sm font-medium">Có thể</span>
+                  <span className="text-sm font-medium">Maybe</span>
                 </Button>
                 <Button
                   onClick={() => handleResponse('decline')}
@@ -275,7 +276,7 @@ function InvitationResponseContent() {
                   className="border-red-600 text-red-600 hover:bg-red-50 h-auto py-4 flex-col gap-1"
                 >
                   <X className="h-5 w-5" />
-                  <span className="text-sm font-medium">Từ chối</span>
+                  <span className="text-sm font-medium">Decline</span>
                 </Button>
               </div>
 
@@ -293,10 +294,10 @@ function InvitationResponseContent() {
                       className="text-sm font-medium flex items-center gap-2 cursor-pointer"
                     >
                       <Sparkles className="h-4 w-4 text-violet-600 dark:text-violet-400" />
-                      Thêm vào lịch Calento
+                      Add to Calento Calendar
                     </Label>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Tự động đồng bộ sự kiện vào lịch Calento của bạn khi chấp nhận lời mời
+                      Automatically sync event to your Calento calendar when accepting invitation
                     </p>
                   </div>
                 </div>
@@ -306,11 +307,11 @@ function InvitationResponseContent() {
 
               <div className="space-y-2">
                 <Label htmlFor="comment" className="text-sm font-medium">
-                  Ghi chú (tùy chọn)
+                  Note (optional)
                 </Label>
                 <Textarea
                   id="comment"
-                  placeholder="Thêm ghi chú cho người tổ chức..."
+                  placeholder="Add a note for the organizer..."
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   rows={3}
@@ -323,11 +324,11 @@ function InvitationResponseContent() {
             {invitation.response_status && invitation.response_status !== 'needsAction' && (
               <div className="bg-muted p-4 rounded-lg">
                 <p className="text-sm text-muted-foreground">
-                  Trạng thái hiện tại:{' '}
+                  Current status:{' '}
                   <Badge variant="secondary">
-                    {invitation.response_status === 'accepted' && 'Đã chấp nhận'}
-                    {invitation.response_status === 'declined' && 'Đã từ chối'}
-                    {invitation.response_status === 'tentative' && 'Có thể tham gia'}
+                    {invitation.response_status === 'accepted' && 'Accepted'}
+                    {invitation.response_status === 'declined' && 'Declined'}
+                    {invitation.response_status === 'tentative' && 'Maybe'}
                   </Badge>
                 </p>
               </div>
@@ -336,7 +337,7 @@ function InvitationResponseContent() {
         </Card>
 
         <p className="text-center text-sm text-muted-foreground mt-6">
-          Email này được gửi từ <strong>Tempra Calendar</strong>
+          This email was sent from <strong>Tempra Calendar</strong>
         </p>
       </div>
     </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Clock, Users, Edit, Trash2, Copy, MoreVertical, Eye, EyeOff, Calendar } from "lucide-react";
+import { Clock, Users, Edit, Trash2, Copy, MoreVertical, Eye, EyeOff } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/radix-dropdown-menu";
 import { BookingLink } from "@/interface/booking.interface";
-import { formatDuration, getBookingLinkColorClasses, generateBookingLinkUrl } from "@/utils/booking.utils";
+import { formatDuration, generateBookingLinkUrl } from "@/utils/booking.utils";
 import { useToggleBookingLink, useDeleteBookingLink } from "@/hook/booking";
 import { toast } from "sonner";
 

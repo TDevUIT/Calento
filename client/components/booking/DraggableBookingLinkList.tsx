@@ -58,10 +58,10 @@ export function DraggableBookingLinkList({
     toast.success("Booking links reordered successfully");
   };
 
-  const handleDragEnd = () => {
-    setDraggedIndex(null);
-    setDragOverIndex(null);
-  };
+  // const handleDragEnd = () => {
+  //   setDraggedIndex(null);
+  //   setDragOverIndex(null);
+  // };
 
   return (
     <div className="space-y-4">

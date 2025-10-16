@@ -1,15 +1,11 @@
 import { useMutation, useQueryClient, type UseMutationResult } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { InvitationService } from '@/service/invitation.service';
+import { sendReminders, type SendRemindersResponse } from '@/service/invitation.service';
 import { EVENT_QUERY_KEYS } from '@/hook/event/query-keys';
 
-interface SendRemindersResult {
-  sent: number;
-  failed?: number;
-}
 
 export function useSendReminders(): UseMutationResult<
-  SendRemindersResult,
+  SendRemindersResponse,
   Error,
   string
 > {
@@ -17,20 +13,19 @@ export function useSendReminders(): UseMutationResult<
 
   return useMutation({
     mutationFn: async (eventId: string) => {
-      const response = await InvitationService.sendReminders(eventId);
-      return response.data;
+      return await sendReminders(eventId);
     },
     onSuccess: (result, eventId) => {
       if (result.sent > 0) {
         toast.success(
-          `Đã gửi nhắc nhở đến ${result.sent} người`,
+          `Sent reminders to ${result.sent} people`,
           {
-            description: 'Người tham dự sẽ nhận được email nhắc nhở',
+            description: 'Attendees will receive reminder emails',
           }
         );
       } else {
-        toast.info('Không có ai cần nhắc nhở', {
-          description: 'Tất cả mọi người đã phản hồi lời mời',
+        toast.info('No one needs reminders', {
+          description: 'Everyone has already responded to the invitation',
         });
       }
 
@@ -40,7 +35,7 @@ export function useSendReminders(): UseMutationResult<
       });
     },
     onError: (error: Error) => {
-      toast.error('Gửi nhắc nhở thất bại', {
+      toast.error('Failed to send reminders', {
         description: (error as any)?.response?.data?.message || error.message,
       });
     },

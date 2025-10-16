@@ -61,5 +61,24 @@ export {
   type BookingAvailabilityQuery,
 } from './booking.service';
 
+// Invitation service functions
+export {
+  // Invitation Management
+  sendInvitations,
+  sendReminders,
+  getInvitationDetails,
+  respondToInvitation,
+  generateGoogleCalendarLink,
+  
+  // Types
+  type InvitationResponse,
+  type InvitationDetails,
+  type SendInvitationsRequest,
+  type SendInvitationsResponse,
+  type SendRemindersResponse,
+  type RespondToInvitationRequest,
+  type GoogleCalendarEvent,
+} from './invitation.service';
+
 // HTTP utilities
 export { default as api, getErrorMessage, isNetworkError, isTimeoutError, isServerError, isClientError } from '../config/axios';

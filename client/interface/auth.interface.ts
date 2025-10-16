@@ -103,3 +103,40 @@ export interface AuthServiceConfig {
   tokenStorageKey: string;
   refreshTokenStorageKey: string;
 }
+
+// Form Props (moved from types/auth.types.ts)
+export interface LoginFormProps {
+  className?: string;
+  onGoogleLogin?: () => void;
+  onSubmitEmailPassword?: (payload: LoginPayload) => void;
+}
+
+export interface RegisterFormProps {
+  className?: string;
+  onGoogleRegister?: () => void;
+  onSubmitEmailPassword?: (payload: RegisterPayload) => void;
+}
+
+// Form Payloads (moved from types/auth.types.ts)
+export interface LoginPayload {
+  email: string;
+  password: string;
+  remember: boolean;
+}
+
+export interface RegisterPayload {
+  email: string;
+  username: string;
+  password: string;
+  confirmPassword: string;
+  firstName: string;
+  lastName: string;
+}
+
+// Registration Types (moved from types/auth.types.ts)
+export type RegistrationStep = 1 | 2 | 3;
+
+export interface StepValidation {
+  isValid: boolean;
+  error?: string;
+}

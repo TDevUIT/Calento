@@ -120,6 +120,12 @@ export const API_ROUTES = {
   PUBLIC_BOOKING_CREATE: (slug: string) => `/api/bookings/public/${slug}/book`,
   PUBLIC_BOOKING_CANCEL: (token: string) => `/api/bookings/public/cancel/${token}`,
   PUBLIC_BOOKING_RESCHEDULE: (token: string) => `/api/bookings/public/reschedule/${token}`,
+  
+  // Invitation APIs
+  SEND_INVITATIONS: (eventId: string) => `/api/events/${eventId}/invitations/send`,
+  SEND_REMINDERS: (eventId: string) => `/api/events/${eventId}/invitations/remind`,
+  INVITATION_DETAILS: (token: string) => `/api/events/invitation/${token}`,
+  RESPOND_TO_INVITATION: (token: string) => `/api/events/invitation/${token}/respond`,
 } as const;
 
 export const PUBLIC_ROUTE_PATTERNS = [

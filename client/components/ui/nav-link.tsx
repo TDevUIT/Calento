@@ -1,6 +1,6 @@
 'use client';
 import { cn } from '@/lib/utils';
-import { NavigationLinkProps } from '@/types/components.types';
+import { NavigationLinkProps } from '@/interface/components.interface';
 import Link from 'next/link';
 import { DropdownMenu } from './dropdown-menu';
 
