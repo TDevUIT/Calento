@@ -26,7 +26,7 @@ import { RemindersField } from './fields/RemindersField';
 import { CalendarField } from './fields/CalendarField';
 import { GuestsField } from './fields/GuestsField';
 import { useCreateEvent, useUpdateEvent } from '@/hook';
-import { useSendInvitations, useSendReminders } from '@/hooks/api/invitations';
+import { useSendInvitations, useSendReminders } from '@/hook/invitations';
 
 interface EventFormModalProps {
   open: boolean;

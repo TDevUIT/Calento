@@ -1,6 +1,6 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, type UseMutationResult } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { InvitationService, type SendInvitationsRequest } from '@/services/api/invitation.service';
+import { InvitationService, type SendInvitationsRequest } from '@/service/invitation.service';
 import { EVENT_QUERY_KEYS } from '@/hook/event/query-keys';
 
 interface SendInvitationsVariables {
@@ -8,7 +8,17 @@ interface SendInvitationsVariables {
   data?: SendInvitationsRequest;
 }
 
-export function useSendInvitations() {
+interface SendInvitationsResult {
+  sent: number;
+  failed: number;
+  results: Array<{ success: boolean; email: string }>;
+}
+
+export function useSendInvitations(): UseMutationResult<
+  SendInvitationsResult,
+  Error,
+  SendInvitationsVariables
+> {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -30,8 +40,8 @@ export function useSendInvitations() {
 
       if (result.failed > 0) {
         const failedEmails = result.results
-          .filter((r: any) => !r.success)
-          .map((r: any) => r.email)
+          .filter((r) => !r.success)
+          .map((r) => r.email)
           .join(', ');
         
         toast.error(`Không thể gửi lời mời đến: ${failedEmails}`);
@@ -41,9 +51,9 @@ export function useSendInvitations() {
         queryKey: EVENT_QUERY_KEYS.detail(variables.eventId) 
       });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error('Gửi lời mời thất bại', {
-        description: error?.response?.data?.message || error.message,
+        description: (error as any)?.response?.data?.message || error.message,
       });
     },
   });

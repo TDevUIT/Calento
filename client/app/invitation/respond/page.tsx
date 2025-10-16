@@ -11,8 +11,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
-import { useInvitationDetails, useRespondToInvitation } from '@/hooks/api/invitations/use-respond-invitation';
-import { InvitationService } from '@/services/api/invitation.service';
+import { useInvitationDetails, useRespondToInvitation } from '@/hook/invitations/use-respond-invitation';
+import { InvitationService } from '@/service/invitation.service';
 import { toast } from 'sonner';
 
 function InvitationResponseContent() {

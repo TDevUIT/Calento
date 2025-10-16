@@ -12,7 +12,7 @@ import {
 import { Clock, Calendar, MapPin, Users, ChevronRight } from "lucide-react";
 import { format, isToday, isTomorrow } from "date-fns";
 import { vi } from "date-fns/locale";
-import { useUpcomingEvents } from "@/hooks/use-upcoming-events";
+import { useUpcomingEvents } from "@/hook/use-upcoming-events";
 
 interface UpcomingEventsProps {
   maxEvents?: number;

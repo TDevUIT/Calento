@@ -1,9 +1,18 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, type UseMutationResult } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { InvitationService } from '@/services/api/invitation.service';
+import { InvitationService } from '@/service/invitation.service';
 import { EVENT_QUERY_KEYS } from '@/hook/event/query-keys';
 
-export function useSendReminders() {
+interface SendRemindersResult {
+  sent: number;
+  failed?: number;
+}
+
+export function useSendReminders(): UseMutationResult<
+  SendRemindersResult,
+  Error,
+  string
+> {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -30,9 +39,9 @@ export function useSendReminders() {
         queryKey: EVENT_QUERY_KEYS.detail(eventId) 
       });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error('Gửi nhắc nhở thất bại', {
-        description: error?.response?.data?.message || error.message,
+        description: (error as any)?.response?.data?.message || error.message,
       });
     },
   });

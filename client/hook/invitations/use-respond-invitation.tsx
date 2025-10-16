@@ -1,6 +1,6 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, type UseMutationResult, type UseQueryResult } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { InvitationService } from '@/services/api/invitation.service';
+import { InvitationService } from '@/service/invitation.service';
 
 interface RespondInvitationVariables {
   token: string;
@@ -9,7 +9,16 @@ interface RespondInvitationVariables {
   addToCalento?: boolean;
 }
 
-export function useRespondToInvitation() {
+interface InvitationResponse {
+  eventAddedToCalendar?: boolean;
+  [key: string]: any;
+}
+
+export function useRespondToInvitation(): UseMutationResult<
+  InvitationResponse,
+  Error,
+  RespondInvitationVariables
+> {
   return useMutation({
     mutationFn: async ({ token, action, comment, addToCalento }: RespondInvitationVariables) => {
       const response = await InvitationService.respondToInvitation(token, action, comment, addToCalento);
@@ -32,15 +41,15 @@ export function useRespondToInvitation() {
         description,
       });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error('Phản hồi lời mời thất bại', {
-        description: error?.response?.data?.message || error.message,
+        description: (error as any)?.response?.data?.message || error.message,
       });
     },
   });
 }
 
-export function useInvitationDetails(token: string, enabled = true) {
+export function useInvitationDetails(token: string, enabled = true): UseQueryResult<any, Error> {
   return useQuery({
     queryKey: ['invitation', token],
     queryFn: async () => {
