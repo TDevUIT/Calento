@@ -9,7 +9,6 @@ export function DragDropHint() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // Show hint if user hasn't seen it before
     const hasSeenHint = localStorage.getItem('booking-drag-drop-hint-seen');
     if (!hasSeenHint) {
       setIsVisible(true);

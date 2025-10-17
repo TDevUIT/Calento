@@ -53,32 +53,26 @@ export function BookingLinkCard({
 
 
   return (
-    <Card className="group hover:shadow-md transition-shadow">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <div className="flex items-center gap-3">
-              <CardTitle className="text-lg">{bookingLink.title}</CardTitle>
-              <Badge 
-                variant={bookingLink.is_active ? "default" : "secondary"}
-                className={bookingLink.is_active 
-                  ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" 
-                  : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400"
-                }
-              >
-                {bookingLink.is_active ? "Active" : "Inactive"}
-              </Badge>
+    <Card className="border border-gray-200 hover:border-gray-300 transition-colors">
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <h3 className="font-medium text-gray-900 truncate">{bookingLink.title}</h3>
+              {!bookingLink.is_active && (
+                <span className="text-xs text-gray-500">(Inactive)</span>
+              )}
             </div>
             {bookingLink.description && (
-              <CardDescription className="mt-2">
+              <p className="text-sm text-gray-600 mt-1 line-clamp-1">
                 {bookingLink.description}
-              </CardDescription>
+              </p>
             )}
           </div>
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity">
+              <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -117,44 +111,34 @@ export function BookingLinkCard({
         </div>
       </CardHeader>
       
-      <CardContent>
-        <div className="space-y-4">
-          {/* Stats */}
-          <div className="flex items-center gap-6 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              {formatDuration(bookingLink.duration_minutes)}
-            </div>
-            <div className="flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              {bookingLink.bookings_count || 0} bookings
+      <CardContent className="pt-0 space-y-3">
+        {/* Stats */}
+        <div className="flex items-center gap-4 text-sm text-gray-600">
+          <div className="flex items-center gap-1.5">
+            <Clock className="h-3.5 w-3.5" />
+            <span>{formatDuration(bookingLink.duration_minutes)}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Users className="h-3.5 w-3.5" />
+            <span>{bookingLink.bookings_count || 0} bookings</span>
+          </div>
+        </div>
+
+        {/* URL */}
+        <div className="flex items-center gap-2">
+          <div className="flex-1 min-w-0">
+            <div className="text-xs text-gray-500 truncate font-mono bg-gray-50 px-2 py-1.5 rounded">
+              {generateBookingLinkUrl(bookingLink.slug).replace(/^https?:\/\//, '')}
             </div>
           </div>
-
-          {/* URL and Copy Button */}
-          <div className="flex items-center gap-3">
-            <div className="flex-1">
-              <code className="text-sm bg-muted px-3 py-2 rounded block truncate">
-                {generateBookingLinkUrl(bookingLink.slug).replace(/^https?:\/\//, '')}
-              </code>
-            </div>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={handleCopyLink}
-              disabled={copiedId === bookingLink.id}
-            >
-              <Copy className="mr-2 h-4 w-4" />
-              {copiedId === bookingLink.id ? "Copied!" : "Copy Link"}
-            </Button>
-          </div>
-
-          {/* Additional Info */}
-          {bookingLink.advance_notice_hours > 0 && (
-            <div className="text-xs text-muted-foreground">
-              Requires {bookingLink.advance_notice_hours}h advance notice
-            </div>
-          )}
+          <Button 
+            variant="ghost"
+            size="sm"
+            onClick={handleCopyLink}
+            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 h-7 px-2"
+          >
+            <Copy className="h-3.5 w-3.5" />
+          </Button>
         </div>
       </CardContent>
     </Card>

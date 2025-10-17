@@ -7,6 +7,11 @@ export { DragDropHint } from './DragDropHint';
 export { BookingNotification, BookingNotificationContainer } from './BookingNotification';
 export { BookingNotificationDemo } from './BookingNotificationDemo';
 
+// Booking Management Components
+export { BookingCard } from './BookingCard';
+export { BookingStatsCard } from './BookingStatsCard';
+export { BookingKanbanBoard } from './BookingKanbanBoard';
+
 // Re-export types from services
 export type { 
   BookingLink, 
@@ -28,6 +33,7 @@ export {
   useDeleteBookingLink,
   useToggleBookingLink,
   useBookings,
+  useUpcomingBookings,
   useBooking,
   useBookingStats,
   useCancelBooking,
