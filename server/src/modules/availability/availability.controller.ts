@@ -277,6 +277,40 @@ export class AvailabilityController {
     };
   }
 
+  @Post('initialize-defaults')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary: 'Initialize default availability rules',
+    description: 'Create default availability rules (Mon-Fri, 9 AM - 5 PM) for the current user',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Default availability rules created successfully',
+  })
+  @ApiResponse({ status: 409, description: 'User already has availability rules' })
+  async initializeDefaultRules(@CurrentUser('id') userId: string) {
+    const existingRules = await this.availabilityService.findActive(userId);
+    
+    if (existingRules.length > 0) {
+      return {
+        success: false,
+        message: 'User already has availability rules configured',
+        data: { existing_rules_count: existingRules.length },
+      };
+    }
+
+    // Create default rules using the service method
+    await this.availabilityService.createDefaultAvailabilityRules(userId);
+    const newRules = await this.availabilityService.findActive(userId);
+
+    return {
+      success: true,
+      message: this.messageService.get('availability.default_rules_created'),
+      data: newRules,
+      meta: { created_rules_count: newRules.length },
+    };
+  }
+
   @Post('slots')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({

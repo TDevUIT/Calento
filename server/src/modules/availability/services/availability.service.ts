@@ -158,7 +158,7 @@ export class AvailabilityService {
     const startDate = new Date(dto.start_datetime);
     const endDate = new Date(dto.end_datetime);
 
-    if (startDate >= endDate) {
+    if (startDate > endDate) {
       const message = this.messageService.get(
         'availability.invalid_date_range',
       );
@@ -210,7 +210,7 @@ export class AvailabilityService {
     const endDate = new Date(dto.end_date);
     const durationMinutes = dto.duration_minutes || 30;
 
-    if (startDate >= endDate) {
+    if (startDate > endDate) {
       const message = this.messageService.get(
         'availability.invalid_date_range',
       );
@@ -232,12 +232,23 @@ export class AvailabilityService {
       await this.availabilityRepository.findActiveByUserId(userId);
 
     if (availabilityRules.length === 0) {
-      const message = this.messageService.get(
-        'availability.no_rules_found',
-        undefined,
-        { userId },
-      );
-      throw new NoAvailabilityFoundException(message);
+      this.logger.log(`No availability rules found for user ${userId}, creating default rules`);
+      await this.createDefaultAvailabilityRules(userId);
+      
+      // Fetch the newly created rules
+      const newAvailabilityRules = await this.availabilityRepository.findActiveByUserId(userId);
+      
+      if (newAvailabilityRules.length === 0) {
+        const message = this.messageService.get(
+          'availability.no_rules_found',
+          undefined,
+          { userId },
+        );
+        throw new NoAvailabilityFoundException(message);
+      }
+      
+      // Use the newly created rules
+      availabilityRules.push(...newAvailabilityRules);
     }
 
     const slots: TimeSlot[] = [];
@@ -263,6 +274,36 @@ export class AvailabilityService {
     }
 
     return slots;
+  }
+
+  /**
+   * Creates default availability rules for a user (Monday-Friday, 9 AM - 5 PM)
+   */
+  async createDefaultAvailabilityRules(userId: string): Promise<void> {
+    const defaultRules = [
+      { day_of_week: 1, start_time: '09:00', end_time: '17:00' }, // Monday
+      { day_of_week: 2, start_time: '09:00', end_time: '17:00' }, // Tuesday
+      { day_of_week: 3, start_time: '09:00', end_time: '17:00' }, // Wednesday
+      { day_of_week: 4, start_time: '09:00', end_time: '17:00' }, // Thursday
+      { day_of_week: 5, start_time: '09:00', end_time: '17:00' }, // Friday
+    ];
+
+    try {
+      for (const rule of defaultRules) {
+        await this.availabilityRepository.create({
+          user_id: userId,
+          day_of_week: rule.day_of_week as DayOfWeek,
+          start_time: rule.start_time,
+          end_time: rule.end_time,
+          timezone: 'UTC', // Default timezone
+          is_active: true,
+        });
+      }
+      this.logger.log(`Created default availability rules for user ${userId}`);
+    } catch (error) {
+      this.logger.error(`Failed to create default availability rules for user ${userId}:`, error);
+      throw error;
+    }
   }
 
   private async generateSlotsForDay(
@@ -293,8 +334,8 @@ export class AvailabilityService {
         );
 
         slots.push({
-          start: new Date(slotStart),
-          end: new Date(slotEnd),
+          start_time: slotStart.toISOString(),
+          end_time: slotEnd.toISOString(),
           available: conflicts.length === 0,
         });
       }

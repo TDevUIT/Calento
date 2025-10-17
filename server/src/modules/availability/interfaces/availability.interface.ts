@@ -20,8 +20,8 @@ export interface Availability extends BaseEntity {
 }
 
 export interface TimeSlot {
-  start: Date;
-  end: Date;
+  start_time: string;
+  end_time: string;
   available: boolean;
 }
 
