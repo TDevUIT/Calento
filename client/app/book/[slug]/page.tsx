@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { usePublicBookingLink, useAvailableSlots, useCreatePublicBooking } from "@/hook/booking";
+import { BookingTimeSlot } from "@/interface/booking.interface";
 import { format, addDays, startOfDay, parseISO } from "date-fns";
 import { toast } from "sonner";
 
@@ -30,19 +31,15 @@ export default function PublicBookingPage() {
     booker_notes: "",
   });
 
-  // Fetch booking link data
   const { data: bookingLink, isLoading: isLoadingLink, error: linkError } = usePublicBookingLink(slug);
-  
-  // Fetch available slots for selected date
   const { data: availableSlots, isLoading: isLoadingSlotsData } = useAvailableSlots(slug, {
-    date: selectedDate,
+    start_date: selectedDate,
+    end_date: selectedDate,
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   });
 
-  // Create booking mutation
   const createBookingMutation = useCreatePublicBooking();
 
-  // Generate next 30 days for date selection
   const availableDates = Array.from({ length: 30 }, (_, i) => {
     const dateObj = addDays(new Date(), i);
     return format(dateObj, 'yyyy-MM-dd');
@@ -50,7 +47,7 @@ export default function PublicBookingPage() {
 
   const handleDateSelect = (date: string) => {
     setSelectedDate(date);
-    setSelectedSlot(""); // Reset selected slot when date changes
+    setSelectedSlot(""); 
   };
 
   const handleSlotSelect = (slot: string) => {
@@ -83,8 +80,7 @@ export default function PublicBookingPage() {
         }
       });
       setStep('confirmation');
-    } catch (error) {
-      // Error handling is done in the mutation hook
+    } catch {
     }
   };
 
@@ -117,7 +113,6 @@ export default function PublicBookingPage() {
     }
   };
 
-  // Loading state
   if (isLoadingLink) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8">
@@ -309,13 +304,13 @@ export default function PublicBookingPage() {
                   </div>
                 ) : availableSlots && availableSlots.length > 0 ? (
                   <div className="space-y-2 max-h-64 overflow-y-auto">
-                    {availableSlots.map((slot: { start_time: string; available: boolean }) => (
+                    {availableSlots.map((slot: BookingTimeSlot) => (
                       <button
-                        key={slot.start_time}
-                        onClick={() => handleSlotSelect(slot.start_time)}
+                        key={slot.start}
+                        onClick={() => handleSlotSelect(slot.start)}
                         disabled={!slot.available}
                         className={`w-full text-left p-3 rounded-lg border transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-                          selectedSlot === slot.start_time
+                          selectedSlot === slot.start
                             ? 'border-primary bg-primary/5 text-primary'
                             : slot.available
                             ? 'border-border hover:border-primary/50 hover:bg-muted/50'
@@ -323,11 +318,11 @@ export default function PublicBookingPage() {
                         }`}
                       >
                         <div className="font-medium">
-                          {formatTimeSlot(slot.start_time)}
+                          {formatTimeSlot(slot.start)}
                         </div>
                         {!slot.available && (
                           <div className="text-xs text-muted-foreground">
-                            Not available
+                            {slot.reason || 'Not available'}
                           </div>
                         )}
                       </button>
