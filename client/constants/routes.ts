@@ -29,7 +29,7 @@ export const PROTECTED_ROUTES = {
   DASHBOARD_SETTINGS: '/dashboard/settings',
   DASHBOARD_HELP: '/dashboard/help',
   DASHBOARD_PROFILE: '/dashboard/profile',
-  
+  DASHBOARD_SCHEDULING: '/dashboard/scheduling-links',
   // Booking
   DASHBOARD_BOOKINGS: '/dashboard/bookings',
   BOOKING_DETAIL: (id: string) => `/dashboard/bookings/${id}`,
@@ -101,31 +101,31 @@ export const API_ROUTES = {
   GOOGLE_MEET_CREATE: '/google/meet/create',
   
   // Booking Links
-  BOOKING_LINKS: '/api/booking-links',
-  BOOKING_LINK_DETAIL: (id: string) => `/api/booking-links/${id}`,
-  BOOKING_LINK_TOGGLE: (id: string) => `/api/booking-links/${id}/toggle`,
-  BOOKING_LINK_STATS: (id: string) => `/api/booking-links/${id}/stats`,
+  BOOKING_LINKS: '/booking-links',
+  BOOKING_LINK_DETAIL: (id: string) => `/booking-links/${id}`,
+  BOOKING_LINK_TOGGLE: (id: string) => `/booking-links/${id}/toggle`,
+  BOOKING_LINK_STATS: (id: string) => `/booking-links/${id}/stats`,
   
   // Bookings Management
-  BOOKINGS: '/api/bookings',
-  BOOKING_DETAIL: (id: string) => `/api/bookings/${id}`,
-  BOOKING_CANCEL: (id: string) => `/api/bookings/${id}/cancel`,
-  BOOKING_RESCHEDULE: (id: string) => `/api/bookings/${id}/reschedule`,
-  BOOKING_COMPLETE: (id: string) => `/api/bookings/${id}/complete`,
-  BOOKING_STATS: '/api/bookings/stats',
+  BOOKINGS: '/bookings',
+  BOOKING_DETAIL: (id: string) => `/bookings/${id}`,
+  BOOKING_CANCEL: (id: string) => `/bookings/${id}/cancel`,
+  BOOKING_RESCHEDULE: (id: string) => `/bookings/${id}/reschedule`,
+  BOOKING_COMPLETE: (id: string) => `/bookings/${id}/complete`,
+  BOOKING_STATS: '/bookings/stats',
   
   // Public Booking APIs
-  PUBLIC_BOOKING_LINK: (slug: string) => `/api/bookings/public/${slug}`,
-  PUBLIC_BOOKING_SLOTS: (slug: string) => `/api/bookings/public/${slug}/slots`,
-  PUBLIC_BOOKING_CREATE: (slug: string) => `/api/bookings/public/${slug}/book`,
-  PUBLIC_BOOKING_CANCEL: (token: string) => `/api/bookings/public/cancel/${token}`,
-  PUBLIC_BOOKING_RESCHEDULE: (token: string) => `/api/bookings/public/reschedule/${token}`,
+  PUBLIC_BOOKING_LINK: (slug: string) => `/bookings/public/${slug}`,
+  PUBLIC_BOOKING_SLOTS: (slug: string) => `/bookings/public/${slug}/slots`,
+  PUBLIC_BOOKING_CREATE: (slug: string) => `/bookings/${slug}`,
+  PUBLIC_BOOKING_CANCEL: (token: string) => `/bookings/public/cancel/${token}`,
+  PUBLIC_BOOKING_RESCHEDULE: (token: string) => `/bookings/public/reschedule/${token}`,
   
   // Invitation APIs
-  SEND_INVITATIONS: (eventId: string) => `/api/events/${eventId}/invitations/send`,
-  SEND_REMINDERS: (eventId: string) => `/api/events/${eventId}/invitations/remind`,
-  INVITATION_DETAILS: (token: string) => `/api/events/invitation/${token}`,
-  RESPOND_TO_INVITATION: (token: string) => `/api/events/invitation/${token}/respond`,
+  SEND_INVITATIONS: (eventId: string) => `/events/${eventId}/invitations/send`,
+  SEND_REMINDERS: (eventId: string) => `/events/${eventId}/invitations/remind`,
+  INVITATION_DETAILS: (token: string) => `/events/invitation/${token}`,
+  RESPOND_TO_INVITATION: (token: string) => `/events/invitation/${token}/respond`,
 } as const;
 
 export const PUBLIC_ROUTE_PATTERNS = [

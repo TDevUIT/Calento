@@ -52,8 +52,8 @@ const calendarScheduleItems = [
     icon: RefreshCw,
   },
   {
-    title: "Meetings",
-    href: PROTECTED_ROUTES.DASHBOARD_MEETINGS,
+    title: "Scheduling",
+    href: PROTECTED_ROUTES.DASHBOARD_SCHEDULING,
     icon: Video,
   },
   {
