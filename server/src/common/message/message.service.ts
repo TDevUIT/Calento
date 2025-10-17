@@ -98,6 +98,7 @@ export class MessageService {
         already_cancelled: 'Booking is already cancelled',
         cannot_cancel: 'Cannot cancel booking',
         slots_retrieved: 'Available booking slots retrieved successfully',
+        stats_retrieved: 'Booking statistics retrieved successfully',
       },
       notification: {
         sent: 'Notification sent successfully',
@@ -124,6 +125,7 @@ export class MessageService {
         slots_retrieved: 'Available slots retrieved successfully',
         bulk_created: '{{count}} availability rules created successfully',
         bulk_deleted: '{{count}} availability rules deleted successfully',
+        default_rules_created: 'Default availability rules created successfully (Mon-Fri, 9 AM - 5 PM)',
       },
       google: {
         auth_url_generated: 'Google OAuth URL generated successfully',
@@ -212,6 +214,7 @@ export class MessageService {
         already_cancelled: 'Đặt lịch đã bị hủy',
         cannot_cancel: 'Không thể hủy đặt lịch',
         slots_retrieved: 'Lấy khoảng thời gian khả dụng thành công',
+        stats_retrieved: 'Lấy thống kê đặt lịch thành công',
       },
       notification: {
         sent: 'Gửi thông báo thành công',

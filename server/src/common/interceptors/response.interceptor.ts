@@ -35,6 +35,27 @@ export class ResponseInterceptor<T>
       map((data) => {
         const requestId = request.headers['x-request-id'] as string;
 
+        // Check if controller already returned a standard response format
+        const isStandardResponse = 
+          data && 
+          typeof data === 'object' && 
+          'success' in data && 
+          'message' in data && 
+          'data' in data;
+
+        if (isStandardResponse) {
+          // Controller already formatted response, just add metadata
+          return {
+            success: data.success,
+            message: data.message,
+            data: data.data, // Use only the data field, not the whole object
+            timestamp: new Date().toISOString(),
+            requestId,
+            path: request.url,
+          };
+        }
+
+        // Legacy check for old response format
         const isResponseDto = data && typeof data === 'object' && 'status' in data && 'message' in data;
 
         if (isResponseDto) {
@@ -48,6 +69,7 @@ export class ResponseInterceptor<T>
           };
         }
 
+        // Default wrapping for raw data
         let message = this.messageService.get('success.retrieved');
 
         switch (request.method) {
