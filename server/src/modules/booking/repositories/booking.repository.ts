@@ -259,4 +259,45 @@ export class BookingRepository extends BaseRepository<Booking> {
     const result = await this.databaseService.query(query, params);
     return parseInt(result.rows[0].count);
   }
+
+  async getBookingStats(userId: string): Promise<{
+    total_bookings: number;
+    confirmed_bookings: number;
+    cancelled_bookings: number;
+    completed_bookings: number;
+    this_week_bookings: number;
+    this_month_bookings: number;
+    upcoming_bookings: number;
+  }> {
+    const query = `
+      SELECT
+        COUNT(*) FILTER (WHERE TRUE) as total_bookings,
+        COUNT(*) FILTER (WHERE status = $2) as confirmed_bookings,
+        COUNT(*) FILTER (WHERE status = $3) as cancelled_bookings,
+        COUNT(*) FILTER (WHERE status = $4) as completed_bookings,
+        COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '7 days') as this_week_bookings,
+        COUNT(*) FILTER (WHERE created_at >= NOW() - INTERVAL '30 days') as this_month_bookings,
+        COUNT(*) FILTER (WHERE start_time > NOW() AND status = $2) as upcoming_bookings
+      FROM ${this.tableName}
+      WHERE user_id = $1
+    `;
+
+    const result = await this.databaseService.query(query, [
+      userId,
+      BookingStatus.CONFIRMED,
+      BookingStatus.CANCELLED,
+      BookingStatus.COMPLETED,
+    ]);
+
+    const row = result.rows[0];
+    return {
+      total_bookings: parseInt(row.total_bookings) || 0,
+      confirmed_bookings: parseInt(row.confirmed_bookings) || 0,
+      cancelled_bookings: parseInt(row.cancelled_bookings) || 0,
+      completed_bookings: parseInt(row.completed_bookings) || 0,
+      this_week_bookings: parseInt(row.this_week_bookings) || 0,
+      this_month_bookings: parseInt(row.this_month_bookings) || 0,
+      upcoming_bookings: parseInt(row.upcoming_bookings) || 0,
+    };
+  }
 }

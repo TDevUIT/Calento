@@ -20,6 +20,7 @@ export interface BookingLink extends BaseEntity {
   is_active: boolean;
   color?: string;
   timezone: string;
+  bookings_count?: number; // Count of non-cancelled bookings
 }
 
 export interface Booking extends BaseEntity {

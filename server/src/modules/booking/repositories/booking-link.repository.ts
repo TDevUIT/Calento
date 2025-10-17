@@ -27,24 +27,40 @@ export class BookingLinkRepository extends BaseRepository<BookingLink> {
 
   async findByUserId(userId: string): Promise<BookingLink[]> {
     const query = `
-      SELECT * FROM ${this.tableName}
-      WHERE user_id = $1
-      ORDER BY created_at DESC
+      SELECT 
+        bl.*,
+        COUNT(b.id) as bookings_count
+      FROM ${this.tableName} bl
+      LEFT JOIN bookings b ON bl.id = b.booking_link_id AND b.status != 'cancelled'
+      WHERE bl.user_id = $1
+      GROUP BY bl.id
+      ORDER BY bl.created_at DESC
     `;
 
     const result = await this.databaseService.query(query, [userId]);
-    return result.rows;
+    return result.rows.map(row => ({
+      ...row,
+      bookings_count: parseInt(row.bookings_count) || 0
+    }));
   }
 
   async findActiveByUserId(userId: string): Promise<BookingLink[]> {
     const query = `
-      SELECT * FROM ${this.tableName}
-      WHERE user_id = $1 AND is_active = true
-      ORDER BY created_at DESC
+      SELECT 
+        bl.*,
+        COUNT(b.id) as bookings_count
+      FROM ${this.tableName} bl
+      LEFT JOIN bookings b ON bl.id = b.booking_link_id AND b.status != 'cancelled'
+      WHERE bl.user_id = $1 AND bl.is_active = true
+      GROUP BY bl.id
+      ORDER BY bl.created_at DESC
     `;
 
     const result = await this.databaseService.query(query, [userId]);
-    return result.rows;
+    return result.rows.map(row => ({
+      ...row,
+      bookings_count: parseInt(row.bookings_count) || 0
+    }));
   }
 
   async findBySlug(slug: string): Promise<BookingLink | null> {

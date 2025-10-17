@@ -344,6 +344,12 @@ export class BookingLinkResponseDto {
   @ApiProperty()
   timezone: string;
 
+  @ApiPropertyOptional({
+    description: 'Count of non-cancelled bookings for this link',
+    example: 5,
+  })
+  bookings_count?: number;
+
   @ApiProperty()
   created_at: Date;
 

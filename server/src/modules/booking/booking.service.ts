@@ -95,6 +95,31 @@ export class BookingService {
     return link;
   }
 
+  async getPublicBookingLink(slug: string): Promise<BookingLink> {
+    const link = await this.bookingLinkRepository.findBySlug(slug);
+
+    if (!link) {
+      const message = this.messageService.get(
+        'booking.link_slug_not_found',
+        undefined,
+        { slug },
+      );
+      throw new BookingLinkNotFoundException(message);
+    }
+
+    // Only return active booking links for public access
+    if (!link.is_active) {
+      const message = this.messageService.get(
+        'booking.link_inactive',
+        undefined,
+        { slug },
+      );
+      throw new BookingLinkInactiveException(message);
+    }
+
+    return link;
+  }
+
   async updateBookingLink(
     id: string,
     userId: string,
@@ -247,16 +272,16 @@ export class BookingService {
     for (const slot of availabilitySlots) {
       if (!slot.available) {
         bookingSlots.push({
-          start: slot.start,
-          end: slot.end,
+          start: new Date(slot.start_time),
+          end: new Date(slot.end_time),
           available: false,
           reason: 'User not available',
         });
         continue;
       }
 
-      const slotStart = new Date(slot.start);
-      const slotEnd = new Date(slot.end);
+      const slotStart = new Date(slot.start_time);
+      const slotEnd = new Date(slot.end_time);
 
       const now = new Date();
       const advanceNoticeMs =
@@ -429,5 +454,17 @@ export class BookingService {
   async getBookingsByLink(linkId: string, userId: string): Promise<Booking[]> {
     await this.getBookingLinkById(linkId, userId);
     return this.bookingRepository.findByBookingLinkId(linkId);
+  }
+
+  async getBookingStats(userId: string): Promise<{
+    total_bookings: number;
+    confirmed_bookings: number;
+    cancelled_bookings: number;
+    completed_bookings: number;
+    this_week_bookings: number;
+    this_month_bookings: number;
+    upcoming_bookings: number;
+  }> {
+    return this.bookingRepository.getBookingStats(userId);
   }
 }
