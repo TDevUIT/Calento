@@ -66,13 +66,15 @@ export interface CreateBookingDto {
 }
 
 export interface BookingTimeSlot {
-  start_time: string;
-  end_time: string;
+  start: string;
+  end: string;
   available: boolean;
+  reason?: string;
 }
 
 export interface BookingAvailabilityQuery {
-  date?: string;
+  start_date: string;
+  end_date: string;
   timezone?: string;
 }
 

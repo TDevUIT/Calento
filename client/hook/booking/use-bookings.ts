@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { 
   getBookings as getBookingsApi,
+  getUpcomingBookings as getUpcomingBookingsApi,
   getBooking as getBookingApi,
   getBookingStats as getBookingStatsApi,
   cancelBooking as cancelBookingApi,
@@ -47,6 +48,17 @@ export function useBookings(params?: {
     queryKey: BOOKING_QUERY_KEYS.list(params || {}),
     queryFn: async () => {
       return await getBookingsApi(params);
+    },
+    staleTime: 1000 * 60 * 2, // 2 minutes
+  });
+}
+
+// Get upcoming bookings
+export function useUpcomingBookings() {
+  return useQuery({
+    queryKey: [...BOOKING_QUERY_KEYS.lists(), 'upcoming'],
+    queryFn: async () => {
+      return await getUpcomingBookingsApi();
     },
     staleTime: 1000 * 60 * 2, // 2 minutes
   });
@@ -165,9 +177,7 @@ export function useCompleteBooking() {
   });
 }
 
-// PUBLIC BOOKING HOOKS (for public booking pages)
 
-// Get public booking link by slug
 export function usePublicBookingLink(slug: string) {
   return useQuery({
     queryKey: BOOKING_QUERY_KEYS.public.link(slug),
@@ -187,7 +197,7 @@ export function useAvailableSlots(slug: string, params: BookingAvailabilityQuery
     queryFn: async () => {
       return await getAvailableSlotsApi(slug, params);
     },
-    enabled: !!slug && !!params.date,
+    enabled: !!slug && !!params.start_date && !!params.end_date,
     staleTime: 1000 * 60 * 1, // 1 minute (slots change frequently)
     refetchOnWindowFocus: true,
   });

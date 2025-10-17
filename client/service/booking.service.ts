@@ -8,18 +8,11 @@ import {
   CreateBookingDto,
   BookingTimeSlot,
   BookingAvailabilityQuery,
-  BookingLinkStats,
-  BookingStats,
   BookingLinkResponse,
   BookingLinksResponse,
-  BookingResponse,
-  PaginatedBookingsResponse,
-  BookingTimeSlotsResponse,
-  BookingLinkStatsResponse,
-  BookingStatsResponse,
+
 } from '../interface/booking.interface';
 
-// Re-export types for convenience
 export type {
   BookingLink,
   CreateBookingLinkDto,
@@ -33,11 +26,6 @@ export type {
 } from '../interface/booking.interface';
 
 
-// Booking Link Functions
-
-/**
- * Get all booking links for current user
- */
 export const getBookingLinks = async (): Promise<BookingLink[]> => {
   try {
     const response = await api.get<BookingLinksResponse>(
@@ -50,9 +38,7 @@ export const getBookingLinks = async (): Promise<BookingLink[]> => {
   }
 };
 
-/**
- * Get single booking link by ID
- */
+
 export const getBookingLink = async (id: string): Promise<BookingLink> => {
   try {
     const response = await api.get<BookingLinkResponse>(
@@ -87,7 +73,7 @@ export const createBookingLink = async (data: CreateBookingLinkDto): Promise<Boo
 export const updateBookingLink = async (id: string, data: UpdateBookingLinkDto): Promise<BookingLink> => {
   try {
     const response = await api.patch<{ success: boolean; data: BookingLink }>(
-      `/api/booking-links/${id}`,
+      `/booking-links/${id}`,
       data,
       { withCredentials: true }
     );
@@ -103,7 +89,7 @@ export const updateBookingLink = async (id: string, data: UpdateBookingLinkDto):
 export const deleteBookingLink = async (id: string): Promise<void> => {
   try {
     await api.delete(
-      `/api/booking-links/${id}`,
+      `/booking-links/${id}`,
       { withCredentials: true }
     );
   } catch (error) {
@@ -117,7 +103,7 @@ export const deleteBookingLink = async (id: string): Promise<void> => {
 export const toggleBookingLink = async (id: string): Promise<BookingLink> => {
   try {
     const response = await api.patch<{ success: boolean; data: BookingLink }>(
-      `/api/booking-links/${id}/toggle`,
+      `/booking-links/${id}/toggle`,
       {},
       { withCredentials: true }
     );
@@ -145,24 +131,20 @@ export const getBookingLinkStats = async (id: string): Promise<{
       this_week_bookings: number;
       this_month_bookings: number;
     } }>(
-      `/api/booking-links/${id}/stats`,
+      `/booking-links/${id}/stats`,
       { withCredentials: true }
     );
     return response.data.data;
   } catch (error) {
+
     throw new Error(getErrorMessage(error));
   }
 };
 
-// Public Booking Functions (no auth required)
-
-/**
- * Get public booking link by slug
- */
 export const getPublicBookingLink = async (slug: string): Promise<BookingLink> => {
   try {
     const response = await api.get<{ success: boolean; data: BookingLink }>(
-      `/api/bookings/public/${slug}`
+      `/bookings/public/${slug}`
     );
     return response.data.data;
   } catch (error) {
@@ -179,7 +161,7 @@ export const getAvailableSlots = async (
 ): Promise<BookingTimeSlot[]> => {
   try {
     const response = await api.get<{ success: boolean; data: BookingTimeSlot[] }>(
-      `/api/bookings/public/${slug}/slots`,
+      `/bookings/public/${slug}/slots`,
       { params }
     );
     return response.data.data;
@@ -194,7 +176,7 @@ export const getAvailableSlots = async (
 export const createPublicBooking = async (slug: string, data: CreateBookingDto): Promise<Booking> => {
   try {
     const response = await api.post<{ success: boolean; data: Booking }>(
-      `/api/bookings/public/${slug}/book`,
+      `/bookings/${slug}`,
       data
     );
     return response.data.data;
@@ -209,7 +191,7 @@ export const createPublicBooking = async (slug: string, data: CreateBookingDto):
 export const cancelPublicBooking = async (token: string, reason?: string): Promise<void> => {
   try {
     await api.post(
-      `/api/bookings/public/cancel/${token}`,
+      `/bookings/public/cancel/${token}`,
       { reason }
     );
   } catch (error) {
@@ -227,7 +209,7 @@ export const reschedulePublicBooking = async (
 ): Promise<Booking> => {
   try {
     const response = await api.post<{ success: boolean; data: Booking }>(
-      `/api/bookings/public/reschedule/${token}`,
+      `/bookings/public/reschedule/${token}`,
       { new_start_time, timezone }
     );
     return response.data.data;
@@ -258,19 +240,39 @@ export const getBookings = async (params?: {
   };
 }> => {
   try {
-    const response = await api.get<{ success: boolean; data: Booking[]; meta: {
-      page: number;
-      limit: number;
+    const response = await api.get<{ success: boolean; data: Booking[]; meta?: {
+      page?: number;
+      limit?: number;
       total: number;
-      totalPages: number;
+      totalPages?: number;
     } }>(
-      '/api/bookings',
+      '/bookings/me',
       { params, withCredentials: true }
     );
     return {
       data: response.data.data,
-      meta: response.data.meta
+      meta: {
+        page: response.data.meta?.page || 1,
+        limit: response.data.meta?.limit || response.data.data.length,
+        total: response.data.meta?.total || response.data.data.length,
+        totalPages: response.data.meta?.totalPages || 1,
+      }
     };
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+};
+
+/**
+ * Get upcoming bookings for current user
+ */
+export const getUpcomingBookings = async (): Promise<Booking[]> => {
+  try {
+    const response = await api.get<{ success: boolean; data: Booking[] }>(
+      '/bookings/me/upcoming',
+      { withCredentials: true }
+    );
+    return response.data.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }
@@ -282,7 +284,7 @@ export const getBookings = async (params?: {
 export const getBooking = async (id: string): Promise<Booking> => {
   try {
     const response = await api.get<{ success: boolean; data: Booking }>(
-      `/api/bookings/${id}`,
+      `/bookings/${id}`,
       { withCredentials: true }
     );
     return response.data.data;
@@ -297,7 +299,7 @@ export const getBooking = async (id: string): Promise<Booking> => {
 export const cancelBooking = async (id: string, reason?: string): Promise<void> => {
   try {
     await api.post(
-      `/api/bookings/${id}/cancel`,
+      `/bookings/${id}/cancel`,
       { reason },
       { withCredentials: true }
     );
@@ -316,7 +318,7 @@ export const rescheduleBooking = async (
 ): Promise<Booking> => {
   try {
     const response = await api.post<{ success: boolean; data: Booking }>(
-      `/api/bookings/${id}/reschedule`,
+      `/bookings/${id}/reschedule`,
       { new_start_time, timezone },
       { withCredentials: true }
     );
@@ -332,7 +334,7 @@ export const rescheduleBooking = async (
 export const completeBooking = async (id: string): Promise<Booking> => {
   try {
     const response = await api.post<{ success: boolean; data: Booking }>(
-      `/api/bookings/${id}/complete`,
+      `/bookings/${id}/complete`,
       {},
       { withCredentials: true }
     );
@@ -364,7 +366,7 @@ export const getBookingStats = async (): Promise<{
       this_month_bookings: number;
       upcoming_bookings: number;
     } }>(
-      '/api/bookings/stats',
+      '/bookings/stats',
       { withCredentials: true }
     );
     return response.data.data;

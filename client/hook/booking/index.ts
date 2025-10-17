@@ -13,6 +13,7 @@ export {
 // Bookings Hooks
 export {
   useBookings,
+  useUpcomingBookings,
   useBooking,
   useBookingStats,
   useCancelBooking,
