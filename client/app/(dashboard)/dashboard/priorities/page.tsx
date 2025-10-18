@@ -15,7 +15,6 @@ import {
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
 import { useBookingLinks } from "@/hook/booking";
-import { BookingLink } from "@/service/booking.service";
 import { cn } from "@/lib/utils";
 import {
   DroppableColumn,

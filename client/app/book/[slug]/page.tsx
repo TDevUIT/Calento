@@ -99,7 +99,6 @@ export default function PublicBookingPage() {
   };
 
   const formatDateDisplay = (dateString: string) => {
-    const dateObj = parseISO(dateString + 'T00:00:00');
     const today = startOfDay(new Date());
     const tomorrow = addDays(today, 1);
     const selectedDateObj = parseISO(dateString + 'T00:00:00');

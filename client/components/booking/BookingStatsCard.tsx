@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, CheckCircle2, XCircle, Clock, TrendingUp, CalendarClock } from "lucide-react";
+import { Calendar, CheckCircle2, TrendingUp, CalendarClock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BookingStats } from "@/service/booking.service";

@@ -13,15 +13,24 @@ interface LinkDetails {
   calendar: string;
   dates: string;
   location: string;
+  locationLink?: string;
   organizers: string;
   schedulingLink: string;
+  active?: boolean;
+  bufferTime?: string;
+  maxBookingsPerDay?: number;
+  advanceNoticeHours?: number;
+  bookingWindowDays?: number;
+  timezone?: string;
+  color?: string;
 }
 
 interface DetailsContentProps {
   details: LinkDetails;
+  onEdit?: () => void;
 }
 
-export const DetailsContent = ({ details }: DetailsContentProps) => {
+export const DetailsContent = ({ details, onEdit }: DetailsContentProps) => {
   const handleCopy = () => {
     navigator.clipboard.writeText(details.schedulingLink);
   };
@@ -31,19 +40,34 @@ export const DetailsContent = ({ details }: DetailsContentProps) => {
   };
 
   return (
-    <Card className="border border-gray-200">
+    <Card className="">
       <CardContent className="p-8">
         <div className="flex items-start justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              {details.title}
-            </h1>
+          <div className="min-w-0">
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-2xl font-bold text-gray-900 truncate">
+                {details.title}
+              </h1>
+              {typeof details.active === 'boolean' && (
+                <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${details.active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                  {details.active ? 'Active' : 'Inactive'}
+                </span>
+              )}
+              <div className="flex items-center gap-1">
+                <Button variant="ghost" size="sm" className="h-7 px-2" onClick={handleCopy} aria-label="Copy link">
+                  <Copy className="h-3.5 w-3.5 text-gray-500" />
+                </Button>
+                <Button variant="ghost" size="sm" className="h-7 px-2" onClick={handleOpen} aria-label="Open link">
+                  <ExternalLink className="h-3.5 w-3.5 text-gray-500" />
+                </Button>
+              </div>
+            </div>
             <p className="text-gray-600">
               {details.description}
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" onClick={onEdit}>
               <Edit className="h-4 w-4" />
             </Button>
             <Button variant="ghost" size="sm">
@@ -69,6 +93,22 @@ export const DetailsContent = ({ details }: DetailsContentProps) => {
               </label>
               <p className="text-gray-900">{details.duration}</p>
             </div>
+            {details.bufferTime && (
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Buffer Time
+                </label>
+                <p className="text-gray-900">{details.bufferTime}</p>
+              </div>
+            )}
+            {typeof details.maxBookingsPerDay === 'number' && (
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Max bookings per day
+                </label>
+                <p className="text-gray-900">{details.maxBookingsPerDay}</p>
+              </div>
+            )}
             
             <div>
               <label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -97,6 +137,22 @@ export const DetailsContent = ({ details }: DetailsContentProps) => {
               </label>
               <p className="text-gray-900">{details.dates}</p>
             </div>
+            {typeof details.advanceNoticeHours === 'number' && (
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Advance notice (hours)
+                </label>
+                <p className="text-gray-900">{details.advanceNoticeHours}</p>
+              </div>
+            )}
+            {typeof details.bookingWindowDays === 'number' && (
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Booking window (days)
+                </label>
+                <p className="text-gray-900">{details.bookingWindowDays}</p>
+              </div>
+            )}
             
             <div>
               <label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -108,7 +164,13 @@ export const DetailsContent = ({ details }: DetailsContentProps) => {
                     <path d="M2 6a2 2 0 012-2h6l2 2h6a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
                   </svg>
                 </div>
-                <p className="text-gray-900">{details.location}</p>
+                {details.locationLink ? (
+                  <a href={details.locationLink} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">
+                    {details.location}
+                  </a>
+                ) : (
+                  <p className="text-gray-900">{details.location}</p>
+                )}
               </div>
             </div>
             
@@ -123,6 +185,25 @@ export const DetailsContent = ({ details }: DetailsContentProps) => {
                 <p className="text-gray-900">{details.organizers}</p>
               </div>
             </div>
+            {details.timezone && (
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Timezone
+                </label>
+                <p className="text-gray-900">{details.timezone}</p>
+              </div>
+            )}
+            {details.color && (
+              <div>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Color
+                </label>
+                <div className="flex items-center gap-2">
+                  <span className="inline-block w-4 h-4 rounded" style={{ backgroundColor: details.color }} />
+                  <span className="text-gray-900">{details.color}</span>
+                </div>
+              </div>
+            )}
           </div>
 
           <div>

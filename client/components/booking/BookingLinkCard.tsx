@@ -1,10 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { Clock, Users, Edit, Trash2, Copy, MoreVertical, Eye, EyeOff } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,7 +26,6 @@ export function BookingLinkCard({
   onEdit, 
   onViewBookings 
 }: BookingLinkCardProps) {
-  const [copiedId, setCopiedId] = useState<string | null>(null);
   
   const toggleMutation = useToggleBookingLink();
   const deleteMutation = useDeleteBookingLink();
@@ -36,8 +33,6 @@ export function BookingLinkCard({
   const handleCopyLink = () => {
     const fullUrl = generateBookingLinkUrl(bookingLink.slug);
     navigator.clipboard.writeText(fullUrl);
-    setCopiedId(bookingLink.id);
-    setTimeout(() => setCopiedId(null), 2000);
     toast.success("Link copied to clipboard!");
   };
 
