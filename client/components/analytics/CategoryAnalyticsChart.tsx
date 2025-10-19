@@ -71,8 +71,8 @@ export const CategoryAnalyticsChart = ({
                   border: '1px solid #e5e7eb',
                   borderRadius: '8px',
                 }}
-                formatter={(value: number, name: string, props: any) => [
-                  `${value} events (${props.payload.hours}h)`,
+                formatter={(value: number, name: string, props: { payload?: { hours: number } }) => [
+                  `${value} events (${props.payload?.hours || 0}h)`,
                   name
                 ]}
               />

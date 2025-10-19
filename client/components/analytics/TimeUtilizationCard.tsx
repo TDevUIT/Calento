@@ -52,20 +52,6 @@ export const TimeUtilizationCard = ({
   }
 
   const utilizationPercentage = Math.min(100, Math.max(0, Math.round(data.utilization_rate * 100)));
-  
-  const getUtilizationColor = (percentage: number) => {
-    if (percentage >= 80) return 'text-red-600';
-    if (percentage >= 60) return 'text-orange-600';
-    if (percentage >= 40) return 'text-yellow-600';
-    return 'text-green-600';
-  };
-
-  const getUtilizationBg = (percentage: number) => {
-    if (percentage >= 80) return 'bg-red-600';
-    if (percentage >= 60) return 'bg-orange-600';
-    if (percentage >= 40) return 'bg-yellow-600';
-    return 'bg-blue-600';
-  };
 
   return (
     <Card className="bg-white dark:bg-gray-900 shadow-none w-full flex flex-col">
