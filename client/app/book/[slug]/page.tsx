@@ -107,7 +107,12 @@ export default function PublicBookingPage() {
             selectedSlot={selectedSlot}
             availableSlots={availableSlots}
             isLoadingSlots={isLoadingSlotsData}
-            currentUser={currentUser}
+            currentUser={currentUser ? {
+              id: currentUser.id,
+              avatar: currentUser.avatar || undefined,
+              username: currentUser.username,
+              email: currentUser.email,
+            } : null}
             onDateSelect={handleDateSelect}
             onSlotSelect={handleSlotSelect}
             onContinue={handleContinueToDetails}

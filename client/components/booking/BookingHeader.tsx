@@ -1,4 +1,5 @@
 import { Pencil } from 'lucide-react';
+import Image from 'next/image';
 
 interface BookingHeaderProps {
   currentUser?: {
@@ -33,7 +34,7 @@ export const BookingHeader = ({ currentUser, bookingUser, bookingTitle, isOwner,
         <div className="flex items-center justify-between mb-6">
           <a href="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition">
             {currentUser.avatar ? (
-              <img src={currentUser.avatar} alt={currentUser.username || 'User'} className="w-8 h-8 rounded-full" />
+              <Image src={currentUser.avatar} alt={currentUser.username || 'User'} width={32} height={32} className="w-8 h-8 rounded-full" />
             ) : (
               <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-semibold">
                 {currentUser.username?.charAt(0)?.toUpperCase() || currentUser.email?.charAt(0)?.toUpperCase() || 'U'}
@@ -55,9 +56,11 @@ export const BookingHeader = ({ currentUser, bookingUser, bookingTitle, isOwner,
 
       <div className="text-center mb-6">
         {bookingUser?.avatar ? (
-          <img
+          <Image
             src={bookingUser.avatar}
             alt={getUserDisplay()}
+            width={48}
+            height={48}
             className="w-12 h-12 mx-auto rounded-full object-cover"
           />
         ) : (

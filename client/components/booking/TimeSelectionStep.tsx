@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { Calendar, Check } from 'lucide-react';
+import { BookingLink } from '@/service/booking.service';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -7,12 +8,12 @@ import { BookingTimeSlot } from '@/interface/booking.interface';
 import { format, addDays, parseISO, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay } from 'date-fns';
 
 interface TimeSelectionStepProps {
-  bookingLink: any;
+  bookingLink: BookingLink;
   selectedDate: string;
   selectedSlot: string;
   availableSlots?: BookingTimeSlot[];
   isLoadingSlots: boolean;
-  currentUser: any;
+  currentUser: { id: string; avatar?: string; username?: string; email?: string } | null;
   onDateSelect: (date: string) => void;
   onSlotSelect: (slot: string) => void;
   onContinue: () => void;

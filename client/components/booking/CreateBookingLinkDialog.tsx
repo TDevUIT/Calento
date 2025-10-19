@@ -30,7 +30,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { X, Loader2, Palette, Check } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { toast } from "sonner";
 import { useCreateBookingLink, useUpdateBookingLink } from "@/hook/booking";
 import { BookingLink } from "@/service/booking.service";
 import { COLOR_OPTIONS } from "@/components/calendar/forms/form-constants";

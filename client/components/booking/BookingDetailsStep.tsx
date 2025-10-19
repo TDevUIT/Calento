@@ -1,4 +1,5 @@
 import { ArrowLeft, Check, Calendar, Clock, User, Mail, Phone, MessageSquare } from 'lucide-react';
+import { BookingLink } from '@/service/booking.service';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -6,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface BookingDetailsStepProps {
-  bookingLink: any;
+  bookingLink: BookingLink;
   selectedDate: string;
   selectedSlot: string;
   bookingData: {
