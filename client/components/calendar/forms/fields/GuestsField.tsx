@@ -159,7 +159,7 @@ export function GuestsField({
 
       {/* Add Guest Input */}
       <div className="space-y-2">
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
           <div className="relative flex-1">
             <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -175,7 +175,7 @@ export function GuestsField({
             type="button"
             onClick={addGuest}
             size="sm"
-            className="px-3"
+            className="px-3 h-10 w-10"
           >
             <Plus className="h-4 w-4" />
           </Button>
@@ -281,7 +281,6 @@ export function GuestsField({
         </>
       )}
 
-      {/* Empty State */}
       {attendees.length === 0 && (
         <div className="text-center py-6 text-muted-foreground">
           <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />

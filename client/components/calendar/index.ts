@@ -46,10 +46,10 @@ export {
 
 export {
   getEventsForDate,
-  formatEventTimeRange,
+  formatCalendarEventTimeRange as formatEventTimeRange,
   getEventColorClass,
   generateHoursArray,
   formatHour,
   isWeekend,
   getWeekNumber,
-} from './shared/utils';
+} from '@/utils/calendar-utils';
