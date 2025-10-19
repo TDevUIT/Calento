@@ -123,34 +123,6 @@ export function MonthProgress() {
           <div className="h-full w-1/3 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
         </div>
       </div>
-
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-        {stats.colorStats.slice(0, 4).map((stat, index) => (
-          <div
-            key={`legend-${stat.color}-${index}`}
-            className="flex items-center gap-2 text-xs group cursor-pointer"
-          >
-            <span
-              className="inline-block h-2.5 w-2.5 rounded-full shadow-sm group-hover:scale-110 transition-transform"
-              style={{ backgroundColor: stat.color }}
-            />
-            <span className="text-muted-foreground group-hover:text-foreground transition-colors">
-              {stat.label}
-            </span>
-            <span className="font-medium text-foreground">
-              {fmt(stat.hours)}
-            </span>
-            <span className="text-muted-foreground/70">
-              ({stat.count})
-            </span>
-          </div>
-        ))}
-        {stats.colorStats.length > 4 && (
-          <span className="text-xs text-muted-foreground">
-            +{stats.colorStats.length - 4} more
-          </span>
-        )}
-      </div>
     </div>
   );
 }

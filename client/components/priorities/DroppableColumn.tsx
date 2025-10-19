@@ -17,11 +17,15 @@ export const DroppableColumn = ({ columnId, children }: DroppableColumnProps) =>
     <div
       ref={setNodeRef}
       className={cn(
-        "flex-1 transition-colors",
-        isOver && "bg-blue-50/50"
+        "flex-1 min-h-[400px] transition-all rounded-lg overflow-hidden",
+        isOver 
+          ? "bg-blue-50/50 border-2 border-dashed border-blue-500 " 
+          : "border-2 border-transparent"
       )}
     >
-      {children}
+      <div className="h-full overflow-auto">
+        {children}
+      </div>
     </div>
   );
 };

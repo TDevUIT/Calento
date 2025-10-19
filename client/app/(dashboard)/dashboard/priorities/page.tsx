@@ -45,6 +45,9 @@ const PrioritiesPage = () => {
     getItemsByPriority,
     getItemsByPriorityAndCategory,
     toggleCategoryGroup,
+    expandAllCategories,
+    collapseAllCategories,
+    areAllCategoriesExpanded,
   } = usePriorityBoard(bookingLinks);
 
   const toggleCategoryFilter = (categoryId: string) => {
@@ -56,9 +59,9 @@ const PrioritiesPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#F7F8FC]">
       <div className="flex flex-col">
-        <div className="bg-white border-b border-gray-200 px-6 py-3">
+        <div className=" px-6 py-3">
           <div className="flex items-center justify-between">
             <div className="flex-1 max-w-md">
               <div className="relative">
@@ -120,20 +123,36 @@ const PrioritiesPage = () => {
             onDragOver={handleDragOver}
             onDragEnd={handleDragEnd}
           >
-            <div className="grid grid-cols-5 gap-4">
+            <div className="grid grid-cols-5 gap-4 w-full max-w-full">
               {priorityColumns.map((column) => {
                 const columnItems = getItemsByPriority(column.id);
                 const groupedItems = getItemsByPriorityAndCategory(column.id);
+                const hasItems = Object.keys(groupedItems).length > 0;
+                const columnCategories = Object.keys(groupedItems);
+                const allExpanded = areAllCategoriesExpanded(columnCategories);
+                
+                const handleToggleAll = () => {
+                  if (allExpanded) {
+                    collapseAllCategories();
+                  } else {
+                    expandAllCategories();
+                  }
+                };
                 
                 return (
-                  <div key={column.id} className="flex flex-col">
+                  <div key={column.id} className="flex flex-col min-w-0 overflow-hidden">
                     <div className="mb-3 flex items-center justify-between">
                       <h3 className={cn("text-sm font-medium", column.color)}>
                         {column.label}
                       </h3>
-                      <button className="text-xs text-blue-600 hover:underline">
-                        Collapse
-                      </button>
+                      {hasItems && (
+                        <button 
+                          onClick={handleToggleAll}
+                          className="text-xs text-blue-600 hover:underline"
+                        >
+                          {allExpanded ? "Collapse" : "Expand"}
+                        </button>
+                      )}
                     </div>
 
                     <DroppableColumn columnId={column.id}>
@@ -142,7 +161,8 @@ const PrioritiesPage = () => {
                         items={columnItems.map(item => item.id)}
                         strategy={verticalListSortingStrategy}
                       >
-                        <div className="flex-1 min-h-[400px] p-3 rounded-lg bg-white">
+                        <div className="min-h-full">
+                          <div className="h-2" />
                           {Object.entries(groupedItems).map(([category, categoryItems]) => (
                             <CategoryGroup
                               key={category}

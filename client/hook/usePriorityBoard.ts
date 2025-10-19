@@ -110,6 +110,28 @@ export const usePriorityBoard = (bookingLinks?: BookingLink[]) => {
     }));
   };
 
+  const expandAllCategories = () => {
+    setExpandedCategories({
+      "Scheduling Links": true,
+      "Tasks": true,
+      "Habits": true,
+      "Smart Meetings": true,
+    });
+  };
+
+  const collapseAllCategories = () => {
+    setExpandedCategories({
+      "Scheduling Links": false,
+      "Tasks": false,
+      "Habits": false,
+      "Smart Meetings": false,
+    });
+  };
+
+  const areAllCategoriesExpanded = (columnCategories: string[]) => {
+    return columnCategories.every(category => expandedCategories[category] === true);
+  };
+
   return {
     items,
     activeId,
@@ -121,5 +143,8 @@ export const usePriorityBoard = (bookingLinks?: BookingLink[]) => {
     getItemsByPriority,
     getItemsByPriorityAndCategory,
     toggleCategoryGroup,
+    expandAllCategories,
+    collapseAllCategories,
+    areAllCategoriesExpanded,
   };
 };

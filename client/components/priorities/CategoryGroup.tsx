@@ -16,14 +16,16 @@ export const CategoryGroup = ({ category, items, isExpanded, onToggle, children 
   if (items.length === 0) return null;
 
   return (
-    <div className="mb-4">
+    <div className="mb-4 shadow-none border-none rounded-lg overflow-hidden">
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between px-3 py-2 hover:bg-gray-50 rounded transition-colors"
+        onPointerDown={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
+        className="w-full flex items-center justify-between px-3 py-2 bg-white hover:bg-[#F7F8FC] transition-colors rounded-t-lg touch-auto"
       >
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-gray-900">{category}</span>
-          <span className="text-xs text-gray-400">{items.length}</span>
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <span className="text-sm font-semibold text-gray-900 truncate">{category}</span>
+          <span className="text-xs text-gray-400 flex-shrink-0">{items.length}</span>
         </div>
         <ChevronDown className={cn(
           "h-4 w-4 text-gray-400 transition-transform",
@@ -32,7 +34,7 @@ export const CategoryGroup = ({ category, items, isExpanded, onToggle, children 
       </button>
 
       {isExpanded && (
-        <div className="mt-2 space-y-2">
+        <div className="space-y-2 bg-white rounded-b-lg pb-2">
           {children}
         </div>
       )}
