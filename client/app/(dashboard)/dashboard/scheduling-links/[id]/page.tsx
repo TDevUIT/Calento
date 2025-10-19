@@ -38,17 +38,24 @@ const SchedulingLinkDetailsPage = () => {
   
   const durationText = link ? (link.duration_minutes >= 60 ? `${Math.floor(link.duration_minutes / 60)} hr${link.duration_minutes >= 120 ? 's' : ''}` : `${link.duration_minutes} min`) : '';
   const datesWindowText = link ? `${link.advance_notice_hours} hours into the future - ${link.booking_window_days} days into the future` : '';
-  const schedulingUrl = link ? `https://app.reclaim.ai/m/${link.slug}` : '';
+  const displayName = useMemo(() => {
+    if (!currentUser) return '';
+    const full = (currentUser.first_name?.trim() || '') + ' ' + (currentUser.last_name?.trim() || '');
+    const name = full.trim() || currentUser.full_name || currentUser.username || currentUser.email?.split('@')[0] || '';
+    return name.trim();
+  }, [currentUser]);
+
+  const schedulingUrl = link ? `${typeof window !== 'undefined' ? window.location.origin : ''}/book/${link.slug}` : '';
   const details = link ? {
     title: link.title,
-    description: link.description || "",
-    group: "Thái Tạ's Booking Page",
+    description: link.description || "This is a link to my maximum availability",
+    group: displayName ? `${displayName}'s Booking Page` : "",
     duration: durationText,
-    hours: "Meeting Hours",
+    hours: link.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
     calendar: currentUser?.email || "",
     dates: datesWindowText,
     location: "Google Meet",
-    organizers: "Thái Tạ",
+    organizers: displayName || "",
     schedulingLink: schedulingUrl,
     active: link.is_active,
     bufferTime: link.buffer_time_minutes ? (link.buffer_time_minutes >= 60 ? `${Math.floor(link.buffer_time_minutes/60)} hr${link.buffer_time_minutes >= 120 ? 's' : ''}` : `${link.buffer_time_minutes} min`) : undefined,
@@ -92,56 +99,50 @@ const SchedulingLinkDetailsPage = () => {
   const [editOpen, setEditOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <DetailsHeader onBack={handleBack} />
-
-      <div className="px-6">
-        <div className="flex flex-col gap-8">
-          <div className="">
-            {(isLoadingLink || (!isParamUuid && isLoadingSlug)) && (
-              <div className="">
-                <div className="animate-pulse">
-                  <div className="h-7 w-2/3 bg-gray-200 rounded mb-3"></div>
-                  <div className="h-4 w-5/6 bg-gray-200 rounded mb-6"></div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <div className="h-4 w-24 bg-gray-200 rounded"></div>
-                      <div className="h-5 w-40 bg-gray-200 rounded"></div>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="h-4 w-24 bg-gray-200 rounded"></div>
-                      <div className="h-5 w-32 bg-gray-200 rounded"></div>
-                    </div>
-                  </div>
+    <div className="min-h-screen bg-[#EBECF0]">
+      <div className="bg-[#F7F8FC] pb-8">
+        <DetailsHeader onBack={handleBack} />
+        <div className="max-w-2xl mx-auto px-6">
+          {(isLoadingLink || (!isParamUuid && isLoadingSlug)) && (
+            <div className="animate-pulse">
+              <div className="h-7 w-2/3 bg-gray-200 rounded mb-3"></div>
+              <div className="h-4 w-5/6 bg-gray-200 rounded mb-6"></div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <div className="h-4 w-24 bg-gray-200 rounded"></div>
+                  <div className="h-5 w-40 bg-gray-200 rounded"></div>
+                </div>
+                <div className="space-y-2">
+                  <div className="h-4 w-24 bg-gray-200 rounded"></div>
+                  <div className="h-5 w-32 bg-gray-200 rounded"></div>
                 </div>
               </div>
-            )}
-            {!isParamUuid && isErrorSlug && (
-              <div className="text-sm text-red-600">
-                Booking link with slug &quot;{rawParam}&quot; not found.
-                <button
-                  className="ml-3 text-blue-600 hover:underline"
-                  onClick={() => router.back()}
-                >
-                  Go back
-                </button>
-              </div>
-            )}
-            {isErrorLink && isParamUuid && (
-              <div className="text-sm text-red-600">Failed to load booking link.</div>
-            )}
-            {details && (
-              <DetailsContent details={details} onEdit={() => setEditOpen(true)} />
-            )}
-          </div>
-          
-          {resolvedId && upcomingMeeting && (
-            <div className="">
-              <UpcomingSidebar meeting={upcomingMeeting} />
             </div>
+          )}
+          {!isParamUuid && isErrorSlug && (
+            <div className="text-sm text-red-600">
+              Booking link with slug &quot;{rawParam}&quot; not found.
+              <button
+                className="ml-3 text-blue-600 hover:underline"
+                onClick={() => router.back()}
+              >
+                Go back
+              </button>
+            </div>
+          )}
+          {isErrorLink && isParamUuid && (
+            <div className="text-sm text-red-600">Failed to load booking link.</div>
+          )}
+          {details && (
+            <DetailsContent details={details} onEdit={() => setEditOpen(true)} />
           )}
         </div>
       </div>
+      {resolvedId && upcomingMeeting && (
+        <div className="max-w-2xl mx-auto px-6 py-8">
+          <UpcomingSidebar meeting={upcomingMeeting} />
+        </div>
+      )}
 
       <CreateBookingLinkDialog
         open={editOpen}
