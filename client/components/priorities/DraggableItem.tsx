@@ -4,7 +4,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { MoreHorizontal, Copy, Clock, ExternalLink, Circle, CheckSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { PriorityItem } from "./CategoryGroup";
+import { type PriorityItem } from "@/hook/usePriorityBoard";
 
 interface DraggableItemProps {
   item: PriorityItem;

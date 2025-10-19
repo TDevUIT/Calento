@@ -2,13 +2,7 @@
 
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-export interface PriorityItem {
-  id: string;
-  title: string;
-  category: string;
-  priority: string;
-}
+import { type PriorityItem } from "@/hook/usePriorityBoard";
 
 interface CategoryGroupProps {
   category: string;

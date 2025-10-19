@@ -9,9 +9,22 @@ import {
   UniqueIdentifier,
 } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
-import { PriorityItem } from "./CategoryGroup";
-import { priorityColumns } from "./constants";
 import { BookingLink } from "@/service/booking.service";
+
+export interface PriorityItem {
+  id: string;
+  title: string;
+  category: string;
+  priority: string;
+}
+
+export const priorityColumns = [
+  { id: "critical", label: "Critical", color: "text-red-600" },
+  { id: "high", label: "High priority", color: "text-gray-700" },
+  { id: "medium", label: "Medium priority", color: "text-gray-700" },
+  { id: "low", label: "Low priority", color: "text-gray-700" },
+  { id: "disabled", label: "Disabled", color: "text-gray-500" },
+];
 
 export const usePriorityBoard = (bookingLinks?: BookingLink[]) => {
   const [items, setItems] = useState<PriorityItem[]>([]);
