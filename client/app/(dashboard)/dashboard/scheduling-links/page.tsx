@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { CreateBookingLinkDialog } from "@/components/booking/CreateBookingLinkDialog";
 import { useBookingLinks } from "@/hook/booking";
 import { useAuthStore } from "@/store/auth.store";
+import { BookingLink } from "@/service/booking.service";
 import {
   SchedulingLinkCard,
   BusinessBanner,
@@ -16,7 +17,7 @@ const SchedulingLinksPage = () => {
   const router = useRouter();
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [showBanner, setShowBanner] = useState(true);
-  const [editingLink, setEditingLink] = useState<any>(null);
+  const [editingLink, setEditingLink] = useState<BookingLink | null>(null);
 
   const { data: bookingLinks } = useBookingLinks();
   const currentUser = useAuthStore((s) => s.user);
@@ -50,7 +51,7 @@ const SchedulingLinksPage = () => {
     setCreateDialogOpen(true);
   };
 
-  const handleEditLink = (link: any) => {
+  const handleEditLink = (link: BookingLink) => {
     setEditingLink(link);
     setCreateDialogOpen(true);
   };

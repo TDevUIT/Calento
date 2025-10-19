@@ -9,7 +9,6 @@ import {
   CreateTaskDialog,
   TaskList,
   TaskFilters,
-  TaskStatistics,
 } from "@/components/task";
 
 const TasksPage = () => {

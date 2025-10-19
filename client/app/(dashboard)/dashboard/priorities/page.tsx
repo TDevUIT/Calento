@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Filter, Columns3, HelpCircle } from "lucide-react";
+import { Search, Filter, Columns3, HelpCircle, Loader2 } from "lucide-react";
 import { DndContext, closestCenter } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,8 @@ import {
   DropdownMenuCheckboxItem,
 } from "@/components/ui/dropdown-menu";
 import { useBookingLinks } from "@/hook/booking";
+import { useTasks } from "@/hook/task";
+import { usePriorities } from "@/hook/priority/use-priorities";
 import { cn } from "@/lib/utils";
 import {
   DroppableColumn,
@@ -34,7 +36,12 @@ const PrioritiesPage = () => {
     "smart-meetings",
   ]);
 
-  const { data: bookingLinks } = useBookingLinks();
+  const { data: bookingLinks, isLoading: isLoadingLinks } = useBookingLinks();
+  const { data: tasksData, isLoading: isLoadingTasks } = useTasks({ page: 1, limit: 100 });
+  const { isLoading: isLoadingPriorities } = usePriorities();
+  const tasks = tasksData?.data?.items || [];
+
+  const isLoading = isLoadingLinks || isLoadingTasks || isLoadingPriorities;
   
   const {
     expandedCategories,
@@ -48,7 +55,7 @@ const PrioritiesPage = () => {
     expandAllCategories,
     collapseAllCategories,
     areAllCategoriesExpanded,
-  } = usePriorityBoard(bookingLinks);
+  } = usePriorityBoard(bookingLinks, tasks);
 
   const toggleCategoryFilter = (categoryId: string) => {
     setVisibleCategories(prev =>
@@ -115,7 +122,12 @@ const PrioritiesPage = () => {
             <h1 className="text-lg font-semibold text-gray-900">Priorities</h1>
             <p className="text-sm text-gray-500">Manage priority for your scheduling links, tasks, habits, and meetings</p>
           </div>
-          
+
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+            </div>
+          ) : (
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -184,6 +196,7 @@ const PrioritiesPage = () => {
               })}
             </div>
           </DndContext>
+          )}
         </div>
       </div>
 

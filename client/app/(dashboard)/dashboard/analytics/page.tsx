@@ -13,7 +13,6 @@ import {
   AnalyticsDateRange,
 } from '@/components/analytics';
 import {
-  useAnalyticsOverview,
   useEventAnalytics,
   useTimeUtilization,
   useCategoryAnalytics,
@@ -28,7 +27,6 @@ const AnalyticsPage = () => {
     end_date: new Date().toISOString().split('T')[0],
   });
 
-  const { data: overview, isLoading: overviewLoading } = useAnalyticsOverview(dateRange);
   const { data: eventAnalytics, isLoading: eventLoading } = useEventAnalytics(dateRange);
   const { data: timeUtilization, isLoading: timeLoading } = useTimeUtilization(dateRange);
   const { data: categoryAnalytics, isLoading: categoryLoading } = useCategoryAnalytics({
