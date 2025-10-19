@@ -21,6 +21,14 @@ export interface BookingLink extends BaseEntity {
   color?: string;
   timezone: string;
   bookings_count?: number; // Count of non-cancelled bookings
+  // User info (populated from JOIN)
+  user?: {
+    id: string;
+    username?: string;
+    email: string;
+    avatar?: string;
+    full_name?: string;
+  };
 }
 
 export interface Booking extends BaseEntity {

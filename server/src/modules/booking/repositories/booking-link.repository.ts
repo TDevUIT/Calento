@@ -65,8 +65,18 @@ export class BookingLinkRepository extends BaseRepository<BookingLink> {
 
   async findBySlug(slug: string): Promise<BookingLink | null> {
     const query = `
-      SELECT * FROM ${this.tableName}
-      WHERE slug = $1
+      SELECT 
+        bl.*,
+        jsonb_build_object(
+          'id', u.id,
+          'username', u.username,
+          'email', u.email,
+          'avatar', u.avatar,
+          'full_name', TRIM(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, '')))
+        ) as user
+      FROM ${this.tableName} bl
+      LEFT JOIN users u ON bl.user_id = u.id
+      WHERE bl.slug = $1
     `;
 
     const result = await this.databaseService.query(query, [slug]);
