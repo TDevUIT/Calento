@@ -137,6 +137,17 @@ export const API_ROUTES = {
   ANALYTICS_TIME_DISTRIBUTION: '/analytics/time-distribution',
   ANALYTICS_ATTENDEES: '/analytics/attendees',
   ANALYTICS_BOOKINGS: '/analytics/bookings',
+  
+  // Tasks APIs
+  TASKS: '/tasks',
+  TASK_CREATE: '/tasks',
+  TASK_DETAIL: (id: string) => `/tasks/${id}`,
+  TASK_UPDATE: (id: string) => `/tasks/${id}`,
+  TASK_DELETE: (id: string) => `/tasks/${id}`,
+  TASK_RESTORE: (id: string) => `/tasks/${id}/restore`,
+  TASK_UPDATE_STATUS: (id: string) => `/tasks/${id}/status`,
+  TASK_OVERDUE: '/tasks/overdue',
+  TASK_STATISTICS: '/tasks/statistics',
 } as const;
 
 export const PUBLIC_ROUTE_PATTERNS = [
