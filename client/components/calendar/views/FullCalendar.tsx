@@ -67,7 +67,7 @@ export type CalendarEvent = {
   start: Date;
   end: Date;
   title: string;
-  color?: string; // Hex color code (e.g., #3b82f6) or preset name
+  color?: string;
   description?: string;
   calendarId?: string;
   creator?: {
@@ -76,6 +76,9 @@ export type CalendarEvent = {
     email?: string;
     avatar?: string;
   };
+  type?: 'event' | 'task';
+  priority?: 'low' | 'medium' | 'high' | 'critical';
+  status?: 'todo' | 'in_progress' | 'completed' | 'cancelled';
 };
 
 function convertToFullEvent(calendarEvent: CalendarEvent): Event {
@@ -239,29 +242,33 @@ const HourEvents = ({
             onDelete={() => {}}
           >
             <div
-              className="absolute mx-0.5 font-medium rounded-md p-2 text-xs shadow-sm cursor-pointer transition-all hover:shadow-lg hover:scale-[1.01] hover:-translate-y-0.5 border border-black/10 event-column"
+              className="absolute mx-0.5 font-medium rounded-md p-2 text-xs shadow-sm cursor-pointer transition-all hover:shadow-lg hover:scale-[1.01] hover:-translate-y-0.5 border event-column"
               style={{
                 top: `${startPosition * 100}%`,
                 height: `${hoursDifference * 100}%`,
-                backgroundColor: eventColor,
+                backgroundColor: event.type === 'task' ? 'white' : eventColor,
+                borderColor: event.type === 'task' ? eventColor : 'rgba(0,0,0,0.1)',
+                borderWidth: event.type === 'task' ? '2px' : '1px',
+                borderLeftWidth: event.type === 'task' ? '4px' : '1px',
+                borderStyle: event.type === 'task' ? 'dashed' : 'solid',
                 ...layoutStyles,
                 // Reduce padding for narrow columns
                 padding: layout.totalColumns > 2 ? '4px 6px' : '8px 10px',
               }}
               onClick={() => onEventClick?.(event)}
             >
-              <div className={`font-bold truncate leading-tight ${titleClass}`}>
+              <div className={`font-bold truncate leading-tight ${event.type === 'task' ? 'text-gray-900' : titleClass}`}>
                 {event.title}
               </div>
               {/* Only show time if there's enough space */}
               {layout.width > 30 && (
-                <div className={`text-[10px] mt-0.5 font-medium leading-tight ${timeClass}`}>
+                <div className={`text-[10px] mt-0.5 font-medium leading-tight ${event.type === 'task' ? 'text-gray-600' : timeClass}`}>
                   {format(event.start, 'HH:mm')} - {format(event.end, 'HH:mm')}
                 </div>
               )}
               {/* Show abbreviated time for narrow columns */}
               {layout.width <= 30 && (
-                <div className={`text-[9px] mt-0.5 font-medium leading-tight ${timeClass}`}>
+                <div className={`text-[9px] mt-0.5 font-medium leading-tight ${event.type === 'task' ? 'text-gray-600' : timeClass}`}>
                   {format(event.start, 'HH:mm')}
                 </div>
               )}
@@ -462,18 +469,22 @@ const CalendarMonthView = () => {
                       onDelete={() => {}}
                     >
                       <div
-                        className="px-2 py-1.5 rounded-md text-xs flex items-center gap-2 transition-all cursor-pointer hover:shadow-md hover:scale-[1.01] relative border border-black/10"
+                        className="px-2 py-1.5 rounded-md text-xs flex items-center gap-2 transition-all cursor-pointer hover:shadow-md hover:scale-[1.01] relative border"
                         style={{
-                          backgroundColor: eventColor,
+                          backgroundColor: event.type === 'task' ? 'white' : eventColor,
+                          borderColor: event.type === 'task' ? eventColor : 'rgba(0,0,0,0.1)',
+                          borderWidth: event.type === 'task' ? '2px' : '1px',
+                          borderLeftWidth: event.type === 'task' ? '4px' : '1px',
+                          borderStyle: event.type === 'task' ? 'dashed' : 'solid',
                           zIndex: 150 + eventIndex,
                         }}
                         onClick={() => onEventClick?.(event)}
                       >
-                        <span className={`flex-1 truncate font-bold ${titleClass}`}>
+                        <span className={`flex-1 truncate font-bold ${event.type === 'task' ? 'text-gray-900' : titleClass}`}>
                           {event.title}
                         </span>
                         <time 
-                          className={`tabular-nums text-[10px] font-semibold ${timeClass}`}
+                          className={`tabular-nums text-[10px] font-semibold ${event.type === 'task' ? 'text-gray-600' : timeClass}`}
                           suppressHydrationWarning
                         >
                           {format(event.start, 'HH:mm')}

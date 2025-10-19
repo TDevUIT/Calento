@@ -18,6 +18,7 @@ import { AvailabilityModule } from './modules/availability/availability.module';
 import { BookingModule } from './modules/booking/booking.module';
 import { BlogModule } from './modules/blog/blog.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { TaskModule } from './modules/task/task.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { DebugController } from './debug-cors.controller';
 
@@ -43,6 +44,7 @@ import { DebugController } from './debug-cors.controller';
     BookingModule,
     BlogModule,
     AnalyticsModule,
+    TaskModule,
   ],
   controllers: [DebugController],
   providers: [

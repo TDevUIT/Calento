@@ -16,7 +16,7 @@ export default function DashboardLayout({
         <SidebarDashboard />
         <SidebarInset className="flex flex-col h-screen overflow-hidden ">
           <DashboardHeader notificationCount={3} />
-          <main className="flex-1 overflow-y-auto px-2 pb-10 scroll-smooth">
+          <main className="flex-1 overflow-y-auto px-2 pb-10 scroll-smooth bg-[#F7F8FC]">
             {children}
           </main>
         </SidebarInset>

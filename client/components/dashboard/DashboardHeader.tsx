@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Search, Bell, Sparkles, Plus, Calendar } from "lucide-react";
@@ -10,17 +11,19 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-// import { ViewSelector } from "./ViewSelector";
 import { UserAvatarMenu } from "./UserAvatarMenu";
 import { UpcomingEvents } from "./UpcomingEvents";
+import { CreateTaskDropdown } from "@/components/task/CreateTaskDropdown";
 
 interface DashboardHeaderProps {
   notificationCount?: number;
 }
 
 export function DashboardHeader({ notificationCount = 3 }: DashboardHeaderProps) {
+  const [openTaskDialog, setOpenTaskDialog] = useState(false);
+  
   const handleNewTask = () => {
-    console.log("Creating new task...");
+    setOpenTaskDialog(true);
   };
 
   const handleSearch = () => {
@@ -44,7 +47,6 @@ export function DashboardHeader({ notificationCount = 3 }: DashboardHeaderProps)
       <SidebarTrigger className="-ml-1" />
       
       <div className="flex flex-1 items-center gap-3">
-        {/* <ViewSelector /> */}
         
         <UpcomingEvents />
 
@@ -58,16 +60,6 @@ export function DashboardHeader({ notificationCount = 3 }: DashboardHeaderProps)
         </Button>
 
         <Button 
-          variant="default" 
-          size="sm" 
-          className="h-9 gap-2"
-          onClick={handleNewTask}
-        >
-          <Plus className="h-4 w-4" />
-          <span>New Task</span>
-        </Button>
-
-        <Button 
           variant="ghost" 
           size="icon" 
           className="h-9 w-9"
@@ -77,7 +69,18 @@ export function DashboardHeader({ notificationCount = 3 }: DashboardHeaderProps)
         </Button>
 
         <span className="flex-1" />
-
+        <CreateTaskDropdown 
+          open={openTaskDialog} 
+          onOpenChange={setOpenTaskDialog} 
+        >
+          <button 
+            className="h-9 gap-2 flex items-center hover:bg-gray-100 hover:rounded-xl p-2" 
+            onClick={handleNewTask}
+          >
+            <Plus className="h-4 w-4" />
+            <span>New Task</span>
+          </button>
+        </CreateTaskDropdown>
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>

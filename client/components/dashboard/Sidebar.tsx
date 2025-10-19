@@ -96,7 +96,7 @@ const SidebarDashboard = () => {
   };
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" className="bg-white">
       <SidebarHeader className="">
         <SidebarMenu>
           <SidebarMenuItem>

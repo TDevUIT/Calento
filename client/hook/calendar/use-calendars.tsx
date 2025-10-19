@@ -5,9 +5,6 @@ import { calendarService } from '@/service/calendar.service';
 import { PaginatedCalendarsResponse, CalendarQueryParams } from '@/interface/calendar.interface';
 import { CALENDAR_QUERY_KEYS } from './query-keys';
 
-/**
- * Hook to fetch paginated calendars
- */
 export const useCalendars = (params?: CalendarQueryParams): UseQueryResult<PaginatedCalendarsResponse, Error> => {
   return useQuery({
     queryKey: CALENDAR_QUERY_KEYS.list(params),

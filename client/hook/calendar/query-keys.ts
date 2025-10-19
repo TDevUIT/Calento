@@ -1,8 +1,5 @@
 import { CalendarQueryParams } from '@/interface/calendar.interface';
 
-/**
- * Centralized query keys for calendar-related queries
- */
 export const CALENDAR_QUERY_KEYS = {
   all: ['calendars'] as const,
   

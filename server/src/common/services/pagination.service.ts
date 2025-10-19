@@ -149,8 +149,11 @@ export class PaginationService {
     const { clause: limitOffsetClause, values: limitOffsetValues } =
       this.buildLimitOffsetClause(page, limit, paramStartIndex);
 
-    // Count query
-    const countQuery = `SELECT COUNT(*) FROM (${baseQuery}) as base_query ${whereClause}`;
+    // Count query - subquery always needs WHERE not AND
+    const countWhereClause = additionalWhereConditions
+      ? `WHERE ${additionalWhereConditions}`
+      : '';
+    const countQuery = `SELECT COUNT(*) FROM (${baseQuery}) as base_query ${countWhereClause}`;
 
     // Data query
     const dataQuery = `

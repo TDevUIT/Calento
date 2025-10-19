@@ -19,8 +19,10 @@ import {
 import { KeyboardShortcuts } from '@/components/calendar/KeyboardShortcuts';
 import { DateDisplay, HeaderActions, ViewSelector, QuickActions, MonthProgress } from '@/components/calendar/header';
 import { useEvents, useRecurringEvents } from '@/hook/event';
+import { useTasks } from '@/hook/task';
 import { useApiData } from '@/hook/use-api-data';
 import type { Event } from '@/interface/event.interface';
+import type { Task } from '@/interface/task.interface';
 import { useQueryClient } from '@tanstack/react-query';
 import { EVENT_QUERY_KEYS } from '@/hook/event/query-keys';
 import { getColorHex } from '@/utils/colors';
@@ -29,6 +31,7 @@ import { getWeekStartDay } from '@/utils/calendar-format';
 import { getCalendarStyles } from '@/utils/calendar-styles';
 import { CalendarSidebar } from '@/components/calendar/sidebar/CalendarSidebar';
 import { CreateEventDialog, EditEventDialog } from '@/components/calendar/dialogs';
+import { TaskDetailDialog } from '@/components/calendar/dialogs/TaskDetailDialog';
 import { CalendarSettingsDialog } from '@/components/calendar/settings/CalendarSettingsDialog';
 import { CalendarSettingsProvider } from '@/components/calendar/shared/CalendarSettingsProvider';
 import { useControllerStore } from '@/store/controller.store';
@@ -57,6 +60,8 @@ export default function Page() {
   
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [showTaskDialog, setShowTaskDialog] = useState(false);
   
   useKeyboardShortcuts({
     onShowShortcuts: () => setShowShortcuts(true),
@@ -66,6 +71,12 @@ export default function Page() {
 
   const startDate = useMemo(() => startOfMonth(currentMonth).toISOString(), [currentMonth]);
   const endDate = useMemo(() => endOfMonth(currentMonth).toISOString(), [currentMonth]);
+
+  console.log('📅 Current Month Range:', {
+    currentMonth: currentMonth,
+    startDate,
+    endDate,
+  });
 
   const queryParams = useMemo(() => ({
     page: 1,
@@ -84,6 +95,7 @@ export default function Page() {
 
   const regularEventsQuery = useEvents(queryParams);
   const recurringEventsQuery = useRecurringEvents(recurringQueryParams);
+  const tasksQuery = useTasks({ page: 1, limit: 100 });
 
   useEffect(() => {
     queryClient.invalidateQueries({ 
@@ -94,12 +106,22 @@ export default function Page() {
     Promise.all([
       regularEventsQuery.refetch(),
       recurringEventsQuery.refetch(),
+      tasksQuery.refetch(),
     ]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentMonth, startDate, endDate]);
   
   const { items: regularEvents = [] } = useApiData<Event>(regularEventsQuery);
   const { items: recurringEvents = [] } = useApiData<Event>(recurringEventsQuery);
+  const { items: tasks = [] } = useApiData<Task>(tasksQuery);
+
+  console.log('🔎 Tasks Query Debug:', {
+    isLoading: tasksQuery.isLoading,
+    isError: tasksQuery.isError,
+    error: tasksQuery.error,
+    data: tasksQuery.data,
+    extractedTasks: tasks,
+  });
   
   const apiEvents = useMemo(() => {
     return [...regularEvents, ...recurringEvents];
@@ -116,11 +138,11 @@ export default function Page() {
     };
   }, [weekStartsOn]);
   
-  const isLoading = regularEventsQuery.isLoading || recurringEventsQuery.isLoading;
-  const error = regularEventsQuery.error || recurringEventsQuery.error;
+  const isLoading = regularEventsQuery.isLoading || recurringEventsQuery.isLoading || tasksQuery.isLoading;
+  const error = regularEventsQuery.error || recurringEventsQuery.error || tasksQuery.error;
 
   const calendarEvents: CalendarEvent[] = useMemo(() => {
-    return apiEvents.map((event: Event) => ({
+    const eventItems = apiEvents.map((event: Event) => ({
       id: event.id,
       title: event.title,
       start: new Date(event.start_time),
@@ -129,12 +151,57 @@ export default function Page() {
       calendarId: event.calendar_id,
       color: getColorHex(event.color),
       creator: event.creator,
+      type: 'event' as const,
     }));
-  }, [apiEvents]);
 
-  const filteredEvents = calendarEvents.filter(event => 
-    visibleCalendarIds.size === 0 || visibleCalendarIds.has(event.calendarId || '')
-  );
+    const taskItems = tasks
+      .filter((task: Task) => task.due_date && !task.is_deleted)
+      .map((task: Task) => {
+        const dueDate = new Date(task.due_date!);
+        const priorityColors = {
+          low: '#94a3b8',
+          medium: '#3b82f6',
+          high: '#f59e0b',
+          critical: '#ef4444',
+        };
+        return {
+          id: task.id,
+          title: `📋 ${task.title}`,
+          start: dueDate,
+          end: new Date(dueDate.getTime() + 30 * 60000),
+          description: task.description,
+          color: priorityColors[task.priority],
+          type: 'task' as const,
+          priority: task.priority,
+          status: task.status,
+        };
+      });
+
+    console.log('📊 Calendar Debug:', {
+      totalTasks: tasks.length,
+      tasksWithDueDate: tasks.filter((t: Task) => t.due_date && !t.is_deleted).length,
+      taskItemsCount: taskItems.length,
+      rawTasks: tasks,
+      convertedTaskItems: taskItems,
+    });
+
+    return [...eventItems, ...taskItems];
+  }, [apiEvents, tasks]);
+
+  const filteredEvents = calendarEvents.filter(event => {
+    // Always show tasks regardless of calendar filters
+    if (event.type === 'task') return true;
+    // Filter events by calendar visibility
+    return visibleCalendarIds.size === 0 || visibleCalendarIds.has(event.calendarId || '');
+  });
+
+  console.log('🔍 Filtered Events:', {
+    totalCalendarEvents: calendarEvents.length,
+    filteredEventsCount: filteredEvents.length,
+    tasksInFiltered: filteredEvents.filter(e => e.type === 'task').length,
+    eventsInFiltered: filteredEvents.filter(e => e.type === 'event').length,
+    visibleCalendarIds: Array.from(visibleCalendarIds),
+  });
 
   if (isLoading) {
     return (
@@ -159,8 +226,13 @@ export default function Page() {
   }
 
   const handleEventClick = (event: CalendarEvent) => {
-    setSelectedEventId(event.id);
-    setShowEditDialog(true);
+    if (event.type === 'task') {
+      setSelectedTaskId(event.id);
+      setShowTaskDialog(true);
+    } else {
+      setSelectedEventId(event.id);
+      setShowEditDialog(true);
+    }
   };
   
   return (
@@ -183,6 +255,10 @@ export default function Page() {
       setSelectedEventId={setSelectedEventId}
       showEditDialog={showEditDialog}
       setShowEditDialog={setShowEditDialog}
+      selectedTaskId={selectedTaskId}
+      setSelectedTaskId={setSelectedTaskId}
+      showTaskDialog={showTaskDialog}
+      setShowTaskDialog={setShowTaskDialog}
       visibleCalendarIds={visibleCalendarIds}
       setVisibleCalendarIds={setVisibleCalendarIds}
       defaultView={defaultView}
@@ -216,6 +292,10 @@ function CalendarWrapper({
   setSelectedEventId,
   showEditDialog,
   setShowEditDialog,
+  selectedTaskId,
+  setSelectedTaskId,
+  showTaskDialog,
+  setShowTaskDialog,
   visibleCalendarIds,
   setVisibleCalendarIds,
   defaultView,
@@ -245,6 +325,10 @@ function CalendarWrapper({
   setSelectedEventId: (id: string | null) => void;
   showEditDialog: boolean;
   setShowEditDialog: (show: boolean) => void;
+  selectedTaskId: string | null;
+  setSelectedTaskId: (id: string | null) => void;
+  showTaskDialog: boolean;
+  setShowTaskDialog: (show: boolean) => void;
   visibleCalendarIds: Set<string>;
   setVisibleCalendarIds: (ids: Set<string>) => void;
   defaultView: 'day' | 'week' | 'month' | 'year';
@@ -377,6 +461,15 @@ function CalendarWrapper({
           eventId={selectedEventId}
         />
       )}
+
+      <TaskDetailDialog
+        taskId={selectedTaskId}
+        open={showTaskDialog}
+        onClose={() => {
+          setShowTaskDialog(false);
+          setSelectedTaskId(null);
+        }}
+      />
       </Calendar>
     </CalendarSettingsProvider>
   );

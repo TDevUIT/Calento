@@ -115,7 +115,7 @@ export function EventQuickPreview({ event }: EventQuickPreviewProps) {
 
   return (
     <div 
-      className="w-96 bg-background border rounded-lg shadow-xl overflow-hidden relative event-quick-preview" 
+      className="w-96 bg-white rounded-lg overflow-hidden relative event-quick-preview" 
       style={{ 
         zIndex: 999999, 
         pointerEvents: 'auto',

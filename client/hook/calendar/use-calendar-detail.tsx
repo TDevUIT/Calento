@@ -5,9 +5,7 @@ import { calendarService } from '@/service/calendar.service';
 import { CalendarResponse } from '@/interface/calendar.interface';
 import { CALENDAR_QUERY_KEYS } from './query-keys';
 
-/**
- * Hook to fetch single calendar by ID
- */
+
 export const useCalendarDetail = (calendarId: string): UseQueryResult<CalendarResponse, Error> => {
   return useQuery({
     queryKey: CALENDAR_QUERY_KEYS.detail(calendarId),
