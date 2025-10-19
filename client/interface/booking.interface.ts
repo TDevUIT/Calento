@@ -16,6 +16,14 @@ export interface BookingLink {
   created_at: string;
   updated_at: string;
   bookings_count?: number;
+  // User info
+  user?: {
+    id: string;
+    username?: string;
+    email: string;
+    avatar?: string;
+    full_name?: string;
+  };
 }
 
 export interface CreateBookingLinkDto {

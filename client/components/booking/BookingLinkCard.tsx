@@ -11,7 +11,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/radix-dropdown-menu";
 import { BookingLink } from "@/interface/booking.interface";
-import { formatDuration, generateBookingLinkUrl } from "@/utils/booking.utils";
+import { generateBookingLinkUrl } from "@/utils/booking.utils";
+import { formatDuration } from "@/utils/formatters";
 import { useToggleBookingLink, useDeleteBookingLink } from "@/hook/booking";
 import { toast } from "sonner";
 

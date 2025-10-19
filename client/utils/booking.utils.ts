@@ -7,30 +7,15 @@ import {
   DURATION_OPTIONS,
 } from '../constants/booking.constants';
 import type { BookingLink, Booking } from '../interface/booking.interface';
+import { formatDuration } from './formatters';
 
-/**
- * Format duration in minutes to human readable string
- */
-export function formatDuration(minutes: number): string {
-  if (minutes < 60) {
-    return `${minutes} min`;
-  }
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
-  return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
-}
 
-/**
- * Format time slot to display format
- */
 export function formatTimeSlot(dateTimeString: string): string {
   const date = parseISO(dateTimeString);
   return format(date, 'h:mm a');
 }
 
-/**
- * Format date for display with relative labels
- */
+
 export function formatDateDisplay(dateString: string): string {
   const date = parseISO(dateString + 'T00:00:00');
   const today = startOfDay(new Date());
@@ -46,23 +31,17 @@ export function formatDateDisplay(dateString: string): string {
   }
 }
 
-/**
- * Get booking status label
- */
+
 export function getBookingStatusLabel(status: string): string {
   return BOOKING_STATUS_LABELS[status as keyof typeof BOOKING_STATUS_LABELS] || status;
 }
 
-/**
- * Get booking status color classes
- */
+
 export function getBookingStatusColor(status: string): string {
   return BOOKING_STATUS_COLORS[status as keyof typeof BOOKING_STATUS_COLORS] || 'bg-gray-100 text-gray-700';
 }
 
-/**
- * Get booking link color classes for background
- */
+
 export function getBookingLinkColorClasses(color?: string): {
   background: string;
   text: string;
@@ -106,17 +85,12 @@ export function getBookingLinkColorClasses(color?: string): {
   }
 }
 
-/**
- * Generate booking link URL
- */
+
 export function generateBookingLinkUrl(slug: string, baseUrl?: string): string {
   const base = baseUrl || (typeof window !== 'undefined' ? window.location.origin : '');
   return `${base}/book/${slug}`;
 }
 
-/**
- * Validate booking link slug
- */
 export function validateBookingLinkSlug(slug: string): {
   isValid: boolean;
   error?: string;
@@ -140,9 +114,6 @@ export function validateBookingLinkSlug(slug: string): {
   return { isValid: true };
 }
 
-/**
- * Generate slug from title
- */
 export function generateSlugFromTitle(title: string): string {
   return title
     .toLowerCase()
@@ -152,35 +123,27 @@ export function generateSlugFromTitle(title: string): string {
     .trim();
 }
 
-/**
- * Get duration option label
- */
+
 export function getDurationLabel(minutes: number): string {
   const option = DURATION_OPTIONS.find(opt => opt.value === minutes);
   return option?.label || formatDuration(minutes);
 }
 
-/**
- * Check if booking is upcoming
- */
+
 export function isUpcomingBooking(booking: Booking): boolean {
   const startTime = parseISO(booking.start_time);
   const now = new Date();
   return startTime > now && booking.status === BOOKING_STATUS.CONFIRMED;
 }
 
-/**
- * Check if booking is past
- */
+
 export function isPastBooking(booking: Booking): boolean {
   const endTime = parseISO(booking.end_time);
   const now = new Date();
   return endTime < now;
 }
 
-/**
- * Get booking time range display
- */
+
 export function getBookingTimeRange(booking: Booking): string {
   const startTime = parseISO(booking.start_time);
   const endTime = parseISO(booking.end_time);
@@ -192,9 +155,7 @@ export function getBookingTimeRange(booking: Booking): string {
   return `${dateFormatted} • ${startFormatted} - ${endFormatted}`;
 }
 
-/**
- * Calculate booking link statistics
- */
+
 export function calculateBookingLinkStats(bookings: Booking[]) {
   const total = bookings.length;
   const confirmed = bookings.filter(b => b.status === BOOKING_STATUS.CONFIRMED).length;

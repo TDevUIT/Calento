@@ -22,7 +22,6 @@ export function DraggableBookingLinkList({
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [localBookingLinks, setLocalBookingLinks] = useState(bookingLinks);
 
-  // Update local state when props change
   useState(() => {
     setLocalBookingLinks(bookingLinks);
   });
@@ -52,16 +51,10 @@ export function DraggableBookingLinkList({
     setDraggedIndex(null);
     setDragOverIndex(null);
 
-    // Call the onReorder callback
     onReorder?.(newBookingLinks);
     
     toast.success("Booking links reordered successfully");
   };
-
-  // const handleDragEnd = () => {
-  //   setDraggedIndex(null);
-  //   setDragOverIndex(null);
-  // };
 
   return (
     <div className="space-y-4">

@@ -149,7 +149,6 @@ export function BookingNotification({
   );
 }
 
-// Notification Container Component
 interface BookingNotificationContainerProps {
   notifications: BookingNotificationData[];
   onDismiss?: (id: string) => void;

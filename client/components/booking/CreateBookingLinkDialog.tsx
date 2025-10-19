@@ -26,16 +26,15 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { X, Loader2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { X, Loader2, Palette, Check } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
 import { useCreateBookingLink, useUpdateBookingLink } from "@/hook/booking";
 import { BookingLink } from "@/service/booking.service";
+import { COLOR_OPTIONS } from "@/components/calendar/forms/form-constants";
+import { useRecentColors } from "@/hook/use-recent-colors";
 
 const bookingLinkSchema = z.object({
   title: z.string().min(1, "Title is required").max(255, "Title too long"),
@@ -72,16 +71,6 @@ const durationOptions = [
   { value: 240, label: "4 hours" },
 ];
 
-const colorOptions = [
-  { value: "#3b82f6", label: "Blue" },
-  { value: "#22c55e", label: "Green" },
-  { value: "#a855f7", label: "Purple" },
-  { value: "#ef4444", label: "Red" },
-  { value: "#f97316", label: "Orange" },
-  { value: "#ec4899", label: "Pink" },
-];
-
-// For backwards compatibility if existing bookingLink color uses a name
 const colorNameToHex: Record<string, string> = {
   blue: "#3b82f6",
   green: "#22c55e",
@@ -133,7 +122,6 @@ export function CreateBookingLinkDialog({
     },
   });
 
-  // Auto-generate slug from title
   const handleTitleChange = (title: string) => {
     if (!isEditing) {
       const slug = title
@@ -172,7 +160,7 @@ export function CreateBookingLinkDialog({
         form.reset();
       }, 300);
     } catch {
-      // Error handling is done in the mutation hooks
+      
     } finally {
       setIsSubmitting(false);
     }
@@ -265,7 +253,6 @@ export function CreateBookingLinkDialog({
                   <div className="flex-1 overflow-y-auto min-w-0">
                     <div className="w-full h-full">
                       <div className="px-6 py-4 space-y-6">
-                        {/* URL Slug */}
                         <FormField
                           control={form.control}
                           name="slug"
@@ -293,7 +280,6 @@ export function CreateBookingLinkDialog({
                           )}
                         />
 
-                        {/* Description */}
                         <FormField
                           control={form.control}
                           name="description"
@@ -313,9 +299,7 @@ export function CreateBookingLinkDialog({
                           )}
                         />
 
-                        {/* Grid fields */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {/* Duration */}
                           <FormField
                             control={form.control}
                             name="duration_minutes"
@@ -344,7 +328,6 @@ export function CreateBookingLinkDialog({
                             )}
                           />
 
-                          {/* Buffer Time */}
                           <FormField
                             control={form.control}
                             name="buffer_time_minutes"
@@ -367,7 +350,6 @@ export function CreateBookingLinkDialog({
                             )}
                           />
 
-                          {/* Advance Notice */}
                           <FormField
                             control={form.control}
                             name="advance_notice_hours"
@@ -390,7 +372,6 @@ export function CreateBookingLinkDialog({
                             )}
                           />
 
-                          {/* Booking Window */}
                           <FormField
                             control={form.control}
                             name="booking_window_days"
@@ -413,7 +394,6 @@ export function CreateBookingLinkDialog({
                             )}
                           />
 
-                          {/* Max Bookings Per Day */}
                           <FormField
                             control={form.control}
                             name="max_bookings_per_day"
@@ -437,36 +417,8 @@ export function CreateBookingLinkDialog({
                             )}
                           />
 
-                          {/* Color */}
-                          <FormField
-                            control={form.control}
-                            name="color"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Color</FormLabel>
-                                <Select value={field.value} onValueChange={field.onChange}>
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Select color" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    {colorOptions.map((option) => (
-                                      <SelectItem key={option.value} value={option.value}>
-                                        <div className="flex items-center gap-2">
-                                          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: option.value }} />
-                                          {option.label}
-                                        </div>
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                          <BookingColorField form={form} />
 
-                          {/* Active Status */}
                           <FormField
                             control={form.control}
                             name="is_active"
@@ -491,8 +443,6 @@ export function CreateBookingLinkDialog({
                       </div>
                     </div>
                   </div>
-
-                  {/* Optional right sidebar could be added later for preview or tips */}
                 </div>
               </div>
             </form>
@@ -535,5 +485,159 @@ export function CreateBookingLinkDialog({
         </DialogContent>
       </Dialog>
     </>
+  );
+}
+
+interface BookingColorFieldProps {
+  form: ReturnType<typeof useForm<BookingLinkFormData>>;
+}
+
+function BookingColorField({ form }: BookingColorFieldProps) {
+  const { recentColors, addRecentColor } = useRecentColors();
+
+  return (
+    <FormField
+      control={form.control}
+      name="color"
+      render={({ field }) => {
+        const handleColorSelect = (colorHex: string) => {
+          field.onChange(colorHex);
+          addRecentColor(colorHex);
+        };
+
+        return (
+          <FormItem>
+            <FormLabel>Color</FormLabel>
+            <FormControl>
+              <div className="flex items-center gap-2 flex-wrap">
+                {recentColors.map((colorHex, index) => {
+                  const isSelected = field.value === colorHex;
+                  const colorOption = COLOR_OPTIONS.find(c => c.hex === colorHex);
+                  
+                  return (
+                    <button
+                      key={`${colorHex}-${index}`}
+                      type="button"
+                      onClick={() => handleColorSelect(colorHex)}
+                      className={`relative h-7 w-7 rounded-full transition-all hover:scale-110 flex-shrink-0 ${
+                        isSelected ? 'ring-2 ring-offset-2 ring-offset-background ring-primary' : 'opacity-70 hover:opacity-100'
+                      }`}
+                      style={{ backgroundColor: colorHex }}
+                      title={colorOption?.label || colorHex}
+                    >
+                      {isSelected && (
+                        <Check className="h-3.5 w-3.5 text-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+                      )}
+                    </button>
+                  );
+                })}
+
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-7 gap-1.5 text-xs"
+                    >
+                      <Palette className="h-3.5 w-3.5" />
+                      <span>More</span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 p-0" align="start" style={{ zIndex: 10002 }}>
+                    <Tabs defaultValue="palette" className="w-full">
+                      <TabsList className="w-full rounded-none border-b">
+                        <TabsTrigger value="palette" className="flex-1">
+                          Palette
+                        </TabsTrigger>
+                        <TabsTrigger value="custom" className="flex-1">
+                          Custom
+                        </TabsTrigger>
+                      </TabsList>
+
+                      <TabsContent value="palette" className="p-4 m-0">
+                        <div className="space-y-3">
+                          <p className="text-xs text-muted-foreground">Choose a color</p>
+                          <div className="grid grid-cols-8 gap-2">
+                            {COLOR_OPTIONS.map((color) => {
+                              const isSelected = field.value === color.value;
+                              return (
+                                <button
+                                  key={color.value}
+                                  type="button"
+                                  onClick={() => handleColorSelect(color.hex)}
+                                  className={`relative h-8 w-8 rounded-full transition-all hover:scale-110 ${
+                                    isSelected ? 'ring-2 ring-offset-2 ring-offset-background ring-primary' : 'opacity-70 hover:opacity-100'
+                                  }`}
+                                  style={{ backgroundColor: color.hex }}
+                                  title={color.label}
+                                >
+                                  {isSelected && (
+                                    <Check className="h-4 w-4 text-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </TabsContent>
+
+                      <TabsContent value="custom" className="p-4 m-0">
+                        <div className="space-y-3">
+                          <p className="text-xs text-muted-foreground">Enter hex code or use picker</p>
+                          
+                          <Input
+                            type="text"
+                            placeholder="#3b82f6"
+                            value={field.value?.startsWith('#') ? field.value : ''}
+                            onChange={(e) => {
+                              let value = e.target.value.trim();
+                              if (value && !value.startsWith('#')) {
+                                value = '#' + value;
+                              }
+                              if (value === '' || /^#[0-9A-Fa-f]{0,6}$/.test(value)) {
+                                field.onChange(value);
+                                if (value.length === 7) {
+                                  addRecentColor(value);
+                                }
+                              }
+                            }}
+                            className="font-mono text-sm"
+                            maxLength={7}
+                          />
+                          
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="color"
+                              value={field.value?.startsWith('#') && field.value.length === 7 ? field.value : '#3b82f6'}
+                              onChange={(e) => handleColorSelect(e.target.value)}
+                              className="h-10 w-full rounded border border-input cursor-pointer"
+                            />
+                          </div>
+
+                          {field.value && (
+                            <div className="flex items-center gap-2 p-2 rounded border border-border">
+                              <div
+                                className="h-8 w-8 rounded-full border border-border"
+                                style={{ backgroundColor: field.value }}
+                              />
+                              <div className="flex-1">
+                                <p className="text-xs font-medium">Preview</p>
+                                <p className="text-xs text-muted-foreground font-mono">{field.value}</p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </TabsContent>
+                    </Tabs>
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        );
+      }}
+    />
   );
 }

@@ -1,4 +1,3 @@
-// Booking Link Components
 export { BookingLinkCard } from './BookingLinkCard';
 export { CreateBookingLinkDialog } from './CreateBookingLinkDialog';
 export { DraggableBookingLinkCard } from './DraggableBookingLinkCard';
@@ -7,12 +6,19 @@ export { DragDropHint } from './DragDropHint';
 export { BookingNotification, BookingNotificationContainer } from './BookingNotification';
 export { BookingNotificationDemo } from './BookingNotificationDemo';
 
-// Booking Management Components
 export { BookingCard } from './BookingCard';
 export { BookingStatsCard } from './BookingStatsCard';
 export { BookingKanbanBoard } from './BookingKanbanBoard';
 
-// Re-export types from services
+export { LoadingState } from './LoadingState';
+export { ErrorState } from './ErrorState';
+export { ConfirmationStep } from './ConfirmationStep';
+export { BookingHeader } from './BookingHeader';
+export { TimeSelectionStep } from './TimeSelectionStep';
+export { BookingDetailsStep } from './BookingDetailsStep';
+export { useBookingForm } from '@/hook/booking/useBookingForm';
+export { formatDuration, formatTimeSlot, formatDateDisplay } from '@/utils/formatters';
+
 export type { 
   BookingLink, 
   CreateBookingLinkDto, 
@@ -23,7 +29,6 @@ export type {
   BookingAvailabilityQuery
 } from '@/service/booking.service';
 
-// Re-export hooks
 export {
   useBookingLinks,
   useBookingLink,
