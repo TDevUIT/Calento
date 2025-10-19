@@ -8,7 +8,6 @@ import {
   Settings,
   ChevronRight,
   CalendarClock,
-  RefreshCw,
   Video,
   BarChart3,
   HelpCircle,
@@ -42,14 +41,9 @@ const calendarScheduleItems = [
     icon: CalendarDays,
   },
   {
-    title: "Schedule",
-    href: PROTECTED_ROUTES.DASHBOARD_SCHEDULE,
+    title: "Priorities",
+    href: PROTECTED_ROUTES.DASHBOARD_PRIORITIES,
     icon: CalendarClock,
-  },
-  {
-    title: "Calendar Sync",
-    href: PROTECTED_ROUTES.DASHBOARD_CALENDAR_SYNC,
-    icon: RefreshCw,
   },
   {
     title: "Scheduling",

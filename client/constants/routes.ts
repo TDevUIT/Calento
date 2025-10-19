@@ -29,6 +29,7 @@ export const PROTECTED_ROUTES = {
   DASHBOARD_SETTINGS: '/dashboard/settings',
   DASHBOARD_HELP: '/dashboard/help',
   DASHBOARD_PROFILE: '/dashboard/profile',
+  DASHBOARD_PRIORITIES: '/dashboard/priorities',
   DASHBOARD_SCHEDULING: '/dashboard/scheduling-links',
   // Booking
   DASHBOARD_BOOKINGS: '/dashboard/bookings',
@@ -213,6 +214,14 @@ export const isDashboardRoute = (pathname: string): boolean => {
   );
 };
 
+export const isBookingRoute = (pathname: string): boolean => {
+  return pathname.startsWith('/book/');
+};
+
+export const isInvitationRoute = (pathname: string): boolean => {
+  return pathname.startsWith('/invitation');
+};
+
 
 export const getLoginRedirectUrl = (returnUrl?: string): string => {
   if (!returnUrl || returnUrl === '/') {
@@ -292,6 +301,8 @@ export default {
   isGuestOnlyRoute,
   isApiRoute,
   isDashboardRoute,
+  isBookingRoute,
+  isInvitationRoute,
   getLoginRedirectUrl,
   extractReturnUrl,
 };
