@@ -33,6 +33,13 @@ export class BookingLinkRepository extends BaseRepository<BookingLink> {
       FROM ${this.tableName} bl
       LEFT JOIN bookings b ON bl.id = b.booking_link_id AND b.status != 'cancelled'
       WHERE bl.user_id = $1
+      AND NOT EXISTS (
+        SELECT 1 FROM user_priorities up
+        WHERE up.user_id = $1
+        AND up.item_id = bl.id::text
+        AND up.item_type = 'booking_link'
+        AND up.priority = 'disabled'
+      )
       GROUP BY bl.id
       ORDER BY bl.created_at DESC
     `;
@@ -52,6 +59,13 @@ export class BookingLinkRepository extends BaseRepository<BookingLink> {
       FROM ${this.tableName} bl
       LEFT JOIN bookings b ON bl.id = b.booking_link_id AND b.status != 'cancelled'
       WHERE bl.user_id = $1 AND bl.is_active = true
+      AND NOT EXISTS (
+        SELECT 1 FROM user_priorities up
+        WHERE up.user_id = $1
+        AND up.item_id = bl.id::text
+        AND up.item_type = 'booking_link'
+        AND up.priority = 'disabled'
+      )
       GROUP BY bl.id
       ORDER BY bl.created_at DESC
     `;
