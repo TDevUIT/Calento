@@ -13,7 +13,6 @@ import {
   RespondToInvitationApiResponse,
 } from '../interface/invitation.interface';
 
-// Re-export types for convenience
 export type {
   InvitationResponse,
   InvitationDetails,
@@ -25,9 +24,6 @@ export type {
   InvitationAction,
 } from '../interface/invitation.interface';
 
-/**
- * Send invitations for an event
- */
 export const sendInvitations = async (
   eventId: string,
   data?: SendInvitationsRequest
@@ -44,9 +40,7 @@ export const sendInvitations = async (
   }
 };
 
-/**
- * Send reminders for an event
- */
+
 export const sendReminders = async (
   eventId: string
 ): Promise<SendRemindersResponse> => {
@@ -62,9 +56,6 @@ export const sendReminders = async (
   }
 };
 
-/**
- * Get invitation details by token
- */
 export const getInvitationDetails = async (
   token: string
 ): Promise<InvitationDetails> => {
@@ -78,9 +69,7 @@ export const getInvitationDetails = async (
   }
 };
 
-/**
- * Respond to an invitation
- */
+
 export const respondToInvitation = async (
   token: string,
   data: RespondToInvitationRequest
@@ -96,5 +85,4 @@ export const respondToInvitation = async (
   }
 };
 
-// Export the utility function (moved to utils)
 export { generateGoogleCalendarLink } from '../utils/invitation.utils';

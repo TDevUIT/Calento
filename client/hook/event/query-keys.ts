@@ -1,9 +1,4 @@
 import { EventQueryParams, RecurringEventsQueryParams } from '@/interface/event.interface';
-
-/**
- * Centralized query keys for event-related queries
- * Following React Query best practices for cache invalidation
- */
 export const EVENT_QUERY_KEYS = {
   all: ['events'] as const,
   

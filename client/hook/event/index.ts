@@ -1,4 +1,3 @@
-// Query hooks
 export { useEvents, useEventsByDateRange } from './use-events';
 export { useEventDetail } from './use-event-detail';
 export { useRecurringEvents } from './use-recurring-events';

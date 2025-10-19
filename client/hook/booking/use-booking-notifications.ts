@@ -1,31 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { BookingNotificationData } from '@/components/booking/BookingNotification';
 
-// Mock notification data - in real app this would come from WebSocket or polling
-const mockNotifications: BookingNotificationData[] = [
-  {
-    id: '1',
-    type: 'new_booking',
-    title: 'New Booking Received',
-    message: 'Someone just booked a meeting with you.',
-    booking: {
-      id: 'booking-1',
-      booker_name: 'John Doe',
-      booker_email: 'john@example.com',
-      start_time: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-      end_time: new Date(Date.now() + 24 * 60 * 60 * 1000 + 30 * 60 * 1000).toISOString(),
-      booking_link_title: '30 Min Meeting',
-    },
-    timestamp: new Date().toISOString(),
-    read: false,
-  },
-];
-
 interface UseBookingNotificationsOptions {
   enableRealTime?: boolean;
   pollInterval?: number;
 }
-
 export function useBookingNotifications(options: UseBookingNotificationsOptions = {}) {
   const { enableRealTime = false, pollInterval = 30000 } = options;
   

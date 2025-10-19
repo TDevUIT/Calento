@@ -1,6 +1,5 @@
 import { api, getErrorMessage } from '../config/axios';
 import {
-  Event,
   CreateEventRequest,
   UpdateEventRequest,
   PartialUpdateEventRequest,
@@ -8,13 +7,10 @@ import {
   RecurringEventsQueryParams,
   PaginatedEventsResponse,
   EventResponse,
-  ExpandedEvent,
 } from '../interface/event.interface';
 import { API_ROUTES } from '../constants/routes';
 
-/**
- * Get paginated list of events
- */
+
 export const getEvents = async (params?: EventQueryParams): Promise<PaginatedEventsResponse> => {
   try {
     const response = await api.get<PaginatedEventsResponse>(
@@ -30,9 +26,7 @@ export const getEvents = async (params?: EventQueryParams): Promise<PaginatedEve
   }
 };
 
-/**
- * Get event by ID
- */
+
 export const getEventById = async (id: string): Promise<EventResponse> => {
   try {
     const response = await api.get<EventResponse>(
@@ -45,9 +39,7 @@ export const getEventById = async (id: string): Promise<EventResponse> => {
   }
 };
 
-/**
- * Create new event
- */
+
 export const createEvent = async (data: CreateEventRequest): Promise<EventResponse> => {
   try {
     const response = await api.post<EventResponse>(
@@ -61,10 +53,7 @@ export const createEvent = async (data: CreateEventRequest): Promise<EventRespon
   }
 };
 
-/**
- * Replace existing event using PUT (full replacement)
- * All required fields must be provided
- */
+
 export const replaceEvent = async (
   id: string,
   data: UpdateEventRequest
@@ -81,10 +70,6 @@ export const replaceEvent = async (
   }
 };
 
-/**
- * Update existing event using PATCH (partial update)
- * Only provided fields will be updated
- */
 export const updateEvent = async (
   id: string,
   data: PartialUpdateEventRequest
@@ -101,10 +86,7 @@ export const updateEvent = async (
   }
 };
 
-/**
- * Update existing event using PUT (full update) - Legacy method
- * @deprecated Use replaceEvent instead
- */
+
 export const updateEventPut = async (
   id: string,
   data: UpdateEventRequest
@@ -112,9 +94,7 @@ export const updateEventPut = async (
   return replaceEvent(id, data);
 };
 
-/**
- * Update existing event with custom method (PATCH or PUT)
- */
+
 export const updateEventWithMethod = async (
   id: string,
   data: UpdateEventRequest | PartialUpdateEventRequest,
@@ -138,9 +118,7 @@ export const updateEventWithMethod = async (
   }
 };
 
-/**
- * Delete event
- */
+
 export const deleteEvent = async (id: string): Promise<void> => {
   try {
     await api.delete(
@@ -152,9 +130,7 @@ export const deleteEvent = async (id: string): Promise<void> => {
   }
 };
 
-/**
- * Expand recurring events into individual occurrences
- */
+
 export const expandRecurringEvents = async (
   params: RecurringEventsQueryParams
 ): Promise<PaginatedEventsResponse> => {
@@ -172,9 +148,7 @@ export const expandRecurringEvents = async (
   }
 };
 
-/**
- * Get events by date range
- */
+
 export const getEventsByDateRange = async (
   startDate: string,
   endDate: string,
@@ -198,9 +172,7 @@ export const getEventsByDateRange = async (
   }
 };
 
-/**
- * Search events
- */
+
 export const searchEvents = async (
   searchTerm: string,
   params?: Omit<EventQueryParams, 'search'>

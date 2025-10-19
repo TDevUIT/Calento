@@ -17,6 +17,7 @@ import { EmailModule } from './modules/email/email.module';
 import { AvailabilityModule } from './modules/availability/availability.module';
 import { BookingModule } from './modules/booking/booking.module';
 import { BlogModule } from './modules/blog/blog.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { DebugController } from './debug-cors.controller';
 
@@ -41,7 +42,7 @@ import { DebugController } from './debug-cors.controller';
     AvailabilityModule,
     BookingModule,
     BlogModule,
-    EmailModule,
+    AnalyticsModule,
   ],
   controllers: [DebugController],
   providers: [

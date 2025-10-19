@@ -127,6 +127,16 @@ export const API_ROUTES = {
   SEND_REMINDERS: (eventId: string) => `/events/${eventId}/invitations/remind`,
   INVITATION_DETAILS: (token: string) => `/events/invitation/${token}`,
   RESPOND_TO_INVITATION: (token: string) => `/events/invitation/${token}/respond`,
+  
+  // Analytics APIs
+  ANALYTICS_OVERVIEW: '/analytics/overview',
+  ANALYTICS_DETAILED: '/analytics/detailed',
+  ANALYTICS_EVENTS: '/analytics/events',
+  ANALYTICS_TIME_UTILIZATION: '/analytics/time-utilization',
+  ANALYTICS_CATEGORIES: '/analytics/categories',
+  ANALYTICS_TIME_DISTRIBUTION: '/analytics/time-distribution',
+  ANALYTICS_ATTENDEES: '/analytics/attendees',
+  ANALYTICS_BOOKINGS: '/analytics/bookings',
 } as const;
 
 export const PUBLIC_ROUTE_PATTERNS = [
