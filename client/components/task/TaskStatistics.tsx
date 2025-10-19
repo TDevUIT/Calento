@@ -2,7 +2,6 @@
 
 import { CheckCircle2, Clock, AlertCircle, TrendingUp } from "lucide-react";
 import { useTaskStatistics } from "@/hook/task";
-import { Card } from "@/components/ui/card";
 
 export const TaskStatistics = () => {
   const { data, isLoading } = useTaskStatistics();

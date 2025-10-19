@@ -33,14 +33,46 @@ export class TaskRepository extends UserOwnedRepository<Task> {
     return true;
   }
 
+  protected buildWhereConditionWithDisabledFilter(
+    baseCondition: string,
+    userId: string,
+  ): string {
+    return `
+      ${baseCondition}
+      AND (
+        NOT EXISTS (
+          SELECT 1 FROM user_priorities up
+          WHERE up.user_id = '${userId}'
+          AND up.item_id = ${this.tableName}.id::text
+          AND up.item_type = 'task'
+          AND up.priority = 'disabled'
+        )
+      )
+    `;
+  }
+
+  async search(
+    whereCondition: string,
+    whereParams: any[],
+    paginationOptions: Partial<PaginationOptions>,
+    options?: any,
+  ): Promise<PaginatedResult<Task>> {
+    const userId = whereParams[0] as string;
+    const filteredCondition = this.buildWhereConditionWithDisabledFilter(whereCondition, userId);
+    return super.search(filteredCondition, whereParams, paginationOptions, options);
+  }
+
   async findByStatus(
     userId: string,
     status: TaskStatus,
     paginationOptions: Partial<PaginationOptions>,
   ): Promise<PaginatedResult<Task>> {
-    const whereCondition = 'user_id = $1 AND status = $2';
+    const whereCondition = this.buildWhereConditionWithDisabledFilter(
+      'user_id = $1 AND status = $2',
+      userId,
+    );
     const whereParams = [userId, status];
-    return this.search(whereCondition, whereParams, paginationOptions);
+    return super.search(whereCondition, whereParams, paginationOptions);
   }
 
   async findByPriority(
@@ -48,9 +80,12 @@ export class TaskRepository extends UserOwnedRepository<Task> {
     priority: TaskPriority,
     paginationOptions: Partial<PaginationOptions>,
   ): Promise<PaginatedResult<Task>> {
-    const whereCondition = 'user_id = $1 AND priority = $2';
+    const whereCondition = this.buildWhereConditionWithDisabledFilter(
+      'user_id = $1 AND priority = $2',
+      userId,
+    );
     const whereParams = [userId, priority];
-    return this.search(whereCondition, whereParams, paginationOptions);
+    return super.search(whereCondition, whereParams, paginationOptions);
   }
 
   async findByProject(
@@ -58,19 +93,24 @@ export class TaskRepository extends UserOwnedRepository<Task> {
     projectId: string,
     paginationOptions: Partial<PaginationOptions>,
   ): Promise<PaginatedResult<Task>> {
-    const whereCondition = 'user_id = $1 AND project_id = $2';
+    const whereCondition = this.buildWhereConditionWithDisabledFilter(
+      'user_id = $1 AND project_id = $2',
+      userId,
+    );
     const whereParams = [userId, projectId];
-    return this.search(whereCondition, whereParams, paginationOptions);
+    return super.search(whereCondition, whereParams, paginationOptions);
   }
 
   async findOverdue(
     userId: string,
     paginationOptions: Partial<PaginationOptions>,
   ): Promise<PaginatedResult<Task>> {
-    const whereCondition = 
-      'user_id = $1 AND due_date < NOW() AND status != $2 AND status != $3';
+    const whereCondition = this.buildWhereConditionWithDisabledFilter(
+      'user_id = $1 AND due_date < NOW() AND status != $2 AND status != $3',
+      userId,
+    );
     const whereParams = [userId, TaskStatus.COMPLETED, TaskStatus.CANCELLED];
-    return this.search(whereCondition, whereParams, paginationOptions);
+    return super.search(whereCondition, whereParams, paginationOptions);
   }
 
   async findByDateRange(
@@ -79,10 +119,12 @@ export class TaskRepository extends UserOwnedRepository<Task> {
     endDate: Date,
     paginationOptions: Partial<PaginationOptions>,
   ): Promise<PaginatedResult<Task>> {
-    const whereCondition = 
-      'user_id = $1 AND due_date >= $2 AND due_date <= $3';
+    const whereCondition = this.buildWhereConditionWithDisabledFilter(
+      'user_id = $1 AND due_date >= $2 AND due_date <= $3',
+      userId,
+    );
     const whereParams = [userId, startDate, endDate];
-    return this.search(whereCondition, whereParams, paginationOptions);
+    return super.search(whereCondition, whereParams, paginationOptions);
   }
 
   async findByTags(
@@ -90,9 +132,12 @@ export class TaskRepository extends UserOwnedRepository<Task> {
     tags: string[],
     paginationOptions: Partial<PaginationOptions>,
   ): Promise<PaginatedResult<Task>> {
-    const whereCondition = 'user_id = $1 AND tags && $2';
+    const whereCondition = this.buildWhereConditionWithDisabledFilter(
+      'user_id = $1 AND tags && $2',
+      userId,
+    );
     const whereParams = [userId, tags];
-    return this.search(whereCondition, whereParams, paginationOptions);
+    return super.search(whereCondition, whereParams, paginationOptions);
   }
 
   async searchTasks(
@@ -100,10 +145,12 @@ export class TaskRepository extends UserOwnedRepository<Task> {
     searchTerm: string,
     paginationOptions: Partial<PaginationOptions>,
   ): Promise<PaginatedResult<Task>> {
-    const whereCondition = 
-      'user_id = $1 AND (title ILIKE $2 OR description ILIKE $2)';
+    const whereCondition = this.buildWhereConditionWithDisabledFilter(
+      'user_id = $1 AND (title ILIKE $2 OR description ILIKE $2)',
+      userId,
+    );
     const whereParams = [userId, `%${searchTerm}%`];
-    return this.search(whereCondition, whereParams, paginationOptions);
+    return super.search(whereCondition, whereParams, paginationOptions);
   }
 
   async updateStatus(
@@ -142,6 +189,13 @@ export class TaskRepository extends UserOwnedRepository<Task> {
           COUNT(CASE WHEN DATE(completed_at) = CURRENT_DATE THEN 1 END) as completed_today
         FROM tasks 
         WHERE user_id = $1 AND deleted_at IS NULL
+        AND NOT EXISTS (
+          SELECT 1 FROM user_priorities up
+          WHERE up.user_id = $1
+          AND up.item_id = tasks.id::text
+          AND up.item_type = 'task'
+          AND up.priority = 'disabled'
+        )
       `;
 
       const result = await this.databaseService.query(query, [userId]);
