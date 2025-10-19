@@ -31,6 +31,7 @@ export const PROTECTED_ROUTES = {
   DASHBOARD_PROFILE: '/dashboard/profile',
   DASHBOARD_PRIORITIES: '/dashboard/priorities',
   DASHBOARD_SCHEDULING: '/dashboard/scheduling-links',
+  DASHBOARD_TASKS: '/dashboard/tasks',
   // Booking
   DASHBOARD_BOOKINGS: '/dashboard/bookings',
   BOOKING_DETAIL: (id: string) => `/dashboard/bookings/${id}`,
@@ -148,6 +149,12 @@ export const API_ROUTES = {
   TASK_UPDATE_STATUS: (id: string) => `/tasks/${id}/status`,
   TASK_OVERDUE: '/tasks/overdue',
   TASK_STATISTICS: '/tasks/statistics',
+  
+  PRIORITIES: '/priorities',
+  PRIORITY_UPDATE: '/priorities/update',
+  PRIORITY_BULK_UPDATE: '/priorities/bulk-update',
+  PRIORITY_DELETE: (itemId: string, itemType: string) => `/priorities/item/${itemId}/${itemType}`,
+  PRIORITY_RESET: '/priorities/reset',
 } as const;
 
 export const PUBLIC_ROUTE_PATTERNS = [

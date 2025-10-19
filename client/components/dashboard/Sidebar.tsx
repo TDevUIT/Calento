@@ -11,6 +11,7 @@ import {
   Video,
   BarChart3,
   HelpCircle,
+  CheckSquare,
 } from "lucide-react";
 import { FaCoins } from "react-icons/fa6";
 import {
@@ -39,6 +40,11 @@ const calendarScheduleItems = [
     title: "Calendar",
     href: PROTECTED_ROUTES.DASHBOARD_CALENDAR,
     icon: CalendarDays,
+  },
+  {
+    title: "Tasks",
+    href: PROTECTED_ROUTES.DASHBOARD_TASKS,
+    icon: CheckSquare,
   },
   {
     title: "Priorities",

@@ -2,12 +2,10 @@
 
 import { useState, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { Plus, X, Mail, Check, HelpCircle, Clock as ClockIcon, User, UserPlus, Users, Send, Bell, Shield } from 'lucide-react';
+import { Plus, X, Mail, Check, HelpCircle, Clock as ClockIcon, User, Users, Send, Bell, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { CustomSelect, SelectOption } from '@/components/ui/custom-select';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
@@ -20,7 +18,8 @@ interface AttendeesFieldProps {
 export function AttendeesField({ form }: AttendeesFieldProps) {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
-  const attendees = form.watch('attendees') || [];
+  const attendeesRaw = form.watch('attendees');
+  const attendees = useMemo(() => attendeesRaw || [], [attendeesRaw]);
 
   // Calculate stats
   const stats = useMemo(() => {
@@ -62,36 +61,12 @@ export function AttendeesField({ form }: AttendeesFieldProps) {
     toast.success('Attendee removed');
   };
 
-  const updateAttendeeStatus = (index: number, status: string) => {
-    const newAttendees = [...attendees];
-    newAttendees[index] = {
-      ...newAttendees[index],
-      response_status: status as 'accepted' | 'declined' | 'tentative' | 'needsAction',
-    };
-    form.setValue('attendees', newAttendees);
-  };
-
-  const toggleOptional = (index: number) => {
-    const newAttendees = [...attendees];
-    newAttendees[index] = {
-      ...newAttendees[index],
-      is_optional: !newAttendees[index].is_optional,
-    };
-    form.setValue('attendees', newAttendees);
-  };
-
   const statusIcons = {
     accepted: { icon: Check, color: 'text-green-500', label: 'Accepted' },
     declined: { icon: X, color: 'text-red-500', label: 'Declined' },
     tentative: { icon: HelpCircle, color: 'text-yellow-500', label: 'Tentative' },
     needsAction: { icon: ClockIcon, color: 'text-gray-500', label: 'Needs Action' },
   };
-
-  const statusOptions: SelectOption[] = Object.entries(statusIcons).map(([key, { icon: Icon, color, label }]) => ({
-    value: key,
-    label,
-    icon: <Icon className={`h-4 w-4 ${color}`} />,
-  }));
 
   return (
     <div className="space-y-6">
@@ -227,11 +202,6 @@ export function AttendeesField({ form }: AttendeesFieldProps) {
           <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
             {attendees.map((attendee, index) => {
               const StatusIcon = statusIcons[attendee.response_status || 'needsAction'].icon;
-              const statusColor = 
-                attendee.response_status === 'accepted' ? 'text-green-600' :
-                attendee.response_status === 'declined' ? 'text-red-600' :
-                attendee.response_status === 'tentative' ? 'text-yellow-600' :
-                'text-gray-600';
 
               return (
                 <div
