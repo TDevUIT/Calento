@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import { format } from "date-fns";
 
 interface DraggableItemProps {
   item: PriorityItem;
@@ -38,7 +39,18 @@ export const DraggableItem = ({ item }: DraggableItemProps) => {
   };
 
   const isTask = item.category === "Tasks";
-  const borderColor = item.category === "Scheduling Links" ? "border-l-blue-500" : "border-l-gray-300";
+  
+  // Priority colors for tasks
+  const priorityBorderColors: Record<string, string> = {
+    critical: "border-l-red-500",
+    high: "border-l-orange-500",
+    medium: "border-l-blue-500",
+    low: "border-l-gray-400",
+  };
+  
+  const borderColor = isTask 
+    ? priorityBorderColors[item.priority] || "border-l-gray-300"
+    : "border-l-blue-500";
 
   const handleCopyLink = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -50,7 +62,7 @@ export const DraggableItem = ({ item }: DraggableItemProps) => {
       toast.success("Link copied!", {
         description: "Booking link has been copied to clipboard.",
       });
-    } catch (error) {
+    } catch {
       toast.error("Failed to copy", {
         description: "Could not copy link to clipboard.",
       });
@@ -116,11 +128,13 @@ export const DraggableItem = ({ item }: DraggableItemProps) => {
           <div className="flex-1 min-w-0">
             <div className="font-medium text-gray-900 text-sm truncate">{item.title}</div>
             <div className="flex items-center gap-1 mt-1 text-xs text-gray-600">
-              <CheckSquare className="h-3 w-3 flex-shrink-0" />
+              <Clock className="h-3 w-3 flex-shrink-0" />
               <span className="truncate">
-                {item.category === "Scheduling Links" 
-                  ? "Next: Mon 10:00am" 
-                  : "Due 10/20"}
+                {isTask 
+                  ? item.metadata?.dueDate 
+                    ? `Due ${format(new Date(item.metadata.dueDate), "MMM d")}`
+                    : `Priority: ${item.priority}`
+                  : "Next: Mon 10:00am"}
               </span>
             </div>
           </div>
@@ -136,24 +150,28 @@ export const DraggableItem = ({ item }: DraggableItemProps) => {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <button 
-              onClick={handleCopyLink}
-              title="Copy link"
-              className="p-1 hover:bg-gray-100 rounded flex-shrink-0 transition-colors"
-            >
-              <Copy className="h-3.5 w-3.5 text-gray-400 hover:text-gray-600" />
-            </button>
-            <button 
-              onClick={handleOpenLink}
-              title="Open in new tab"
-              className="p-1 hover:bg-gray-100 rounded flex-shrink-0 transition-colors"
-            >
-              <ExternalLink className="h-3.5 w-3.5 text-gray-400 hover:text-gray-600" />
-            </button>
-            <div className="flex items-center gap-1 text-xs text-gray-400 flex-shrink-0" title="Duration">
-              <Clock className="h-3 w-3" />
-              <span>1 hr</span>
-            </div>
+            {!isTask && (
+              <>
+                <button 
+                  onClick={handleCopyLink}
+                  title="Copy link"
+                  className="p-1 hover:bg-gray-100 rounded flex-shrink-0 transition-colors"
+                >
+                  <Copy className="h-3.5 w-3.5 text-gray-400 hover:text-gray-600" />
+                </button>
+                <button 
+                  onClick={handleOpenLink}
+                  title="Open in new tab"
+                  className="p-1 hover:bg-gray-100 rounded flex-shrink-0 transition-colors"
+                >
+                  <ExternalLink className="h-3.5 w-3.5 text-gray-400 hover:text-gray-600" />
+                </button>
+                <div className="flex items-center gap-1 text-xs text-gray-400 flex-shrink-0" title="Duration">
+                  <Clock className="h-3 w-3" />
+                  <span>1 hr</span>
+                </div>
+              </>
+            )}
             
             <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
               <DropdownMenuTrigger asChild>
@@ -172,19 +190,25 @@ export const DraggableItem = ({ item }: DraggableItemProps) => {
                   <Edit className="h-4 w-4 mr-2" />
                   Edit
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleDuplicate}>
-                  <LinkIcon className="h-4 w-4 mr-2" />
-                  Duplicate
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleCopyLink}>
-                  <Copy className="h-4 w-4 mr-2" />
-                  Copy link
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleOpenLink}>
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  Open in new tab
-                </DropdownMenuItem>
+                {!isTask && (
+                  <DropdownMenuItem onClick={handleDuplicate}>
+                    <LinkIcon className="h-4 w-4 mr-2" />
+                    Duplicate
+                  </DropdownMenuItem>
+                )}
+                {!isTask && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleCopyLink}>
+                      <Copy className="h-4 w-4 mr-2" />
+                      Copy link
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleOpenLink}>
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      Open in new tab
+                    </DropdownMenuItem>
+                  </>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleDelete} className="text-red-600 focus:text-red-600">
                   <Trash2 className="h-4 w-4 mr-2" />
