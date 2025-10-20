@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Post,
   Get,
@@ -27,7 +27,7 @@ import {
   WebhookNotificationEvent,
 } from './dto/webhook.dto';
 
-@ApiTags('📡 Webhook - Google Calendar')
+@ApiTags('ðŸ“¡ Webhook - Google Calendar')
 @Controller('webhook/google')
 export class WebHookGoogleController {
   constructor(private readonly webhookService: WebhookService) {}
@@ -35,7 +35,7 @@ export class WebHookGoogleController {
   @Post()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: '📨 Receive Google Calendar Webhook',
+    summary: 'ðŸ“¨ Receive Google Calendar Webhook',
     description:
       'Endpoint for receiving push notifications from Google Calendar API',
   })
@@ -44,7 +44,7 @@ export class WebHookGoogleController {
   @ApiHeader({ name: 'x-goog-resource-state', description: 'Resource state' })
   @ApiResponse({
     status: 200,
-    description: '✅ Webhook received and processed',
+    description: 'âœ… Webhook received and processed',
   })
   async handleWebhook(@Headers() headers: any): Promise<void> {
     const channelId = headers['x-goog-channel-id'];
@@ -74,13 +74,13 @@ export class WebHookGoogleController {
   @ApiBearerAuth('bearer')
   @ApiCookieAuth('cookie')
   @ApiOperation({
-    summary: '👁️ Watch Calendar for Changes',
+    summary: 'ðŸ‘ï¸ Watch Calendar for Changes',
     description:
       'Create a webhook watch channel to receive notifications when calendar events change',
   })
   @ApiResponse({
     status: 201,
-    description: '✅ Webhook watch created',
+    description: 'âœ… Webhook watch created',
     schema: {
       example: {
         status: 201,
@@ -113,12 +113,12 @@ export class WebHookGoogleController {
   @ApiBearerAuth('bearer')
   @ApiCookieAuth('cookie')
   @ApiOperation({
-    summary: '📋 List Active Webhook Channels',
+    summary: 'ðŸ“‹ List Active Webhook Channels',
     description: 'Get all active webhook watch channels for the current user',
   })
   @ApiResponse({
     status: 200,
-    description: '✅ Channels retrieved',
+    description: 'âœ… Channels retrieved',
     type: SuccessResponseDto,
   })
   async getUserChannels(
@@ -137,13 +137,13 @@ export class WebHookGoogleController {
   @ApiBearerAuth('bearer')
   @ApiCookieAuth('cookie')
   @ApiOperation({
-    summary: '🛑 Stop Watching Calendar',
+    summary: 'ðŸ›‘ Stop Watching Calendar',
     description:
       'Stop a webhook watch channel and unsubscribe from notifications',
   })
   @ApiResponse({
     status: 200,
-    description: '✅ Webhook watch stopped',
+    description: 'âœ… Webhook watch stopped',
     type: SuccessResponseDto,
   })
   async stopWatch(

@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -238,7 +238,6 @@ export class WebhookMonitoringController {
         this.syncErrorRecovery.getErrorStats(),
       ]);
 
-      // Determine health status
       const webhookHealth = this.determineWebhookHealth(webhookStats);
       const errorHealth = this.determineErrorHealth(errorStats);
       const overallHealth = this.determineOverallHealth(
@@ -269,7 +268,6 @@ export class WebhookMonitoringController {
     }
   }
 
-  // Private helper methods
 
   private determineWebhookHealth(stats: any): 'good' | 'warning' | 'critical' {
     const { totalActive, expiringWithin24h, expired } = stats;

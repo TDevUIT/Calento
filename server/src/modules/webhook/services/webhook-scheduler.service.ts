@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+﻿import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { WebhookService } from './webhook.service';
 import { WebhookChannelRepository } from '../repositories/webhook-channel.repository';
@@ -52,7 +52,6 @@ export class WebhookSchedulerService {
           );
         }
 
-        // Add small delay to avoid rate limiting
         await this.delay(1000);
       }
 
@@ -104,7 +103,6 @@ export class WebhookSchedulerService {
       const issues: string[] = [];
 
       for (const channel of activeChannels) {
-        // Check if user still has valid Google credentials
         const hasValidToken = await this.googleAuthService.getValidAccessToken(
           channel.user_id,
         );
@@ -113,7 +111,6 @@ export class WebhookSchedulerService {
           issues.push(
             `User ${channel.user_id} has invalid/expired Google credentials`,
           );
-          // Optionally deactivate the channel
           await this.webhookChannelRepo.deactivate(
             channel.channel_id,
             channel.resource_id,
@@ -139,7 +136,6 @@ export class WebhookSchedulerService {
    */
   private async renewWebhookChannel(channel: any): Promise<void> {
     try {
-      // First, stop the existing webhook
       await this.webhookService.stopWatch(channel.user_id, channel.channel_id);
 
       await this.webhookService.watchCalendar(channel.user_id, {

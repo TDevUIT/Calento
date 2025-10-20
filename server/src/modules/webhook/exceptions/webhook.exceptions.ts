@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+﻿import { HttpException, HttpStatus } from '@nestjs/common';
 
 export class WebhookChannelCreationFailedException extends HttpException {
   constructor(message: string = 'Failed to create webhook channel') {

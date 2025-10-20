@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+﻿import { Module } from '@nestjs/common';
 import { WebhookService } from './services/webhook.service';
 import { WebhookSchedulerService } from './services/webhook-scheduler.service';
 import { WebhookChannelRepository } from './repositories/webhook-channel.repository';
