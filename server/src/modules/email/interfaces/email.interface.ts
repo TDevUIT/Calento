@@ -1,4 +1,4 @@
-export interface EmailOptions {
+﻿export interface EmailOptions {
   to: string | string[];
   subject: string;
   html?: string;

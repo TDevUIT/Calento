@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+﻿import { Module } from '@nestjs/common';
 import { EmailService } from './services/email.service';
 import { EmailController } from './email.controller';
 import { DatabaseModule } from '../../database/database.module';

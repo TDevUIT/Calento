@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+﻿import { Injectable, Logger } from '@nestjs/common';
 import { APP_URL_CONSTANTS } from '../../../common/constants';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
@@ -132,11 +132,10 @@ export class EmailService {
         if (fs.existsSync(templatePath)) {
           templateSource = fs.readFileSync(templatePath, 'utf-8');
           usedPath = templatePath;
-          this.logger.log(`✅ Loaded template ${templateName} from: ${templatePath}`);
+          this.logger.log(`âœ… Loaded template ${templateName} from: ${templatePath}`);
           break;
         }
       } catch (error) {
-        // Continue to next path
         continue;
       }
     }
@@ -183,18 +182,16 @@ export class EmailService {
     userId?: string,
   ): Promise<SendEmailResult> {
     try {
-      // Check if SMTP is configured
       if (!this.emailConfig.auth.user || !this.emailConfig.auth.pass) {
-        this.logger.warn('⚠️  SMTP credentials not configured - Email will not be sent');
-        this.logger.warn('📧 Email details:', {
+        this.logger.warn('âš ï¸  SMTP credentials not configured - Email will not be sent');
+        this.logger.warn('ðŸ“§ Email details:', {
           to: options.to,
           subject: options.subject,
           template: options.template,
         });
         
-        // In development, just log and return success
         if (process.env.NODE_ENV === 'development') {
-          this.logger.log('🔧 Development mode: Skipping email send (SMTP not configured)');
+          this.logger.log('ðŸ”§ Development mode: Skipping email send (SMTP not configured)');
           return {
             success: true,
             messageId: `dev-${Date.now()}`,
@@ -245,7 +242,7 @@ export class EmailService {
 
       const info = await this.transporter.sendMail(mailOptions);
 
-      this.logger.log(`✅ Email sent successfully: ${info.messageId}`);
+      this.logger.log(`âœ… Email sent successfully: ${info.messageId}`);
 
       if (logId) {
         await this.updateEmailLog(
