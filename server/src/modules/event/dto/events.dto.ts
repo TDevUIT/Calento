@@ -1,4 +1,4 @@
-import {
+﻿import {
   IsString,
   IsOptional,
   IsBoolean,
@@ -49,7 +49,6 @@ export function IsAfterStartTime(
   };
 }
 
-// DTO Classes for nested objects
 export class EventAttendeeDto {
   @ApiProperty({
     description: 'Attendee email address',

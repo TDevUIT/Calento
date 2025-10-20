@@ -1,4 +1,4 @@
-import { CreateEventDto } from '../dto/events.dto';
+﻿import { CreateEventDto } from '../dto/events.dto';
 import { Event } from '../event';
 import { GoogleEventInput } from '../../google/types/google-calendar.types';
 
@@ -24,18 +24,16 @@ export class EventMappers {
     const description = event.description;
     const conferenceData = (event as any).conference_data;
 
-    // Build enhanced description with source attribution
     let enhancedDescription = description || '';
     if (enhancedDescription) {
       enhancedDescription += '\n\n';
     }
-    enhancedDescription += '━━━━━━━━━━━━━━━━━━━━\n';
-    enhancedDescription += '📅 Created with Tempra\n';
+    enhancedDescription += 'â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”\n';
+    enhancedDescription += 'ðŸ“… Created with Tempra\n';
     enhancedDescription += 'View source: https://tempra.app\n';
 
-    // Add Google Meet info if exists
     if (conferenceData?.url) {
-      enhancedDescription += '\n🎥 Video Conference:\n';
+      enhancedDescription += '\nðŸŽ¥ Video Conference:\n';
       enhancedDescription += `${conferenceData.url}\n`;
     }
 
@@ -57,10 +55,7 @@ export class EventMappers {
       },
     };
 
-    // If there's existing conference data from Tempra, include it
     if (conferenceData?.url) {
-      // Don't create new conference, just preserve the URL in description
-      // Google Calendar will show the URL as clickable link
       googleEvent.hangoutLink = conferenceData.url;
     }
 

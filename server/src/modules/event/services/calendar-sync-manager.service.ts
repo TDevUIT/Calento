@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+﻿import { Injectable, Logger } from '@nestjs/common';
 import { DatabaseService } from '../../../database/database.service';
 import { GoogleCalendarService } from '../../google/services/google-calendar.service';
 import { EventRepository } from '../event.repository';
@@ -234,7 +234,6 @@ export class CalendarSyncManagerService {
     for (const conflict of conflicts) {
       try {
         if (conflict.googleEvent && conflict.calendoEventId) {
-          // TODO: Get actual calendar_id
           const defaultCalendarId = 'temp-calendar-id';
           const eventDto = EventMappers.googleEventToDto(conflict.googleEvent, defaultCalendarId);
           await this.eventRepository.updateEvent(
@@ -282,7 +281,6 @@ export class CalendarSyncManagerService {
     userId: string,
     googleEvent: any,
   ): Promise<void> {
-    // TODO: Get actual calendar_id from Google Calendar
     const defaultCalendarId = 'temp-calendar-id';
     const eventDto = EventMappers.googleEventToDto(googleEvent, defaultCalendarId);
     const event = await this.eventRepository.createEvent(eventDto, userId);
@@ -296,7 +294,6 @@ export class CalendarSyncManagerService {
     userId: string,
     googleEvent: any,
   ): Promise<void> {
-    // TODO: Get actual calendar_id from Google Calendar
     const defaultCalendarId = 'temp-calendar-id';
     const eventDto = EventMappers.googleEventToDto(googleEvent, defaultCalendarId);
     const event = await this.eventRepository.createEvent(eventDto, userId);

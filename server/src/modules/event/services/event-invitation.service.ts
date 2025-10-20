@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
+﻿import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
 import { randomBytes } from 'crypto';
 import { DatabaseService } from '../../../database/database.service';
 import { EmailService } from '../../email/services/email.service';
@@ -6,7 +6,6 @@ import { MessageService } from '../../../common/message/message.service';
 import { Event } from '../event';
 import { EventAttendee } from '../event';
 
-// Ensure DatabaseService is properly injected
 interface InvitationResponse {
   eventId: string;
   attendeeEmail: string;
@@ -35,10 +34,10 @@ export class EventInvitationService {
     private readonly messageService: MessageService,
   ) {
     if (!this.db) {
-      this.logger.error('❌ DatabaseService is not injected!');
+      this.logger.error('âŒ DatabaseService is not injected!');
       throw new Error('DatabaseService dependency injection failed');
     }
-    this.logger.log('✅ EventInvitationService initialized with DatabaseService');
+    this.logger.log('âœ… EventInvitationService initialized with DatabaseService');
   }
 
   private generateInvitationToken(): string {
@@ -136,7 +135,7 @@ export class EventInvitationService {
       const result = await this.emailService.sendEmail(
         {
           to: attendee.email,
-          subject: `📅 Lời mời: ${event.title}`,
+          subject: `ðŸ“… Lá»i má»i: ${event.title}`,
           template: 'event-invitation',
           context: {
             guestName: attendee.name || attendee.email.split('@')[0],
@@ -209,10 +208,10 @@ export class EventInvitationService {
     let sent = 0;
     let failed = 0;
 
-    this.logger.log(`📧 sendBulkInvitations - Processing ${attendees.length} attendees for event ${event.id}`);
+    this.logger.log(`ðŸ“§ sendBulkInvitations - Processing ${attendees.length} attendees for event ${event.id}`);
 
     for (const attendee of attendees) {
-      this.logger.debug(`📧 Processing attendee:`, {
+      this.logger.debug(`ðŸ“§ Processing attendee:`, {
         email: attendee.email,
         name: attendee.name,
         is_organizer: attendee.is_organizer,
@@ -220,7 +219,7 @@ export class EventInvitationService {
       });
 
       if (attendee.email.toLowerCase() === organizerEmail.toLowerCase()) {
-        this.logger.debug(`⏭️ Skipping organizer (email match): ${attendee.email}`);
+        this.logger.debug(`â­ï¸ Skipping organizer (email match): ${attendee.email}`);
         continue;
       }
 
@@ -251,11 +250,11 @@ export class EventInvitationService {
     }
 
     this.logger.log(
-      `✅ Bulk invitation complete for event ${event.id}: ${sent} sent, ${failed} failed out of ${attendees.length} attendees`,
+      `âœ… Bulk invitation complete for event ${event.id}: ${sent} sent, ${failed} failed out of ${attendees.length} attendees`,
     );
 
     if (sent === 0 && attendees.length > 0) {
-      this.logger.warn(`⚠️ No invitations sent! All ${attendees.length} attendees may be marked as organizers`);
+      this.logger.warn(`âš ï¸ No invitations sent! All ${attendees.length} attendees may be marked as organizers`);
     }
 
     return { sent, failed, results };
@@ -410,7 +409,6 @@ export class EventInvitationService {
 
       const event = eventResult.rows[0];
 
-      // Get pending attendees
       const attendeesResult = await this.db.query(
         `SELECT * FROM event_attendees 
          WHERE event_id = $1 

@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+﻿import { HttpException, HttpStatus } from '@nestjs/common';
 
 export class EventCreationFailedException extends HttpException {
   constructor(message?: string) {

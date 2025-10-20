@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsOptional, IsUUID, IsBoolean } from 'class-validator';
+﻿import { IsEmail, IsEnum, IsOptional, IsUUID, IsBoolean } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export enum InvitationResponseStatus {

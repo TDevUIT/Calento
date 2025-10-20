@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+﻿import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { EventRepository } from '../event.repository';
 import { 
   InvitationResponseStatus, 
@@ -75,7 +75,7 @@ export class InvitationService {
       try {
         await this.createEventInUserCalendar(userId, originalEvent);
         eventAddedToCalendar = true;
-        this.logger.log(`✨ Event added to Calento calendar for user ${userId}`);
+        this.logger.log(`âœ¨ Event added to Calento calendar for user ${userId}`);
       } catch (error) {
         this.logger.error(`Failed to add event to Calento calendar: ${error.message}`);
       }

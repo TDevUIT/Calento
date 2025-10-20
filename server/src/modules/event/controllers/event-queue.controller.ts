@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Param, Get, Query } from '@nestjs/common';
+﻿import { Controller, Post, Body, Param, Get, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { EventSyncQueueService } from '../../../common/queue/services/event-sync-queue.service';
 import { JobPriority } from '../../../common/queue/types/queue.types';

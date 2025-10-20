@@ -1,4 +1,4 @@
-export interface EventAttendee {
+﻿export interface EventAttendee {
   email: string;
   name?: string;
   response_status?: 'accepted' | 'declined' | 'tentative' | 'needsAction';
@@ -38,12 +38,10 @@ export interface Event {
   status?: 'confirmed' | 'tentative' | 'cancelled';
   color?: string;
   
-  // Organizer information
   organizer_id?: string;
   organizer_email?: string;
   organizer_name?: string;
   
-  // Creator information (user who created the event)
   creator?: {
     id: string;
     name?: string;
@@ -51,12 +49,10 @@ export interface Event {
     avatar?: string;
   };
   
-  // Attendees and conference
   attendees?: EventAttendee[];
   conference_data?: ConferenceData;
   reminders?: EventReminder[];
   
-  // Privacy and response
   visibility?: 'default' | 'public' | 'private' | 'confidential';
   response_status?: 'accepted' | 'declined' | 'tentative' | 'needsAction';
   

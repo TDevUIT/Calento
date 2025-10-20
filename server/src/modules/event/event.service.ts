@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+﻿import { Injectable, Logger } from '@nestjs/common';
 import {
   PaginatedResult,
   PaginationOptions,
@@ -26,7 +26,6 @@ export class EventService {
     userId: string,
   ): Promise<Event & { syncedToGoogle?: boolean; googleEventId?: string }> {
     try {
-      // Use sync service which will auto-sync to Google if connected
       const result = await this.eventSyncService.createEventWithSync(
         eventDto,
         userId,
@@ -60,7 +59,6 @@ export class EventService {
     googleEventId?: string,
   ): Promise<Event & { syncedToGoogle?: boolean }> {
     try {
-      // Use sync service for update
       const result = await this.eventSyncService.updateEventWithSync(
         eventId,
         eventDto,
@@ -91,7 +89,6 @@ export class EventService {
     googleEventId?: string,
   ): Promise<Event & { syncedToGoogle?: boolean }> {
     try {
-      // Convert partial update to full update for sync
       const fullDto = eventDto as UpdateEventDto;
       const result = await this.eventSyncService.updateEventWithSync(
         eventId,
@@ -210,8 +207,6 @@ export class EventService {
     );
   }
 
-  // ===================== Invitation Management =====================
-
   async sendEventInvitations(
     eventId: string,
     userId: string,
@@ -219,13 +214,11 @@ export class EventService {
     showAttendees = true,
   ): Promise<{ sent: number; failed: number; results: any[] }> {
     try {
-      // Get event with attendees
       const event = await this.eventRepository.findById(eventId);
       if (!event || event.creator?.id !== userId) {
         throw new Error('Event not found or access denied');
       }
 
-      // Get user info for organizer details
       const user = await this.userService.getUserById(userId);
       
       if (!user || !user.email) {
@@ -233,22 +226,19 @@ export class EventService {
       }
       const organizerName = `${user.first_name} ${user.last_name}`.trim() || user.email;
 
-      // Debug: Log all attendees
-      this.logger.debug(`📧 SendEventInvitations Debug:`, {
+      this.logger.debug(`ðŸ“§ SendEventInvitations Debug:`, {
         eventId,
         totalAttendees: event.attendees?.length || 0,
         attendees: event.attendees,
         organizerEmail: user.email,
       });
 
-      // Filter attendees if specific emails provided
       let attendeesToInvite = event.attendees || [];
       if (emails && emails.length > 0) {
         attendeesToInvite = attendeesToInvite.filter(a => emails.includes(a.email));
       }
 
-      // Debug: Log filtered attendees
-      this.logger.debug(`📧 Attendees to invite:`, {
+      this.logger.debug(`ðŸ“§ Attendees to invite:`, {
         count: attendeesToInvite.length,
         attendees: attendeesToInvite.map(a => ({
           email: a.email,
@@ -256,7 +246,6 @@ export class EventService {
         })),
       });
 
-      // Send invitations
       const result = await this.invitationService.sendBulkInvitations(
         event,
         attendeesToInvite,
@@ -267,7 +256,7 @@ export class EventService {
         showAttendees,
       );
 
-      this.logger.log(`📧 Invitation results: sent=${result.sent}, failed=${result.failed}`);
+      this.logger.log(`ðŸ“§ Invitation results: sent=${result.sent}, failed=${result.failed}`);
       return result;
     } catch (error) {
       this.logger.error(`Failed to send invitations: ${error.message}`);
@@ -300,15 +289,13 @@ export class EventService {
    */
   async syncAllEventAttendeesToDatabase(userId: string): Promise<{ synced: number; failed: number }> {
     try {
-      this.logger.log(`🔄 Starting attendees sync for user ${userId}`);
+      this.logger.log(`ðŸ”„ Starting attendees sync for user ${userId}`);
       
-      // Get user email for organizer detection
       const user = await this.userService.getUserById(userId);
       if (!user?.email) {
         throw new Error('User not found or email missing');
       }
 
-      // Get all user's events with pagination
       const result = await this.eventRepository.getEvents(userId, {
         page: 1,
         limit: 1000, // Get all events
@@ -326,7 +313,7 @@ export class EventService {
               user.email,
             );
             synced++;
-            this.logger.debug(`✅ Synced ${event.attendees.length} attendees for event ${event.id}`);
+            this.logger.debug(`âœ… Synced ${event.attendees.length} attendees for event ${event.id}`);
           }
         } catch (error) {
           this.logger.error(`Failed to sync attendees for event ${event.id}: ${error.message}`);
@@ -334,7 +321,7 @@ export class EventService {
         }
       }
 
-      this.logger.log(`✅ Sync complete: ${synced} events synced, ${failed} failed out of ${result.data.length} events`);
+      this.logger.log(`âœ… Sync complete: ${synced} events synced, ${failed} failed out of ${result.data.length} events`);
       
       return { synced, failed };
     } catch (error) {

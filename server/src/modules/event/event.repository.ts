@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+﻿import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../../database/database.service';
 import { PaginationService } from '../../common/services/pagination.service';
 import {
@@ -36,10 +36,6 @@ export class EventRepository extends BaseRepository<Event> {
     return ['created_at', 'updated_at', 'start_time', 'end_time', 'title'];
   }
 
-  /**
-   * Override buildSelectQuery to automatically JOIN with users table for creator info
-   * This ensures ALL queries return creator information without manual JOIN in each method
-   */
   protected buildSelectQuery(includeDeleted = false): string {
     let query = `
       SELECT 
@@ -61,13 +57,8 @@ export class EventRepository extends BaseRepository<Event> {
     return query;
   }
 
-  /**
-   * Override findById to use table alias in WHERE clause
-   * This prevents "column reference 'id' is ambiguous" error when JOINing with users table
-   */
   async findById(id: string): Promise<Event | null> {
     const baseQuery = this.buildSelectQuery();
-    // Check if the query already has a WHERE clause (from soft delete check)
     const hasWhereClause = baseQuery.toUpperCase().includes('WHERE');
     const connector = hasWhereClause ? 'AND' : 'WHERE';
     const query = `${baseQuery} ${connector} e.id = $1`;
@@ -82,10 +73,6 @@ export class EventRepository extends BaseRepository<Event> {
     }
   }
 
-  /**
-   * Properly serialize JSON fields for PostgreSQL JSONB columns
-   * Handles null/undefined values and prevents double-encoding
-   */
   private serializeJsonField(value: any): any {
     if (value === null || value === undefined) {
       return null;
@@ -106,10 +93,6 @@ export class EventRepository extends BaseRepository<Event> {
     return value;
   }
 
-  /**
-   * Properly deserialize JSON fields from PostgreSQL JSONB columns
-   * Handles null values and provides fallback defaults
-   */
   private deserializeJsonField(value: any, defaultValue: any = null): any {
     if (value === null || value === undefined) {
       return defaultValue;
@@ -131,15 +114,10 @@ export class EventRepository extends BaseRepository<Event> {
     return defaultValue;
   }
 
-  /**
-   * Create method with proper JSON field handling for PostgreSQL JSONB columns
-   * This method ensures JSON fields are properly formatted before database insertion
-   */
   private async createWithJsonHandling(data: Partial<Event>): Promise<Event> {
     const jsonFields = ['attendees', 'reminders', 'conference_data'];
     const processedData = { ...data };
 
-    // Process JSON fields to ensure they're in the correct format
     for (const field of jsonFields) {
       if (processedData[field] !== undefined) {
         const value = processedData[field];
@@ -148,7 +126,6 @@ export class EventRepository extends BaseRepository<Event> {
           processedData[field] = null;
         } else if (typeof value === 'string') {
           try {
-            // If it's a JSON string, parse it first, then stringify it properly
             const parsed = JSON.parse(value);
             processedData[field] = JSON.stringify(parsed);
             this.logger.debug(`Parsed and stringified JSON field ${field}:`, { original: value, result: processedData[field] });
@@ -157,7 +134,6 @@ export class EventRepository extends BaseRepository<Event> {
             processedData[field] = null;
           }
         } else if (typeof value === 'object') {
-          // If it's an object, stringify it for PostgreSQL JSONB
           processedData[field] = JSON.stringify(value);
           this.logger.debug(`Stringified object field ${field}:`, { original: value, result: processedData[field] });
         } else {
@@ -172,14 +148,10 @@ export class EventRepository extends BaseRepository<Event> {
     return await super.create(processedData);
   }
 
-  /**
-   * Update method with proper JSON field handling for PostgreSQL JSONB columns
-   */
   private async updateWithJsonHandling(id: string, data: Partial<Event>): Promise<Event | null> {
     const jsonFields = ['attendees', 'reminders', 'conference_data'];
     const processedData = { ...data };
 
-    // Process JSON fields to ensure they're in the correct format
     for (const field of jsonFields) {
       if (processedData[field] !== undefined) {
         const value = processedData[field];
@@ -188,7 +160,6 @@ export class EventRepository extends BaseRepository<Event> {
           processedData[field] = null;
         } else if (typeof value === 'string') {
           try {
-            // If it's a JSON string, parse it first, then stringify it properly
             const parsed = JSON.parse(value);
             processedData[field] = JSON.stringify(parsed);
             this.logger.debug(`Parsed and stringified JSON field ${field} for update:`, { original: value, result: processedData[field] });
@@ -197,7 +168,6 @@ export class EventRepository extends BaseRepository<Event> {
             processedData[field] = null;
           }
         } else if (typeof value === 'object') {
-          // If it's an object, stringify it for PostgreSQL JSONB
           processedData[field] = JSON.stringify(value);
           this.logger.debug(`Stringified object field ${field} for update:`, { original: value, result: processedData[field] });
         } else {
@@ -266,10 +236,6 @@ export class EventRepository extends BaseRepository<Event> {
     };
   }
 
-  /**
-   * Sync event attendees to event_attendees table for invitation system
-   * This ensures attendees are available for token-based invitations
-   */
   async syncAttendeesToDatabase(
     eventId: string,
     attendees: EventAttendee[],
@@ -280,16 +246,14 @@ export class EventRepository extends BaseRepository<Event> {
       return;
     }
 
-    this.logger.log(`📧 Syncing ${attendees.length} attendees to database for event ${eventId}`);
+    this.logger.log(`ðŸ“§ Syncing ${attendees.length} attendees to database for event ${eventId}`);
 
     try {
-      // First, delete existing attendees for this event (to handle updates)
       await this.databaseService.query(
         `DELETE FROM event_attendees WHERE event_id = $1`,
         [eventId],
       );
 
-      // Insert each attendee into event_attendees table
       for (const attendee of attendees) {
         const isOrganizer = attendee.email.toLowerCase() === organizerEmail.toLowerCase();
         
@@ -316,28 +280,21 @@ export class EventRepository extends BaseRepository<Event> {
           ],
         );
 
-        this.logger.debug(`✅ Synced attendee: ${attendee.email} (is_organizer: ${isOrganizer})`);
+        this.logger.debug(`âœ… Synced attendee: ${attendee.email} (is_organizer: ${isOrganizer})`);
       }
 
-      this.logger.log(`✅ Successfully synced ${attendees.length} attendees to database`);
+      this.logger.log(`âœ… Successfully synced ${attendees.length} attendees to database`);
     } catch (error) {
       this.logger.error(`Failed to sync attendees to database: ${error.message}`, error.stack);
-      // Don't throw - this is non-critical, event is already created
     }
   }
 
-  /**
-   * Normalize event data with creator information from JOIN query
-   * Extracts creator fields from row and attaches them to the event object
-   */
   private normalizeEventDataWithCreator(row: any): Event {
-    // Extract creator fields
     const creator_id = row.creator_id;
     const creator_name = row.creator_name;
     const creator_email = row.creator_email;
     const creator_avatar = row.creator_avatar;
 
-    // Debug logging
     this.logger.debug('normalizeEventDataWithCreator - Raw row data:', {
       event_id: row.id,
       event_title: row.title,
@@ -348,18 +305,14 @@ export class EventRepository extends BaseRepository<Event> {
       creator_avatar,
     });
 
-    // If organizer_id is null, this is likely a data issue
     if (!row.organizer_id) {
       this.logger.warn(`Event ${row.id} has null organizer_id - creator info will be missing`);
     }
 
-    // Remove creator fields from row to avoid duplication
     const { creator_id: _, creator_name: __, creator_email: ___, creator_avatar: ____, ...eventData } = row;
 
-    // Normalize the event data first
     const normalizedEvent = this.normalizeEventData(eventData as Event);
 
-    // Attach creator info if available
     if (creator_id) {
       const creatorInfo = {
         id: creator_id,
@@ -432,14 +385,12 @@ export class EventRepository extends BaseRepository<Event> {
     try {
       const event = await this.createWithJsonHandling(eventData);
       
-      // Get user email for attendee sync
       const userResult = await this.databaseService.query(
         'SELECT email FROM users WHERE id = $1',
         [userId],
       );
       const organizerEmail = userResult.rows[0]?.email;
       
-      // Sync attendees to event_attendees table for invitation system
       if (eventDto.attendees && eventDto.attendees.length > 0 && organizerEmail) {
         await this.syncAttendeesToDatabase(
           event.id,
@@ -448,7 +399,6 @@ export class EventRepository extends BaseRepository<Event> {
         );
       }
       
-      // After creating, fetch the event with creator info using the JOIN query
       const eventWithCreator = await this.findById(event.id);
       return eventWithCreator || this.normalizeEventData(event);
     } catch (error) {
@@ -481,8 +431,6 @@ export class EventRepository extends BaseRepository<Event> {
       const params: any[] = [userId];
       let paramIndex = 2;
 
-      // Filter events that overlap with the date range
-      // An event overlaps if: start_time < end_date AND end_time > start_date
       if (start_date) {
         conditions.push(`e.end_time > $${paramIndex}`);
         params.push(start_date);
@@ -557,7 +505,6 @@ export class EventRepository extends BaseRepository<Event> {
     await this.userValidationService.validateUserExists(userId);
 
     const searchPattern = `%${searchTerm}%`;
-    // Use 'e.' alias because buildSelectQuery joins with users table
     const whereCondition =
       'e.organizer_id = $1 AND (e.title ILIKE $2 OR e.description ILIKE $2)';
     const whereParams = [userId, searchPattern];
@@ -664,14 +611,12 @@ export class EventRepository extends BaseRepository<Event> {
         );
       }
       
-      // Get user email for attendee sync
       const userResult = await this.databaseService.query(
         'SELECT email FROM users WHERE id = $1',
         [userId],
       );
       const organizerEmail = userResult.rows[0]?.email;
       
-      // Sync attendees to event_attendees table for invitation system
       if (eventDto.attendees && organizerEmail) {
         await this.syncAttendeesToDatabase(
           actualId,
@@ -680,7 +625,6 @@ export class EventRepository extends BaseRepository<Event> {
         );
       }
       
-      // After updating, fetch the event with creator info using the JOIN query
       const eventWithCreator = await this.findById(actualId);
       return eventWithCreator || this.normalizeEventData(updatedEvent);
     } catch (error) {
@@ -746,7 +690,6 @@ export class EventRepository extends BaseRepository<Event> {
         );
       }
       
-      // Get user email for attendee sync if attendees are being updated
       if (eventDto.attendees !== undefined) {
         const userResult = await this.databaseService.query(
           'SELECT email FROM users WHERE id = $1',
@@ -754,7 +697,6 @@ export class EventRepository extends BaseRepository<Event> {
         );
         const organizerEmail = userResult.rows[0]?.email;
         
-        // Sync attendees to event_attendees table for invitation system
         if (organizerEmail) {
           await this.syncAttendeesToDatabase(
             actualId,
@@ -764,7 +706,6 @@ export class EventRepository extends BaseRepository<Event> {
         }
       }
       
-      // After updating, fetch the event with creator info using the JOIN query
       const eventWithCreator = await this.findById(actualId);
       return eventWithCreator || this.normalizeEventData(updatedEvent);
     } catch (error) {

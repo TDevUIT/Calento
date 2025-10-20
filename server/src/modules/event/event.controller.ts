@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -59,19 +59,19 @@ export class EventController {
 
   @Get()
   @ApiOperation({
-    summary: '📅 Get user events with pagination and date filtering',
+    summary: 'ðŸ“… Get user events with pagination and date filtering',
     description: 'Retrieve paginated list of events with date range filtering, calendar filtering, and search',
   })
   @ApiResponse({
     status: 200,
-    description: '✅ Events retrieved successfully with pagination metadata',
+    description: 'âœ… Events retrieved successfully with pagination metadata',
     schema: {
       example: SwaggerExamples.Events.List.response,
     },
   })
   @ApiResponse({
     status: 401,
-    description: '❌ Unauthorized - Invalid or expired token',
+    description: 'âŒ Unauthorized - Invalid or expired token',
     schema: {
       example: SwaggerExamples.Errors.Unauthorized,
     },
@@ -91,27 +91,27 @@ export class EventController {
 
   @Post()
   @ApiOperation({
-    summary: '➕ Create a new event',
+    summary: 'âž• Create a new event',
     description:
       'Create a new calendar event with validation and RRULE support',
   })
   @ApiResponse({
     status: 201,
-    description: '✅ Event created successfully',
+    description: 'âœ… Event created successfully',
     schema: {
       example: SwaggerExamples.Events.Create.response,
     },
   })
   @ApiResponse({
     status: 400,
-    description: '❌ Validation failed - Invalid input data',
+    description: 'âŒ Validation failed - Invalid input data',
     schema: {
       example: SwaggerExamples.Errors.ValidationError,
     },
   })
   @ApiResponse({
     status: 401,
-    description: '❌ Unauthorized - Invalid or expired token',
+    description: 'âŒ Unauthorized - Invalid or expired token',
     schema: {
       example: SwaggerExamples.Errors.Unauthorized,
     },
@@ -131,14 +131,14 @@ export class EventController {
 
   @Get('recurring/expand')
   @ApiOperation({
-    summary: '🔄 Expand recurring events',
+    summary: 'ðŸ”„ Expand recurring events',
     description:
       'Expand recurring events into individual occurrences within a specified date range using RRULE',
   })
   @ApiResponse({
     status: 200,
     description:
-      '✅ Recurring events expanded successfully with all occurrences in date range',
+      'âœ… Recurring events expanded successfully with all occurrences in date range',
     schema: {
       example: {
         success: true,
@@ -176,14 +176,14 @@ export class EventController {
   })
   @ApiResponse({
     status: 400,
-    description: '❌ Invalid date range or parameters',
+    description: 'âŒ Invalid date range or parameters',
     schema: {
       example: SwaggerExamples.Errors.ValidationError,
     },
   })
   @ApiResponse({
     status: 401,
-    description: '❌ Unauthorized - Invalid or expired token',
+    description: 'âŒ Unauthorized - Invalid or expired token',
     schema: {
       example: SwaggerExamples.Errors.Unauthorized,
     },
@@ -210,12 +210,12 @@ export class EventController {
 
   @Get(':id')
   @ApiOperation({
-    summary: '📖 Get event by ID',
+    summary: 'ðŸ“– Get event by ID',
     description: 'Retrieve a specific event by its ID',
   })
   @ApiResponse({
     status: 200,
-    description: '✅ Event retrieved successfully',
+    description: 'âœ… Event retrieved successfully',
     schema: {
       example: {
         success: true,
@@ -240,7 +240,7 @@ export class EventController {
   })
   @ApiResponse({
     status: 404,
-    description: '❌ Event not found',
+    description: 'âŒ Event not found',
     schema: {
       example: {
         success: false,
@@ -251,7 +251,7 @@ export class EventController {
   })
   @ApiResponse({
     status: 401,
-    description: '❌ Unauthorized - Invalid or expired token',
+    description: 'âŒ Unauthorized - Invalid or expired token',
     schema: {
       example: SwaggerExamples.Errors.Unauthorized,
     },
@@ -276,12 +276,12 @@ export class EventController {
 
   @Put(':id')
   @ApiOperation({
-    summary: '🔄 Replace event (PUT)',
+    summary: 'ðŸ”„ Replace event (PUT)',
     description: 'Replace an existing event with new data. All fields are required except optional ones.',
   })
   @ApiResponse({
     status: 200,
-    description: '✅ Event replaced successfully',
+    description: 'âœ… Event replaced successfully',
     schema: {
       example: {
         success: true,
@@ -298,18 +298,18 @@ export class EventController {
   })
   @ApiResponse({
     status: 400,
-    description: '❌ Validation failed - Invalid input data',
+    description: 'âŒ Validation failed - Invalid input data',
     schema: {
       example: SwaggerExamples.Errors.ValidationError,
     },
   })
   @ApiResponse({
     status: 404,
-    description: '❌ Event not found',
+    description: 'âŒ Event not found',
   })
   @ApiResponse({
     status: 401,
-    description: '❌ Unauthorized - Invalid or expired token',
+    description: 'âŒ Unauthorized - Invalid or expired token',
     schema: {
       example: SwaggerExamples.Errors.Unauthorized,
     },
@@ -337,12 +337,12 @@ export class EventController {
 
   @Patch(':id')
   @ApiOperation({
-    summary: '✏️ Update event (PATCH)',
+    summary: 'âœï¸ Update event (PATCH)',
     description: 'Partially update an existing event. Only provided fields will be updated.',
   })
   @ApiResponse({
     status: 200,
-    description: '✅ Event updated successfully',
+    description: 'âœ… Event updated successfully',
     schema: {
       example: {
         success: true,
@@ -359,18 +359,18 @@ export class EventController {
   })
   @ApiResponse({
     status: 400,
-    description: '❌ Validation failed - Invalid input data',
+    description: 'âŒ Validation failed - Invalid input data',
     schema: {
       example: SwaggerExamples.Errors.ValidationError,
     },
   })
   @ApiResponse({
     status: 404,
-    description: '❌ Event not found',
+    description: 'âŒ Event not found',
   })
   @ApiResponse({
     status: 401,
-    description: '❌ Unauthorized - Invalid or expired token',
+    description: 'âŒ Unauthorized - Invalid or expired token',
     schema: {
       example: SwaggerExamples.Errors.Unauthorized,
     },
@@ -398,12 +398,12 @@ export class EventController {
 
   @Delete(':id')
   @ApiOperation({
-    summary: '🗑️ Delete event',
+    summary: 'ðŸ—‘ï¸ Delete event',
     description: 'Delete an event by its ID',
   })
   @ApiResponse({
     status: 200,
-    description: '✅ Event deleted successfully',
+    description: 'âœ… Event deleted successfully',
     schema: {
       example: {
         success: true,
@@ -414,11 +414,11 @@ export class EventController {
   })
   @ApiResponse({
     status: 404,
-    description: '❌ Event not found',
+    description: 'âŒ Event not found',
   })
   @ApiResponse({
     status: 401,
-    description: '❌ Unauthorized - Invalid or expired token',
+    description: 'âŒ Unauthorized - Invalid or expired token',
     schema: {
       example: SwaggerExamples.Errors.Unauthorized,
     },
@@ -451,12 +451,12 @@ export class EventController {
 
   @Post('sync-attendees')
   @ApiOperation({
-    summary: '🔄 Sync all event attendees to database',
+    summary: 'ðŸ”„ Sync all event attendees to database',
     description: 'One-time migration to sync attendees from events.attendees JSONB to event_attendees table',
   })
   @ApiResponse({
     status: 200,
-    description: '✅ Attendees synced successfully',
+    description: 'âœ… Attendees synced successfully',
   })
   async syncAllEventAttendees(
     @CurrentUserId() userId: string,
@@ -470,12 +470,12 @@ export class EventController {
 
   @Post(':id/invitations/send')
   @ApiOperation({
-    summary: '📧 Send invitations to event attendees',
+    summary: 'ðŸ“§ Send invitations to event attendees',
     description: 'Send email invitations to all or specific attendees of an event',
   })
   @ApiResponse({
     status: 200,
-    description: '✅ Invitations sent successfully',
+    description: 'âœ… Invitations sent successfully',
     schema: {
       example: {
         success: true,
@@ -509,12 +509,12 @@ export class EventController {
 
   @Post(':id/invitations/remind')
   @ApiOperation({
-    summary: '🔔 Send reminders to pending attendees',
+    summary: 'ðŸ”” Send reminders to pending attendees',
     description: 'Send reminder emails to attendees who haven\'t responded yet',
   })
   @ApiResponse({
     status: 200,
-    description: '✅ Reminders sent successfully',
+    description: 'âœ… Reminders sent successfully',
   })
   async sendReminders(
     @Param('id') eventId: string,
@@ -529,12 +529,12 @@ export class EventController {
 
   @Get('invitation/:token')
   @ApiOperation({
-    summary: '🔍 Get invitation details by token',
+    summary: 'ðŸ” Get invitation details by token',
     description: 'Retrieve event details and invitation info using invitation token',
   })
   @ApiResponse({
     status: 200,
-    description: '✅ Invitation details retrieved',
+    description: 'âœ… Invitation details retrieved',
   })
   async getInvitationDetails(
     @Param('token') token: string,
@@ -548,12 +548,12 @@ export class EventController {
 
   @Post('invitation/:token/respond')
   @ApiOperation({
-    summary: '✅ Respond to event invitation',
+    summary: 'âœ… Respond to event invitation',
     description: 'Accept, decline, or tentatively accept an event invitation',
   })
   @ApiResponse({
     status: 200,
-    description: '✅ Response recorded successfully',
+    description: 'âœ… Response recorded successfully',
   })
   async respondToInvitation(
     @Param('token') token: string,

@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Post,
   Get,
@@ -54,34 +54,34 @@ export class CalendarSyncController {
   @Post('initial')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Thực hiện initial sync với Google Calendar',
+    summary: 'Thá»±c hiá»‡n initial sync vá»›i Google Calendar',
     description: `
-            Khi user lần đầu connect với Google Calendar, endpoint này sẽ:
-            1. Lấy tất cả events từ cả Calento và Google Calendar
-            2. Phát hiện conflicts (events trùng lặp hoặc overlap)
-            3. Xử lý conflicts theo strategy được chọn:
-               - MERGE_PREFER_CALENTO: Giữ events của Calento, update lên Google
-               - MERGE_PREFER_GOOGLE: Giữ events của Google, update Calento
-               - KEEP_BOTH: Giữ cả 2, import tất cả từ Google
-            4. Import các events không conflict từ Google
+            Khi user láº§n Ä‘áº§u connect vá»›i Google Calendar, endpoint nÃ y sáº½:
+            1. Láº¥y táº¥t cáº£ events tá»« cáº£ Calento vÃ  Google Calendar
+            2. PhÃ¡t hiá»‡n conflicts (events trÃ¹ng láº·p hoáº·c overlap)
+            3. Xá»­ lÃ½ conflicts theo strategy Ä‘Æ°á»£c chá»n:
+               - MERGE_PREFER_CALENTO: Giá»¯ events cá»§a Calento, update lÃªn Google
+               - MERGE_PREFER_GOOGLE: Giá»¯ events cá»§a Google, update Calento
+               - KEEP_BOTH: Giá»¯ cáº£ 2, import táº¥t cáº£ tá»« Google
+            4. Import cÃ¡c events khÃ´ng conflict tá»« Google
             
             Recommended: MERGE_PREFER_CALENTO (default)
         `,
   })
   @ApiBody({
     type: InitialSyncDto,
-    description: 'Strategy để xử lý conflicts',
+    description: 'Strategy Ä‘á»ƒ xá»­ lÃ½ conflicts',
     examples: {
       default: {
-        summary: 'Ưu tiên Calento (recommended)',
+        summary: 'Æ¯u tiÃªn Calento (recommended)',
         value: { strategy: 'merge_prefer_calento' },
       },
       google: {
-        summary: 'Ưu tiên Google',
+        summary: 'Æ¯u tiÃªn Google',
         value: { strategy: 'merge_prefer_google' },
       },
       both: {
-        summary: 'Giữ cả 2',
+        summary: 'Giá»¯ cáº£ 2',
         value: { strategy: 'keep_both' },
       },
     },
@@ -109,11 +109,11 @@ export class CalendarSyncController {
   })
   @ApiResponse({
     status: 401,
-    description: 'Unauthorized - Token không hợp lệ',
+    description: 'Unauthorized - Token khÃ´ng há»£p lá»‡',
   })
   @ApiResponse({
     status: 400,
-    description: 'User chưa connect với Google Calendar',
+    description: 'User chÆ°a connect vá»›i Google Calendar',
   })
   async performInitialSync(
     @Request() req: any,
@@ -127,9 +127,9 @@ export class CalendarSyncController {
 
   @Get('status')
   @ApiOperation({
-    summary: 'Lấy trạng thái sync với Google Calendar',
+    summary: 'Láº¥y tráº¡ng thÃ¡i sync vá»›i Google Calendar',
     description:
-      'Kiểm tra xem user có connect và enable sync với Google Calendar không',
+      'Kiá»ƒm tra xem user cÃ³ connect vÃ  enable sync vá»›i Google Calendar khÃ´ng',
   })
   @ApiResponse({
     status: 200,
@@ -151,19 +151,19 @@ export class CalendarSyncController {
   @Post('toggle')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Bật/tắt sync với Google Calendar',
+    summary: 'Báº­t/táº¯t sync vá»›i Google Calendar',
     description: `
-            Enable hoặc disable automatic sync với Google Calendar.
+            Enable hoáº·c disable automatic sync vá»›i Google Calendar.
             
             Khi DISABLE sync:
-            - Events ở Calento calendar giữ nguyên
-            - Không sync events mới với Google
-            - Không update events từ Google
-            - User có thể enable lại bất cứ lúc nào
+            - Events á»Ÿ Calento calendar giá»¯ nguyÃªn
+            - KhÃ´ng sync events má»›i vá»›i Google
+            - KhÃ´ng update events tá»« Google
+            - User cÃ³ thá»ƒ enable láº¡i báº¥t cá»© lÃºc nÃ o
             
-            Khi ENABLE lại:
-            - Tự động sync events mới
-            - Update events khi thay đổi
+            Khi ENABLE láº¡i:
+            - Tá»± Ä‘á»™ng sync events má»›i
+            - Update events khi thay Ä‘á»•i
         `,
   })
   @ApiBody({
@@ -202,15 +202,15 @@ export class CalendarSyncController {
   @ApiOperation({
     summary: 'Disconnect Google Calendar',
     description: `
-            Ngắt kết nối hoàn toàn với Google Calendar.
+            Ngáº¯t káº¿t ná»‘i hoÃ n toÃ n vá»›i Google Calendar.
             
-            Hệ thống sẽ:
-            1. Giữ nguyên TẤT CẢ events ở Calento calendar
-            2. Xóa mapping với Google Calendar (google_event_id)
-            3. Đánh dấu connection là inactive
-            4. Không thể sync cho đến khi reconnect
+            Há»‡ thá»‘ng sáº½:
+            1. Giá»¯ nguyÃªn Táº¤T Cáº¢ events á»Ÿ Calento calendar
+            2. XÃ³a mapping vá»›i Google Calendar (google_event_id)
+            3. ÄÃ¡nh dáº¥u connection lÃ  inactive
+            4. KhÃ´ng thá»ƒ sync cho Ä‘áº¿n khi reconnect
             
-            Note: Events ở Google Calendar KHÔNG bị xóa
+            Note: Events á»Ÿ Google Calendar KHÃ”NG bá»‹ xÃ³a
         `,
   })
   @ApiResponse({
@@ -240,8 +240,8 @@ export class CalendarSyncController {
 
   @Get('conflicts')
   @ApiOperation({
-    summary: 'Lấy danh sách conflicts chưa resolve',
-    description: 'Xem các conflicts phát hiện được trong quá trình sync',
+    summary: 'Láº¥y danh sÃ¡ch conflicts chÆ°a resolve',
+    description: 'Xem cÃ¡c conflicts phÃ¡t hiá»‡n Ä‘Æ°á»£c trong quÃ¡ trÃ¬nh sync',
   })
   @ApiQuery({
     name: 'resolved',
@@ -288,16 +288,16 @@ export class CalendarSyncController {
   @Post('conflicts/:conflictId/resolve')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Resolve một conflict manually',
-    description: 'Đánh dấu một conflict đã được xử lý manually',
+    summary: 'Resolve má»™t conflict manually',
+    description: 'ÄÃ¡nh dáº¥u má»™t conflict Ä‘Ã£ Ä‘Æ°á»£c xá»­ lÃ½ manually',
   })
-  @ApiParam({ name: 'conflictId', description: 'ID của conflict cần resolve' })
+  @ApiParam({ name: 'conflictId', description: 'ID cá»§a conflict cáº§n resolve' })
   @ApiBody({
     schema: {
       properties: {
         resolution: {
           type: 'string',
-          description: 'Cách giải quyết conflict',
+          description: 'CÃ¡ch giáº£i quyáº¿t conflict',
           example: 'manual_merge',
         },
       },
@@ -330,27 +330,27 @@ export class CalendarSyncController {
   @Post('pull')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: '🚀 Batch Sync - Pull events từ Google Calendar',
+    summary: 'ðŸš€ Batch Sync - Pull events tá»« Google Calendar',
     description: `
-            **TỐI ƯU HÓA BATCH SYNC** - Xử lý hàng ngàn events hiệu quả!
+            **Tá»I Æ¯U HÃ“A BATCH SYNC** - Xá»­ lÃ½ hÃ ng ngÃ n events hiá»‡u quáº£!
             
-            ### ✨ Tính năng:
-            - ✅ **Batch Processing**: Chia nhỏ events thành lô 50-100 events
-            - ✅ **Parallel Processing**: Xử lý đồng thời với concurrency limit
-            - ✅ **Auto Retry**: Tự động retry với exponential backoff (max 3 lần)
-            - ✅ **Progress Tracking**: Theo dõi tiến độ real-time qua logs
-            - ✅ **Rate Limiting**: Tránh Google API quota exceeded
-            - ✅ **Error Handling**: Xử lý lỗi gracefully, không làm hỏng toàn bộ
+            ### âœ¨ TÃ­nh nÄƒng:
+            - âœ… **Batch Processing**: Chia nhá» events thÃ nh lÃ´ 50-100 events
+            - âœ… **Parallel Processing**: Xá»­ lÃ½ Ä‘á»“ng thá»i vá»›i concurrency limit
+            - âœ… **Auto Retry**: Tá»± Ä‘á»™ng retry vá»›i exponential backoff (max 3 láº§n)
+            - âœ… **Progress Tracking**: Theo dÃµi tiáº¿n Ä‘á»™ real-time qua logs
+            - âœ… **Rate Limiting**: TrÃ¡nh Google API quota exceeded
+            - âœ… **Error Handling**: Xá»­ lÃ½ lá»—i gracefully, khÃ´ng lÃ m há»ng toÃ n bá»™
             
-            ### 📊 Performance:
-            - 100 events: ~1s (cũ: ~5s) - **5x nhanh hơn**
-            - 1000 events: ~10s (cũ: ~50s) - **5x nhanh hơn**
-            - 5000 events: ~50s (cũ: ~4 phút) - **4.8x nhanh hơn**
+            ### ðŸ“Š Performance:
+            - 100 events: ~1s (cÅ©: ~5s) - **5x nhanh hÆ¡n**
+            - 1000 events: ~10s (cÅ©: ~50s) - **5x nhanh hÆ¡n**
+            - 5000 events: ~50s (cÅ©: ~4 phÃºt) - **4.8x nhanh hÆ¡n**
             
-            ### 🎯 Use Cases:
-            - Initial sync khi user connect Google Calendar lần đầu
-            - Manual refresh để cập nhật events mới
-            - Recovery sau khi có lỗi sync
+            ### ðŸŽ¯ Use Cases:
+            - Initial sync khi user connect Google Calendar láº§n Ä‘áº§u
+            - Manual refresh Ä‘á»ƒ cáº­p nháº­t events má»›i
+            - Recovery sau khi cÃ³ lá»—i sync
         `,
   })
   @ApiBody({
@@ -359,32 +359,32 @@ export class CalendarSyncController {
         timeMin: {
           type: 'string',
           format: 'date-time',
-          description: 'Ngày bắt đầu (ISO 8601)',
+          description: 'NgÃ y báº¯t Ä‘áº§u (ISO 8601)',
           example: '2024-01-01T00:00:00Z',
         },
         timeMax: {
           type: 'string',
           format: 'date-time',
-          description: 'Ngày kết thúc (ISO 8601)',
+          description: 'NgÃ y káº¿t thÃºc (ISO 8601)',
           example: '2024-12-31T23:59:59Z',
         },
         maxResults: {
           type: 'number',
-          description: 'Số lượng events tối đa (max 2500)',
+          description: 'Sá»‘ lÆ°á»£ng events tá»‘i Ä‘a (max 2500)',
           example: 2500,
         },
       },
     },
     examples: {
       last30Days: {
-        summary: '30 ngày qua',
+        summary: '30 ngÃ y qua',
         value: {
           timeMin: '2024-09-01T00:00:00Z',
           timeMax: '2024-10-01T23:59:59Z',
         },
       },
       fullYear: {
-        summary: 'Cả năm 2024',
+        summary: 'Cáº£ nÄƒm 2024',
         value: {
           timeMin: '2024-01-01T00:00:00Z',
           timeMax: '2024-12-31T23:59:59Z',
@@ -422,7 +422,7 @@ export class CalendarSyncController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({
     status: 400,
-    description: 'User chưa connect Google Calendar',
+    description: 'User chÆ°a connect Google Calendar',
   })
   async pullEventsFromGoogle(
     @Request() req: any,

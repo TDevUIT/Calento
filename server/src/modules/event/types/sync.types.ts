@@ -1,4 +1,4 @@
-export enum SyncStrategy {
+﻿export enum SyncStrategy {
   MERGE_PREFER_CALENTO = 'merge_prefer_calento',
   MERGE_PREFER_GOOGLE = 'merge_prefer_google',
   KEEP_BOTH = 'keep_both',
