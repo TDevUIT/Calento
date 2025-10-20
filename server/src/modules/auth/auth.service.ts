@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleInit, Inject, forwardRef } from '@nestjs/common';
+﻿import { Injectable, Logger, OnModuleInit, Inject, forwardRef } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthRepository } from './auth.repository';
 import { PasswordService } from '../../common/services/password.service';
@@ -76,7 +76,6 @@ export class AuthService {
 
       this.logger.log(`User registered successfully: ${user.email}`);
 
-      // Auto-create default Personal Calendar for new user
       await this.createDefaultCalendar(user);
 
       const tokens = await this.generateTokens(user);
@@ -327,7 +326,6 @@ export class AuthService {
         error,
       );
 
-      // Log JWT configuration for debugging
       this.logger.error('JWT Configuration Debug:', {
         jwtSecretLength: this.configService.jwtSecret?.length || 0,
         jwtRefreshSecretLength:
@@ -389,8 +387,6 @@ export class AuthService {
         `Default calendar created for user ${user.id}: ${defaultCalendar.id}`,
       );
     } catch (error) {
-      // Log error but don't fail registration
-      // User can create calendar manually later
       this.logger.error(
         `Failed to create default calendar for user ${user.id}:`,
         error.message,
@@ -403,7 +399,6 @@ export class AuthService {
 
   async loginWithGoogle(code: string): Promise<AuthResponse> {
     try {
-      // Step 1: Exchange code for tokens and get user info
       const oauth2Client = this.googleAuthService.getOAuth2Client();
       const { tokens } = await oauth2Client.getToken(code);
       
@@ -411,7 +406,6 @@ export class AuthService {
         throw new AuthenticationFailedException('No access token received from Google');
       }
 
-      // Step 2: Get user info from Google
       oauth2Client.setCredentials(tokens);
       const oauth2 = google.oauth2({ version: 'v2', auth: oauth2Client });
       const { data: googleUser } = await oauth2.userinfo.get();
@@ -420,13 +414,11 @@ export class AuthService {
         throw new AuthenticationFailedException('No email received from Google');
       }
 
-      // Step 3: Find or create user
       let user = await this.authRepository.findByEmail(googleUser.email);
       
       if (!user) {
-        // Create new user with Google info
         const hashedPassword = await this.passwordService.hashPassword(
-          randomBytes(32).toString('hex') // Random password (won't be used)
+          randomBytes(32).toString('hex')
         );
 
         const userData = {
@@ -442,11 +434,9 @@ export class AuthService {
         user = await this.authRepository.createUser(userData);
         this.logger.log(`Created new user from Google: ${user.email}`);
 
-        // Create default calendar for new user
         await this.createDefaultCalendar(user);
       }
 
-      // Step 4: Store Google credentials for calendar integration
       const expiresAt = tokens.expiry_date 
         ? new Date(tokens.expiry_date)
         : new Date(Date.now() + TIME_CONSTANTS.GOOGLE.TOKEN_DEFAULT_EXPIRY);
@@ -460,7 +450,6 @@ export class AuthService {
         scope: tokens.scope,
       });
 
-      // Step 5: Generate JWT tokens
       const authTokens = await this.generateTokens(user);
       const authUser = this.createUserResponse(user);
 

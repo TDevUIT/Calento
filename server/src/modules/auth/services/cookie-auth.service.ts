@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+﻿import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { Response, Request, CookieOptions } from 'express';
 import env from '../../../config/env';
@@ -140,10 +140,10 @@ export class CookieAuthService {
       this.logger.debug('Setting new auth cookies...');
       this.setAuthCookies(response, newTokens);
 
-      this.logger.log(`✅ Tokens refreshed successfully for user: ${decoded.email}`);
+      this.logger.log(`âœ… Tokens refreshed successfully for user: ${decoded.email}`);
       return newTokens;
     } catch (error) {
-      this.logger.error(`❌ Token refresh failed: ${error.name} - ${error.message}`);
+      this.logger.error(`âŒ Token refresh failed: ${error.name} - ${error.message}`);
       this.clearAuthCookies(response);
       return null;
     }

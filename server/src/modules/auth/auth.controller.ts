@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -52,7 +52,7 @@ export class AuthController {
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
-    summary: '🔐 Register new user',
+    summary: 'ðŸ” Register new user',
     description: 'Create a new user account with secure authentication',
   })
   @ApiResponse({
@@ -267,7 +267,6 @@ export class AuthController {
         );
       }
 
-      // Verify token và get user info
       const user = await this.authService.validateAccessToken(token);
       
       if (!user) {
@@ -300,12 +299,12 @@ export class AuthController {
   @Public()
   @Get('google/url')
   @ApiOperation({
-    summary: '🔗 Get Google OAuth URL for Login',
+    summary: 'ðŸ”— Get Google OAuth URL for Login',
     description: 'Generate OAuth URL for Google login (no authentication required)',
   })
   @ApiResponse({
     status: 200,
-    description: '✅ OAuth URL generated',
+    description: 'âœ… OAuth URL generated',
     schema: {
       example: {
         status: 200,
@@ -328,7 +327,7 @@ export class AuthController {
   @Public()
   @Get('google/callback')
   @ApiOperation({
-    summary: '🔄 Google OAuth Callback for Login',
+    summary: 'ðŸ”„ Google OAuth Callback for Login',
     description: 'Handle OAuth callback from Google and redirect to frontend',
   })
   @ApiQuery({ name: 'code', description: 'Authorization code from Google' })
@@ -336,7 +335,7 @@ export class AuthController {
   @ApiQuery({ name: 'error', description: 'Error from Google', required: false })
   @ApiResponse({
     status: 302,
-    description: '✅ Redirects to frontend callback page',
+    description: 'âœ… Redirects to frontend callback page',
   })
   async handleGoogleCallback(
     @Query('code') code: string,
@@ -347,7 +346,6 @@ export class AuthController {
     const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
     const callbackPath = '/auth/callback/google';
 
-    // Build query params
     const params = new URLSearchParams();
     
     if (error) {
@@ -361,7 +359,6 @@ export class AuthController {
       }
     }
 
-    // Simple redirect to frontend
     const redirectUrl = `${frontendUrl}${callbackPath}?${params.toString()}`;
     
     this.logger.log(`Redirecting to frontend: ${redirectUrl}`);
@@ -373,7 +370,7 @@ export class AuthController {
   @Post('google/login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: '🔐 Complete Google Login',
+    summary: 'ðŸ” Complete Google Login',
     description: 'Complete Google OAuth login flow and create user session',
   })
   @ApiResponse({

@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+﻿import { ApiProperty } from '@nestjs/swagger';
 import { Exclude, Expose, Transform } from 'class-transformer';
 
 export class AuthUserResponseDto {
@@ -84,7 +84,6 @@ export class AuthUserResponseDto {
   )
   full_name: string;
 
-  // Exclude sensitive fields
   @Exclude()
   password_hash: string;
 }

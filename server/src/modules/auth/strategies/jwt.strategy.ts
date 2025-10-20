@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+﻿import { Injectable, Logger } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { JwtPayload } from '../interfaces/auth.interface';
@@ -23,13 +23,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: JwtPayload) {
     try {
-      // Validate that this is an access token
       if (payload.type !== 'access') {
         this.logger.warn(`Invalid token type: ${payload.type}`);
         throw new InvalidTokenException();
       }
 
-      // Get user from database to ensure they still exist and are active
       const user = await this.userValidationService.findUserByEmail(
         payload.email,
       );
@@ -46,7 +44,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         throw new InvalidTokenException();
       }
 
-      // Remove sensitive information
       const { password_hash, ...userWithoutPassword } = user;
       this.logger.debug(`User validated successfully: ${user.email}`);
       return userWithoutPassword;

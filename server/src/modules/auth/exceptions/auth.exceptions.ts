@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
+﻿import { HttpException, HttpStatus } from '@nestjs/common';
 
 export class AuthCreationFailedException extends HttpException {
   constructor(message?: string) {
