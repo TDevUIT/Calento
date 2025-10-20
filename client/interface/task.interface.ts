@@ -32,6 +32,12 @@ export interface Task {
   deleted_at?: Date | string;
   created_at: Date | string;
   updated_at: Date | string;
+  creator?: {
+    id: string;
+    name?: string;
+    email?: string;
+    avatar?: string;
+  };
 }
 
 export interface CreateTaskRequest {

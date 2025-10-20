@@ -28,4 +28,10 @@ export interface Task extends UserOwnedEntity, SoftDeletableEntity {
   recurrence_rule?: string;
   estimated_duration?: number;
   actual_duration?: number;
+  creator?: {
+    id: string;
+    name?: string;
+    email?: string;
+    avatar?: string;
+  };
 }

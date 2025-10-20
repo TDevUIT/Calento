@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { addDays } from "date-fns";
 import { EVENT_QUERY_KEYS } from "@/hook/event/query-keys";
@@ -35,20 +36,48 @@ export function useUpcomingEvents(options: UseUpcomingEventsOptions = {}) {
     daysAhead = 7
   } = options;
 
-  const now = new Date();
-  const endDate = addDays(now, daysAhead);
+  // Use stable dates to prevent query key from changing every render
+  const { now, endDate, startDateISO, endDateISO } = useMemo(() => {
+    const nowDate = new Date();
+    const endDateTime = addDays(nowDate, daysAhead);
+    return {
+      now: nowDate,
+      endDate: endDateTime,
+      startDateISO: nowDate.toISOString(),
+      endDateISO: endDateTime.toISOString(),
+    };
+  }, [daysAhead]); // Only recalculate if daysAhead changes
+
+  console.log('⚙️ [useUpcomingEvents] Hook setup:', {
+    now: startDateISO,
+    endDate: endDateISO,
+    maxEvents,
+    enabled,
+  });
 
   const query = useQuery({
-    queryKey: EVENT_QUERY_KEYS.upcoming(now.toISOString(), endDate.toISOString(), maxEvents),
+    queryKey: EVENT_QUERY_KEYS.upcoming(startDateISO, endDateISO, maxEvents),
     queryFn: async () => {
+      console.log('🔍 [useUpcomingEvents] queryFn called - Fetching upcoming events...', {
+        startDate: startDateISO,
+        endDate: endDateISO,
+        maxEvents,
+      });
+
       const response = await getEventsByDateRange(
-        now.toISOString(),
-        endDate.toISOString(),
+        startDateISO,
+        endDateISO,
         {
           page: 1,
           limit: maxEvents * 2, // Get more to filter properly
         }
       );
+
+      console.log('📦 [useUpcomingEvents] API Response:', {
+        totalItems: response.data.items?.length || 0,
+        meta: response.data.meta,
+        items: response.data.items,
+      });
 
       // Transform API events to UpcomingEvent format
       const upcomingEvents: UpcomingEvent[] = response.data.items
@@ -76,13 +105,29 @@ export function useUpcomingEvents(options: UseUpcomingEventsOptions = {}) {
           } : undefined,
         }));
 
+      console.log('✅ [useUpcomingEvents] Transformed events:', {
+        count: upcomingEvents.length,
+        events: upcomingEvents,
+      });
+
       return upcomingEvents;
     },
     enabled,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchInterval: 10 * 60 * 1000, // Refetch every 10 minutes
+    staleTime: 0, // Disable cache for debugging
+    gcTime: 0, // Disable cache for debugging (formerly cacheTime)
+    refetchInterval: false, // Disable auto refetch for now
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
     retry: 2,
+  });
+
+  console.log('📊 [useUpcomingEvents] Query state:', {
+    status: query.status,
+    fetchStatus: query.fetchStatus,
+    isLoading: query.isLoading,
+    isFetching: query.isFetching,
+    isError: query.isError,
+    dataLength: query.data?.length || 0,
   });
 
   return {

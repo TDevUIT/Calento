@@ -5,7 +5,6 @@ import { Search, Filter, Columns3, HelpCircle, Loader2 } from "lucide-react";
 import { DndContext, closestCenter } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,10 +24,11 @@ import {
   usePriorityBoard,
   priorityColumns,
   categories,
+  SearchDialog,
 } from "@/components/priorities";
 
 const PrioritiesPage = () => {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
   const [visibleCategories, setVisibleCategories] = useState<string[]>([
     "scheduling-links",
     "tasks",
@@ -55,6 +55,7 @@ const PrioritiesPage = () => {
     expandAllCategories,
     collapseAllCategories,
     areAllCategoriesExpanded,
+    allItems,
   } = usePriorityBoard(bookingLinks, tasks);
 
   const toggleCategoryFilter = (categoryId: string) => {
@@ -71,15 +72,14 @@ const PrioritiesPage = () => {
         <div className=" px-6 py-3">
           <div className="flex items-center justify-between">
             <div className="flex-1 max-w-md">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search for something..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 border-gray-200 bg-gray-50"
-                />
-              </div>
+              <Button
+                variant="outline"
+                onClick={() => setSearchOpen(true)}
+                className="w-full justify-start text-gray-500 font-normal border-gray-200 bg-gray-50 hover:bg-gray-100"
+              >
+                <Search className="mr-2 h-4 w-4 text-gray-400" />
+                Search for something...
+              </Button>
             </div>
             <div className="flex items-center gap-2">
               <DropdownMenu>
@@ -200,6 +200,14 @@ const PrioritiesPage = () => {
         </div>
       </div>
 
+      <SearchDialog
+        open={searchOpen}
+        onOpenChange={setSearchOpen}
+        items={allItems}
+        onItemSelect={(item) => {
+          console.log("Selected item:", item);
+        }}
+      />
     </div>
   );
 };

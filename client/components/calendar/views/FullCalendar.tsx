@@ -36,8 +36,9 @@ import {
   useState,
 } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
-import { EventHoverCard } from '../shared/EventHoverCard';
+import { EventOrTaskCard } from '../shared/EventOrTaskCard';
 import type { Event } from '@/interface/event.interface';
+import type { Task } from '@/interface/task.interface';
 import { calculateEventLayouts, getEventLayoutStyles, getEventTextClasses } from '@/utils/event-display';
 // import type { EventLayout } from '@/utils/event-display';
 import { getStoredCalendarView, saveCalendarView } from '@/utils/calendar-storage';
@@ -79,6 +80,7 @@ export type CalendarEvent = {
   type?: 'event' | 'task';
   priority?: 'low' | 'medium' | 'high' | 'critical';
   status?: 'todo' | 'in_progress' | 'completed' | 'cancelled';
+  taskData?: Task;
 };
 
 function convertToFullEvent(calendarEvent: CalendarEvent): Event {
@@ -233,9 +235,11 @@ const HourEvents = ({
         const { titleClass, timeClass } = getEventTextClasses(eventColor);
         
         return (
-          <EventHoverCard
+          <EventOrTaskCard
             key={event.id}
-            event={convertToFullEvent(event)}
+            event={event}
+            fullEvent={event.type !== 'task' ? convertToFullEvent(event) : undefined}
+            fullTask={event.taskData}
             side="right"
             align="start"
             onEdit={() => onEventClick?.(event)}
@@ -273,7 +277,7 @@ const HourEvents = ({
                 </div>
               )}
             </div>
-          </EventHoverCard>
+          </EventOrTaskCard>
         );
       })}
     </div>
@@ -460,9 +464,11 @@ const CalendarMonthView = () => {
                   const { titleClass, timeClass } = getEventTextClasses(eventColor);
                   
                   return (
-                    <EventHoverCard
+                    <EventOrTaskCard
                       key={event.id}
-                      event={convertToFullEvent(event)}
+                      event={event}
+                      fullEvent={event.type !== 'task' ? convertToFullEvent(event) : undefined}
+                      fullTask={event.taskData}
                       side="right"
                       align="start"
                       onEdit={() => onEventClick?.(event)}
@@ -490,7 +496,7 @@ const CalendarMonthView = () => {
                           {format(event.start, 'HH:mm')}
                         </time>
                       </div>
-                    </EventHoverCard>
+                    </EventOrTaskCard>
                   );
                 })}
                 {currentEvents.length > 3 && (

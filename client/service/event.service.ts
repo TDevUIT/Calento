@@ -155,6 +155,15 @@ export const getEventsByDateRange = async (
   params?: Omit<EventQueryParams, 'start_date' | 'end_date'>
 ): Promise<PaginatedEventsResponse> => {
   try {
+    console.log('🌐 [getEventsByDateRange] Calling API:', {
+      endpoint: API_ROUTES.EVENTS,
+      params: {
+        ...params,
+        start_date: startDate,
+        end_date: endDate,
+      },
+    });
+
     const response = await api.get<PaginatedEventsResponse>(
       API_ROUTES.EVENTS,
       {
@@ -166,8 +175,12 @@ export const getEventsByDateRange = async (
         withCredentials: true,
       }
     );
+
+    console.log('📡 [getEventsByDateRange] API Response:', response.data);
+
     return response.data;
   } catch (error) {
+    console.error('❌ [getEventsByDateRange] API Error:', error);
     throw new Error(getErrorMessage(error));
   }
 };

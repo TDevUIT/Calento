@@ -205,6 +205,7 @@ export const usePriorityBoard = (bookingLinks?: BookingLink[], tasks?: Task[]) =
 
   return {
     items,
+    allItems: items,
     activeId,
     expandedCategories,
     sensors,

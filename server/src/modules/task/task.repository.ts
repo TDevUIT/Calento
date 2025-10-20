@@ -33,6 +33,67 @@ export class TaskRepository extends UserOwnedRepository<Task> {
     return true;
   }
 
+  protected buildSelectQuery(includeDeleted = false): string {
+    let query = `
+      SELECT 
+        t.*,
+        u.id as creator_id,
+        COALESCE(
+          NULLIF(TRIM(CONCAT(u.first_name, ' ', u.last_name)), ''),
+          u.username,
+          u.email
+        ) as creator_name,
+        u.email as creator_email,
+        u.avatar as creator_avatar
+      FROM ${this.tableName} t
+      LEFT JOIN users u ON t.user_id = u.id
+    `;
+    if (!includeDeleted && this.isSoftDeletable()) {
+      query += ` WHERE t.deleted_at IS NULL`;
+    }
+    return query;
+  }
+
+
+  private normalizeTaskDataWithCreator(row: any): Task {
+    const creator_id = row.creator_id;
+    const creator_name = row.creator_name;
+    const creator_email = row.creator_email;
+    const creator_avatar = row.creator_avatar;
+
+    const { creator_id: _, creator_name: __, creator_email: ___, creator_avatar: ____, ...taskData } = row;
+
+    if (creator_id) {
+      return {
+        ...taskData,
+        creator: {
+          id: creator_id,
+          name: creator_name || undefined,
+          email: creator_email || undefined,
+          avatar: creator_avatar || undefined,
+        },
+      };
+    }
+
+    return taskData;
+  }
+
+  async findById(id: string, options?: any): Promise<Task | null> {
+    const baseQuery = this.buildSelectQuery(options?.includeDeleted);
+    const hasWhereClause = baseQuery.toUpperCase().includes('WHERE');
+    const connector = hasWhereClause ? 'AND' : 'WHERE';
+    const query = `${baseQuery} ${connector} t.id = $1`;
+
+    try {
+      const result = await this.databaseService.query<any>(query, [id]);
+      if (!result.rows[0]) return null;
+      return this.normalizeTaskDataWithCreator(result.rows[0]);
+    } catch (error) {
+      this.logger.error(`Failed to find ${this.tableName} by ID ${id}:`, error);
+      throw new Error(this.messageService.get('error.internal_server_error'));
+    }
+  }
+
   protected buildWhereConditionWithDisabledFilter(
     baseCondition: string,
     userId: string,
@@ -43,12 +104,72 @@ export class TaskRepository extends UserOwnedRepository<Task> {
         NOT EXISTS (
           SELECT 1 FROM user_priorities up
           WHERE up.user_id = '${userId}'
-          AND up.item_id = ${this.tableName}.id::text
+          AND up.item_id = t.id::text
           AND up.item_type = 'task'
           AND up.priority = 'disabled'
         )
       )
     `;
+  }
+
+
+  async findByUserId(
+    userId: string,
+    paginationOptions: Partial<PaginationOptions>,
+    options?: any,
+  ): Promise<PaginatedResult<Task>> {
+    const validatedOptions = this.paginationService.validatePaginationOptions(paginationOptions);
+    const { page, limit } = validatedOptions;
+
+    const baseQuery = this.buildSelectQuery(options?.includeDeleted);
+    let whereCondition = 'user_id = $1';
+    
+    whereCondition += `
+      AND (
+        NOT EXISTS (
+          SELECT 1 FROM user_priorities up
+          WHERE up.user_id = '${userId}'
+          AND up.item_id = id::text
+          AND up.item_type = 'task'
+          AND up.priority = 'disabled'
+        )
+      )
+    `;
+    
+    const whereParams: any[] = [userId];
+    const allowedSortFields = this.getAllowedSortFields();
+
+    const { countQuery, dataQuery, countParams, dataParams } =
+      this.paginationService.buildPaginatedQuery(
+        baseQuery,
+        validatedOptions,
+        allowedSortFields,
+        whereCondition,
+        whereParams,
+      );
+
+    try {
+      const [countResult, dataResult] = await Promise.all([
+        this.databaseService.query(countQuery, countParams),
+        this.databaseService.query<Task>(dataQuery, dataParams),
+      ]);
+
+      const total = parseInt(countResult.rows[0].count);
+      const items = dataResult.rows.map(row => this.normalizeTaskDataWithCreator(row));
+
+      return this.paginationService.createPaginatedResult(
+        items,
+        page,
+        limit,
+        total,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to find ${this.tableName} by user ID ${userId}:`,
+        error,
+      );
+      throw new Error(this.messageService.get('error.internal_server_error'));
+    }
   }
 
   async search(
@@ -58,8 +179,14 @@ export class TaskRepository extends UserOwnedRepository<Task> {
     options?: any,
   ): Promise<PaginatedResult<Task>> {
     const userId = whereParams[0] as string;
-    const filteredCondition = this.buildWhereConditionWithDisabledFilter(whereCondition, userId);
-    return super.search(filteredCondition, whereParams, paginationOptions, options);
+    const aliasedCondition = whereCondition.replace(/user_id/g, 't.user_id').replace(/status/g, 't.status').replace(/priority/g, 't.priority').replace(/project_id/g, 't.project_id').replace(/due_date/g, 't.due_date').replace(/tags/g, 't.tags').replace(/title/g, 't.title').replace(/description/g, 't.description');
+    const filteredCondition = this.buildWhereConditionWithDisabledFilter(aliasedCondition, userId);
+    const result = await super.search(filteredCondition, whereParams, paginationOptions, options);
+    
+    return {
+      ...result,
+      data: result.data.map(task => this.normalizeTaskDataWithCreator(task)),
+    };
   }
 
   async findByStatus(
@@ -177,22 +304,22 @@ export class TaskRepository extends UserOwnedRepository<Task> {
       const query = `
         SELECT 
           COUNT(*) as total,
-          COUNT(CASE WHEN status = '${TaskStatus.TODO}' THEN 1 END) as todo,
-          COUNT(CASE WHEN status = '${TaskStatus.IN_PROGRESS}' THEN 1 END) as in_progress,
-          COUNT(CASE WHEN status = '${TaskStatus.COMPLETED}' THEN 1 END) as completed,
-          COUNT(CASE WHEN status = '${TaskStatus.CANCELLED}' THEN 1 END) as cancelled,
-          COUNT(CASE WHEN priority = '${TaskPriority.LOW}' THEN 1 END) as low_priority,
-          COUNT(CASE WHEN priority = '${TaskPriority.MEDIUM}' THEN 1 END) as medium_priority,
-          COUNT(CASE WHEN priority = '${TaskPriority.HIGH}' THEN 1 END) as high_priority,
-          COUNT(CASE WHEN priority = '${TaskPriority.CRITICAL}' THEN 1 END) as critical_priority,
-          COUNT(CASE WHEN due_date < NOW() AND status NOT IN ('${TaskStatus.COMPLETED}', '${TaskStatus.CANCELLED}') THEN 1 END) as overdue,
-          COUNT(CASE WHEN DATE(completed_at) = CURRENT_DATE THEN 1 END) as completed_today
-        FROM tasks 
-        WHERE user_id = $1 AND deleted_at IS NULL
+          COUNT(CASE WHEN t.status = '${TaskStatus.TODO}' THEN 1 END) as todo,
+          COUNT(CASE WHEN t.status = '${TaskStatus.IN_PROGRESS}' THEN 1 END) as in_progress,
+          COUNT(CASE WHEN t.status = '${TaskStatus.COMPLETED}' THEN 1 END) as completed,
+          COUNT(CASE WHEN t.status = '${TaskStatus.CANCELLED}' THEN 1 END) as cancelled,
+          COUNT(CASE WHEN t.priority = '${TaskPriority.LOW}' THEN 1 END) as low_priority,
+          COUNT(CASE WHEN t.priority = '${TaskPriority.MEDIUM}' THEN 1 END) as medium_priority,
+          COUNT(CASE WHEN t.priority = '${TaskPriority.HIGH}' THEN 1 END) as high_priority,
+          COUNT(CASE WHEN t.priority = '${TaskPriority.CRITICAL}' THEN 1 END) as critical_priority,
+          COUNT(CASE WHEN t.due_date < NOW() AND t.status NOT IN ('${TaskStatus.COMPLETED}', '${TaskStatus.CANCELLED}') THEN 1 END) as overdue,
+          COUNT(CASE WHEN DATE(t.completed_at) = CURRENT_DATE THEN 1 END) as completed_today
+        FROM tasks t
+        WHERE t.user_id = $1 AND t.deleted_at IS NULL
         AND NOT EXISTS (
           SELECT 1 FROM user_priorities up
           WHERE up.user_id = $1
-          AND up.item_id = tasks.id::text
+          AND up.item_id = t.id::text
           AND up.item_type = 'task'
           AND up.priority = 'disabled'
         )

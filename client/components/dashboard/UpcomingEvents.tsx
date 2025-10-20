@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,7 +9,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Clock, Calendar, MapPin, Users, ChevronRight } from "lucide-react";
+import { Clock, Calendar, MapPin, Users, ChevronRight, RefreshCw } from "lucide-react";
 import { format, isToday, isTomorrow } from "date-fns";
 import { vi } from "date-fns/locale";
 import { useUpcomingEvents } from "@/hook/use-upcoming-events";
@@ -20,10 +20,30 @@ interface UpcomingEventsProps {
 
 export function UpcomingEvents({ maxEvents = 5 }: UpcomingEventsProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const { events: upcomingEvents, isLoading, isError } = useUpcomingEvents({ 
+  const { events: upcomingEvents, isLoading, isError, error, refetch } = useUpcomingEvents({ 
     maxEvents,
     enabled: true
   });
+
+  console.log('🎯 [UpcomingEvents] Component state:', {
+    isLoading,
+    isError,
+    error,
+    eventsCount: upcomingEvents.length,
+    events: upcomingEvents,
+  });
+
+  useEffect(() => {
+    console.log('🚀 [UpcomingEvents] Component mounted');
+  }, []);
+
+  useEffect(() => {
+    console.log('🔄 [UpcomingEvents] Data changed:', {
+      isLoading,
+      isError,
+      eventsCount: upcomingEvents.length,
+    });
+  }, [upcomingEvents, isLoading, isError]);
 
   const getTimeDisplay = (startTime: string, endTime: string) => {
     const start = new Date(startTime);
@@ -94,11 +114,22 @@ export function UpcomingEvents({ maxEvents = 5 }: UpcomingEventsProps) {
         avoidCollisions={true}
         collisionPadding={8}
       >
-        <div className="p-4 border-b">
+        <div className="p-4 border-b flex items-center justify-between">
           <h3 className="font-semibold text-sm flex items-center gap-2">
             <Calendar className="h-4 w-4" />
             Upcoming Events
           </h3>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              console.log('🔄 Manual refetch triggered');
+              refetch();
+            }}
+            className="h-7 w-7 p-0"
+          >
+            <RefreshCw className="h-3 w-3" />
+          </Button>
         </div>
         
         <div className="max-h-96 overflow-y-auto">
@@ -111,6 +142,11 @@ export function UpcomingEvents({ maxEvents = 5 }: UpcomingEventsProps) {
             <div className="p-6 text-center text-muted-foreground">
               <Calendar className="h-8 w-8 mx-auto mb-2 opacity-50" />
               <p className="text-sm">Unable to load events</p>
+              {error && (
+                <p className="text-xs mt-2 text-red-500">
+                  {error instanceof Error ? error.message : 'Unknown error'}
+                </p>
+              )}
             </div>
           ) : upcomingEvents.length > 0 ? (
             <div className="p-2 space-y-2">

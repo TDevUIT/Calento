@@ -31,7 +31,7 @@ import { getWeekStartDay } from '@/utils/calendar-format';
 import { getCalendarStyles } from '@/utils/calendar-styles';
 import { CalendarSidebar } from '@/components/calendar/sidebar/CalendarSidebar';
 import { CreateEventDialog, EditEventDialog } from '@/components/calendar/dialogs';
-import { TaskDetailDialog } from '@/components/calendar/dialogs/TaskDetailDialog';
+import { EditTaskDialog } from '@/components/task/EditTaskDialog';
 import { CalendarSettingsDialog } from '@/components/calendar/settings/CalendarSettingsDialog';
 import { CalendarSettingsProvider } from '@/components/calendar/shared/CalendarSettingsProvider';
 import { useControllerStore } from '@/store/controller.store';
@@ -60,7 +60,7 @@ export default function Page() {
   
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showTaskDialog, setShowTaskDialog] = useState(false);
   
   useKeyboardShortcuts({
@@ -174,6 +174,7 @@ export default function Page() {
           type: 'task' as const,
           priority: task.priority,
           status: task.status,
+          taskData: task,
         };
       });
 
@@ -226,8 +227,8 @@ export default function Page() {
   }
 
   const handleEventClick = (event: CalendarEvent) => {
-    if (event.type === 'task') {
-      setSelectedTaskId(event.id);
+    if (event.type === 'task' && event.taskData) {
+      setSelectedTask(event.taskData);
       setShowTaskDialog(true);
     } else {
       setSelectedEventId(event.id);
@@ -255,8 +256,8 @@ export default function Page() {
       setSelectedEventId={setSelectedEventId}
       showEditDialog={showEditDialog}
       setShowEditDialog={setShowEditDialog}
-      selectedTaskId={selectedTaskId}
-      setSelectedTaskId={setSelectedTaskId}
+      selectedTask={selectedTask}
+      setSelectedTask={setSelectedTask}
       showTaskDialog={showTaskDialog}
       setShowTaskDialog={setShowTaskDialog}
       visibleCalendarIds={visibleCalendarIds}
@@ -292,8 +293,8 @@ function CalendarWrapper({
   setSelectedEventId,
   showEditDialog,
   setShowEditDialog,
-  selectedTaskId,
-  setSelectedTaskId,
+  selectedTask,
+  setSelectedTask,
   showTaskDialog,
   setShowTaskDialog,
   visibleCalendarIds,
@@ -325,8 +326,8 @@ function CalendarWrapper({
   setSelectedEventId: (id: string | null) => void;
   showEditDialog: boolean;
   setShowEditDialog: (show: boolean) => void;
-  selectedTaskId: string | null;
-  setSelectedTaskId: (id: string | null) => void;
+  selectedTask: Task | null;
+  setSelectedTask: (task: Task | null) => void;
   showTaskDialog: boolean;
   setShowTaskDialog: (show: boolean) => void;
   visibleCalendarIds: Set<string>;
@@ -462,14 +463,16 @@ function CalendarWrapper({
         />
       )}
 
-      <TaskDetailDialog
-        taskId={selectedTaskId}
-        open={showTaskDialog}
-        onClose={() => {
-          setShowTaskDialog(false);
-          setSelectedTaskId(null);
-        }}
-      />
+      {selectedTask && (
+        <EditTaskDialog
+          task={selectedTask}
+          open={showTaskDialog}
+          onClose={() => {
+            setShowTaskDialog(false);
+            setSelectedTask(null);
+          }}
+        />
+      )}
       </Calendar>
     </CalendarSettingsProvider>
   );

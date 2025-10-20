@@ -477,18 +477,20 @@ export class EventRepository extends BaseRepository<Event> {
       const safeSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'created_at';
       const safeSortOrder = sortOrder === 'ASC' ? 'ASC' : 'DESC';
 
-      const conditions: string[] = ['c.user_id = $1'];
+      const conditions: string[] = ['e.organizer_id = $1'];
       const params: any[] = [userId];
       let paramIndex = 2;
 
+      // Filter events that overlap with the date range
+      // An event overlaps if: start_time < end_date AND end_time > start_date
       if (start_date) {
-        conditions.push(`e.start_time >= $${paramIndex}`);
+        conditions.push(`e.end_time > $${paramIndex}`);
         params.push(start_date);
         paramIndex++;
       }
 
       if (end_date) {
-        conditions.push(`e.end_time <= $${paramIndex}`);
+        conditions.push(`e.start_time < $${paramIndex}`);
         params.push(end_date);
         paramIndex++;
       }
@@ -504,7 +506,6 @@ export class EventRepository extends BaseRepository<Event> {
       const countQuery = `
         SELECT COUNT(*) 
         FROM events e
-        INNER JOIN calendars c ON e.calendar_id = c.id
         WHERE ${whereClause}
       `;
 
@@ -512,11 +513,14 @@ export class EventRepository extends BaseRepository<Event> {
         SELECT 
           e.*,
           u.id as creator_id,
-          CONCAT(u.first_name, ' ', u.last_name) as creator_name,
+          COALESCE(
+            NULLIF(TRIM(CONCAT(u.first_name, ' ', u.last_name)), ''),
+            u.username,
+            u.email
+          ) as creator_name,
           u.email as creator_email,
           u.avatar as creator_avatar
         FROM events e
-        INNER JOIN calendars c ON e.calendar_id = c.id
         LEFT JOIN users u ON e.organizer_id = u.id
         WHERE ${whereClause}
         ORDER BY e.${safeSortBy} ${safeSortOrder}

@@ -4,6 +4,7 @@ import React from 'react';
 import {
   Dialog,
   DialogContent,
+  DialogTitle,
 } from '@/components/ui/dialog';
 import { EventDetailView } from '../views/EventDetailView';
 import type { Event } from '@/interface/event.interface';
@@ -28,6 +29,7 @@ export function ViewEventDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="p-0 max-w-md border-0 bg-transparent shadow-none">
+        <DialogTitle className="sr-only">{event.title || 'Event Details'}</DialogTitle>
         <EventDetailView
           event={event}
           onEdit={onEdit}
