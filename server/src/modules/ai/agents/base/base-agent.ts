@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+﻿import { Logger } from '@nestjs/common';
 import {
   IAgent,
   AgentConfig,
@@ -39,7 +39,6 @@ export abstract class BaseAgent implements IAgent {
    * Override this method in specialized agents for custom logic
    */
   async canHandle(request: AgentRequest): Promise<boolean> {
-    // Base implementation: check if message contains keywords
     return this.hasRelevantKeywords(request.message);
   }
 
@@ -54,13 +53,10 @@ export abstract class BaseAgent implements IAgent {
     try {
       this.logger.log(`Processing request: "${request.message.substring(0, 50)}..."`);
 
-      // Validate request
       this.validateRequest(request);
 
-      // Execute agent-specific logic
       const response = await this.execute(request);
 
-      // Update stats
       if (response.success) {
         this.incrementStat('successful_requests');
       } else {
@@ -174,14 +170,14 @@ export abstract class BaseAgent implements IAgent {
     let result = '';
 
     if (successful.length > 0) {
-      result += `\n\n✅ **Executed ${successful.length} action(s):**\n`;
+      result += `\n\nâœ… **Executed ${successful.length} action(s):**\n`;
       successful.forEach((tc) => {
         result += `- ${tc.toolName}\n`;
       });
     }
 
     if (failed.length > 0) {
-      result += `\n\n❌ **${failed.length} action(s) failed:**\n`;
+      result += `\n\nâŒ **${failed.length} action(s) failed:**\n`;
       failed.forEach((tc) => {
         result += `- ${tc.toolName}: ${tc.error}\n`;
       });

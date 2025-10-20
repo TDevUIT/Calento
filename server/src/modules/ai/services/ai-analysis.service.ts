@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+﻿import { Injectable, Logger } from '@nestjs/common';
 import { EventService } from '../../event/event.service';
 
 export interface TimeWindow {
@@ -36,9 +36,6 @@ export class AIAnalysisService {
 
   constructor(private readonly eventService: EventService) {}
 
-  /**
-   * Analyze team availability across multiple calendars
-   */
   async analyzeTeamAvailability(
     memberIds: string[],
     startDate: Date,
@@ -51,14 +48,12 @@ export class AIAnalysisService {
 
     const timeRange = preferredTimeRange || { start_hour: 9, end_hour: 18 };
     
-    // Step 1: Fetch all member calendars in parallel
     const memberCalendars = await this.fetchMemberCalendars(
       memberIds,
       startDate,
       endDate
     );
 
-    // Step 2: Find availability windows
     const availabilityWindows = this.findAvailabilityWindows(
       memberCalendars,
       startDate,
@@ -67,13 +62,10 @@ export class AIAnalysisService {
       timeRange
     );
 
-    // Step 3: Detect conflicts
     const conflicts = this.detectConflicts(memberCalendars, availabilityWindows);
 
-    // Step 4: Score and rank windows
     const scoredWindows = this.scoreAvailabilityWindows(availabilityWindows);
 
-    // Step 5: Select best match
     const bestMatch = scoredWindows.length > 0 ? scoredWindows[0] : null;
     const matchScore = bestMatch ? bestMatch.availability_percentage : 0;
 
@@ -94,9 +86,6 @@ export class AIAnalysisService {
     };
   }
 
-  /**
-   * Fetch calendars for all members in parallel
-   */
   private async fetchMemberCalendars(
     memberIds: string[],
     startDate: Date,
@@ -127,9 +116,6 @@ export class AIAnalysisService {
     return calendarMap;
   }
 
-  /**
-   * Find time windows where all/most members are available
-   */
   private findAvailabilityWindows(
     memberCalendars: Map<string, any[]>,
     startDate: Date,
@@ -143,13 +129,11 @@ export class AIAnalysisService {
     let currentDate = new Date(startDate);
     
     while (currentDate <= endDate) {
-      // Skip weekends
       if (currentDate.getDay() === 0 || currentDate.getDay() === 6) {
         currentDate.setDate(currentDate.getDate() + 1);
         continue;
       }
 
-      // Check each 30-minute slot in the preferred time range
       for (let hour = timeRange.start_hour; hour < timeRange.end_hour; hour++) {
         for (let minute of [0, 30]) {
           const slotStart = new Date(currentDate);
@@ -158,12 +142,10 @@ export class AIAnalysisService {
           const slotEnd = new Date(slotStart);
           slotEnd.setMinutes(slotEnd.getMinutes() + durationMinutes);
 
-          // Check if this slot goes beyond working hours
           if (slotEnd.getHours() >= timeRange.end_hour) {
             continue;
           }
 
-          // Count available members
           let availableMembers = 0;
           for (const [_memberId, events] of memberCalendars) {
             const hasConflict = events.some((event) => {
@@ -181,7 +163,6 @@ export class AIAnalysisService {
             }
           }
 
-          // Add window if at least 50% members are available
           if (availableMembers >= totalMembers * 0.5) {
             windows.push({
               start: slotStart,
@@ -206,9 +187,6 @@ export class AIAnalysisService {
     return windows;
   }
 
-  /**
-   * Detect specific conflicts for each time window
-   */
   private detectConflicts(
     memberCalendars: Map<string, any[]>,
     windows: TimeWindow[]
@@ -220,7 +198,6 @@ export class AIAnalysisService {
         const eventStart = new Date(event.start_time);
         const eventEnd = new Date(event.end_time);
 
-        // Check if this event conflicts with any window
         const conflictingWindow = windows.find((window) => {
           return (
             (window.start >= eventStart && window.start < eventEnd) ||
@@ -244,9 +221,6 @@ export class AIAnalysisService {
     return conflicts;
   }
 
-  /**
-   * Generate conflict reason
-   */
   private getConflictReason(event: any, eventStart: Date): string {
     const hour = eventStart.getHours();
     
@@ -254,30 +228,23 @@ export class AIAnalysisService {
     if (hour >= 12 && hour < 13) return 'Lunch time conflict';
     if (hour >= 17) return 'End of day conflict';
     
-    // Check for back-to-back meetings
     return event.title ? `Busy - ${event.title}` : 'Back-to-back meetings';
   }
 
-  /**
-   * Score availability windows based on multiple factors
-   */
   private scoreAvailabilityWindows(windows: TimeWindow[]): TimeWindow[] {
     return windows
       .map((window) => {
         let score = window.availability_percentage;
 
-        // Bonus for peak productivity hours (9-11 AM, 2-4 PM)
         const hour = window.start.getHours();
         if ((hour >= 9 && hour < 11) || (hour >= 14 && hour < 16)) {
           score += 10;
         }
 
-        // Penalty for late afternoon
         if (hour >= 16) {
           score -= 5;
         }
 
-        // Bonus for 100% availability
         if (window.availability_percentage === 100) {
           score += 15;
         }

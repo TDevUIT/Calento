@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+﻿import { Injectable } from '@nestjs/common';
 import { BaseTool } from './base-tool';
 import { AgentContext } from '../agents/base/agent.interface';
 import { EventService } from '../../event/event.service';
@@ -19,7 +19,6 @@ export class CreateEventTool extends BaseTool {
   }
 
   protected async run(args: any, context: AgentContext): Promise<any> {
-    // Get primary calendar
     const primaryCalendar = await this.calendarService.getPrimaryCalendar(context.userId);
     if (!primaryCalendar) {
       throw new Error('You do not have a calendar yet. Please connect Google Calendar first.');

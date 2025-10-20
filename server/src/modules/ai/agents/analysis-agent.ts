@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+﻿import { Injectable } from '@nestjs/common';
 import { BaseAgent } from './base/base-agent';
 import { AgentType, AgentCapability, AgentRequest, AgentResponse, ToolCall } from './base/agent.interface';
 import { SYSTEM_PROMPTS, RESPONSE_FORMATS } from '../prompts/system-prompts';
@@ -88,7 +88,6 @@ export class AnalysisAgent extends BaseAgent {
         }
       }
 
-      // Format analysis response with rich formatting
       const formattedResponse = this.formatAnalysisResponse(aiResponse.text, toolCalls);
 
       return {
@@ -134,27 +133,24 @@ export class AnalysisAgent extends BaseAgent {
 
     let formatted = `${aiText}\n\n`;
 
-    // Analysis Summary
-    formatted += `📊 **AI Analysis**\n`;
-    formatted += `⏱️ Duration: ${analysis.duration}\n`;
-    formatted += `✓ Checked ${analysis.calendars_checked} team member calendars\n`;
-    formatted += `📅 Identified ${analysis.windows_found} mutual availability windows\n`;
+    formatted += `ðŸ“Š **AI Analysis**\n`;
+    formatted += `â±ï¸ Duration: ${analysis.duration}\n`;
+    formatted += `âœ“ Checked ${analysis.calendars_checked} team member calendars\n`;
+    formatted += `ðŸ“… Identified ${analysis.windows_found} mutual availability windows\n`;
 
-    // Conflicts
     if (conflicts && conflicts.length > 0) {
-      formatted += `\n⚠️ **Conflicts Found:**\n`;
+      formatted += `\nâš ï¸ **Conflicts Found:**\n`;
       conflicts.forEach((c: any) => {
-        formatted += `✕ ${c.time} - ${c.reason}\n`;
+        formatted += `âœ• ${c.time} - ${c.reason}\n`;
       });
     }
 
-    // Best Match
     if (best_match) {
-      const scoreEmoji = match_score >= 90 ? '✅' : match_score >= 70 ? '⚠️' : '❌';
+      const scoreEmoji = match_score >= 90 ? 'âœ…' : match_score >= 70 ? 'âš ï¸' : 'âŒ';
       formatted += `\n${scoreEmoji} **Best Match (Score: ${match_score}%)**\n`;
-      formatted += `📅 ${best_match.day} • ${best_match.time}\n`;
-      formatted += `👥 ${best_match.availability}\n`;
-      formatted += `💡 ${best_match.reason}\n`;
+      formatted += `ðŸ“… ${best_match.day} â€¢ ${best_match.time}\n`;
+      formatted += `ðŸ‘¥ ${best_match.availability}\n`;
+      formatted += `ðŸ’¡ ${best_match.reason}\n`;
     }
 
     return formatted;

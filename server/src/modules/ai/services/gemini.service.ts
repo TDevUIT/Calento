@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+﻿import { Injectable, Logger } from '@nestjs/common';
 import { GoogleGenerativeAI, GenerativeModel, Content } from '@google/generative-ai';
 import { ConfigService } from '@nestjs/config';
 import { GeminiAPIException } from '../exceptions/ai.exceptions';
@@ -65,7 +65,7 @@ export class GeminiService {
       this.logger.log(`Processing chat message: "${message.substring(0, 50)}..."`);
 
       if (!this.apiKey) {
-        this.logger.error('❌ GEMINI_API_KEY not configured');
+        this.logger.error('âŒ GEMINI_API_KEY not configured');
         throw new GeminiAPIException(
           'Gemini API key not configured',
           'Please set GEMINI_API_KEY environment variable'
@@ -161,30 +161,30 @@ export class GeminiService {
   private buildContextMessage(context: Record<string, any>): string {
     const parts: string[] = [];
 
-    parts.push('🧠 **REMEMBER:** You are in a multi-turn conversation. Review ALL previous messages before responding.');
+    parts.push('ðŸ§  **REMEMBER:** You are in a multi-turn conversation. Review ALL previous messages before responding.');
     parts.push('\n**Current Context:**');
 
     if (context.current_date) {
-      parts.push(`⏰ Current Date/Time: ${context.current_date} (${context.current_date_formatted || 'N/A'})`);
+      parts.push(`â° Current Date/Time: ${context.current_date} (${context.current_date_formatted || 'N/A'})`);
     }
 
     if (context.timezone) {
-      parts.push(`🌍 Timezone: ${context.timezone}`);
+      parts.push(`ðŸŒ Timezone: ${context.timezone}`);
     }
 
     if (context.preferences) {
-      parts.push(`⚙️ User Preferences: ${JSON.stringify(context.preferences)}`);
+      parts.push(`âš™ï¸ User Preferences: ${JSON.stringify(context.preferences)}`);
     }
 
     if (context.upcoming_events && context.upcoming_events.length > 0) {
-      parts.push(`📅 Upcoming events: ${context.upcoming_events.length} events`);
+      parts.push(`ðŸ“… Upcoming events: ${context.upcoming_events.length} events`);
     }
 
     if (context.conversation_turn) {
-      parts.push(`\n💬 Turn ${context.conversation_turn} - Build upon previous exchanges`);
+      parts.push(`\nðŸ’¬ Turn ${context.conversation_turn} - Build upon previous exchanges`);
     }
 
-    parts.push('\n⚠️ If user provides information (emails, names, dates), USE IT immediately. Don\'t ask again!');
+    parts.push('\nâš ï¸ If user provides information (emails, names, dates), USE IT immediately. Don\'t ask again!');
 
     return parts.join('\n') + '\n';
   }

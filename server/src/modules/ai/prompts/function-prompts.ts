@@ -1,4 +1,4 @@
-export const FUNCTION_DESCRIPTIONS = {
+﻿export const FUNCTION_DESCRIPTIONS = {
   CREATE_EVENT: {
     name: 'createEvent',
     description: 'Create a new event in the user\'s calendar',

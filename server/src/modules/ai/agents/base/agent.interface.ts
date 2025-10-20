@@ -1,4 +1,4 @@
-export enum AgentType {
+﻿export enum AgentType {
   CALENDAR = 'calendar',
   TASK = 'task',
   ANALYSIS = 'analysis',

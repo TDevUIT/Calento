@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+﻿import { Injectable } from '@nestjs/common';
 import { BaseAgent } from './base/base-agent';
 import { AgentType, AgentCapability, AgentRequest, AgentResponse, ToolCall } from './base/agent.interface';
 import { SYSTEM_PROMPTS } from '../prompts/system-prompts';
@@ -54,13 +54,10 @@ export class CalendarAgent extends BaseAgent {
 
   protected async execute(request: AgentRequest): Promise<AgentResponse> {
     try {
-      // Build enhanced prompt with context
       const enhancedPrompt = this.buildEnhancedPrompt(this.config.systemPrompt, request.context);
 
-      // Get available tools for this agent
       const tools = this.toolRegistry.getToolDescriptions('calendar');
 
-      // Call Gemini AI with tools
       const aiResponse = await this.geminiService.chat(
         request.message,
         request.history || [],
@@ -71,7 +68,6 @@ export class CalendarAgent extends BaseAgent {
         }
       );
 
-      // Execute function calls if any
       const toolCalls: ToolCall[] = [];
       if (aiResponse.functionCalls && aiResponse.functionCalls.length > 0) {
         for (const funcCall of aiResponse.functionCalls) {
@@ -98,7 +94,6 @@ export class CalendarAgent extends BaseAgent {
         }
       }
 
-      // Format response
       const formattedToolCalls = this.formatToolCalls(toolCalls);
       const finalMessage = `${aiResponse.text}${formattedToolCalls}`;
 

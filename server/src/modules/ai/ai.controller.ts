@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Post,
   Get,
@@ -52,8 +52,8 @@ export class AIController {
     const userId = req.user?.id || req.user?.sub;
     
     try {
-      this.logger.log(`🤖 AI Chat request from user: ${userId}`);
-      this.logger.log(`📝 Message: "${dto.message.substring(0, 50)}..."`);
+      this.logger.log(`ðŸ¤– AI Chat request from user: ${userId}`);
+      this.logger.log(`ðŸ“ Message: "${dto.message.substring(0, 50)}..."`);
       
       const result = await this.conversationService.chat(
         dto.message,
@@ -62,10 +62,10 @@ export class AIController {
         dto.context
       );
       
-      this.logger.log(`✅ AI Chat completed successfully`);
+      this.logger.log(`âœ… AI Chat completed successfully`);
       return result;
     } catch (error) {
-      this.logger.error(`❌ AI Chat failed:`, error);
+      this.logger.error(`âŒ AI Chat failed:`, error);
       this.logger.error(`Error stack:`, error.stack);
       throw error;
     }
@@ -140,7 +140,7 @@ export class AIController {
   ): Promise<ChatResponseDto> {
     const userId = req.user.sub || req.user.id;
     
-    this.logger.log(`📋 Action confirmation: ${dto.action_id} - ${dto.confirmed ? 'Approved' : 'Rejected'}`);
+    this.logger.log(`ðŸ“‹ Action confirmation: ${dto.action_id} - ${dto.confirmed ? 'Approved' : 'Rejected'}`);
     
     return this.conversationService.confirmAction(
       dto.action_id,

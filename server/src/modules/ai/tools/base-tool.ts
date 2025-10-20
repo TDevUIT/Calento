@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+﻿import { Logger } from '@nestjs/common';
 import { AgentContext } from '../agents/base/agent.interface';
 
 /**
@@ -34,10 +34,8 @@ export abstract class BaseTool implements ITool {
     this.logger.log(`Executing tool: ${this.name} for user: ${context.userId}`);
 
     try {
-      // Validate arguments
       this.validateArgs(args);
 
-      // Execute tool-specific logic
       const result = await this.run(args, context);
 
       this.logger.log(`Tool execution successful: ${this.name}`);

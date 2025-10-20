@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+﻿import { Injectable, Logger } from '@nestjs/common';
 import { AIFunctionCall } from '../interfaces/ai.interface';
 import { FunctionExecutionException, InvalidFunctionCallException } from '../exceptions/ai.exceptions';
 import { EventService } from '../../event/event.service';
@@ -201,7 +201,7 @@ export class AIFunctionCallingService {
       
       const query = args.query || '';
       
-      this.logger.log(`🔍 Searching events for user ${userId}`);
+      this.logger.log(`ðŸ” Searching events for user ${userId}`);
       this.logger.log(`   Date range: ${startDate.toISOString()} to ${endDate.toISOString()}`);
       this.logger.log(`   Query: "${query}"`);
 
@@ -243,7 +243,7 @@ export class AIFunctionCallingService {
         },
       };
     } catch (error) {
-      this.logger.error(`❌ Error searching events: ${error.message}`, error.stack);
+      this.logger.error(`âŒ Error searching events: ${error.message}`, error.stack);
       return {
         success: false,
         error: `Unable to search events: ${error.message}`,
@@ -396,8 +396,8 @@ export class AIFunctionCallingService {
             availability: w.availability_percentage,
           })),
           message: bestMatch
-            ? `✅ Perfect! Found an ideal time when ${bestMatch.available_members}/${bestMatch.total_members} members are available`
-            : '❌ No suitable time slots found. Try adjusting the date range or duration.',
+            ? `âœ… Perfect! Found an ideal time when ${bestMatch.available_members}/${bestMatch.total_members} members are available`
+            : 'âŒ No suitable time slots found. Try adjusting the date range or duration.',
         },
       };
     } catch (error) {
@@ -427,7 +427,7 @@ export class AIFunctionCallingService {
       reasons.push('Good availability window');
     }
 
-    return reasons.join(' • ');
+    return reasons.join(' â€¢ ');
   }
 
   private calculateFreeSlots(

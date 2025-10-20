@@ -1,4 +1,4 @@
-export interface PendingAction {
+﻿export interface PendingAction {
   id: string;
   type: string;
   title: string;

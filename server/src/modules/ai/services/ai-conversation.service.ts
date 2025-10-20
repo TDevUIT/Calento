@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+﻿import { Injectable, Logger } from '@nestjs/common';
 import { GeminiService } from './gemini.service';
 import { AIFunctionCallingService } from './ai-function-calling.service';
 import { AIConversationRepository } from '../repositories/ai-conversation.repository';
@@ -65,7 +65,7 @@ export class AIConversationService {
     } catch (error) {
       this.logger.error('AI chat failed:', error);
       return {
-        response: `❌ Sorry, I encountered an error: ${error.message}`,
+        response: `âŒ Sorry, I encountered an error: ${error.message}`,
         conversation_id: conversation.id,
         function_calls: [],
         actions: [],
@@ -175,7 +175,7 @@ export class AIConversationService {
 
     if (!confirmed) {
       return {
-        response: '❌ Action cancelled. Let me know if you\'d like to try something else.',
+        response: 'âŒ Action cancelled. Let me know if you\'d like to try something else.',
         conversation_id: conversationId || '',
         function_calls: [],
         actions: [],
@@ -184,7 +184,7 @@ export class AIConversationService {
     }
 
     return {
-      response: '✅ Action confirmed and executed successfully!',
+      response: 'âœ… Action confirmed and executed successfully!',
       conversation_id: conversationId || '',
       function_calls: [],
       actions: [{
@@ -261,7 +261,7 @@ export class AIConversationService {
     const failedActions = actions.filter(a => a.status === 'failed');
 
     if (failedActions.length > 0) {
-      response += '\n\n❌ **Error:**\n';
+      response += '\n\nâŒ **Error:**\n';
       failedActions.forEach(action => {
         response += `- ${action.error}\n`;
       });

@@ -1,4 +1,4 @@
-export interface AIMessage {
+﻿export interface AIMessage {
   role: 'user' | 'assistant' | 'system' | 'function';
   content: string;
   function_call?: AIFunctionCall;

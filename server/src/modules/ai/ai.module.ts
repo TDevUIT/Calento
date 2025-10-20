@@ -1,4 +1,4 @@
-import { Module, OnModuleInit } from '@nestjs/common';
+﻿import { Module, OnModuleInit } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AIController } from './ai.controller';
 import { GeminiService } from './services/gemini.service';
@@ -12,13 +12,11 @@ import { EventModule } from '../event/event.module';
 import { TaskModule } from '../task/task.module';
 import { CalendarModule } from '../calendar/calendar.module';
 
-// Agents
 import { CalendarAgent } from './agents/calendar-agent';
 import { TaskAgent } from './agents/task-agent';
 import { AnalysisAgent } from './agents/analysis-agent';
 import { AgentOrchestrator } from './agents/agent-orchestrator';
 
-// Tools
 import { ToolRegistry } from './tools/tool-registry';
 import {
   CreateEventTool,
@@ -90,18 +88,15 @@ export class AIModule implements OnModuleInit {
    * Register all tools on module initialization
    */
   onModuleInit() {
-    // Register Calendar Tools
     this.toolRegistry.register(this.createEventTool);
     this.toolRegistry.register(this.checkAvailabilityTool);
     this.toolRegistry.register(this.searchEventsTool);
     this.toolRegistry.register(this.updateEventTool);
     this.toolRegistry.register(this.deleteEventTool);
 
-    // Register Task Tools
     this.toolRegistry.register(this.createTaskTool);
     this.toolRegistry.register(this.createLearningPlanTool);
 
-    // Register Analysis Tools
     this.toolRegistry.register(this.analyzeTeamAvailabilityTool);
   }
 }
