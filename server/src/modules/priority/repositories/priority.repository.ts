@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+﻿import { Injectable } from '@nestjs/common';
 import { BaseRepository } from '../../../common/repositories/base.repository';
 import { DatabaseService } from '../../../database/database.service';
 import { PaginationService } from '../../../common/services/pagination.service';

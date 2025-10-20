@@ -1,4 +1,4 @@
-import { IsEnum, IsString, IsInt, IsOptional, IsArray, ValidateNested } from 'class-validator';
+﻿import { IsEnum, IsString, IsInt, IsOptional, IsArray, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ItemType, PriorityLevel } from '../interfaces/priority.interface';

@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -28,7 +28,6 @@ import {
 export class PriorityController {
   constructor(private readonly priorityService: PriorityService) {}
 
-  // TODO: Replace with actual authenticated user ID from request
   private getUserId(): string {
     return '18b0ed75-56d6-40b4-aa5d-a9a17a9fe1d8'; // Temporary hardcoded user ID
   }

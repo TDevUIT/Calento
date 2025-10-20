@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+﻿import { Module } from '@nestjs/common';
 import { PriorityController } from './controllers/priority.controller';
 import { PriorityService } from './services/priority.service';
 import { PriorityRepository } from './repositories/priority.repository';

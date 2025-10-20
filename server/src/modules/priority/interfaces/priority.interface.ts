@@ -1,4 +1,4 @@
-export enum ItemType {
+﻿export enum ItemType {
   TASK = 'task',
   BOOKING_LINK = 'booking_link',
   HABIT = 'habit',
