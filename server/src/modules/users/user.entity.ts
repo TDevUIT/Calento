@@ -1,4 +1,4 @@
-export interface User {
+﻿export interface User {
   id: string; // UUID
   email: string; // VARCHAR(255) UNIQUE NOT NULL
   username: string; // VARCHAR(100) UNIQUE NOT NULL

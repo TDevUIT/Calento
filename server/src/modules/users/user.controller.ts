@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -52,27 +52,27 @@ export class UserController {
   @Post()
   @Public()
   @ApiOperation({
-    summary: '👤 Create a new user',
+    summary: 'ðŸ‘¤ Create a new user',
     description:
       'Create a new user account - Public endpoint for initial setup',
   })
   @ApiResponse({
     status: 201,
-    description: '✅ User created successfully',
+    description: 'âœ… User created successfully',
     schema: {
       example: SwaggerExamples.Users.Create.response,
     },
   })
   @ApiResponse({
     status: 400,
-    description: '❌ Validation failed - Invalid input data',
+    description: 'âŒ Validation failed - Invalid input data',
     schema: {
       example: SwaggerExamples.Errors.ValidationError,
     },
   })
   @ApiResponse({
     status: 409,
-    description: '❌ Conflict - Email or username already exists',
+    description: 'âŒ Conflict - Email or username already exists',
     schema: {
       example: {
         success: false,
@@ -98,19 +98,19 @@ export class UserController {
 
   @Get()
   @ApiOperation({
-    summary: '👥 Get all users with pagination',
+    summary: 'ðŸ‘¥ Get all users with pagination',
     description: 'Retrieve paginated list of users with search and filtering',
   })
   @ApiResponse({
     status: 200,
-    description: '✅ Users retrieved successfully with pagination',
+    description: 'âœ… Users retrieved successfully with pagination',
     schema: {
       example: SwaggerExamples.Users.List.response,
     },
   })
   @ApiResponse({
     status: 401,
-    description: '❌ Unauthorized - Invalid or expired token',
+    description: 'âŒ Unauthorized - Invalid or expired token',
     schema: {
       example: SwaggerExamples.Errors.Unauthorized,
     },
