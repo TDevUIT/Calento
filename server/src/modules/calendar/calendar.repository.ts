@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+﻿import { Injectable, Logger } from '@nestjs/common';
 import { UserOwnedRepository } from '../../common/repositories/base.repository';
 import { DatabaseService } from '../../database/database.service';
 import { PaginationService } from '../../common/services/pagination.service';
@@ -77,7 +77,6 @@ export class CalendarRepository extends UserOwnedRepository<Calendar> {
     await this.userValidationService.validateUserExists(userId);
 
     try {
-      // Add search fields for calendar search
       const searchOptions: Partial<SearchOptions> = {
         ...options,
         searchFields: options.search ? ['name', 'description', 'google_calendar_id'] : undefined,

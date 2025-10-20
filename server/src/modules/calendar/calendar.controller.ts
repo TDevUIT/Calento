@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -56,14 +56,14 @@ export class CalendarController {
 
   @Get()
   @ApiOperation({
-    summary: '📅 Get user calendars with pagination',
+    summary: 'ðŸ“… Get user calendars with pagination',
     description:
       'Retrieve paginated list of calendars with filtering, search, and sorting. ' +
       'Supports filtering by primary status, timezone, and search by name/description.',
   })
   @ApiResponse({
     status: 200,
-    description: '✅ Calendars retrieved successfully',
+    description: 'âœ… Calendars retrieved successfully',
     type: PaginatedResponseDto,
     schema: {
       example: {
@@ -99,7 +99,7 @@ export class CalendarController {
   })
   @ApiResponse({
     status: 401,
-    description: '❌ Unauthorized - Invalid or expired token',
+    description: 'âŒ Unauthorized - Invalid or expired token',
   })
   async getCalendars(
     @CurrentUserId() userId: string,
@@ -116,17 +116,17 @@ export class CalendarController {
 
   @Get('primary')
   @ApiOperation({
-    summary: '⭐ Get user primary calendar',
+    summary: 'â­ Get user primary calendar',
     description: 'Retrieve the primary calendar for the authenticated user',
   })
   @ApiResponse({
     status: 200,
-    description: '✅ Primary calendar retrieved successfully',
+    description: 'âœ… Primary calendar retrieved successfully',
     type: SuccessResponseDto,
   })
   @ApiResponse({
     status: 404,
-    description: '❌ Primary calendar not found',
+    description: 'âŒ Primary calendar not found',
   })
   async getPrimaryCalendar(
     @CurrentUserId() userId: string,
@@ -145,12 +145,12 @@ export class CalendarController {
 
   @Get('search')
   @ApiOperation({
-    summary: '🔍 Search calendars',
+    summary: 'ðŸ” Search calendars',
     description: 'Search calendars by name or description',
   })
   @ApiResponse({
     status: 200,
-    description: '✅ Search results retrieved successfully',
+    description: 'âœ… Search results retrieved successfully',
     type: PaginatedResponseDto,
   })
   async searchCalendars(
@@ -173,7 +173,7 @@ export class CalendarController {
 
   @Get(':id')
   @ApiOperation({
-    summary: '📋 Get calendar by ID',
+    summary: 'ðŸ“‹ Get calendar by ID',
     description: 'Retrieve a specific calendar by its ID',
   })
   @ApiParam({
@@ -183,12 +183,12 @@ export class CalendarController {
   })
   @ApiResponse({
     status: 200,
-    description: '✅ Calendar retrieved successfully',
+    description: 'âœ… Calendar retrieved successfully',
     type: SuccessResponseDto,
   })
   @ApiResponse({
     status: 404,
-    description: '❌ Calendar not found',
+    description: 'âŒ Calendar not found',
   })
   async getCalendarById(
     @Param('id') calendarId: string,
@@ -211,21 +211,21 @@ export class CalendarController {
 
   @Post()
   @ApiOperation({
-    summary: '➕ Create a new calendar',
+    summary: 'âž• Create a new calendar',
     description: 'Create a new calendar with Google Calendar integration',
   })
   @ApiResponse({
     status: 201,
-    description: '✅ Calendar created successfully',
+    description: 'âœ… Calendar created successfully',
     type: SuccessResponseDto,
   })
   @ApiResponse({
     status: 400,
-    description: '❌ Validation failed - Invalid input data',
+    description: 'âŒ Validation failed - Invalid input data',
   })
   @ApiResponse({
     status: 409,
-    description: '❌ Duplicate calendar - Google Calendar ID already exists',
+    description: 'âŒ Duplicate calendar - Google Calendar ID already exists',
   })
   async createCalendar(
     @Body() createCalendarDto: CreateCalendarDto,
@@ -245,7 +245,7 @@ export class CalendarController {
 
   @Put(':id')
   @ApiOperation({
-    summary: '✏️ Update calendar',
+    summary: 'âœï¸ Update calendar',
     description: 'Update an existing calendar',
   })
   @ApiParam({
@@ -255,12 +255,12 @@ export class CalendarController {
   })
   @ApiResponse({
     status: 200,
-    description: '✅ Calendar updated successfully',
+    description: 'âœ… Calendar updated successfully',
     type: SuccessResponseDto,
   })
   @ApiResponse({
     status: 404,
-    description: '❌ Calendar not found',
+    description: 'âŒ Calendar not found',
   })
   async updateCalendar(
     @Param('id') calendarId: string,
@@ -282,7 +282,7 @@ export class CalendarController {
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: '🗑️ Delete calendar',
+    summary: 'ðŸ—‘ï¸ Delete calendar',
     description: 'Delete a calendar permanently',
   })
   @ApiParam({
@@ -292,12 +292,12 @@ export class CalendarController {
   })
   @ApiResponse({
     status: 200,
-    description: '✅ Calendar deleted successfully',
+    description: 'âœ… Calendar deleted successfully',
     type: SuccessResponseDto,
   })
   @ApiResponse({
     status: 404,
-    description: '❌ Calendar not found',
+    description: 'âŒ Calendar not found',
   })
   async deleteCalendar(
     @Param('id') calendarId: string,
