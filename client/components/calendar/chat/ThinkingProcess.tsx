@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { CheckCircle2, Loader2, Clock, Calendar, Search, Zap } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -25,10 +25,8 @@ export const ThinkingProcess = ({ steps }: ThinkingProcessProps) => {
   const [visibleSteps, setVisibleSteps] = useState<ThinkingStep[]>([]);
 
   useEffect(() => {
-    // Reset visible steps when steps prop changes
     setVisibleSteps([]);
     
-    // Animate steps appearing one by one
     steps.forEach((step, index) => {
       setTimeout(() => {
         setVisibleSteps((prev) => {

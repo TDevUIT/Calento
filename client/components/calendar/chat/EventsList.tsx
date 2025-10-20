@@ -23,7 +23,7 @@ interface EventsListProps {
   message?: string;
 }
 
-export const EventsList = ({ events, total, dateRange, message }: EventsListProps) => {
+export const EventsList = ({ events, message }: EventsListProps) => {
   if (events.length === 0) {
     return (
       <div className="bg-white rounded-xl border border-gray-200 p-8">
@@ -126,7 +126,7 @@ export const EventsList = ({ events, total, dateRange, message }: EventsListProp
                 <span className="text-sm font-semibold text-gray-700">
                   {group.dateFormatted}
                 </span>
-                <span className="text-xs text-gray-500">• {group.events.length} events</span>
+                <span className="text-xs text-gray-500">â€¢ {group.events.length} events</span>
               </div>
             </div>
 

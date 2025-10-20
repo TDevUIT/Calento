@@ -1,17 +1,18 @@
 'use client';
 
 import React from 'react';
-import { CheckCircle, Calendar, Clock, Search, Sparkles } from 'lucide-react';
+import { CheckCircle, Calendar, Clock, Search } from 'lucide-react';
 
 interface MessageContentProps {
   content: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const iconMap: Record<string, any> = {
-  '✅': CheckCircle,
-  '📅': Calendar,
-  '⏰': Clock,
-  '🔎': Search,
+  'âœ…': CheckCircle,
+  'ðŸ“…': Calendar,
+  'â°': Clock,
+  'ðŸ”Ž': Search,
 };
 
 export const MessageContent = ({ content }: MessageContentProps) => {
@@ -27,7 +28,7 @@ export const MessageContent = ({ content }: MessageContentProps) => {
         elements.push(
           <ul key={`list-${listIndex++}`} className="space-y-2 my-3">
             {currentList.map((item, idx) => {
-              const richMatch = item.match(/^[\s]*[\*\-•]\s*(?:([📅✅⏰🔎🎯⚡])\s*)?(?:\*\*(.*?)\*\*)?(.*)$/);
+              const richMatch = item.match(/^[\s]*[\*\-â€¢]\s*(?:([ðŸ“…âœ…â°ðŸ”ŽðŸŽ¯âš¡])\s*)?(?:\*\*(.*?)\*\*)?(.*)$/);
               if (richMatch) {
                 const [, emoji, boldMaybe, restRaw] = richMatch;
                 const boldText = (boldMaybe || '').trim();
@@ -42,14 +43,13 @@ export const MessageContent = ({ content }: MessageContentProps) => {
                   else if (key.includes('time') || key.includes('duration')) Icon = Clock;
                 }
 
-                // Extract example in quotes, e.g. "Schedule a sync-up ..."
                 const exampleMatch = rest.match(/\"([^\"]+)\"/);
                 const exampleText = exampleMatch ? exampleMatch[1] : '';
 
                 return (
                   <li key={idx} className="flex items-start gap-2 group">
                     <div className="h-6 w-6 rounded-md bg-blue-50 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-100 transition-colors">
-                      {Icon ? <Icon className="h-3.5 w-3.5 text-blue-600" /> : <span className="text-blue-600">•</span>}
+                      {Icon ? <Icon className="h-3.5 w-3.5 text-blue-600" /> : <span className="text-blue-600">â€¢</span>}
                     </div>
                     <div className="flex-1 pt-0.5">
                       {boldText ? (
@@ -59,9 +59,9 @@ export const MessageContent = ({ content }: MessageContentProps) => {
                           {exampleText && (
                             <div className="mt-1">
                               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-gray-100 text-gray-700 text-xs">
-                                <span className="opacity-70">“</span>
+                                <span className="opacity-70">â€œ</span>
                                 <span className="font-medium">{exampleText}</span>
-                                <span className="opacity-70">”</span>
+                                <span className="opacity-70">â€</span>
                               </span>
                             </div>
                           )}
@@ -74,7 +74,7 @@ export const MessageContent = ({ content }: MessageContentProps) => {
                 );
               }
 
-              const simpleMatch = item.match(/^[\s]*[\*\-•]\s*(.+)$/);
+              const simpleMatch = item.match(/^[\s]*[\*\-â€¢]\s*(.+)$/);
               if (simpleMatch) {
                 const text = simpleMatch[1];
                 const parts = text.split(/(\*\*.*?\*\*)/g);
@@ -82,7 +82,7 @@ export const MessageContent = ({ content }: MessageContentProps) => {
                 const exampleText = exampleMatch ? exampleMatch[1] : '';
                 return (
                   <li key={idx} className="flex items-start gap-2">
-                    <span className="text-blue-600 mt-1">•</span>
+                    <span className="text-blue-600 mt-1">â€¢</span>
                     <div className="text-gray-700 flex-1">
                       <span>
                         {parts.map((part, i) =>
@@ -96,9 +96,9 @@ export const MessageContent = ({ content }: MessageContentProps) => {
                       {exampleText && (
                         <div className="mt-1">
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-gray-100 text-gray-700 text-xs">
-                            <span className="opacity-70">“</span>
+                            <span className="opacity-70">â€œ</span>
                             <span className="font-medium">{exampleText}</span>
-                            <span className="opacity-70">”</span>
+                            <span className="opacity-70">â€</span>
                           </span>
                         </div>
                       )}
@@ -116,7 +116,7 @@ export const MessageContent = ({ content }: MessageContentProps) => {
     };
 
     lines.forEach((line, idx) => {
-      if (line.trim().startsWith('*') || line.trim().startsWith('-') || line.trim().startsWith('•')) {
+      if (line.trim().startsWith('*') || line.trim().startsWith('-') || line.trim().startsWith('â€¢')) {
         currentList.push(line);
       } else {
         flushList();
@@ -150,8 +150,8 @@ export const MessageContent = ({ content }: MessageContentProps) => {
           );
           firstParagraphRendered = true;
         } else {
-          const hasEmoji = /[📅✅⏰🔎🎯⚡💡🚀✨]/g.test(line);
-          const isQuestion = /\?\s*([📅✅⏰🔎🎯⚡💡🚀✨])?$/.test(line.trim());
+          const hasEmoji = /[ðŸ“…âœ…â°ðŸ”ŽðŸŽ¯âš¡ðŸ’¡ðŸš€âœ¨]/g.test(line);
+          const isQuestion = /\?\s*([ðŸ“…âœ…â°ðŸ”ŽðŸŽ¯âš¡ðŸ’¡ðŸš€âœ¨])?$/.test(line.trim());
           elements.push(
             <p key={`text-${idx}`} className={`text-sm ${!firstParagraphRendered ? 'text-gray-900 font-medium' : 'text-gray-700'} ${hasEmoji ? 'leading-relaxed' : ''} ${isQuestion ? 'mt-3' : ''} mb-2`}>
               {line}

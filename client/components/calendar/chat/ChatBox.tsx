@@ -39,12 +39,20 @@ interface ThinkingStep {
   icon?: string;
 }
 
+interface PendingActionType {
+  id: string;
+  type: string;
+  title: string;
+  description: string;
+  parameters: Record<string, string | number | boolean>;
+}
+
 export function ChatBox({ onClose }: ChatBoxProps) {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [conversationId, setConversationId] = useState<string>();
   const [thinkingSteps, setThinkingSteps] = useState<ThinkingStep[]>([]);
-  const [pendingAction, setPendingAction] = useState<any>(null);
+  const [pendingAction, setPendingAction] = useState<PendingActionType | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -88,7 +96,6 @@ export function ChatBox({ onClose }: ChatBoxProps) {
     ];
     setThinkingSteps(steps);
     
-    // Step 1: Complete first step, activate second (after 1s)
     setTimeout(() => {
       setThinkingSteps(prev => {
         if (prev.length === 0) return prev;
@@ -99,7 +106,6 @@ export function ChatBox({ onClose }: ChatBoxProps) {
       });
     }, 1000);
     
-    // Step 2: Complete second step, activate third (after 2.2s total)
     setTimeout(() => {
       setThinkingSteps(prev => {
         if (prev.length === 0) return prev;
@@ -118,7 +124,7 @@ export function ChatBox({ onClose }: ChatBoxProps) {
     const now = new Date();
     
     try {
-      console.log('🚀 Sending chat request...');
+      console.log('ðŸš€ Sending chat request...');
       
       const response = await chatMutation.mutateAsync({
         message: input.trim(),
@@ -136,14 +142,12 @@ export function ChatBox({ onClose }: ChatBoxProps) {
         },
       });
       
-      console.log('✅ Chat completed');
+      console.log('âœ… Chat completed');
       
-      // Update conversation ID if new
       if (response.data.conversation_id && !conversationId) {
         setConversationId(response.data.conversation_id);
       }
       
-      // Add assistant message
       const assistantMessage: ChatMessage = {
         role: 'assistant',
         content: response.data.response,
@@ -152,18 +156,17 @@ export function ChatBox({ onClose }: ChatBoxProps) {
       };
       setMessages((prev) => [...prev, assistantMessage]);
       
-      // Complete all steps
       setThinkingSteps(prev => prev.map(s => ({ ...s, status: 'completed' as const })));
       
-      // Clear thinking steps
       setTimeout(() => {
         setThinkingSteps([]);
       }, 800);
       
       setIsProcessing(false);
-    } catch (error: any) {
+    } catch (err) {
       setThinkingSteps([]);
       setIsProcessing(false);
+      const error = err as Error;
       const errorMessage: ChatMessage = {
         role: 'assistant',
         content: `❌ Sorry, I encountered an error: ${error?.message || 'Unknown error'}`,
@@ -176,16 +179,13 @@ export function ChatBox({ onClose }: ChatBoxProps) {
     if (!pendingAction) return;
     
     try {
-      // Call confirm API (you'll need to create this hook)
-      // For now, just show success and close dialog
       toast.success('Meeting scheduled successfully!');
       setShowConfirmDialog(false);
       setPendingAction(null);
       
-      // Add confirmation message
       const confirmMessage: ChatMessage = {
         role: 'assistant',
-        content: '✅ Meeting has been scheduled and invites sent to all participants.',
+        content: 'âœ… Meeting has been scheduled and invites sent to all participants.',
       };
       setMessages((prev) => [...prev, confirmMessage]);
     } catch (error) {
@@ -291,7 +291,6 @@ export function ChatBox({ onClose }: ChatBoxProps) {
                               slots={action.result.free_slots}
                               onBook={(slot) => {
                                 toast.success(`Slot booked: ${new Date(slot.start).toLocaleTimeString()} - ${new Date(slot.end).toLocaleTimeString()}`);
-                                // TODO: Implement actual booking logic
                               }}
                             />
                           )}

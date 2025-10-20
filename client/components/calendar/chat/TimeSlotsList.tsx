@@ -15,17 +15,10 @@ interface TimeSlotsListProps {
   onBook?: (slot: TimeSlot) => void;
 }
 
-interface GroupedSlots {
-  date: string;
-  dateFormatted: string;
-  slots: TimeSlot[];
-}
-
 export const TimeSlotsList = ({ slots, onBook }: TimeSlotsListProps) => {
   const [showAll, setShowAll] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<TimeSlot | null>(null);
 
-  // Group slots by date
   const groupedSlots = useMemo(() => {
     const groups: Record<string, TimeSlot[]> = {};
     
@@ -49,7 +42,6 @@ export const TimeSlotsList = ({ slots, onBook }: TimeSlotsListProps) => {
     }));
   }, [slots]);
 
-  // Find best time (9-11 AM or 2-4 PM)
   const bestSlot = useMemo(() => {
     return slots.find(slot => {
       const hour = new Date(slot.start).getHours();
@@ -123,7 +115,7 @@ export const TimeSlotsList = ({ slots, onBook }: TimeSlotsListProps) => {
                 <span className="text-sm font-semibold text-gray-700">
                   {isToday(group.date) ? 'Today' : group.dateFormatted}
                 </span>
-                <span className="text-xs text-gray-500">• {group.slots.length} slots</span>
+                <span className="text-xs text-gray-500">â€¢ {group.slots.length} slots</span>
               </div>
             </div>
 
@@ -168,7 +160,7 @@ export const TimeSlotsList = ({ slots, onBook }: TimeSlotsListProps) => {
                         <p className={`text-base font-semibold ${isSelected ? 'text-blue-900' : 'text-gray-900'}`}>
                           {formatTime(slot.start)} - {formatTime(slot.end)}
                         </p>
-                        <p className="text-sm text-gray-600">1 hour • Perfect for meetings</p>
+                        <p className="text-sm text-gray-600">1 hour â€¢ Perfect for meetings</p>
                       </div>
                     </div>
 

@@ -27,6 +27,7 @@ interface PendingAction {
   type: string;
   title: string;
   description: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   parameters: Record<string, any>;
   analysis?: {
     match_score?: number;
@@ -156,7 +157,7 @@ export const ActionConfirmationDialog = ({
             <ul className="space-y-1">
               {conflicts.map((conflict, idx) => (
                 <li key={idx} className="text-sm text-yellow-800 flex items-start gap-2">
-                  <span className="text-yellow-600 mt-0.5">•</span>
+                  <span className="text-yellow-600 mt-0.5">â€¢</span>
                   <span>{conflict}</span>
                 </li>
               ))}
@@ -196,7 +197,7 @@ export const ActionConfirmationDialog = ({
                       month: 'short',
                       day: 'numeric'
                     })}
-                    {' • '}
+                    {' â€¢ '}
                     {new Date(parameters.start_time).toLocaleTimeString('en-US', {
                       hour: 'numeric',
                       minute: '2-digit'
@@ -213,7 +214,7 @@ export const ActionConfirmationDialog = ({
               {parameters.attendees && parameters.attendees.length > 0 && (
                 <div className="flex items-center gap-2 text-sm text-gray-700">
                   <Users className="h-4 w-4 text-gray-500" />
-                  <span>{parameters.attendees.length} member{parameters.attendees.length > 1 ? 's' : ''} • 100% available</span>
+                  <span>{parameters.attendees.length} member{parameters.attendees.length > 1 ? 's' : ''} â€¢ 100% available</span>
                 </div>
               )}
               
