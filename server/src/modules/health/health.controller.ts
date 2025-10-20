@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+﻿import { Controller, Get } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { DatabaseService } from '../../database/database.service';
 import { Public } from '../../common/decorators/public.decorator';
@@ -10,12 +10,12 @@ export class HealthController {
   @Public()
   @Get()
   @ApiOperation({
-    summary: '💚 System health check',
+    summary: 'ðŸ’š System health check',
     description: 'System health check with database, memory, and uptime info',
   })
   @ApiResponse({
     status: 200,
-    description: '✅ System health information',
+    description: 'âœ… System health information',
     schema: {
       example: {
         status: 'ok',
@@ -59,12 +59,12 @@ export class HealthController {
   @Public()
   @Get('db')
   @ApiOperation({
-    summary: '🗄️ Database health check',
+    summary: 'ðŸ—„ï¸ Database health check',
     description: 'Check database connection status and statistics',
   })
   @ApiResponse({
     status: 200,
-    description: '✅ Database health information',
+    description: 'âœ… Database health information',
     schema: {
       example: {
         status: 'healthy',
@@ -79,7 +79,7 @@ export class HealthController {
   })
   @ApiResponse({
     status: 503,
-    description: '❌ Database unhealthy',
+    description: 'âŒ Database unhealthy',
     schema: {
       example: {
         status: 'unhealthy',
