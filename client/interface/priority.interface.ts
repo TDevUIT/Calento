@@ -1,4 +1,4 @@
-export type ItemType = 'task' | 'booking_link' | 'habit' | 'smart_meeting';
+﻿export type ItemType = 'task' | 'booking_link' | 'habit' | 'smart_meeting';
 export type PriorityLevel = 'critical' | 'high' | 'medium' | 'low' | 'disabled';
 
 export interface UserPriority {

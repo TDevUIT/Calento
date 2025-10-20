@@ -1,4 +1,4 @@
-export const BASE_FE_URL = process.env.NEXT_PUBLIC_APP_FE_URL || 'http://localhost:3000';
+﻿export const BASE_FE_URL = process.env.NEXT_PUBLIC_APP_FE_URL || 'http://localhost:3000';
 
 export const PUBLIC_ROUTES = {
   HOME: '/',
@@ -7,6 +7,12 @@ export const PUBLIC_ROUTES = {
   PRICING: '/pricing',
   FEATURES: '/features',
   BLOG: '/blog',
+  BLOG_POST: (slug: string) => `/blog/${slug}`,
+  BLOG_CATEGORY: (categoryId: string) => `/blog/category/${categoryId}`,
+  BLOG_TAG: (tagSlug: string) => `/blog/tag/${tagSlug}`,
+  BLOG_AUTHOR: (authorId: string) => `/blog/author/${authorId}`,
+  HELP: '/help',
+  STATUS: '/status',
 } as const;
 
 
@@ -19,7 +25,6 @@ export const AUTH_ROUTES = {
 } as const;
 
 export const PROTECTED_ROUTES = {
-  // Dashboard
   DASHBOARD: '/dashboard',
   DASHBOARD_CALENDAR: '/dashboard/calendar',
   DASHBOARD_SCHEDULE: '/dashboard/schedule',
@@ -32,24 +37,19 @@ export const PROTECTED_ROUTES = {
   DASHBOARD_PRIORITIES: '/dashboard/priorities',
   DASHBOARD_SCHEDULING: '/dashboard/scheduling-links',
   DASHBOARD_TASKS: '/dashboard/tasks',
-  // Booking
   DASHBOARD_BOOKINGS: '/dashboard/bookings',
   BOOKING_DETAIL: (id: string) => `/dashboard/bookings/${id}`,
   
-  // Events
   EVENTS: '/events',
   EVENT_CREATE: '/events/create',
   EVENT_DETAIL: (id: string) => `/events/${id}`,
   EVENT_EDIT: (id: string) => `/events/${id}/edit`,
   
-  // Calendar
   CALENDAR: '/calendar',
   
-  // User
   PROFILE: '/profile',
   BILLING: '/billing',
   
-  // Settings
   SETTINGS: '/settings',
   SETTINGS_PROFILE: '/settings/profile',
   SETTINGS_ACCOUNT: '/settings/account',
@@ -57,17 +57,14 @@ export const PROTECTED_ROUTES = {
   SETTINGS_NOTIFICATIONS: '/settings/notifications',
   SETTINGS_SECURITY: '/settings/security',
   
-  // Integrations
   INTEGRATIONS: '/integrations',
   GOOGLE_CALLBACK: '/integrations/google/callback',
   
-  // Admin (if needed)
   ADMIN: '/admin',
 } as const;
 
 
 export const API_ROUTES = {
-  // Auth
   AUTH_LOGIN: '/auth/login',
   AUTH_REGISTER: '/auth/register',
   AUTH_LOGOUT: '/auth/logout',
@@ -75,7 +72,6 @@ export const API_ROUTES = {
   AUTH_ME: '/auth/me',
   AUTH_GOOGLE_LOGIN: '/auth/google/login',
   
-  // Events
   EVENTS: '/events',
   EVENT_CREATE: '/events',
   EVENT_DETAIL: (id: string) => `/events/${id}`,
@@ -83,7 +79,6 @@ export const API_ROUTES = {
   EVENT_DELETE: (id: string) => `/events/${id}`,
   EVENT_RECURRING_EXPAND: '/events/recurring/expand',
   
-  // Calendars (containers)
   CALENDARS: '/calendars',
   CALENDAR_CREATE: '/calendars',
   CALENDAR_DETAIL: (id: string) => `/calendars/${id}`,
@@ -93,7 +88,6 @@ export const API_ROUTES = {
   CALENDAR_SEARCH: '/calendars/search',
   CALENDAR_SYNC: '/calendar/sync',
   
-  // Google Integration
   GOOGLE_AUTH_URL: '/auth/google/url',
   GOOGLE_STATUS: '/google/status',
   GOOGLE_DISCONNECT: '/google/disconnect',
@@ -102,13 +96,11 @@ export const API_ROUTES = {
   GOOGLE_TOKEN_REFRESH: '/google/token/refresh',
   GOOGLE_MEET_CREATE: '/google/meet/create',
   
-  // Booking Links
   BOOKING_LINKS: '/booking-links',
   BOOKING_LINK_DETAIL: (id: string) => `/booking-links/${id}`,
   BOOKING_LINK_TOGGLE: (id: string) => `/booking-links/${id}/toggle`,
   BOOKING_LINK_STATS: (id: string) => `/booking-links/${id}/stats`,
   
-  // Bookings Management
   BOOKINGS: '/bookings',
   BOOKING_DETAIL: (id: string) => `/bookings/${id}`,
   BOOKING_CANCEL: (id: string) => `/bookings/${id}/cancel`,
@@ -116,20 +108,17 @@ export const API_ROUTES = {
   BOOKING_COMPLETE: (id: string) => `/bookings/${id}/complete`,
   BOOKING_STATS: '/bookings/stats',
   
-  // Public Booking APIs
   PUBLIC_BOOKING_LINK: (slug: string) => `/bookings/public/${slug}`,
   PUBLIC_BOOKING_SLOTS: (slug: string) => `/bookings/public/${slug}/slots`,
   PUBLIC_BOOKING_CREATE: (slug: string) => `/bookings/${slug}`,
   PUBLIC_BOOKING_CANCEL: (token: string) => `/bookings/public/cancel/${token}`,
   PUBLIC_BOOKING_RESCHEDULE: (token: string) => `/bookings/public/reschedule/${token}`,
   
-  // Invitation APIs
   SEND_INVITATIONS: (eventId: string) => `/events/${eventId}/invitations/send`,
   SEND_REMINDERS: (eventId: string) => `/events/${eventId}/invitations/remind`,
   INVITATION_DETAILS: (token: string) => `/events/invitation/${token}`,
   RESPOND_TO_INVITATION: (token: string) => `/events/invitation/${token}/respond`,
   
-  // Analytics APIs
   ANALYTICS_OVERVIEW: '/analytics/overview',
   ANALYTICS_DETAILED: '/analytics/detailed',
   ANALYTICS_EVENTS: '/analytics/events',
@@ -139,7 +128,6 @@ export const API_ROUTES = {
   ANALYTICS_ATTENDEES: '/analytics/attendees',
   ANALYTICS_BOOKINGS: '/analytics/bookings',
   
-  // Tasks APIs
   TASKS: '/tasks',
   TASK_CREATE: '/tasks',
   TASK_DETAIL: (id: string) => `/tasks/${id}`,
@@ -159,6 +147,29 @@ export const API_ROUTES = {
   AI_CHAT: '/ai/chat',
   AI_CHAT_STREAM: '/ai/chat/stream',
   AI_FUNCTION_EXECUTE: '/ai/function/execute',
+  
+  BLOG_POSTS: '/blog',
+  BLOG_PUBLISHED: '/blog/public/published',
+  BLOG_FEATURED: '/blog/public/featured',
+  BLOG_POPULAR: '/blog/public/popular',
+  BLOG_DETAIL: (id: string) => `/blog/${id}`,
+  BLOG_BY_SLUG: (slug: string) => `/blog/slug/${slug}`,
+  BLOG_SEARCH: '/blog/search',
+  BLOG_BY_CATEGORY: (categoryId: string) => `/blog/category/${categoryId}`,
+  BLOG_BY_TAG: (tagId: string) => `/blog/tag/${tagId}`,
+  BLOG_BY_AUTHOR: (authorId: string) => `/blog/author/${authorId}`,
+  BLOG_RELATED: (id: string) => `/blog/${id}/related`,
+  BLOG_CREATE: '/blog',
+  BLOG_UPDATE: (id: string) => `/blog/${id}`,
+  BLOG_DELETE: (id: string) => `/blog/${id}`,
+  BLOG_PUBLISH: (id: string) => `/blog/${id}/publish`,
+  BLOG_UNPUBLISH: (id: string) => `/blog/${id}/unpublish`,
+  
+  CONTACT_SUBMIT: '/contact',
+  
+  HEALTH: '/health',
+  HEALTH_DB: '/health/db',
+  HEALTH_OK: '/health/ok',
 } as const;
 
 export const PUBLIC_ROUTE_PATTERNS = [
@@ -172,7 +183,7 @@ export const PUBLIC_ROUTE_PATTERNS = [
   '/auth/forgot-password',
   '/auth/reset-password',
   '/auth/verify-email',
-  '/book/*', // Public booking pages
+  '/book/*',
 ] as const;
 
 

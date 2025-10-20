@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
@@ -44,8 +44,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 
   useEffect(() => {
     if (isSuccess) {
-      toast.success('🎉 ' + AUTH_SUCCESS_MESSAGES.register.title, {
-        description: '✨ ' + AUTH_SUCCESS_MESSAGES.register.description,
+      toast.success('ðŸŽ‰ ' + AUTH_SUCCESS_MESSAGES.register.title, {
+        description: 'âœ¨ ' + AUTH_SUCCESS_MESSAGES.register.description,
         duration: SUCCESS_TOAST_DURATION,
       })
       setTimeout(() => {

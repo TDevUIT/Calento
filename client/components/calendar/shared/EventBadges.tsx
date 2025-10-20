@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Video, Users, Bell, Repeat, Eye, EyeOff, Lock } from 'lucide-react';
 import type { Event } from '@/interface/event.interface';
@@ -13,7 +13,6 @@ export function EventBadges({ event, size = 'sm' }: EventBadgesProps) {
   
   const badges = [];
 
-  // Conference badge
   if (event.conference_data) {
     const conferenceColors = {
       google_meet: 'text-blue-500',
@@ -31,39 +30,35 @@ export function EventBadges({ event, size = 'sm' }: EventBadgesProps) {
     });
   }
 
-  // Attendees badge
   if (event.attendees && event.attendees.length > 0) {
     badges.push({
       key: 'attendees',
       icon: <Users className={`${iconSize} text-green-500`} />,
-      tooltip: `${event.attendees.length} người tham gia`,
+      tooltip: `${event.attendees.length} ngÆ°á»i tham gia`,
     });
   }
 
-  // Recurring badge
   if (event.recurrence_rule) {
     badges.push({
       key: 'recurring',
       icon: <Repeat className={`${iconSize} text-orange-500`} />,
-      tooltip: 'Sự kiện lặp lại',
+      tooltip: 'Sá»± kiá»‡n láº·p láº¡i',
     });
   }
 
-  // Reminders badge
   if (event.reminders && event.reminders.length > 0) {
     badges.push({
       key: 'reminders',
       icon: <Bell className={`${iconSize} text-yellow-500`} />,
-      tooltip: `${event.reminders.length} nhắc nhở`,
+      tooltip: `${event.reminders.length} nháº¯c nhá»Ÿ`,
     });
   }
 
-  // Visibility badge
   if (event.visibility && event.visibility !== 'default') {
     const visibilityIcons = {
-      public: { icon: <Eye className={`${iconSize} text-gray-500`} />, tooltip: 'Công khai' },
-      private: { icon: <EyeOff className={`${iconSize} text-gray-500`} />, tooltip: 'Riêng tư' },
-      confidential: { icon: <Lock className={`${iconSize} text-red-500`} />, tooltip: 'Bảo mật' },
+      public: { icon: <Eye className={`${iconSize} text-gray-500`} />, tooltip: 'CÃ´ng khai' },
+      private: { icon: <EyeOff className={`${iconSize} text-gray-500`} />, tooltip: 'RiÃªng tÆ°' },
+      confidential: { icon: <Lock className={`${iconSize} text-red-500`} />, tooltip: 'Báº£o máº­t' },
     };
     
     const visibilityData = visibilityIcons[event.visibility as keyof typeof visibilityIcons];

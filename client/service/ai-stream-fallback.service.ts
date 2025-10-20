@@ -1,4 +1,4 @@
-import { StreamChatRequest } from '../interface/ai.interface';
+﻿import { StreamChatRequest } from '../interface/ai.interface';
 import { chatStream as sseStream } from './ai.service';
 import { aiWebSocketService } from './ai-websocket.service';
 import { aiPollingService } from './ai-polling.service';
@@ -38,11 +38,10 @@ export const chatStreamWithFallback = async (
     }
 
     const method = methods[currentMethodIndex];
-    console.log(`🔄 Trying streaming method: ${method} (${currentMethodIndex + 1}/${methods.length})`);
+    console.log(`ðŸ”„ Trying streaming method: ${method} (${currentMethodIndex + 1}/${methods.length})`);
 
-    // Set timeout for current method
     timeoutId = setTimeout(() => {
-      console.warn(`⏰ Method ${method} timed out, trying next...`);
+      console.warn(`â° Method ${method} timed out, trying next...`);
       currentMethodIndex++;
       tryNextMethod();
     }, timeout);
@@ -54,7 +53,7 @@ export const chatStreamWithFallback = async (
 
     const wrappedOnError = (error: Error) => {
       clearTimeout(timeoutId);
-      console.error(`❌ Method ${method} failed:`, error.message);
+      console.error(`âŒ Method ${method} failed:`, error.message);
       
       if (enableFallback && currentMethodIndex < methods.length - 1) {
         currentMethodIndex++;
@@ -89,7 +88,6 @@ export const chatStreamWithFallback = async (
   await tryNextMethod();
 };
 
-// Convenience functions for specific methods
 export const chatStreamSSE = (
   data: StreamChatRequest,
   onMessage: (chunk: string) => void,

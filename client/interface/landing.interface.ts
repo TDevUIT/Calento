@@ -1,11 +1,9 @@
-// Landing Page Statistics
-export interface StatItem {
+﻿export interface StatItem {
   id: string;
   value: string;
   label: string;
 }
 
-// Department/Service Cards
 export interface DepartmentCard {
   id: string;
   title: string;
@@ -15,7 +13,6 @@ export interface DepartmentCard {
   href: string;
 }
 
-// Integration Items
 export interface IntegrationItem {
   id: string;
   name: string;
@@ -25,7 +22,6 @@ export interface IntegrationItem {
   comingSoon?: boolean;
 }
 
-// Enterprise Features
 export interface EnterpriseFeature {
   id: string;
   icon: string;
@@ -33,7 +29,6 @@ export interface EnterpriseFeature {
   description: string;
 }
 
-// Testimonials
 export interface Testimonial {
   id: string;
   author: string;
@@ -45,7 +40,6 @@ export interface Testimonial {
   illustration: string;
 }
 
-// Platform Integrations
 export interface PlatformIntegration {
   id: string;
   name: string;
@@ -54,7 +48,6 @@ export interface PlatformIntegration {
   href: string;
 }
 
-// Timeline/Roadmap
 export interface TimelinePhase {
   id: string;
   period: string;

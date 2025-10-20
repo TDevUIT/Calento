@@ -1,5 +1,4 @@
-// Landing Page Statistics Data
-export const STATS_DATA = {
+﻿export const STATS_DATA = {
   green: [
     { id: 'green-stat-1', value: '56%', label: 'less burnout for employees' },
     { id: 'green-stat-2', value: '45%', label: 'better work-life balance for employees' },
@@ -14,12 +13,11 @@ export const STATS_DATA = {
   ],
 } as const;
 
-// Department/Team Data
 export const DEPARTMENTS_DATA = [
   {
     id: 'dept-marketing',
     title: 'Marketing',
-    description: 'Fast-track campaigns →',
+    description: 'Fast-track campaigns â†’',
     icon: 'https://cdn.prod.website-files.com/67859049c02d67b2cfcceebf/67859049c02d67b2cfccf61e_marketing_180.svg',
     colorClass: 'bg-purple-600 text-white',
     href: '/teams/marketing',
@@ -27,7 +25,7 @@ export const DEPARTMENTS_DATA = [
   {
     id: 'dept-engineering',
     title: 'Engineering',
-    description: 'Get more coding done →',
+    description: 'Get more coding done â†’',
     icon: 'https://cdn.prod.website-files.com/67859049c02d67b2cfcceebf/67859049c02d67b2cfccf620_engineering_180.svg',
     colorClass: 'bg-blue-800 text-white',
     href: '/teams/engineering',
@@ -35,7 +33,7 @@ export const DEPARTMENTS_DATA = [
   {
     id: 'dept-product',
     title: 'Product',
-    description: 'Ship product faster →',
+    description: 'Ship product faster â†’',
     icon: 'https://cdn.prod.website-files.com/67859049c02d67b2cfcceebf/67859049c02d67b2cfccf621_product_180.svg',
     colorClass: 'bg-blue-100 text-gray-900',
     href: '/teams/product',
@@ -43,7 +41,7 @@ export const DEPARTMENTS_DATA = [
   {
     id: 'dept-sales',
     title: 'Sales',
-    description: 'Close more deals →',
+    description: 'Close more deals â†’',
     icon: 'https://cdn.prod.website-files.com/67859049c02d67b2cfcceebf/67859049c02d67b2cfccf624_sales_180.svg',
     colorClass: 'bg-white text-gray-900 border border-gray-200',
     href: '/teams/sales',
@@ -51,7 +49,7 @@ export const DEPARTMENTS_DATA = [
   {
     id: 'dept-hr',
     title: 'HR',
-    description: 'Empower employees →',
+    description: 'Empower employees â†’',
     icon: 'https://cdn.prod.website-files.com/67859049c02d67b2cfcceebf/67859049c02d67b2cfccf625_hr_180.svg',
     colorClass: 'bg-green-100 text-gray-900',
     href: '/teams/hr',
@@ -59,7 +57,7 @@ export const DEPARTMENTS_DATA = [
   {
     id: 'dept-finance',
     title: 'Finance',
-    description: 'Improve performance →',
+    description: 'Improve performance â†’',
     icon: 'https://cdn.prod.website-files.com/67859049c02d67b2cfcceebf/67859049c02d67b2cfccf626_finance_180.svg',
     colorClass: 'bg-green-200 text-gray-900',
     href: '/teams/finance',
@@ -67,14 +65,13 @@ export const DEPARTMENTS_DATA = [
   {
     id: 'dept-ea',
     title: 'EAs & Admin',
-    description: 'Optimize your work →',
+    description: 'Optimize your work â†’',
     icon: 'https://cdn.prod.website-files.com/67859049c02d67b2cfcceebf/68228a8dbdfab58f722be1c9_ea_card_01.svg',
     colorClass: 'bg-green-800 text-white',
     href: '/teams/executive-assistants',
   },
 ] as const;
 
-// Integration Data
 export const INTEGRATIONS_DATA = [
   {
     id: 'int-google-calendar',
@@ -181,7 +178,6 @@ export const INTEGRATIONS_DATA = [
   },
 ] as const;
 
-// Enterprise Features Data
 export const ENTERPRISE_FEATURES_DATA = [
   {
     id: 'ent-soc2',
@@ -221,7 +217,6 @@ export const ENTERPRISE_FEATURES_DATA = [
   },
 ] as const;
 
-// Trusted Companies
 export const TRUSTED_COMPANIES = [
   'Google',
   'Amazon',
@@ -230,7 +225,6 @@ export const TRUSTED_COMPANIES = [
   'Zoom',
 ] as const;
 
-// Testimonials Data (placeholder for future expansion)
 export const TESTIMONIALS_DATA: {
   grafana?: {
     id: string;
@@ -244,7 +238,6 @@ export const TESTIMONIALS_DATA: {
   };
 } = {};
 
-// Platform Integrations Data (placeholder for future expansion)
 export const PLATFORM_INTEGRATIONS_DATA: Array<{
   id: string;
   name: string;
@@ -253,7 +246,6 @@ export const PLATFORM_INTEGRATIONS_DATA: Array<{
   href: string;
 }> = [];
 
-// Timeline/Roadmap Data
 export const TIMELINE_DATA = [
   {
     id: 'timeline-today',

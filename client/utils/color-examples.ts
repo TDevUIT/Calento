@@ -1,9 +1,8 @@
-/**
+﻿/**
  * Example colors to test the automatic text color functionality
  */
 
 export const testColors = [
-  // Light colors (should use dark text)
   '#ffffff', // White
   '#f0f0f0', // Light gray
   '#ffeb3b', // Yellow
@@ -12,7 +11,6 @@ export const testColors = [
   '#ff9800', // Orange
   '#e91e63', // Pink
   
-  // Dark colors (should use white text)
   '#000000', // Black
   '#212121', // Dark gray
   '#1a1a1a', // Very dark gray
@@ -22,7 +20,6 @@ export const testColors = [
   '#4b0082', // Indigo
   '#800080', // Purple
   
-  // Medium colors (test edge cases)
   '#808080', // Medium gray
   '#696969', // Dim gray
   '#a0a0a0', // Light gray

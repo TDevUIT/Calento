@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient, type UseMutationResult } from '@tanstack/react-query';
+﻿import { useMutation, useQueryClient, type UseMutationResult } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { sendReminders, type SendRemindersResponse } from '@/service/invitation.service';
 import { EVENT_QUERY_KEYS } from '@/hook/event/query-keys';
@@ -29,7 +29,6 @@ export function useSendReminders(): UseMutationResult<
         });
       }
 
-      // Invalidate event queries
       queryClient.invalidateQueries({ 
         queryKey: EVENT_QUERY_KEYS.detail(eventId) 
       });

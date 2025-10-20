@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { 
@@ -95,11 +95,11 @@ export const EventMutationDemo: React.FC = () => {
       <div className="mt-4 text-sm text-gray-600">
         <p><strong>Features:</strong></p>
         <ul className="list-disc list-inside space-y-1">
-          <li>✅ Optimistic updates - UI updates immediately</li>
-          <li>✅ Auto rollback on errors</li>
-          <li>✅ Toast notifications</li>
-          <li>✅ Cache invalidation for real-time sync</li>
-          <li>✅ Loading states</li>
+          <li>âœ… Optimistic updates - UI updates immediately</li>
+          <li>âœ… Auto rollback on errors</li>
+          <li>âœ… Toast notifications</li>
+          <li>âœ… Cache invalidation for real-time sync</li>
+          <li>âœ… Loading states</li>
         </ul>
       </div>
     </div>

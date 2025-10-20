@@ -1,4 +1,4 @@
-
+﻿
 const CALENDAR_VIEW_KEY = 'tempra_calendar_view';
 
 export type CalendarView = 'day' | 'week' | 'month' | 'year';

@@ -1,4 +1,4 @@
-import { User } from "@/interface/auth.interface";
+﻿import { User } from "@/interface/auth.interface";
 
 
 export function getUserInitials(user: User | null | undefined): string {

@@ -1,4 +1,4 @@
-export const QUERY_KEYS = {
+﻿export const QUERY_KEYS = {
   auth: {
     all: ['auth'] as const,
     session: () => [...QUERY_KEYS.auth.all, 'session'] as const,

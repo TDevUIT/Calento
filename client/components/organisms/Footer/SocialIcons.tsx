@@ -1,7 +1,6 @@
-import React from 'react';
+﻿import React from 'react';
 import { SocialPlatform } from '@/constants/footer.constants';
 
-// Social Media Icons
 export const TwitterIcon: React.FC<{ className?: string }> = ({ className = "w-5 h-5" }) => (
   <svg className={className} fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
@@ -32,7 +31,6 @@ export const FacebookIcon: React.FC<{ className?: string }> = ({ className = "w-
   </svg>
 );
 
-// Icon mapping
 export const SOCIAL_ICONS: Record<string, React.FC<{ className?: string }>> = {
   Twitter: TwitterIcon,
   LinkedIn: LinkedInIcon,
@@ -41,7 +39,6 @@ export const SOCIAL_ICONS: Record<string, React.FC<{ className?: string }>> = {
   Facebook: FacebookIcon,
 };
 
-// Social Platform Component with Icon
 export const SocialPlatformWithIcon = (platform: Omit<SocialPlatform, 'icon'>): SocialPlatform => {
   const IconComponent = SOCIAL_ICONS[platform.name];
   return {

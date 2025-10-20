@@ -1,4 +1,4 @@
-export default function ProfilePage() {
+﻿export default function ProfilePage() {
   return (
     <div>
       <h1>Profile Page</h1>

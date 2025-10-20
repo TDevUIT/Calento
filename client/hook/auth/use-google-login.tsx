@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
@@ -31,7 +31,7 @@ export const useGoogleLogin = (): UseGoogleLoginReturn => {
     onError: (error: Error) => {
       const errorMessage = error.message || 'Failed to start Google login';
       setError(errorMessage);
-      toast.error('❌ Google Login Failed', {
+      toast.error('âŒ Google Login Failed', {
         description: errorMessage,
         duration: ERROR_TOAST_DURATION,
       });

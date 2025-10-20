@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { cn } from '@/lib/utils';
@@ -13,19 +13,19 @@ interface Insight {
 export const AIInsightsCard: React.FC = () => {
   const insights: Insight[] = [
     {
-      icon: '⚡',
+      icon: 'âš¡',
       title: 'Peak productivity time',
       description: 'You work best between 9-11 AM',
       color: 'from-yellow-400 to-orange-500'
     },
     {
-      icon: '🎯',
+      icon: 'ðŸŽ¯',
       title: 'Focus time protected',
       description: '2.5 hours saved this week',
       color: 'from-blue-400 to-purple-500'
     },
     {
-      icon: '📊',
+      icon: 'ðŸ“Š',
       title: 'Meeting efficiency',
       description: '87% of meetings started on time',
       color: 'from-green-400 to-teal-500'

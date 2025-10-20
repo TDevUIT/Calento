@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils';
+﻿import { cn } from '@/lib/utils';
 
 export function getCalendarStyles(compactMode: boolean, highlightWeekends: boolean) {
   return {

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
@@ -89,7 +89,7 @@ export function BookingCard({ booking, onCancel, onReschedule }: BookingCardProp
                 {onReschedule && (
                   <DropdownMenuItem onClick={() => onReschedule(booking)}>
                     <RotateCw className="mr-2 h-4 w-4" />
-                    Đổi lịch
+                    Äá»•i lá»‹ch
                   </DropdownMenuItem>
                 )}
                 {onCancel && (
@@ -98,7 +98,7 @@ export function BookingCard({ booking, onCancel, onReschedule }: BookingCardProp
                     className="text-red-600 dark:text-red-400"
                   >
                     <XCircle className="mr-2 h-4 w-4" />
-                    Hủy cuộc hẹn
+                    Há»§y cuá»™c háº¹n
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>
@@ -114,7 +114,7 @@ export function BookingCard({ booking, onCancel, onReschedule }: BookingCardProp
           <span className="font-medium">
             {format(startTime, "dd MMM yyyy", { locale: vi })}
           </span>
-          <span className="text-gray-400">•</span>
+          <span className="text-gray-400">â€¢</span>
           <Clock className="h-4 w-4 text-gray-400 flex-shrink-0" />
           <span>
             {format(startTime, "HH:mm")} - {format(endTime, "HH:mm")}

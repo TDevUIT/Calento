@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient, type UseMutationResult } from '@tanstack/react-query';
+﻿import { useMutation, useQueryClient, type UseMutationResult } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { sendInvitations, type SendInvitationsRequest, type SendInvitationsResponse } from '@/service/invitation.service';
 import { EVENT_QUERY_KEYS } from '@/hook/event/query-keys';

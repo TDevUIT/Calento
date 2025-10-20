@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+﻿import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { 
   getBookingLinks as getBookingLinksApi,
@@ -13,7 +13,6 @@ import {
   UpdateBookingLinkDto 
 } from '@/service/booking.service';
 
-// Query Keys
 export const BOOKING_LINK_QUERY_KEYS = {
   all: ['booking-links'] as const,
   lists: () => [...BOOKING_LINK_QUERY_KEYS.all, 'list'] as const,
@@ -23,7 +22,6 @@ export const BOOKING_LINK_QUERY_KEYS = {
   stats: (id: string) => [...BOOKING_LINK_QUERY_KEYS.all, 'stats', id] as const,
 };
 
-// Get all booking links
 export function useBookingLinks() {
   return useQuery({
     queryKey: BOOKING_LINK_QUERY_KEYS.lists(),
@@ -34,7 +32,6 @@ export function useBookingLinks() {
   });
 }
 
-// Get single booking link
 export function useBookingLink(id: string) {
   return useQuery({
     queryKey: BOOKING_LINK_QUERY_KEYS.detail(id),
@@ -46,7 +43,6 @@ export function useBookingLink(id: string) {
   });
 }
 
-// Get booking link stats
 export function useBookingLinkStats(id: string) {
   return useQuery({
     queryKey: BOOKING_LINK_QUERY_KEYS.stats(id),
@@ -58,7 +54,6 @@ export function useBookingLinkStats(id: string) {
   });
 }
 
-// Create booking link
 export function useCreateBookingLink() {
   const queryClient = useQueryClient();
 
@@ -67,13 +62,11 @@ export function useCreateBookingLink() {
       return await createBookingLinkApi(data);
     },
     onSuccess: (newBookingLink) => {
-      // Update the booking links list cache
       queryClient.setQueryData<BookingLink[]>(
         BOOKING_LINK_QUERY_KEYS.lists(),
         (old) => old ? [newBookingLink, ...old] : [newBookingLink]
       );
       
-      // Invalidate all booking link queries
       queryClient.invalidateQueries({ 
         queryKey: BOOKING_LINK_QUERY_KEYS.all 
       });
@@ -87,7 +80,6 @@ export function useCreateBookingLink() {
   });
 }
 
-// Update booking link
 export function useUpdateBookingLink() {
   const queryClient = useQueryClient();
 
@@ -96,13 +88,11 @@ export function useUpdateBookingLink() {
       return await updateBookingLinkApi(id, data);
     },
     onSuccess: (updatedBookingLink, { id }) => {
-      // Update the specific booking link cache
       queryClient.setQueryData(
         BOOKING_LINK_QUERY_KEYS.detail(id),
         updatedBookingLink
       );
       
-      // Update the booking links list cache
       queryClient.setQueryData<BookingLink[]>(
         BOOKING_LINK_QUERY_KEYS.lists(),
         (old) => old ? old.map(link => 
@@ -110,7 +100,6 @@ export function useUpdateBookingLink() {
         ) : [updatedBookingLink]
       );
       
-      // Invalidate all booking link queries
       queryClient.invalidateQueries({ 
         queryKey: BOOKING_LINK_QUERY_KEYS.all 
       });
@@ -124,7 +113,6 @@ export function useUpdateBookingLink() {
   });
 }
 
-// Delete booking link
 export function useDeleteBookingLink() {
   const queryClient = useQueryClient();
 
@@ -134,23 +122,19 @@ export function useDeleteBookingLink() {
       return id;
     },
     onSuccess: (deletedId) => {
-      // Remove from booking links list cache
       queryClient.setQueryData<BookingLink[]>(
         BOOKING_LINK_QUERY_KEYS.lists(),
         (old) => old ? old.filter(link => link.id !== deletedId) : []
       );
       
-      // Remove the specific booking link cache
       queryClient.removeQueries({
         queryKey: BOOKING_LINK_QUERY_KEYS.detail(deletedId)
       });
       
-      // Remove stats cache
       queryClient.removeQueries({
         queryKey: BOOKING_LINK_QUERY_KEYS.stats(deletedId)
       });
       
-      // Invalidate all booking link queries
       queryClient.invalidateQueries({ 
         queryKey: BOOKING_LINK_QUERY_KEYS.all 
       });
@@ -164,7 +148,6 @@ export function useDeleteBookingLink() {
   });
 }
 
-// Toggle booking link active status
 export function useToggleBookingLink() {
   const queryClient = useQueryClient();
 
@@ -173,13 +156,11 @@ export function useToggleBookingLink() {
       return await toggleBookingLinkApi(id);
     },
     onSuccess: (updatedBookingLink, id) => {
-      // Update the specific booking link cache
       queryClient.setQueryData(
         BOOKING_LINK_QUERY_KEYS.detail(id),
         updatedBookingLink
       );
       
-      // Update the booking links list cache
       queryClient.setQueryData<BookingLink[]>(
         BOOKING_LINK_QUERY_KEYS.lists(),
         (old) => old ? old.map(link => 

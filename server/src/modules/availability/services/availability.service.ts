@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+﻿import { Injectable, Logger } from '@nestjs/common';
 import { AvailabilityRepository } from '../repositories/availability.repository';
 import { DatabaseService } from '../../../database/database.service';
 import { MessageService } from '../../../common/message/message.service';
@@ -235,7 +235,6 @@ export class AvailabilityService {
       this.logger.log(`No availability rules found for user ${userId}, creating default rules`);
       await this.createDefaultAvailabilityRules(userId);
       
-      // Fetch the newly created rules
       const newAvailabilityRules = await this.availabilityRepository.findActiveByUserId(userId);
       
       if (newAvailabilityRules.length === 0) {
@@ -247,7 +246,6 @@ export class AvailabilityService {
         throw new NoAvailabilityFoundException(message);
       }
       
-      // Use the newly created rules
       availabilityRules.push(...newAvailabilityRules);
     }
 

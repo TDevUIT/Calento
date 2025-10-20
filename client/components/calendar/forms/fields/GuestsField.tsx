@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { Plus, Users, Settings, Mail, Send, Bell } from 'lucide-react';
@@ -128,7 +128,7 @@ export function GuestsField({
                 className="text-xs"
               >
                 <Send className="h-4 w-4 mr-1" />
-                Gửi lời mời
+                Gá»­i lá»i má»i
               </Button>
               {stats.pending > 0 && (
                 <Button
@@ -139,7 +139,7 @@ export function GuestsField({
                   className="text-xs"
                 >
                   <Bell className="h-4 w-4 mr-1" />
-                  Nhắc nhở ({stats.pending})
+                  Nháº¯c nhá»Ÿ ({stats.pending})
                 </Button>
               )}
             </>
@@ -152,7 +152,7 @@ export function GuestsField({
             className="text-xs"
           >
             <Settings className="h-4 w-4 mr-1" />
-            Quyền
+            Quyá»n
           </Button>
         </div>
       </div>

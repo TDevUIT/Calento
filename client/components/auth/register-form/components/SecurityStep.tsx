@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -124,7 +124,7 @@ export const SecurityStep: React.FC<SecurityStepProps> = ({
           <div className="flex items-center gap-1.5 mt-1">
             <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
             <p className="text-[10px] md:text-xs text-blue-600 dark:text-blue-400 font-medium">
-              ✓ Passwords match
+              âœ“ Passwords match
             </p>
           </div>
         )}
@@ -132,7 +132,7 @@ export const SecurityStep: React.FC<SecurityStepProps> = ({
           <div className="flex items-center gap-1.5 mt-1">
             <XCircle className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
             <p className="text-[10px] md:text-xs text-red-600 dark:text-red-400 font-medium">
-              ✗ Passwords don&apos;t match
+              âœ— Passwords don&apos;t match
             </p>
           </div>
         )}

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { Bell, Calendar, Clock, User, X } from "lucide-react";
@@ -118,7 +118,7 @@ export function BookingNotification({
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <User className="h-3 w-3" />
                 <span>{notification.booking.booker_name}</span>
-                <span>•</span>
+                <span>â€¢</span>
                 <span>{notification.booking.booker_email}</span>
               </div>
               

@@ -1,10 +1,8 @@
- 'use client';
+﻿ 'use client';
 
 import { Badge } from '@/components/ui/badge';
 import { CalendarCurrentDate, useCalendar } from '../views/FullCalendar';
 import { isThisWeek } from 'date-fns';
-// import { useCalendarSettings } from '../shared/CalendarSettingsProvider';
-// import { formatDateWithSettings } from '@/utils/calendar-format';
 
 export function DateDisplay() {
   const { date, view } = useCalendar();

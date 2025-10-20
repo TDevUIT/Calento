@@ -1,5 +1,4 @@
-// Pricing Plan Interfaces
-export interface PricingPlan {
+﻿export interface PricingPlan {
   name: string;
   price: string;
   period: string;
@@ -18,7 +17,6 @@ export interface PricingPlans {
   yearly: PricingPlan[];
 }
 
-// Feature Comparison Interfaces
 export interface ComparisonFeature {
   name: string;
   free: string | boolean;
@@ -31,11 +29,9 @@ export interface ComparisonCategory {
   features: ComparisonFeature[];
 }
 
-// FAQ Interfaces
 export interface FAQ {
   question: string;
   answer: string;
 }
 
-// Billing Types
 export type BillingPeriod = 'monthly' | 'yearly';

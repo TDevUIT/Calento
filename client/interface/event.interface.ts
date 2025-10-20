@@ -1,4 +1,4 @@
-export interface EventAttendee {
+﻿export interface EventAttendee {
   email: string;
   name?: string;
   response_status?: 'accepted' | 'declined' | 'tentative' | 'needsAction';
@@ -35,7 +35,6 @@ export interface Event {
   recurrence_rule?: string;
   color?: string;
   
-  // Creator information (người tạo event)
   creator?: {
     id: string;
     name?: string;
@@ -43,25 +42,21 @@ export interface Event {
     avatar?: string;
   };
   
-  // Organizer information (người tổ chức - có thể khác creator)
   organizer_id?: string;
   organizer_email?: string;
   organizer_name?: string;
-  organizer_avatar?: string; // Avatar URL của người tổ chức
+  organizer_avatar?: string; // Avatar URL cá»§a ngÆ°á»i tá»• chá»©c
   
-  // Attendees and conference
   attendees?: EventAttendee[];
   conference_data?: ConferenceData;
   reminders?: EventReminder[];
   
-  // Privacy and response
   visibility?: 'default' | 'public' | 'private' | 'confidential';
   response_status?: 'accepted' | 'declined' | 'tentative' | 'needsAction';
   
-  // External integration
-  google_calendar_url?: string; // Link đến Google Calendar
-  source?: string; // Nguồn tạo event (e.g., "Reclaim.ai", "Manual", "Google Calendar")
-  source_url?: string; // URL của ứng dụng tạo event
+  google_calendar_url?: string; // Link Ä‘áº¿n Google Calendar
+  source?: string; // Nguá»“n táº¡o event (e.g., "Reclaim.ai", "Manual", "Google Calendar")
+  source_url?: string; // URL cá»§a á»©ng dá»¥ng táº¡o event
   
   created_at: Date | string;
   updated_at: Date | string;
@@ -83,7 +78,6 @@ export interface CreateEventRequest {
   visibility?: 'default' | 'public' | 'private' | 'confidential';
 }
 
-// For PUT requests - full replacement (all required fields must be provided)
 export interface UpdateEventRequest {
   calendar_id: string; // Required for PUT
   title: string;       // Required for PUT
@@ -101,7 +95,6 @@ export interface UpdateEventRequest {
   response_status?: 'accepted' | 'declined' | 'tentative' | 'needsAction';
 }
 
-// For PATCH requests - partial update (all fields are optional)
 export interface PartialUpdateEventRequest {
   calendar_id?: string; // Allow moving event to different calendar
   title?: string;

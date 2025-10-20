@@ -1,4 +1,4 @@
-export type LoginFormProps = {
+﻿export type LoginFormProps = {
   className?: string
   onGoogleLogin?: () => void
   onSubmitEmailPassword?: (payload: LoginPayload) => void

@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+﻿import { format } from 'date-fns';
 
 export function formatTimeWithSettings(date: Date, timeFormat: '12h' | '24h'): string {
   if (timeFormat === '12h') {

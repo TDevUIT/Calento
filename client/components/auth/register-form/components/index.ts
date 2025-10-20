@@ -1,4 +1,4 @@
-export { ProgressIndicator } from './ProgressIndicator'
+﻿export { ProgressIndicator } from './ProgressIndicator'
 export { RegisterSocialOptions } from './RegisterSocialOptions'
 export { PersonalInfoStep } from './PersonalInfoStep'
 export { SecurityStep } from './SecurityStep'

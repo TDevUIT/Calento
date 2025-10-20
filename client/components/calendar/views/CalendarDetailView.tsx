@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useCalendarDetail } from '@/hook/calendar';
 import { Loader2, Star, Clock, MapPin, Calendar as CalendarIcon, AlertCircle } from 'lucide-react';

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { EventAttendee } from '@/interface/event.interface';
 import { User, Check, X, Clock, HelpCircle, Star } from 'lucide-react';
@@ -21,25 +21,25 @@ const responseStatusConfig = {
     icon: Check,
     color: 'text-green-600 dark:text-green-400',
     bg: 'bg-green-50 dark:bg-green-950',
-    label: 'Đã chấp nhận',
+    label: 'ÄÃ£ cháº¥p nháº­n',
   },
   declined: {
     icon: X,
     color: 'text-red-600 dark:text-red-400',
     bg: 'bg-red-50 dark:bg-red-950',
-    label: 'Đã từ chối',
+    label: 'ÄÃ£ tá»« chá»‘i',
   },
   tentative: {
     icon: HelpCircle,
     color: 'text-yellow-600 dark:text-yellow-400',
     bg: 'bg-yellow-50 dark:bg-yellow-950',
-    label: 'Chưa chắc chắn',
+    label: 'ChÆ°a cháº¯c cháº¯n',
   },
   needsAction: {
     icon: Clock,
     color: 'text-gray-600 dark:text-gray-400',
     bg: 'bg-gray-50 dark:bg-gray-900',
-    label: 'Chưa phản hồi',
+    label: 'ChÆ°a pháº£n há»“i',
   },
 };
 
@@ -62,7 +62,6 @@ export function AttendeesList({ attendees, organizerEmail }: AttendeesListProps)
     return null;
   }
 
-  // Sort: organizer first, then by response status
   const sortedAttendees = [...attendees].sort((a, b) => {
     if (a.is_organizer) return -1;
     if (b.is_organizer) return 1;
@@ -85,11 +84,11 @@ export function AttendeesList({ attendees, organizerEmail }: AttendeesListProps)
         <div className="flex items-center gap-2">
           <User className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm font-medium">
-            {totalCount} người tham gia
+            {totalCount} ngÆ°á»i tham gia
           </span>
         </div>
         <Badge variant="secondary" className="text-xs">
-          {acceptedCount} đã chấp nhận
+          {acceptedCount} Ä‘Ã£ cháº¥p nháº­n
         </Badge>
       </div>
 
@@ -124,7 +123,7 @@ export function AttendeesList({ attendees, organizerEmail }: AttendeesListProps)
                         )}
                         {attendee.is_optional && (
                           <Badge variant="outline" className="text-xs px-1.5 py-0">
-                            Tùy chọn
+                            TÃ¹y chá»n
                           </Badge>
                         )}
                       </div>
@@ -148,11 +147,11 @@ export function AttendeesList({ attendees, organizerEmail }: AttendeesListProps)
                       <p className="text-xs text-muted-foreground">{attendee.email}</p>
                     )}
                     <p className="text-xs">
-                      <span className="font-medium">Trạng thái:</span> {config.label}
+                      <span className="font-medium">Tráº¡ng thÃ¡i:</span> {config.label}
                     </p>
                     {isOrganizer && (
                       <p className="text-xs font-medium text-yellow-600">
-                        Người tổ chức
+                        NgÆ°á»i tá»• chá»©c
                       </p>
                     )}
                     {attendee.comment && (

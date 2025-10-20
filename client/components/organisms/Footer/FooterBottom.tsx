@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { FOOTER_BOTTOM } from '@/constants/footer.constants';
 
 export const FooterBottom: React.FC = () => {
@@ -23,7 +23,7 @@ export const FooterBottom: React.FC = () => {
                             </Link>
                         ))}
                         <div className="flex items-center gap-1">
-                            <span className="text-cod-gray-600 dark:text-cod-gray-400" aria-hidden="true">📧</span>
+                            <span className="text-cod-gray-600 dark:text-cod-gray-400" aria-hidden="true">ðŸ“§</span>
                             <a 
                                 href={`mailto:${FOOTER_BOTTOM.email}`}
                                 className="text-cod-gray-600 dark:text-cod-gray-400 text-sm hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"

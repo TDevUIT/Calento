@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { UseFormReturn } from 'react-hook-form';
 import { Repeat } from 'lucide-react';
@@ -24,7 +24,6 @@ export function RecurrenceField({ form }: RecurrenceFieldProps) {
       control={form.control}
       name="recurrence_rule"
       render={({ field }) => {
-        // Strip RRULE: prefix for display
         const displayValue = field.value?.startsWith('RRULE:') 
           ? field.value.substring(6) 
           : field.value || 'NONE';
@@ -40,7 +39,6 @@ export function RecurrenceField({ form }: RecurrenceFieldProps) {
                     if (value === 'NONE') {
                       field.onChange(undefined);
                     } else {
-                      // Add RRULE: prefix for backend
                       field.onChange(`RRULE:${value}`);
                     }
                   }}

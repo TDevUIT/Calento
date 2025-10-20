@@ -1,4 +1,4 @@
-export { SocialLoginButton } from './SocialLoginButton'
+﻿export { SocialLoginButton } from './SocialLoginButton'
 export type { SocialLoginButtonProps, SocialProvider } from './SocialLoginButton'
 export { TermsAndPolicy } from './TermsAndPolicy'
 export { BackButton } from './BackButton'

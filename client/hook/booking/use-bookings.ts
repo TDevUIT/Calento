@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+﻿import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { 
   getBookings as getBookingsApi,
@@ -19,7 +19,6 @@ import {
   BookingAvailabilityQuery
 } from '@/service/booking.service';
 
-// Query Keys
 export const BOOKING_QUERY_KEYS = {
   all: ['bookings'] as const,
   lists: () => [...BOOKING_QUERY_KEYS.all, 'list'] as const,
@@ -35,7 +34,6 @@ export const BOOKING_QUERY_KEYS = {
   },
 };
 
-// Get bookings for dashboard
 export function useBookings(params?: {
   page?: number;
   limit?: number;
@@ -53,7 +51,6 @@ export function useBookings(params?: {
   });
 }
 
-// Get upcoming bookings
 export function useUpcomingBookings() {
   return useQuery({
     queryKey: [...BOOKING_QUERY_KEYS.lists(), 'upcoming'],
@@ -64,7 +61,6 @@ export function useUpcomingBookings() {
   });
 }
 
-// Get single booking
 export function useBooking(id: string) {
   return useQuery({
     queryKey: BOOKING_QUERY_KEYS.detail(id),
@@ -76,7 +72,6 @@ export function useBooking(id: string) {
   });
 }
 
-// Get booking statistics
 export function useBookingStats() {
   return useQuery({
     queryKey: BOOKING_QUERY_KEYS.stats(),
@@ -87,7 +82,6 @@ export function useBookingStats() {
   });
 }
 
-// Cancel booking (by owner)
 export function useCancelBooking() {
   const queryClient = useQueryClient();
 
@@ -97,7 +91,6 @@ export function useCancelBooking() {
       return id;
     },
     onSuccess: (cancelledId) => {
-      // Invalidate all booking queries
       queryClient.invalidateQueries({ 
         queryKey: BOOKING_QUERY_KEYS.all 
       });
@@ -111,7 +104,6 @@ export function useCancelBooking() {
   });
 }
 
-// Reschedule booking (by owner)
 export function useRescheduleBooking() {
   const queryClient = useQueryClient();
 
@@ -128,13 +120,11 @@ export function useRescheduleBooking() {
       return await rescheduleBookingApi(id, new_start_time, timezone);
     },
     onSuccess: (updatedBooking, { id }) => {
-      // Update the specific booking cache
       queryClient.setQueryData(
         BOOKING_QUERY_KEYS.detail(id),
         updatedBooking
       );
       
-      // Invalidate all booking queries
       queryClient.invalidateQueries({ 
         queryKey: BOOKING_QUERY_KEYS.all 
       });
@@ -148,7 +138,6 @@ export function useRescheduleBooking() {
   });
 }
 
-// Complete booking
 export function useCompleteBooking() {
   const queryClient = useQueryClient();
 
@@ -157,13 +146,11 @@ export function useCompleteBooking() {
       return await completeBookingApi(id);
     },
     onSuccess: (updatedBooking, id) => {
-      // Update the specific booking cache
       queryClient.setQueryData(
         BOOKING_QUERY_KEYS.detail(id),
         updatedBooking
       );
       
-      // Invalidate all booking queries
       queryClient.invalidateQueries({ 
         queryKey: BOOKING_QUERY_KEYS.all 
       });
@@ -190,7 +177,6 @@ export function usePublicBookingLink(slug: string) {
   });
 }
 
-// Get available time slots
 export function useAvailableSlots(slug: string, params: BookingAvailabilityQuery) {
   return useQuery({
     queryKey: BOOKING_QUERY_KEYS.public.slots(slug, params),
@@ -203,7 +189,6 @@ export function useAvailableSlots(slug: string, params: BookingAvailabilityQuery
   });
 }
 
-// Create public booking
 export function useCreatePublicBooking() {
   const queryClient = useQueryClient();
 
@@ -212,7 +197,6 @@ export function useCreatePublicBooking() {
       return await createPublicBookingApi(slug, data);
     },
     onSuccess: (newBooking, { slug }) => {
-      // Invalidate available slots for this booking link
       queryClient.invalidateQueries({
         queryKey: [...BOOKING_QUERY_KEYS.public.all, 'slots', slug]
       });
@@ -226,7 +210,6 @@ export function useCreatePublicBooking() {
   });
 }
 
-// Cancel public booking with token
 export function useCancelPublicBooking() {
   return useMutation({
     mutationFn: async ({ token, reason }: { token: string; reason?: string }) => {
@@ -243,7 +226,6 @@ export function useCancelPublicBooking() {
   });
 }
 
-// Reschedule public booking with token
 export function useReschedulePublicBooking() {
   return useMutation({
     mutationFn: async ({ 

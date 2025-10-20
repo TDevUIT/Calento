@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useMemo } from 'react';
 import { UseFormReturn } from 'react-hook-form';
@@ -21,7 +21,6 @@ export function AttendeesField({ form }: AttendeesFieldProps) {
   const attendeesRaw = form.watch('attendees');
   const attendees = useMemo(() => attendeesRaw || [], [attendeesRaw]);
 
-  // Calculate stats
   const stats = useMemo(() => {
     const going = attendees.filter(a => a.response_status === 'accepted').length;
     const maybe = attendees.filter(a => a.response_status === 'tentative').length;

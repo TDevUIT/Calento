@@ -1,23 +1,17 @@
-// Booking Routes
-export const BOOKING_ROUTES = {
-  // Public booking pages
+﻿export const BOOKING_ROUTES = {
   PUBLIC_BOOKING: (slug: string) => `/book/${slug}`,
   
-  // Dashboard booking management
   DASHBOARD_SCHEDULE: '/dashboard/schedule',
   DASHBOARD_BOOKINGS: '/dashboard/bookings',
   BOOKING_DETAIL: (id: string) => `/dashboard/bookings/${id}`,
 } as const;
 
-// API Routes for Booking
 export const BOOKING_API_ROUTES = {
-  // Booking Links
   BOOKING_LINKS: '/api/booking-links',
   BOOKING_LINK_DETAIL: (id: string) => `/api/booking-links/${id}`,
   BOOKING_LINK_TOGGLE: (id: string) => `/api/booking-links/${id}/toggle`,
   BOOKING_LINK_STATS: (id: string) => `/api/booking-links/${id}/stats`,
   
-  // Bookings Management
   BOOKINGS: '/api/bookings',
   BOOKING_DETAIL: (id: string) => `/api/bookings/${id}`,
   BOOKING_CANCEL: (id: string) => `/api/bookings/${id}/cancel`,
@@ -25,7 +19,6 @@ export const BOOKING_API_ROUTES = {
   BOOKING_COMPLETE: (id: string) => `/api/bookings/${id}/complete`,
   BOOKING_STATS: '/api/bookings/stats',
   
-  // Public Booking APIs
   PUBLIC_BOOKING_LINK: (slug: string) => `/api/bookings/public/${slug}`,
   PUBLIC_BOOKING_SLOTS: (slug: string) => `/api/bookings/public/${slug}/slots`,
   PUBLIC_BOOKING_CREATE: (slug: string) => `/api/bookings/public/${slug}/book`,
@@ -33,7 +26,6 @@ export const BOOKING_API_ROUTES = {
   PUBLIC_BOOKING_RESCHEDULE: (token: string) => `/api/bookings/public/reschedule/${token}`,
 } as const;
 
-// Booking Status Options
 export const BOOKING_STATUS = {
   PENDING: 'pending',
   CONFIRMED: 'confirmed',
@@ -55,7 +47,6 @@ export const BOOKING_STATUS_COLORS = {
   [BOOKING_STATUS.COMPLETED]: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
 } as const;
 
-// Booking Link Colors
 export const BOOKING_LINK_COLORS = {
   BLUE: 'blue',
   GREEN: 'green',
@@ -74,7 +65,6 @@ export const BOOKING_LINK_COLOR_OPTIONS = [
   { value: BOOKING_LINK_COLORS.PINK, label: 'Pink', color: 'bg-pink-500' },
 ] as const;
 
-// Duration Options (in minutes)
 export const DURATION_OPTIONS = [
   { value: 15, label: '15 minutes' },
   { value: 30, label: '30 minutes' },
@@ -86,7 +76,6 @@ export const DURATION_OPTIONS = [
   { value: 240, label: '4 hours' },
 ] as const;
 
-// Default Values
 export const BOOKING_DEFAULTS = {
   DURATION_MINUTES: 30,
   BUFFER_TIME_MINUTES: 0,
@@ -97,7 +86,6 @@ export const BOOKING_DEFAULTS = {
   TIMEZONE: 'UTC',
 } as const;
 
-// Validation Limits
 export const BOOKING_LIMITS = {
   MIN_DURATION_MINUTES: 5,
   MAX_DURATION_MINUTES: 480, // 8 hours
@@ -114,7 +102,6 @@ export const BOOKING_LIMITS = {
   MAX_TITLE_LENGTH: 255,
 } as const;
 
-// Notification Types
 export const BOOKING_NOTIFICATION_TYPES = {
   NEW_BOOKING: 'new_booking',
   BOOKING_CANCELLED: 'booking_cancelled',

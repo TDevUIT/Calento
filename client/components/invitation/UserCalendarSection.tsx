@@ -1,4 +1,4 @@
-import { Calendar, Clock, MapPin, AlertCircle } from 'lucide-react';
+﻿import { Calendar, Clock, MapPin, AlertCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { format, parseISO } from 'date-fns';
 import { Badge } from '@/components/ui/badge';

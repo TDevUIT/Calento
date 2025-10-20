@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from 'react';
 import Link from 'next/link';
@@ -71,43 +71,36 @@ export const IntegrationsSection: React.FC = () => {
               <Link
                 href={integration.href}
                 className={cn(
-                  'group relative block bg-white border border-cod-gray-200/50 rounded-2xl p-6 text-center transition-all duration-500 ease-out hover:border-blue-500/50 hover:scale-105 dark:bg-cod-gray-800 dark:border-cod-gray-700/50 dark:hover:border-blue-400/60 dark:hover:shadow-cod-gray-950/30',
+                  'group relative block bg-white border border-cod-gray-200 rounded-2xl p-6 text-center transition-all duration-300 hover:border-blue-500/50 dark:bg-cod-gray-800 dark:border-cod-gray-700 dark:hover:border-blue-400/60',
                   integration.comingSoon && 'opacity-50 cursor-not-allowed pointer-events-none grayscale'
                 )}
                 aria-label={`${integration.name} integration: ${integration.description}`}
                 {...(integration.comingSoon && { 'aria-disabled': 'true' as const })}
               >
-                
                 {integration.comingSoon && (
                   <div className="absolute -top-2 -right-2 bg-cod-gray-500 text-white text-xs font-medium px-2 py-1 rounded-full dark:bg-cod-gray-400 dark:text-cod-gray-900 transition-colors duration-300">
                     Soon
                   </div>
                 )}
 
-                <div className="relative z-10">
-                  <div className="relative mb-4">
-                    <div className="w-14 h-14 mx-auto rounded-xl bg-cod-gray-50 dark:bg-cod-gray-700/50 flex items-center justify-center transition-all duration-500 transform shadow-sm group-hover:shadow-lg">
-                      <Image
-                        src={integration.logo}
-                        alt={`${integration.name} logo`}
-                        width={28} 
-                        height={28}
-                        className="w-7 h-7 object-contain transition-all duration-500 group-hover:scale-125 group-hover:brightness-110"
-                      />
-                    </div>
+                <div className="relative mb-4">
+                  <div className="w-14 h-14 mx-auto rounded-xl bg-cod-gray-50 dark:bg-cod-gray-700 flex items-center justify-center transition-all duration-300">
+                    <Image
+                      src={integration.logo}
+                      alt={`${integration.name} logo`}
+                      width={28} 
+                      height={28}
+                      className="w-7 h-7 object-contain transition-all duration-300 group-hover:scale-110"
+                    />
                   </div>
-
-                  <h3 className="font-semibold text-base text-cod-gray-900 mb-2 transition-all duration-300 dark:text-white">
-                    {integration.name}
-                  </h3>
-                  <p className="text-cod-gray-600 dark:text-cod-gray-300 text-xs leading-relaxed transition-colors duration-300">
-                    {integration.description}
-                  </p>
-
-                  {!integration.comingSoon && (
-                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-blue-500/0 via-blue-500/0 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-all duration-500 -z-10" />
-                  )}
                 </div>
+
+                <h3 className="font-semibold text-base text-cod-gray-900 mb-2 transition-all duration-300 dark:text-white">
+                  {integration.name}
+                </h3>
+                <p className="text-cod-gray-600 dark:text-cod-gray-300 text-xs leading-relaxed transition-colors duration-300">
+                  {integration.description}
+                </p>
               </Link>
             </motion.div>
           ))}

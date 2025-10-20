@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -31,7 +31,6 @@ import {
   forwardRef,
   useCallback,
   useContext,
-  // useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -40,10 +39,8 @@ import { EventOrTaskCard } from '../shared/EventOrTaskCard';
 import type { Event } from '@/interface/event.interface';
 import type { Task } from '@/interface/task.interface';
 import { calculateEventLayouts, getEventLayoutStyles, getEventTextClasses } from '@/utils/event-display';
-// import type { EventLayout } from '@/utils/event-display';
 import { getStoredCalendarView, saveCalendarView } from '@/utils/calendar-storage';
 import { useCalendarSettings } from '../shared/CalendarSettingsProvider';
-// import { formatTimeWithSettings, formatDateWithSettings } from '@/utils/calendar-format';
 
 type View = 'day' | 'week' | 'month' | 'year';
 
@@ -214,10 +211,8 @@ const HourEvents = ({
 }) => {
   const { onEventClick } = useCalendar();
   
-  // Filter events for this hour
   const hourEvents = events.filter((event) => isSameHour(event.start, hour));
   
-  // Calculate layouts for overlapping events
   const eventLayouts = calculateEventLayouts(hourEvents);
   
   return (
@@ -227,10 +222,8 @@ const HourEvents = ({
         const hoursDifference = differenceInMinutes(event.end, event.start) / 60;
         const startPosition = event.start.getMinutes() / 60;
         
-        // Get layout styles for column positioning
         const layoutStyles = getEventLayoutStyles(layout);
         
-        // Get appropriate text colors based on background color
         const eventColor = event.color || '#3b82f6';
         const { titleClass, timeClass } = getEventTextClasses(eventColor);
         
@@ -256,7 +249,6 @@ const HourEvents = ({
                 borderLeftWidth: event.type === 'task' ? '4px' : '1px',
                 borderStyle: event.type === 'task' ? 'dashed' : 'solid',
                 ...layoutStyles,
-                // Reduce padding for narrow columns
                 padding: layout.totalColumns > 2 ? '4px 6px' : '8px 10px',
               }}
               onClick={() => onEventClick?.(event)}

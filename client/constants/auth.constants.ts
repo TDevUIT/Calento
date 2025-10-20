@@ -1,4 +1,4 @@
-export const PASSWORD_MIN_LENGTH = 8
+﻿export const PASSWORD_MIN_LENGTH = 8
 export const REDIRECT_DELAY_MS = 1500
 export const ERROR_TOAST_DURATION = 5000
 export const SUCCESS_TOAST_DURATION = 3000
@@ -6,8 +6,8 @@ export const SUCCESS_TOAST_DURATION = 3000
 export const AUTH_PLACEHOLDERS = {
   email: 'you@company.com',
   username: 'johndoe',
-  password: '••••••••',
-  confirmPassword: '••••••••',
+  password: 'â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢',
+  confirmPassword: 'â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢',
   firstName: 'John',
   lastName: 'Doe',
 } as const

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { ArrowUp, ArrowDown, LucideIcon } from 'lucide-react';

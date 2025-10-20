@@ -1,25 +1,21 @@
-import { create } from 'zustand';
+﻿import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
 export interface CalendarSettings {
-  // General Settings
   defaultView: 'day' | 'week' | 'month' | 'year';
   weekStartsOn: 'sunday' | 'monday' | 'saturday';
   timeFormat: '12h' | '24h';
   dateFormat: 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD';
   
-  // Appearance Settings
   compactMode: boolean;
   showWeekNumbers: boolean;
   highlightWeekends: boolean;
   
-  // Notification Settings
   enableNotifications: boolean;
   eventReminders: boolean;
   reminderTime: string;
   soundEnabled: boolean;
   
-  // Behavior Settings
   autoSync: boolean;
   showDeclinedEvents: boolean;
   defaultEventDuration: string;
@@ -38,24 +34,20 @@ interface CalendarSettingsActions {
 interface CalendarSettingsStore extends CalendarSettings, CalendarSettingsActions {}
 
 const initialSettings: CalendarSettings = {
-  // General
   defaultView: 'week',
   weekStartsOn: 'monday',
   timeFormat: '24h',
   dateFormat: 'DD/MM/YYYY',
   
-  // Appearance
   compactMode: false,
   showWeekNumbers: true,
   highlightWeekends: true,
   
-  // Notifications
   enableNotifications: true,
   eventReminders: true,
   reminderTime: '15',
   soundEnabled: false,
   
-  // Behavior
   autoSync: true,
   showDeclinedEvents: false,
   defaultEventDuration: '60',

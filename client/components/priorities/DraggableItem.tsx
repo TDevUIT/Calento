@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useSortable } from '@dnd-kit/sortable';
@@ -40,7 +40,6 @@ export const DraggableItem = ({ item }: DraggableItemProps) => {
 
   const isTask = item.category === "Tasks";
   
-  // Priority colors for tasks
   const priorityBorderColors: Record<string, string> = {
     critical: "border-l-red-500",
     high: "border-l-orange-500",

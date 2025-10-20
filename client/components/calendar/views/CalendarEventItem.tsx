@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { EventHoverCard } from '../shared/EventHoverCard';
 import type { Event } from '@/interface/event.interface';
@@ -25,7 +25,6 @@ export function CalendarEventItem({
   side = 'right',
   align = 'start',
 }: CalendarEventItemProps) {
-  // Convert CalendarEvent to Event for EventHoverCard
   const fullEvent: Event = {
     id: event.id,
     user_id: '',
@@ -41,12 +40,10 @@ export function CalendarEventItem({
     creator: event.creator,
   };
 
-  // If hover is disabled, just render children
   if (!enableHover) {
     return <div onClick={onClick}>{children}</div>;
   }
 
-  // Wrap with EventHoverCard
   return (
     <EventHoverCard
       event={fullEvent}

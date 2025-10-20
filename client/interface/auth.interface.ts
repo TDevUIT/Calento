@@ -1,4 +1,4 @@
-export interface User {
+﻿export interface User {
   id: string;
   email: string;
   username: string;
@@ -104,7 +104,6 @@ export interface AuthServiceConfig {
   refreshTokenStorageKey: string;
 }
 
-// Form Props (moved from types/auth.types.ts)
 export interface LoginFormProps {
   className?: string;
   onGoogleLogin?: () => void;
@@ -117,7 +116,6 @@ export interface RegisterFormProps {
   onSubmitEmailPassword?: (payload: RegisterPayload) => void;
 }
 
-// Form Payloads (moved from types/auth.types.ts)
 export interface LoginPayload {
   email: string;
   password: string;
@@ -133,7 +131,6 @@ export interface RegisterPayload {
   lastName: string;
 }
 
-// Registration Types (moved from types/auth.types.ts)
 export type RegistrationStep = 1 | 2 | 3;
 
 export interface StepValidation {

@@ -1,4 +1,4 @@
-export interface OccurrenceInfo {
+﻿export interface OccurrenceInfo {
   originalId: string;
   isOccurrence: boolean;
   occurrenceIndex?: number;

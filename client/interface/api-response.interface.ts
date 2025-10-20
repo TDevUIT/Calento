@@ -1,4 +1,4 @@
-export interface ServerSuccessResponse<T = unknown> {
+﻿export interface ServerSuccessResponse<T = unknown> {
   success: true;
   message: string;
   data: {

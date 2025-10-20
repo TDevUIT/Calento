@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { EventFormModal } from '@/components/calendar/forms/EventFormModal';
 

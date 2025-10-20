@@ -1,4 +1,4 @@
-import { UseQueryResult } from '@tanstack/react-query';
+﻿import { UseQueryResult } from '@tanstack/react-query';
 
 export function useApiData<T>(
   queryResult: UseQueryResult<any, Error>

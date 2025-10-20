@@ -1,4 +1,4 @@
-export { Footer } from './Footer';
+﻿export { Footer } from './Footer';
 
 export { FooterBottom } from './FooterBottom';
 export { FooterCTA } from './FooterCTA';

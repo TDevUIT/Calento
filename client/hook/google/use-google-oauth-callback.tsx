@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -69,7 +69,6 @@ export const useGoogleOAuthCallback = () => {
     };
 
     handleCallback();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
   return {

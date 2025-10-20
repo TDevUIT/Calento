@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+﻿import { Module } from '@nestjs/common';
 import { AvailabilityController } from './availability.controller';
 import { AvailabilityService } from './services/availability.service';
 import { AvailabilityRepository } from './repositories/availability.repository';

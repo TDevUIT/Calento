@@ -1,4 +1,4 @@
-export interface Calendar {
+﻿export interface Calendar {
   id: string;
   user_id: string;
   google_calendar_id: string;

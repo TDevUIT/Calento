@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { UseFormReturn } from 'react-hook-form';
 import { Check, Palette } from 'lucide-react';
@@ -127,7 +127,6 @@ export function ColorField({ form }: ColorFieldProps) {
                             }
                             if (value === '' || /^#[0-9A-Fa-f]{0,6}$/.test(value)) {
                               field.onChange(value);
-                              // Add to recent colors when complete hex
                               if (value.length === 7) {
                                 addRecentColor(value);
                               }

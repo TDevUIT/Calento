@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState } from 'react';
 import { useCalendars } from '@/hook/calendar';
@@ -36,7 +36,6 @@ export function CalendarListWithAPI({
   });
   const { items: calendars, meta, isLoading, error } = useApiData<Calendar>(queryResult);
   
-  // Use external state if provided, otherwise use local state
   const [localVisibleIds, setLocalVisibleIds] = useState<Set<string>>(new Set());
   const visibleCalendarIds = externalVisibleIds || localVisibleIds;
   const setVisibleCalendarIds = onExternalIdsChange || setLocalVisibleIds;
@@ -45,7 +44,6 @@ export function CalendarListWithAPI({
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedCalendar, setSelectedCalendar] = useState<Calendar | null>(null);
 
-  // Initialize with all calendars visible - use useEffect to avoid setState during render
   React.useEffect(() => {
     if (calendars.length > 0 && visibleCalendarIds.size === 0) {
       const allIds = calendars.map((cal: Calendar) => cal.id);

@@ -21,7 +21,6 @@ interface TaskHoverCardProps {
 export function TaskHoverCard({
   task,
   children,
-  onEdit,
   side: defaultSide = 'right',
   align: defaultAlign = 'start',
   autoPosition = true,

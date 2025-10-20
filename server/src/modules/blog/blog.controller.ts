@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -81,8 +81,6 @@ export class BlogController {
     return await this.blogService.deleteBlogPost(id, authorId);
   }
 
-  // ===== PUBLIC ROUTES (Static paths first to avoid :id conflicts) =====
-
   @Get('public/published')
   @ApiOperation({ summary: 'Get published blog posts for landing page' })
   @ApiResponse({ status: 200, description: 'Published blog posts retrieved' })
@@ -110,8 +108,6 @@ export class BlogController {
   async getPopularPosts(@Query('limit') limit?: number) {
     return await this.blogService.getPopularPosts(limit || 5);
   }
-
-  // ===== SEARCH & FILTER ROUTES =====
 
   @Get('search')
   @ApiOperation({ summary: 'Search blog posts' })

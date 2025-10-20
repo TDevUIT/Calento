@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { format, startOfDay, endOfDay } from 'date-fns';
 import { UseFormReturn } from 'react-hook-form';
@@ -20,10 +20,8 @@ export function AllDayField({ form }: AllDayFieldProps) {
     form.setValue('is_all_day', checked);
     
     if (checked) {
-      // When All Day is enabled
       let startTime = form.getValues('start_time');
       
-      // If no start time, use today
       if (!startTime) {
         startTime = format(new Date(), "yyyy-MM-dd'T'HH:mm");
         form.setValue('start_time', startTime);
@@ -32,9 +30,7 @@ export function AllDayField({ form }: AllDayFieldProps) {
       try {
         const startDate = new Date(startTime);
         if (!isNaN(startDate.getTime())) {
-          // Set start to beginning of day (00:00)
           const dayStart = startOfDay(startDate);
-          // Set end to end of day (23:59)
           const dayEnd = endOfDay(startDate);
           
           form.setValue('start_time', format(dayStart, "yyyy-MM-dd'T'HH:mm"), { shouldValidate: true });
@@ -44,13 +40,11 @@ export function AllDayField({ form }: AllDayFieldProps) {
         console.error('Error setting all-day times:', error);
       }
     } else {
-      // When All Day is disabled, set default 1-hour duration
       const startTime = form.getValues('start_time');
       if (startTime) {
         try {
           const startDate = new Date(startTime);
           if (!isNaN(startDate.getTime())) {
-            // Set end time to 1 hour after start
             const endDate = new Date(startDate.getTime() + 60 * 60 * 1000);
             form.setValue('end_time', format(endDate, "yyyy-MM-dd'T'HH:mm"), { shouldValidate: true });
           }

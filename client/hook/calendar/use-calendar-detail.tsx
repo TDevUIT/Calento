@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { calendarService } from '@/service/calendar.service';

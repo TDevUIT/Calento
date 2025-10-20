@@ -1,4 +1,4 @@
-import { format, parseISO } from 'date-fns';
+﻿import { format, parseISO } from 'date-fns';
 import {
   INVITATION_STATUS,
   INVITATION_STATUS_LABELS,
@@ -77,7 +77,7 @@ export function formatEventTimeRange(startTime: string, endTime: string): string
   const endFormatted = format(end, 'h:mm a');
   const dateFormatted = format(start, 'EEEE, MMM d, yyyy');
   
-  return `${dateFormatted} • ${startFormatted} - ${endFormatted}`;
+  return `${dateFormatted} â€¢ ${startFormatted} - ${endFormatted}`;
 }
 
 /**
@@ -147,14 +147,14 @@ export function generateInvitationSummary(invitation: InvitationDetails): string
 export function getInvitationResponseIcon(status: InvitationStatus): string {
   switch (status) {
     case INVITATION_STATUS.ACCEPTED:
-      return '✅';
+      return 'âœ…';
     case INVITATION_STATUS.DECLINED:
-      return '❌';
+      return 'âŒ';
     case INVITATION_STATUS.TENTATIVE:
-      return '❓';
+      return 'â“';
     case INVITATION_STATUS.PENDING:
     default:
-      return '⏳';
+      return 'â³';
   }
 }
 

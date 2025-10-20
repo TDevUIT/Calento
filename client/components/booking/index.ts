@@ -1,4 +1,4 @@
-export { BookingLinkCard } from './BookingLinkCard';
+﻿export { BookingLinkCard } from './BookingLinkCard';
 export { CreateBookingLinkDialog } from './CreateBookingLinkDialog';
 export { DraggableBookingLinkCard } from './DraggableBookingLinkCard';
 export { DraggableBookingLinkList } from './DraggableBookingLinkList';

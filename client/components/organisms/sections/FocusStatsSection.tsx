@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import { STATS_DATA } from '@/config/landing-data.config';
@@ -14,7 +14,7 @@ export const FocusStatsSection: React.FC = () => {
       <div className="relative max-w-7xl mx-auto">
         <div className="text-center mb-16 space-y-6">
           <p className="text-lg md:text-xl text-cod-gray-600 dark:text-cod-gray-400 max-w-3xl mx-auto font-medium transition-colors duration-300">
-            Deleting meetings doesn&apos;t work – you need to prioritize focus time.
+            Deleting meetings doesn&apos;t work â€“ you need to prioritize focus time.
           </p>
           
           <h2 
@@ -33,7 +33,7 @@ export const FocusStatsSection: React.FC = () => {
           {STATS_DATA.focus.map((stat) => (
             <div 
               key={stat.id} 
-              className="group relative p-8 bg-white/50 dark:bg-cod-gray-900/50 backdrop-blur-sm rounded-2xl border border-cod-gray-200/50 dark:border-cod-gray-700/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:hover:shadow-cod-gray-950/50"
+              className="group relative p-8 bg-white dark:bg-cod-gray-900 rounded-2xl border border-cod-gray-200 dark:border-cod-gray-700 transition-all duration-300 hover:border-blue-500/50"
             >
               <div className="text-5xl font-bold text-cod-gray-900 dark:text-cod-gray-100 mb-3 tracking-tight transition-colors duration-300" aria-label={`${stat.value} ${stat.label}`}>
                 {stat.value}

@@ -1,4 +1,4 @@
-import { format, parseISO, startOfDay, addDays } from 'date-fns';
+﻿import { format, parseISO, startOfDay, addDays } from 'date-fns';
 
 export const formatDuration = (minutes: number) => {
   if (minutes < 60) {

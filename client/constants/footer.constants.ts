@@ -1,4 +1,4 @@
-import { APP_CONFIG, EXTERNAL_LINKS } from '@/config/app.config';
+﻿import { APP_CONFIG, EXTERNAL_LINKS } from '@/config/app.config';
 
 export interface FooterSectionData {
   title: string;
@@ -42,9 +42,6 @@ export const FOOTER_SECTIONS: FooterSectionData[] = [
     title: "Integrations",
     links: [
       { label: "Google Calendar", href: "/integrations/google-calendar" },
-      { label: "Outlook", href: "/integrations/outlook" },
-      { label: "Slack", href: "/integrations/slack" },
-      { label: "Zoom", href: "/integrations/zoom" }
     ]
   },
   {
@@ -53,7 +50,6 @@ export const FOOTER_SECTIONS: FooterSectionData[] = [
       { label: "About", href: "/about" },
       { label: "Contact", href: "/contact" },
       { label: "Support", href: EXTERNAL_LINKS.support },
-      { label: "Careers", href: "/careers" }
     ]
   },
   {
@@ -61,7 +57,7 @@ export const FOOTER_SECTIONS: FooterSectionData[] = [
     links: [
       { label: "Help Center", href: EXTERNAL_LINKS.documentation },
       { label: "Blog", href: "/blog" },
-      { label: "API Docs", href: "/api-docs" },
+      { label: "API Docs", href: "https://api.calento.space/docs#/" },
       { label: "Status", href: "/status" }
     ]
   }
@@ -126,7 +122,7 @@ export const REGISTER_CTA = {
 } as const;
 
 export const FOOTER_BOTTOM = {
-  copyright: `© ${new Date().getFullYear()} ${APP_CONFIG.name}. All rights reserved.`,
+  copyright: `Â© ${new Date().getFullYear()} ${APP_CONFIG.name}. All rights reserved.`,
   email: APP_CONFIG.support.email,
   links: [
     { label: "Terms", href: "/terms" },

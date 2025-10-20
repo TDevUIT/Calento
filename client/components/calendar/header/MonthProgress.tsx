@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { differenceInMinutes, isSameMonth } from 'date-fns';
 import { useCalendar } from '../views/FullCalendar';
@@ -111,7 +111,7 @@ export function MonthProgress() {
                 <div className="bg-popover text-popover-foreground px-3 py-2 rounded-md shadow-lg text-xs whitespace-nowrap border">
                   <div className="font-semibold">{stat.label}</div>
                   <div className="text-muted-foreground">
-                    {fmt(stat.hours)} • {stat.count} events • {stat.percentage.toFixed(0)}%
+                    {fmt(stat.hours)} â€¢ {stat.count} events â€¢ {stat.percentage.toFixed(0)}%
                   </div>
                 </div>
               </div>

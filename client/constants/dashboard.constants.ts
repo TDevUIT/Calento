@@ -1,6 +1,5 @@
-import { Calendar, Clock, Users, TrendingUp, Settings, BarChart3 } from "lucide-react";
+﻿import { Calendar, Clock, Users, TrendingUp, Settings, BarChart3 } from "lucide-react";
 
-// Dashboard Types
 export interface SidebarItem {
   id: string;
   name: string;
@@ -31,7 +30,6 @@ export interface CalendarEvent {
   color: string;
 }
 
-// Dashboard Configuration
 export const SIDEBAR_ITEMS: SidebarItem[] = [
   { id: "dashboard", name: "Dashboard", icon: BarChart3, active: false, badge: null },
   { id: "calendar", name: "Calendar", icon: Calendar, active: true, badge: "8" },
@@ -61,7 +59,6 @@ export const CALENDAR_EVENTS: Record<number, CalendarEvent[]> = {
   28: [{ title: "Presentation", time: "3:00 PM", startHour: 15, startMinute: 0, duration: 90, color: "bg-slate-700" }],
 };
 
-// Week View Calendar Events - organized by day of week
 export const WEEK_CALENDAR_EVENTS: Record<number, CalendarEvent[]> = {
   0: [], // Sunday
   1: [ // Monday

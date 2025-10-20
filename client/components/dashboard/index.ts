@@ -1,4 +1,4 @@
-export { DashboardHeader } from "./DashboardHeader";
+﻿export { DashboardHeader } from "./DashboardHeader";
 export { DashboardProviders } from "./DashboardProviders";
 export { UserAvatarMenu } from "./UserAvatarMenu";
 export { ViewSelector } from "./ViewSelector";

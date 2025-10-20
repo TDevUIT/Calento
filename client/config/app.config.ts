@@ -1,4 +1,4 @@
-import { BASE_FE_URL } from "@/constants/routes";
+﻿import { BASE_FE_URL } from "@/constants/routes";
 
 export const APP_CONFIG = {
   name: 'Calento',
@@ -67,9 +67,6 @@ export const NAVIGATION_LINKS: NavigationLink[] = [
     hasDropdown: true,
     dropdownItems: [
       { label: 'Google Calendar', href: '/integrations/google-calendar', description: 'Connect Google Calendar' },
-      { label: 'Outlook', href: '/integrations/outlook', description: 'Connect Microsoft Outlook' },
-      { label: 'Slack', href: '/integrations/slack', description: 'Slack notifications & commands' },
-      { label: 'Zoom', href: '/integrations/zoom', description: 'Auto-generate Zoom links' }
     ]
   },
   { 
@@ -80,17 +77,16 @@ export const NAVIGATION_LINKS: NavigationLink[] = [
       { label: 'About', href: '/about', description: 'Learn about our mission' },
       { label: 'Contact', href: '/contact', description: 'Get in touch with us' },
       { label: 'Support', href: '/support', description: 'Get help when you need it' },
-      { label: 'Careers', href: '/careers', description: 'Join our team' }
     ]
   },
   { 
     label: 'Resources', 
-    href: '/docs', 
+    href: '/help', 
     hasDropdown: true,
     dropdownItems: [
-      { label: 'Help Center', href: '/docs', description: 'Documentation and guides' },
+      { label: 'Help Center', href: '/help', description: 'Documentation and guides' },
       { label: 'Blog', href: '/blog', description: 'Latest news and updates' },
-      { label: 'API Docs', href: '/api-docs', description: 'Developer documentation' },
+      { label: 'API Docs', href: 'https://api.calento.space/docs#/', description: 'Developer documentation' },
       { label: 'Status', href: '/status', description: 'System status and uptime' }
     ]
   }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 import { BookingNotificationData } from '@/components/booking/BookingNotification';
 
 interface UseBookingNotificationsOptions {
@@ -11,7 +11,6 @@ export function useBookingNotifications(options: UseBookingNotificationsOptions 
   const [notifications, setNotifications] = useState<BookingNotificationData[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
-  // Load notifications from localStorage on mount
   useEffect(() => {
     const stored = localStorage.getItem('booking-notifications');
     if (stored) {
@@ -25,7 +24,6 @@ export function useBookingNotifications(options: UseBookingNotificationsOptions 
     }
   }, []);
 
-  // Save notifications to localStorage whenever they change
   useEffect(() => {
     if (notifications.length > 0) {
       localStorage.setItem('booking-notifications', JSON.stringify(notifications));
@@ -33,12 +31,10 @@ export function useBookingNotifications(options: UseBookingNotificationsOptions 
     }
   }, [notifications]);
 
-  // Mock real-time notifications (in real app, this would be WebSocket)
   useEffect(() => {
     if (!enableRealTime) return;
 
     const interval = setInterval(() => {
-      // Randomly add new notifications (for demo purposes)
       if (Math.random() > 0.8) {
         const newNotification: BookingNotificationData = {
           id: Date.now().toString(),
@@ -87,7 +83,6 @@ export function useBookingNotifications(options: UseBookingNotificationsOptions 
     localStorage.removeItem('booking-notifications');
   }, []);
 
-  // Simulate booking events (for demo)
   const simulateBookingEvent = useCallback((type: BookingNotificationData['type']) => {
     const messages = {
       new_booking: 'Someone just booked a meeting with you.',

@@ -1,4 +1,4 @@
-import { AlertCircle } from 'lucide-react';
+﻿import { AlertCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';

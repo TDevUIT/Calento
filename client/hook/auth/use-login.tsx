@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
@@ -37,7 +37,6 @@ export const useLogin = (): UseLoginReturn => {
     setIsSuccess(false);
     setErrorStatus(null);
     return mutation.mutateAsync(credentials);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getUserFriendlyError = (): string | null => {

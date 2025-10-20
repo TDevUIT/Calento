@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { usePathname } from 'next/navigation';
 import { isGuestOnlyRoute, isDashboardRoute, isBookingRoute, isInvitationRoute } from '@/constants/routes';

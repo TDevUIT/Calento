@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils';
+﻿import { cn } from '@/lib/utils';
 import { FooterSection } from './FooterSection';
 import { Logo } from '@/components/ui/logo';
 import { FOOTER_SECTIONS, FOOTER_BRAND, SOCIAL_PLATFORMS } from '@/constants/footer.constants';

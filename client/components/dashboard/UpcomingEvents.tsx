@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -25,7 +25,7 @@ export function UpcomingEvents({ maxEvents = 5 }: UpcomingEventsProps) {
     enabled: true
   });
 
-  console.log('🎯 [UpcomingEvents] Component state:', {
+  console.log('ðŸŽ¯ [UpcomingEvents] Component state:', {
     isLoading,
     isError,
     error,
@@ -34,11 +34,11 @@ export function UpcomingEvents({ maxEvents = 5 }: UpcomingEventsProps) {
   });
 
   useEffect(() => {
-    console.log('🚀 [UpcomingEvents] Component mounted');
+    console.log('ðŸš€ [UpcomingEvents] Component mounted');
   }, []);
 
   useEffect(() => {
-    console.log('🔄 [UpcomingEvents] Data changed:', {
+    console.log('ðŸ”„ [UpcomingEvents] Data changed:', {
       isLoading,
       isError,
       eventsCount: upcomingEvents.length,
@@ -123,7 +123,7 @@ export function UpcomingEvents({ maxEvents = 5 }: UpcomingEventsProps) {
             variant="ghost"
             size="sm"
             onClick={() => {
-              console.log('🔄 Manual refetch triggered');
+              console.log('ðŸ”„ Manual refetch triggered');
               refetch();
             }}
             className="h-7 w-7 p-0"
@@ -219,7 +219,6 @@ export function UpcomingEvents({ maxEvents = 5 }: UpcomingEventsProps) {
               className="w-full justify-center text-xs"
               onClick={() => {
                 setIsOpen(false);
-                // Navigate to calendar
                 console.log("Navigate to calendar");
               }}
             >

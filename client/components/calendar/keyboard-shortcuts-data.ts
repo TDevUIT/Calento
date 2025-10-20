@@ -1,10 +1,10 @@
-export const KEYBOARD_SHORTCUTS = [
+﻿export const KEYBOARD_SHORTCUTS = [
   {
     category: 'Navigation',
     items: [
       { keys: ['T'], description: 'Go to Today' },
-      { keys: ['←'], description: 'Previous period' },
-      { keys: ['→'], description: 'Next period' },
+      { keys: ['â†'], description: 'Previous period' },
+      { keys: ['â†’'], description: 'Next period' },
       { keys: ['D'], description: 'Day view' },
       { keys: ['W'], description: 'Week view' },
       { keys: ['M'], description: 'Month view' },

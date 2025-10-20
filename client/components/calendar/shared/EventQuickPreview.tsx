@@ -1,7 +1,5 @@
-'use client';
+﻿'use client';
 
-// import { format } from 'date-fns';
-// import { vi } from 'date-fns/locale';
 import { useCalendarSettings } from './CalendarSettingsProvider';
 import { formatTimeWithSettings, formatDateWithSettings } from '@/utils/calendar-format';
 import { 
@@ -62,7 +60,7 @@ export function EventQuickPreview({ event }: EventQuickPreviewProps) {
     }
     const startTime = formatTimeWithSettings(startDate, timeFormat);
     const endTime = formatTimeWithSettings(endDate, timeFormat);
-    return `${startTime} – ${endTime}`;
+    return `${startTime} â€“ ${endTime}`;
   };
 
   const formatReminderTime = () => {
@@ -144,7 +142,7 @@ export function EventQuickPreview({ event }: EventQuickPreviewProps) {
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-sm font-medium">
             <span>{formatDateWithSettings(startDate, dateFormat)}</span>
-            <span className="text-muted-foreground">⋅</span>
+            <span className="text-muted-foreground">â‹…</span>
             <span>{formatTimeRange()}</span>
           </div>
 

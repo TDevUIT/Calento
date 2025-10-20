@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @deprecated This component is deprecated. Use CreateEventDialog instead.
  * 
  * This old Dialog-based event form will be removed in future versions.

@@ -1,5 +1,4 @@
-// Contact Form Interfaces
-export interface ContactFormData {
+﻿export interface ContactFormData {
   firstName: string;
   lastName: string;
   country: string;
@@ -10,7 +9,6 @@ export interface ContactFormData {
   subscribeOffers: boolean;
 }
 
-// Select Option Interfaces
 export interface SelectOption {
   value: string;
   label: string;
@@ -21,9 +19,33 @@ export interface InquiryType {
   label: string;
 }
 
-// Contact Information Interfaces
 export interface ContactInfo {
   type: 'location' | 'social' | 'email' | 'contact';
   title: string;
   content: string[];
+}
+
+export interface CreateContactRequest {
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone_number?: string;
+  country?: string;
+  inquiry_type: string;
+  message: string;
+  subscribe_offers: boolean;
+}
+
+export interface ContactResponse {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone_number?: string;
+  country?: string;
+  inquiry_type: string;
+  message: string;
+  subscribe_offers: boolean;
+  status: string;
+  created_at: string;
 }

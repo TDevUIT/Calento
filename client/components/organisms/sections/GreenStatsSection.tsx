@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { STATS_DATA } from '@/config/landing-data.config';
 
 

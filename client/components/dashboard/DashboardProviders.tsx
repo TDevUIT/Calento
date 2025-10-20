@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { AuthProvider } from "@/components/providers";
 import { QueryProvider } from "@/provider";

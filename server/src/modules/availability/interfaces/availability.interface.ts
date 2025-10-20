@@ -1,4 +1,4 @@
-import { BaseEntity } from '../../../common/interfaces/base-entity.interface';
+﻿import { BaseEntity } from '../../../common/interfaces/base-entity.interface';
 
 export enum DayOfWeek {
   SUNDAY = 0,

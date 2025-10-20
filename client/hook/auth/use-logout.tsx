@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
@@ -20,7 +20,6 @@ export const useLogout = (): UseLogoutReturn => {
 
   const logout = useCallback(async () => {
     return mutation.mutateAsync();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return {

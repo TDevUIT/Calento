@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -96,7 +96,7 @@ export function DashboardHeader({ notificationCount = 3 }: DashboardHeaderProps)
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Search (⌘K)</p>
+              <p>Search (âŒ˜K)</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

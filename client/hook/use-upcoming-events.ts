@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -36,7 +36,6 @@ export function useUpcomingEvents(options: UseUpcomingEventsOptions = {}) {
     daysAhead = 7
   } = options;
 
-  // Use stable dates to prevent query key from changing every render
   const { now, endDate, startDateISO, endDateISO } = useMemo(() => {
     const nowDate = new Date();
     const endDateTime = addDays(nowDate, daysAhead);
@@ -48,7 +47,7 @@ export function useUpcomingEvents(options: UseUpcomingEventsOptions = {}) {
     };
   }, [daysAhead]); // Only recalculate if daysAhead changes
 
-  console.log('⚙️ [useUpcomingEvents] Hook setup:', {
+  console.log('âš™ï¸ [useUpcomingEvents] Hook setup:', {
     now: startDateISO,
     endDate: endDateISO,
     maxEvents,
@@ -58,7 +57,7 @@ export function useUpcomingEvents(options: UseUpcomingEventsOptions = {}) {
   const query = useQuery({
     queryKey: EVENT_QUERY_KEYS.upcoming(startDateISO, endDateISO, maxEvents),
     queryFn: async () => {
-      console.log('🔍 [useUpcomingEvents] queryFn called - Fetching upcoming events...', {
+      console.log('ðŸ” [useUpcomingEvents] queryFn called - Fetching upcoming events...', {
         startDate: startDateISO,
         endDate: endDateISO,
         maxEvents,
@@ -73,13 +72,12 @@ export function useUpcomingEvents(options: UseUpcomingEventsOptions = {}) {
         }
       );
 
-      console.log('📦 [useUpcomingEvents] API Response:', {
+      console.log('ðŸ“¦ [useUpcomingEvents] API Response:', {
         totalItems: response.data.items?.length || 0,
         meta: response.data.meta,
         items: response.data.items,
       });
 
-      // Transform API events to UpcomingEvent format
       const upcomingEvents: UpcomingEvent[] = response.data.items
         .filter((event: Event) => {
           const eventStart = new Date(event.start_time);
@@ -105,7 +103,7 @@ export function useUpcomingEvents(options: UseUpcomingEventsOptions = {}) {
           } : undefined,
         }));
 
-      console.log('✅ [useUpcomingEvents] Transformed events:', {
+      console.log('âœ… [useUpcomingEvents] Transformed events:', {
         count: upcomingEvents.length,
         events: upcomingEvents,
       });
@@ -121,7 +119,7 @@ export function useUpcomingEvents(options: UseUpcomingEventsOptions = {}) {
     retry: 2,
   });
 
-  console.log('📊 [useUpcomingEvents] Query state:', {
+  console.log('ðŸ“Š [useUpcomingEvents] Query state:', {
     status: query.status,
     fetchStatus: query.fetchStatus,
     isLoading: query.isLoading,

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { motion } from "framer-motion";
 import Image from "next/image";
@@ -21,7 +21,7 @@ export const HeroSection = () => {
             <svg className="h-4 w-4 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
               <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
             </svg>
-            <span>AI-Powered • Used by 10,000+ professionals</span>
+            <span>AI-Powered â€¢ Used by 10,000+ professionals</span>
           </div>
         </motion.div>
 
@@ -118,7 +118,7 @@ export const HeroSection = () => {
                   alt={user.name}
                   width={48}
                   height={48}
-                  className="h-12 w-12 rounded-full border-2 border-white shadow-lg dark:border-slate-700"
+                  className="h-12 w-12 rounded-full border-2 border-white dark:border-slate-700"
                 />
                 {index === 0 && (
                   <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-green-500 border-2 border-white dark:border-slate-900" />
@@ -153,7 +153,7 @@ export const HeroSection = () => {
       >
         <div className="absolute -inset-x-10 sm:-inset-x-20 -inset-y-10 -z-10 bg-blue-500/10 blur-3xl dark:bg-blue-500/20" />
         
-        <div className="overflow-hidden rounded-lg md:rounded-xl border border-slate-200 bg-white shadow-xl md:shadow-2xl shadow-slate-200/50 dark:border-slate-800 dark:bg-slate-900 dark:shadow-slate-950/50">
+        <div className="overflow-hidden rounded-lg md:rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center gap-1.5 md:gap-2 border-b border-slate-200 bg-slate-50 px-3 md:px-4 py-2 md:py-3 dark:border-slate-800 dark:bg-slate-900/50">
             <div className="flex gap-1">
               <div className="h-2 w-2 md:h-3 md:w-3 rounded-full bg-slate-300 dark:bg-slate-700" />
@@ -184,7 +184,7 @@ export const HeroSection = () => {
             <Image src="/images/dashed-arrow-icon.png" alt="AI Assistant" className="rotate-90" height={132} width={132} />
             <div className="absolute -right-4 -bottom-14">
               <p className="text-sm xl:text-base font-bold text-slate-900 dark:text-white">Try it now</p>
-              <p className="text-xs xl:text-sm text-slate-600 dark:text-slate-400">Ask AI anything! 🚀</p>
+              <p className="text-xs xl:text-sm text-slate-600 dark:text-slate-400">Ask AI anything! ðŸš€</p>
             </div>
           </div>
         </div>

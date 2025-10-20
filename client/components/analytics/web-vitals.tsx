@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 /**
  * Web Vitals Tracking Component
@@ -10,14 +10,11 @@ import { useReportWebVitals } from 'next/web-vitals';
 
 export function WebVitals() {
   useReportWebVitals((metric) => {
-    // Log to console in development
     if (process.env.NODE_ENV === 'development') {
-      console.log('📊 Web Vital:', metric);
+      console.log('ðŸ“Š Web Vital:', metric);
     }
 
-    // Send to analytics in production
     if (process.env.NODE_ENV === 'production') {
-      // Example: Send to Google Analytics
       if (typeof window !== 'undefined' && 'gtag' in window) {
         const gtag = (window as unknown as { gtag: (...args: unknown[]) => void }).gtag;
         gtag('event', metric.name, {
@@ -28,7 +25,6 @@ export function WebVitals() {
         });
       }
 
-      // Example: Send to custom analytics endpoint
       sendToAnalytics(metric);
     }
   });
@@ -53,14 +49,6 @@ async function sendToAnalytics(metric: { name: string; value: number; rating: st
       timestamp: Date.now(),
     });
 
-    // Send to your analytics API
-    // Uncomment when API is ready
-    // await fetch('/api/analytics/web-vitals', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body,
-    //   keepalive: true,
-    // });
   } catch (error) {
     console.error('Failed to send Web Vitals:', error);
   }
@@ -75,11 +63,10 @@ export function usePerformanceObserver() {
       return;
     }
 
-    // Observe Long Tasks (tasks > 50ms)
     const longTaskObserver = new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
         if (entry.duration > 50) {
-          console.warn('⚠️ Long Task detected:', {
+          console.warn('âš ï¸ Long Task detected:', {
             duration: entry.duration,
             startTime: entry.startTime,
           });
@@ -90,7 +77,6 @@ export function usePerformanceObserver() {
     try {
       longTaskObserver.observe({ entryTypes: ['longtask'] });
     } catch {
-      // Long tasks not supported
     }
 
     return () => {

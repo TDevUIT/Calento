@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Calendar, CheckCircle2, TrendingUp, CalendarClock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";

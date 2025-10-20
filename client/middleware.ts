@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+﻿import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 async function verifyAuthFromCookies(request: NextRequest): Promise<boolean> {
@@ -6,7 +6,6 @@ async function verifyAuthFromCookies(request: NextRequest): Promise<boolean> {
     const accessToken: string | undefined = request.cookies.get('access_token')?.value;
     const refreshToken: string | undefined = request.cookies.get('refresh_token')?.value;
     
-    // Debug: Log all cookies to see what's available
     const allCookies = request.cookies.getAll();
     console.log('[Middleware] All cookies:', allCookies.map(c => ({ name: c.name, hasValue: Boolean(c.value) })));
     
@@ -39,7 +38,6 @@ async function verifyAuthFromAPI(request: NextRequest): Promise<boolean> {
     
     console.log('[Middleware] Attempting API verification:', verifyUrl);
     
-    // Forward all cookies to the API
     const cookieHeader = request.headers.get('cookie') || '';
     
     const response = await fetch(verifyUrl, {
@@ -84,7 +82,6 @@ export async function middleware(request: NextRequest) {
   
   const guestOnlyRoutes = ['/login', '/register', '/forgot-password'];
   
-  // Try cookie-based authentication first, then API fallback
   let isAuthenticated = await verifyAuthFromCookies(request);
   
   if (!isAuthenticated) {

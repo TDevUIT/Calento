@@ -1,5 +1,4 @@
-// Invitation Response Interfaces
-export interface InvitationResponse {
+﻿export interface InvitationResponse {
   success: boolean;
   message: string;
   eventAddedToCalendar: boolean;
@@ -24,7 +23,6 @@ export interface InvitationDetails {
   organizer_avatar?: string;
 }
 
-// Request DTOs
 export interface SendInvitationsRequest {
   emails?: string[];
   showAttendees?: boolean;
@@ -52,7 +50,6 @@ export interface RespondToInvitationRequest {
   addToCalento?: boolean;
 }
 
-// Google Calendar Event Interface
 export interface GoogleCalendarEvent {
   title: string;
   description?: string;
@@ -61,7 +58,6 @@ export interface GoogleCalendarEvent {
   end_time: string;
 }
 
-// API Response Types
 export interface InvitationDetailsResponse {
   success: boolean;
   data: InvitationDetails;
@@ -86,7 +82,6 @@ export interface RespondToInvitationApiResponse {
   message?: string;
 }
 
-// Invitation Status Types
 export type InvitationStatus = 'pending' | 'accepted' | 'declined' | 'tentative';
 
 export type InvitationAction = 'accept' | 'decline' | 'tentative';

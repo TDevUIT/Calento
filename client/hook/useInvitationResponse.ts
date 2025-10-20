@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useRespondToInvitation } from '@/hook/invitations/use-respond-invitation';
 import { generateGoogleCalendarLink } from '@/service/invitation.service';
 

@@ -1,4 +1,4 @@
-import { Calendar, Clock, RefreshCw, Video, BarChart3, Settings, Users, HelpCircle } from 'lucide-react';
+﻿import { Calendar, Clock, RefreshCw, Video, BarChart3, Settings, Users, HelpCircle } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 export interface SidebarNavItem {
@@ -85,12 +85,12 @@ export const SAMPLE_CONVERSATION = {
       { type: 'success', text: 'Identified 5 mutual availability windows' },
       { type: 'skipped', text: 'Monday 9AM - back-to-back conflicts' },
       { type: 'skipped', text: 'Wednesday 3PM - end of day fatigue' },
-      { type: 'highlight', text: '✓ Thursday 2PM - Peak productivity time' }
+      { type: 'highlight', text: 'âœ“ Thursday 2PM - Peak productivity time' }
     ] as AIAnalysisStep[],
     matchScore: 92
   },
   aiResponse: {
-    content: 'Perfect! I found an ideal time when everyone is available 🎯',
+    content: 'Perfect! I found an ideal time when everyone is available ðŸŽ¯',
     timestamp: 'Now'
   },
   suggestedMeeting: {

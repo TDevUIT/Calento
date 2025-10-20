@@ -1,4 +1,4 @@
-export interface AnalyticsQueryParams {
+﻿export interface AnalyticsQueryParams {
   start_date: string;
   end_date: string;
   calendar_id?: string;

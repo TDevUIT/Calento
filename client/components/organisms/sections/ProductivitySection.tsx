@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import Link from 'next/link';
@@ -54,7 +54,7 @@ export const ProductivitySection: React.FC = () => {
         </div>
 
         <div className="grid lg:grid-cols-2 gap-6 mb-10">
-          <div className="border border-cod-gray-200 dark:border-cod-gray-700 rounded-lg p-6 bg-cod-gray-50/50 dark:bg-cod-gray-800/50 transition-colors duration-300">
+          <div className="border border-cod-gray-200 dark:border-cod-gray-700 rounded-lg p-6 bg-white dark:bg-cod-gray-900 transition-all duration-300 hover:border-blue-500/50">
             <h3 className="text-sm font-medium text-cod-gray-900 dark:text-cod-gray-100 mb-4 transition-colors duration-300">Weekly overview</h3>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={weeklyData}>
@@ -74,7 +74,7 @@ export const ProductivitySection: React.FC = () => {
             </ResponsiveContainer>
           </div>
 
-          <div className="border border-cod-gray-200 dark:border-cod-gray-700 rounded-lg p-6 bg-cod-gray-50/50 dark:bg-cod-gray-800/50 transition-colors duration-300">
+          <div className="border border-cod-gray-200 dark:border-cod-gray-700 rounded-lg p-6 bg-white dark:bg-cod-gray-900 transition-all duration-300 hover:border-blue-500/50">
             <h3 className="text-sm font-medium text-cod-gray-900 dark:text-cod-gray-100 mb-4 transition-colors duration-300">Focus time trend</h3>
             <ResponsiveContainer width="100%" height={200}>
               <AreaChart data={weeklyData}>
@@ -107,14 +107,14 @@ export const ProductivitySection: React.FC = () => {
             </ResponsiveContainer>
           </div>
         </div>
-        <div className="flex items-center justify-between p-6 bg-gradient-to-r from-cod-gray-900 to-cod-gray-800 dark:from-cod-gray-800 dark:to-cod-gray-700 rounded-lg transition-colors duration-300">
+        <div className="flex items-center justify-between p-6 border border-cod-gray-200 dark:border-cod-gray-700 bg-cod-gray-50 dark:bg-cod-gray-900 rounded-lg transition-all duration-300">
           <div>
-            <div className="text-white font-medium mb-1">Start tracking your productivity</div>
-            <div className="text-cod-gray-400 dark:text-cod-gray-300 text-sm transition-colors duration-300">Join 10,000+ professionals optimizing their time</div>
+            <div className="text-cod-gray-900 dark:text-white font-semibold mb-1">Start tracking your productivity</div>
+            <div className="text-cod-gray-600 dark:text-cod-gray-400 text-sm transition-colors duration-300">Join 10,000+ professionals optimizing their time</div>
           </div>
           <Link
             href={AUTH_ROUTES.REGISTER}
-            className="inline-flex items-center gap-2 px-5 py-2.5 theme-btn-primary font-medium rounded-md transition-colors text-sm shadow-md"
+            className="inline-flex items-center gap-2 px-5 py-2.5 theme-btn-primary font-medium rounded-md transition-all text-sm"
           >
             Get started
             <ArrowRight className="w-4 h-4" />

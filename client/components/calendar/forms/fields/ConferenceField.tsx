@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
@@ -9,7 +9,6 @@ import { toast } from 'sonner';
 import type { EventFormData } from '../event-form.schema';
 import { useGoogleAuth } from '@/hook/google/use-google-auth';
 import { createGoogleMeet } from '@/service/google.service';
-// import { format } from 'date-fns';
 
 interface ConferenceFieldProps {
   form: UseFormReturn<EventFormData>;
@@ -22,12 +21,11 @@ export function ConferenceField({ form }: ConferenceFieldProps) {
   const { isConnected, isLoading: isCheckingConnection } = useGoogleAuth();
 
   const addConference = async () => {
-    // Check if user is connected to Google
     if (!isConnected) {
-      toast.error('Cần kết nối Google Account', {
-        description: 'Vui lòng kết nối Google Account để tạo Google Meet link',
+      toast.error('Cáº§n káº¿t ná»‘i Google Account', {
+        description: 'Vui lÃ²ng káº¿t ná»‘i Google Account Ä‘á»ƒ táº¡o Google Meet link',
         action: {
-          label: 'Kết nối',
+          label: 'Káº¿t ná»‘i',
           onClick: () => {
             window.location.href = '/dashboard/calendar-sync';
           },
@@ -36,15 +34,14 @@ export function ConferenceField({ form }: ConferenceFieldProps) {
       return;
     }
 
-    // Get event details from form
     const title = form.getValues('title');
     const startTime = form.getValues('start_time');
     const endTime = form.getValues('end_time');
     const description = form.getValues('description');
 
     if (!title || !startTime || !endTime) {
-      toast.error('Vui lòng điền thông tin sự kiện', {
-        description: 'Cần có tiêu đề, thời gian bắt đầu và kết thúc để tạo Google Meet',
+      toast.error('Vui lÃ²ng Ä‘iá»n thÃ´ng tin sá»± kiá»‡n', {
+        description: 'Cáº§n cÃ³ tiÃªu Ä‘á», thá»i gian báº¯t Ä‘áº§u vÃ  káº¿t thÃºc Ä‘á»ƒ táº¡o Google Meet',
       });
       return;
     }
@@ -52,7 +49,6 @@ export function ConferenceField({ form }: ConferenceFieldProps) {
     try {
       setIsCreating(true);
       
-      // Call API to create Google Meet
       const meetData = await createGoogleMeet({
         summary: title,
         description: description || undefined,
@@ -60,24 +56,23 @@ export function ConferenceField({ form }: ConferenceFieldProps) {
         end_time: new Date(endTime).toISOString(),
       });
 
-      // Set the conference data with the generated URL
       form.setValue('conference_data', {
         type: 'google_meet',
         url: meetData.url,
         id: meetData.id,
       });
 
-      toast.success('Google Meet link đã được tạo thành công!');
+      toast.success('Google Meet link Ä‘Ã£ Ä‘Æ°á»£c táº¡o thÃ nh cÃ´ng!');
     } catch (error) {
       console.error('Failed to create Google Meet:', error);
-      const errorMessage = (error as Error)?.message || 'Không thể tạo Google Meet link';
+      const errorMessage = (error as Error)?.message || 'KhÃ´ng thá»ƒ táº¡o Google Meet link';
       
       if (errorMessage.includes('Not connected')) {
-        toast.error('Cần kết nối Google Account', {
-          description: 'Vui lòng kết nối lại Google Account',
+        toast.error('Cáº§n káº¿t ná»‘i Google Account', {
+          description: 'Vui lÃ²ng káº¿t ná»‘i láº¡i Google Account',
         });
       } else {
-        toast.error('Lỗi khi tạo Google Meet', {
+        toast.error('Lá»—i khi táº¡o Google Meet', {
           description: errorMessage,
         });
       }
@@ -106,7 +101,7 @@ export function ConferenceField({ form }: ConferenceFieldProps) {
           {isCreating ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Đang tạo Google Meet...
+              Äang táº¡o Google Meet...
             </>
           ) : (
             'Add Google Meet video conference'

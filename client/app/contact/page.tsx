@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import * as React from "react";
 import { motion } from "framer-motion";
@@ -8,6 +8,9 @@ import { ContactHero } from "@/components/contact/ContactHero";
 import { ContactForm } from "@/components/contact/ContactForm";
 import { INQUIRY_TYPES, COUNTRY_OPTIONS, CONTACT_INFO } from "@/constants/contact.constants";
 import { ContactFormData } from "@/types/contact.types";
+import { useSubmitContact } from "@/hook/contact/use-submit-contact";
+import { PUBLIC_ROUTES } from "@/constants/routes";
+import { toast } from "sonner";
 
 export default function ContactPage() {
   const [formData, setFormData] = React.useState<ContactFormData>({
@@ -21,8 +24,8 @@ export default function ContactPage() {
     subscribeOffers: false
   });
 
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isSubmitted, setIsSubmitted] = React.useState(false);
+  const submitContactMutation = useSubmitContact();
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -30,7 +33,29 @@ export default function ContactPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    
+    if (!formData.firstName || !formData.lastName || !formData.emailAddress || !formData.inquiryType || !formData.message) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    submitContactMutation.mutate(
+      {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        email: formData.emailAddress,
+        phone_number: formData.phoneNumber,
+        country: formData.country,
+        inquiry_type: formData.inquiryType,
+        message: formData.message,
+        subscribe_offers: formData.subscribeOffers
+      },
+      {
+        onSuccess: () => {
+          setIsSubmitted(true);
+        }
+      }
+    );
   };
 
   if (isSubmitted) {
@@ -52,9 +77,10 @@ export default function ContactPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-center"
             >
               <h1 className="mb-4 text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
-                🎉 Message Sent Successfully!
+                ðŸŽ‰ Message Sent Successfully!
               </h1>
               <p className="mb-8 text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
                 Thank you for reaching out to us! We&apos;ve received your message and will get back to you within 24 hours.
@@ -64,15 +90,15 @@ export default function ContactPage() {
                 <h3 className="font-semibold text-slate-900 dark:text-white mb-2">What happens next?</h3>
                 <ul className="text-sm text-slate-600 dark:text-slate-300 space-y-2">
                   <li className="flex items-center gap-2">
-                    <span className="text-blue-500">✓</span>
+                    <span className="text-blue-500">âœ“</span>
                     Our team reviews your inquiry
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-blue-500">✓</span>
+                    <span className="text-blue-500">âœ“</span>
                     Personalized response within 24 hours
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-blue-500">✓</span>
+                    <span className="text-blue-500">âœ“</span>
                     Follow-up support if needed
                   </li>
                 </ul>
@@ -80,14 +106,26 @@ export default function ContactPage() {
               
               <div className="flex gap-4 justify-center">
                 <Button 
-                  onClick={() => window.location.href = '/'} 
+                  onClick={() => window.location.href = PUBLIC_ROUTES.HOME} 
                   size="lg"
                   className="theme-btn-primary"
                 >
                   Back to Home
                 </Button>
                 <Button 
-                  onClick={() => setIsSubmitted(false)} 
+                  onClick={() => {
+                    setIsSubmitted(false);
+                    setFormData({
+                      firstName: '',
+                      lastName: '',
+                      country: '',
+                      phoneNumber: '',
+                      emailAddress: '',
+                      inquiryType: '',
+                      message: '',
+                      subscribeOffers: false
+                    });
+                  }} 
                   variant="outline"
                   size="lg"
                 >
@@ -109,7 +147,7 @@ export default function ContactPage() {
           formData={formData}
           onFormChange={handleInputChange}
           onSubmit={handleSubmit}
-          isSubmitting={isSubmitting}
+          isSubmitting={submitContactMutation.isPending}
           countryOptions={COUNTRY_OPTIONS}
           inquiryTypes={INQUIRY_TYPES}
         />

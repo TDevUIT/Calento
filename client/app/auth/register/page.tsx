@@ -1,4 +1,4 @@
-import { RegisterForm } from "@/components/auth/register-form"
+﻿import { RegisterForm } from "@/components/auth/register-form"
 import Image from 'next/image'
 import DashboardPreview from '@/components/organisms/sections/DashboardPreview'
 import { REGISTER_CTA } from '@/constants/footer.constants'
@@ -57,7 +57,7 @@ const RegisterPage = () => {
           <div className="hidden lg:flex lg:flex-col lg:items-center text-center space-y-2 xl:space-y-2.5 2xl:space-y-3">
             <h1 className="text-2xl xl:text-2xl 2xl:text-3xl font-bold text-foreground">Start managing time smarter</h1>
             <p className="text-sm xl:text-sm 2xl:text-base text-muted-foreground">
-              Free forever • AI-powered • Setup in 2 minutes
+              Free forever â€¢ AI-powered â€¢ Setup in 2 minutes
             </p>
           </div>
           <RegisterForm className="w-full" />

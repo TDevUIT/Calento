@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React from 'react';
 import Link from 'next/link';
@@ -42,7 +42,7 @@ export const DepartmentsSection: React.FC = () => {
             <Link
               key={dept.id}
               href={dept.href}
-              className="bg-white dark:bg-cod-gray-800 border border-cod-gray-200 dark:border-cod-gray-700 rounded-2xl p-8 hover:shadow-lg dark:hover:shadow-cod-gray-950/30 transition-all duration-300 group"
+              className="bg-white dark:bg-cod-gray-800 border border-cod-gray-200 dark:border-cod-gray-700 rounded-2xl p-8 hover:border-blue-500/50 transition-all duration-300 group"
               aria-label={`${dept.title}: ${dept.description}`}
             >
               <div className="mb-6">

@@ -1,4 +1,4 @@
-import { CalendarSettings } from './types';
+﻿import { CalendarSettings } from './types';
 
 /**
  * Default Calendar Settings

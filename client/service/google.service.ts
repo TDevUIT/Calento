@@ -1,4 +1,4 @@
-import { api, getErrorMessage } from '../config/axios';
+﻿import { api, getErrorMessage } from '../config/axios';
 import { 
   GoogleAuthUrl, 
   GoogleConnectionStatus, 
@@ -185,16 +185,14 @@ export const loginWithGoogle = async (): Promise<void> => {
   try {
     console.log('[loginWithGoogle] ========== STARTING GOOGLE LOGIN ==========');
     
-    // Get auth URL from backend
     const { auth_url } = await getAuthUrl();
     console.log('[loginWithGoogle] Auth URL received');
 
-    // Redirect to Google OAuth (full page redirect, not popup)
     console.log('[loginWithGoogle] Redirecting to Google OAuth...');
     window.location.href = auth_url;
     
   } catch (error) {
-    console.error('[loginWithGoogle] ❌ Error:', error);
+    console.error('[loginWithGoogle] âŒ Error:', error);
     throw new Error(getErrorMessage(error));
   }
 };

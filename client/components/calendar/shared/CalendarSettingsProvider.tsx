@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { createContext, useContext } from 'react';
 import { useCalendarSettingsStore } from '@/store/calendar-settings.store';

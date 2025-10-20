@@ -1,5 +1,4 @@
-// Auth service functions
-export {
+﻿export {
   register,
   login,
   logout,
@@ -9,7 +8,6 @@ export {
   authService,
 } from './auth.service';
 
-// Google service functions
 export {
   getAuthUrl,
   getConnectionStatus,
@@ -25,9 +23,7 @@ export {
   googleService,
 } from './google.service';
 
-// Booking service functions
 export {
-  // Booking Links
   getBookingLinks,
   getBookingLink,
   createBookingLink,
@@ -36,14 +32,12 @@ export {
   toggleBookingLink,
   getBookingLinkStats,
   
-  // Public Booking
   getPublicBookingLink,
   getAvailableSlots,
   createPublicBooking,
   cancelPublicBooking,
   reschedulePublicBooking,
   
-  // Booking Management
   getBookings,
   getBooking,
   cancelBooking,
@@ -51,7 +45,6 @@ export {
   completeBooking,
   getBookingStats,
   
-  // Types
   type BookingLink,
   type CreateBookingLinkDto,
   type UpdateBookingLinkDto,
@@ -61,16 +54,13 @@ export {
   type BookingAvailabilityQuery,
 } from './booking.service';
 
-// Invitation service functions
 export {
-  // Invitation Management
   sendInvitations,
   sendReminders,
   getInvitationDetails,
   respondToInvitation,
   generateGoogleCalendarLink,
   
-  // Types
   type InvitationResponse,
   type InvitationDetails,
   type SendInvitationsRequest,
@@ -80,7 +70,6 @@ export {
   type GoogleCalendarEvent,
 } from './invitation.service';
 
-// AI service functions
 export {
   chat,
   chatStream,
@@ -88,5 +77,4 @@ export {
   aiService,
 } from './ai.service';
 
-// HTTP utilities
 export { default as api, getErrorMessage, isNetworkError, isTimeoutError, isServerError, isClientError } from '../config/axios';

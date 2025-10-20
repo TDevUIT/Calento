@@ -1,4 +1,4 @@
-import {
+﻿import {
   BaseEntity,
   StatusEntity,
 } from '../../../common/interfaces/base-entity.interface';
@@ -20,7 +20,7 @@ export interface BlogCategory extends BaseEntity, StatusEntity {
   name: string;
   slug: string;
   description?: string;
-  color: string; // Hex color code (e.g., #6366f1)
+  color: string;
   sort_order: number;
 }
 
@@ -43,7 +43,7 @@ export interface BlogPost extends BaseEntity {
   is_featured: boolean;
   published_at?: Date;
   views_count: number;
-  reading_time?: number; // in minutes
+  reading_time?: number;
   seo_title?: string;
   seo_description?: string;
   seo_keywords?: string;
@@ -76,7 +76,7 @@ export interface BlogComment extends BaseEntity {
   author_website?: string;
   content: string;
   status: BlogCommentStatus;
-  parent_id?: string; // For nested comments
+  parent_id?: string;
   ip_address?: string;
   user_agent?: string;
 }

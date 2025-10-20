@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
@@ -25,7 +25,6 @@ export function TimeRangeField({ form }: TimeRangeFieldProps) {
   const isAllDay = form.watch('is_all_day');
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Calculate initial duration from existing start_time and end_time (for edit mode)
   useEffect(() => {
     if (!isInitialized) {
       if (startTime && endTime && !isAllDay) {
@@ -47,7 +46,6 @@ export function TimeRangeField({ form }: TimeRangeFieldProps) {
     }
   }, [startTime, endTime, isAllDay, isInitialized]);
 
-  // Auto-calculate end_time when start_time or duration changes (only if not all-day)
   useEffect(() => {
     if (startTime && duration && isInitialized && !isAllDay) {
       try {
@@ -56,7 +54,6 @@ export function TimeRangeField({ form }: TimeRangeFieldProps) {
           const endDate = addMinutes(startDate, duration);
           const formattedEndTime = format(endDate, "yyyy-MM-dd'T'HH:mm");
           
-          // Only update if different to avoid infinite loop
           const currentEndTime = form.getValues('end_time');
           if (currentEndTime !== formattedEndTime) {
             form.setValue('end_time', formattedEndTime, { 
@@ -88,7 +85,6 @@ export function TimeRangeField({ form }: TimeRangeFieldProps) {
                     value={isAllDay && field.value ? field.value.split('T')[0] : field.value}
                     onChange={(e) => {
                       if (isAllDay) {
-                        // For all-day events, append time 00:00
                         field.onChange(e.target.value + 'T00:00');
                       } else {
                         field.onChange(e.target.value);
@@ -103,7 +99,7 @@ export function TimeRangeField({ form }: TimeRangeFieldProps) {
           
           {!isAllDay && (
             <>
-              <span className="text-muted-foreground text-sm">tới</span>
+              <span className="text-muted-foreground text-sm">tá»›i</span>
               <FormField
                 control={form.control}
                 name="end_time"

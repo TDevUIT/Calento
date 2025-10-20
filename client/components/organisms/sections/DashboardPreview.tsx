@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import React from 'react';
 import { Calendar, Clock, Users, Send, Folder, ChevronsLeftRight, Zap, ChevronRight, Settings } from 'lucide-react';
@@ -220,11 +220,11 @@ const DashboardPreview = () => {
                               <div className="space-y-0.5 text-[10px] text-slate-600 dark:text-slate-400">
                                 <div className="flex items-center gap-1.5">
                                   <Clock className="h-3 w-3 flex-shrink-0 text-blue-600 dark:text-blue-400" />
-                                  <span>{SAMPLE_CONVERSATION.suggestedMeeting.date} • {SAMPLE_CONVERSATION.suggestedMeeting.time}</span>
+                                  <span>{SAMPLE_CONVERSATION.suggestedMeeting.date} â€¢ {SAMPLE_CONVERSATION.suggestedMeeting.time}</span>
                                 </div>
                                 <div className="flex items-center gap-1.5">
                                   <Users className="h-3 w-3 flex-shrink-0 text-blue-600 dark:text-blue-400" />
-                                  <span>{SAMPLE_CONVERSATION.suggestedMeeting.attendees} members • {SAMPLE_CONVERSATION.suggestedMeeting.availability}</span>
+                                  <span>{SAMPLE_CONVERSATION.suggestedMeeting.attendees} members â€¢ {SAMPLE_CONVERSATION.suggestedMeeting.availability}</span>
                                 </div>
                               </div>
                             </div>
@@ -290,7 +290,7 @@ const DashboardPreview = () => {
                         <Zap className="h-2.5 w-2.5 text-blue-600 dark:text-blue-400" />
                         <span className="text-[8px] font-medium text-slate-700 dark:text-slate-300">{AI_CHAT_CONFIG.model.name}</span>
                       </div>
-                      <span className="text-[8px] text-slate-400 dark:text-slate-500">•</span>
+                      <span className="text-[8px] text-slate-400 dark:text-slate-500">â€¢</span>
                       <span className="text-[8px] text-slate-500 dark:text-slate-400">{AI_CHAT_CONFIG.model.description}</span>
                     </div>
                     <button className="text-[8px] text-blue-600 dark:text-blue-400 hover:underline">

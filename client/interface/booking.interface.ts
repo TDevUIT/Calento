@@ -1,5 +1,4 @@
-// Booking Link Interfaces
-export interface BookingLink {
+﻿export interface BookingLink {
   id: string;
   user_id: string;
   slug: string;
@@ -16,7 +15,6 @@ export interface BookingLink {
   created_at: string;
   updated_at: string;
   bookings_count?: number;
-  // User info
   user?: {
     id: string;
     username?: string;
@@ -42,7 +40,6 @@ export interface CreateBookingLinkDto {
 
 export interface UpdateBookingLinkDto extends Partial<CreateBookingLinkDto> {}
 
-// Booking Interfaces
 export interface Booking {
   id: string;
   booking_link_id: string;
@@ -86,7 +83,6 @@ export interface BookingAvailabilityQuery {
   timezone?: string;
 }
 
-// Booking Link Stats
 export interface BookingLinkStats {
   total_bookings: number;
   confirmed_bookings: number;
@@ -95,7 +91,6 @@ export interface BookingLinkStats {
   this_month_bookings: number;
 }
 
-// Booking Stats
 export interface BookingStats {
   total_bookings: number;
   confirmed_bookings: number;
@@ -106,7 +101,6 @@ export interface BookingStats {
   upcoming_bookings: number;
 }
 
-// API Response Types
 export interface BookingLinkResponse {
   success: boolean;
   data: BookingLink;

@@ -1,4 +1,4 @@
-import { EventQueryParams, RecurringEventsQueryParams } from '@/interface/event.interface';
+﻿import { EventQueryParams, RecurringEventsQueryParams } from '@/interface/event.interface';
 export const EVENT_QUERY_KEYS = {
   all: ['events'] as const,
   

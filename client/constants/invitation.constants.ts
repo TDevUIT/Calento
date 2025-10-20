@@ -1,19 +1,13 @@
-// Invitation API Routes
-export const INVITATION_API_ROUTES = {
-  // Send invitations
+﻿export const INVITATION_API_ROUTES = {
   SEND_INVITATIONS: (eventId: string) => `/api/events/${eventId}/invitations/send`,
   
-  // Send reminders
   SEND_REMINDERS: (eventId: string) => `/api/events/${eventId}/invitations/remind`,
   
-  // Get invitation details
   INVITATION_DETAILS: (token: string) => `/api/events/invitation/${token}`,
   
-  // Respond to invitation
   RESPOND_TO_INVITATION: (token: string) => `/api/events/invitation/${token}/respond`,
 } as const;
 
-// Invitation Status
 export const INVITATION_STATUS = {
   PENDING: 'pending',
   ACCEPTED: 'accepted',
@@ -35,7 +29,6 @@ export const INVITATION_STATUS_COLORS = {
   [INVITATION_STATUS.TENTATIVE]: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
 } as const;
 
-// Invitation Actions
 export const INVITATION_ACTIONS = {
   ACCEPT: 'accept',
   DECLINE: 'decline',
@@ -54,16 +47,13 @@ export const INVITATION_ACTION_COLORS = {
   [INVITATION_ACTIONS.TENTATIVE]: 'bg-blue-600 hover:bg-blue-700 text-white',
 } as const;
 
-// Google Calendar
 export const GOOGLE_CALENDAR_BASE_URL = 'https://calendar.google.com/calendar/render';
 
-// Default Values
 export const INVITATION_DEFAULTS = {
   SHOW_ATTENDEES: true,
   ADD_TO_CALENDAR: false,
 } as const;
 
-// Validation Limits
 export const INVITATION_LIMITS = {
   MAX_EMAILS_PER_BATCH: 50,
   MAX_COMMENT_LENGTH: 500,

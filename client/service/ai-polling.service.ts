@@ -1,4 +1,4 @@
-import { api, getErrorMessage } from '../config/axios';
+﻿import { api, getErrorMessage } from '../config/axios';
 import { StreamChatRequest } from '../interface/ai.interface';
 import { API_ROUTES } from '../constants/routes';
 
@@ -16,9 +16,8 @@ export const chatStreamPolling = async (
   onError: (error: Error) => void
 ): Promise<void> => {
   try {
-    console.log('🚀 Starting polling-based stream');
+    console.log('ðŸš€ Starting polling-based stream');
     
-    // 1. Start streaming session
     const startResponse = await api.post<{ session_id: string }>(
       `${API_ROUTES.AI_CHAT}/stream/start`,
       data,
@@ -26,9 +25,8 @@ export const chatStreamPolling = async (
     );
     
     const sessionId = startResponse.data.session_id;
-    console.log('📋 Stream session started:', sessionId);
+    console.log('ðŸ“‹ Stream session started:', sessionId);
     
-    // 2. Poll for chunks
     let lastChunkIndex = 0;
     const pollInterval = 500; // Poll every 500ms
     const maxPolls = 120; // Max 60 seconds (120 * 500ms)
@@ -50,41 +48,37 @@ export const chatStreamPolling = async (
         
         const session = pollResponse.data;
         
-        // Send new chunks
         if (session.chunks.length > lastChunkIndex) {
           const newChunks = session.chunks.slice(lastChunkIndex);
           newChunks.forEach(chunk => {
-            console.log('📨 New chunk:', chunk.substring(0, 50));
+            console.log('ðŸ“¨ New chunk:', chunk.substring(0, 50));
             onMessage(chunk);
           });
           lastChunkIndex = session.chunks.length;
         }
         
-        // Check session status
         if (session.status === 'completed') {
-          console.log('✅ Stream completed');
+          console.log('âœ… Stream completed');
           onComplete();
           return;
         } else if (session.status === 'error') {
-          console.error('❌ Stream error:', session.error);
+          console.error('âŒ Stream error:', session.error);
           onError(new Error(session.error || 'Stream failed'));
           return;
         }
         
-        // Continue polling
         setTimeout(poll, pollInterval);
         
       } catch (pollError) {
-        console.error('❌ Poll error:', pollError);
+        console.error('âŒ Poll error:', pollError);
         onError(new Error(getErrorMessage(pollError)));
       }
     };
     
-    // Start polling
     setTimeout(poll, pollInterval);
     
   } catch (error) {
-    console.error('❌ Polling stream error:', error);
+    console.error('âŒ Polling stream error:', error);
     onError(new Error(getErrorMessage(error)));
   }
 };

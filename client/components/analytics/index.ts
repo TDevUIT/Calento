@@ -1,4 +1,4 @@
-export { AnalyticsStatsCard } from './AnalyticsStatsCard';
+﻿export { AnalyticsStatsCard } from './AnalyticsStatsCard';
 export { TimeDistributionChart } from './TimeDistributionChart';
 export { CategoryAnalyticsChart } from './CategoryAnalyticsChart';
 export { EventAnalyticsSummary } from './EventAnalyticsSummary';

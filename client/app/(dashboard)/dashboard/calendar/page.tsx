@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useMemo, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
@@ -72,7 +72,7 @@ export default function Page() {
   const startDate = useMemo(() => startOfMonth(currentMonth).toISOString(), [currentMonth]);
   const endDate = useMemo(() => endOfMonth(currentMonth).toISOString(), [currentMonth]);
 
-  console.log('📅 Current Month Range:', {
+  console.log('ðŸ“… Current Month Range:', {
     currentMonth: currentMonth,
     startDate,
     endDate,
@@ -108,14 +108,13 @@ export default function Page() {
       recurringEventsQuery.refetch(),
       tasksQuery.refetch(),
     ]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentMonth, startDate, endDate]);
   
   const { items: regularEvents = [] } = useApiData<Event>(regularEventsQuery);
   const { items: recurringEvents = [] } = useApiData<Event>(recurringEventsQuery);
   const { items: tasks = [] } = useApiData<Task>(tasksQuery);
 
-  console.log('🔎 Tasks Query Debug:', {
+  console.log('ðŸ”Ž Tasks Query Debug:', {
     isLoading: tasksQuery.isLoading,
     isError: tasksQuery.isError,
     error: tasksQuery.error,
@@ -166,7 +165,7 @@ export default function Page() {
         };
         return {
           id: task.id,
-          title: `📋 ${task.title}`,
+          title: `ðŸ“‹ ${task.title}`,
           start: dueDate,
           end: new Date(dueDate.getTime() + 30 * 60000),
           description: task.description,
@@ -178,7 +177,7 @@ export default function Page() {
         };
       });
 
-    console.log('📊 Calendar Debug:', {
+    console.log('ðŸ“Š Calendar Debug:', {
       totalTasks: tasks.length,
       tasksWithDueDate: tasks.filter((t: Task) => t.due_date && !t.is_deleted).length,
       taskItemsCount: taskItems.length,
@@ -190,13 +189,11 @@ export default function Page() {
   }, [apiEvents, tasks]);
 
   const filteredEvents = calendarEvents.filter(event => {
-    // Always show tasks regardless of calendar filters
     if (event.type === 'task') return true;
-    // Filter events by calendar visibility
     return visibleCalendarIds.size === 0 || visibleCalendarIds.has(event.calendarId || '');
   });
 
-  console.log('🔍 Filtered Events:', {
+  console.log('ðŸ” Filtered Events:', {
     totalCalendarEvents: calendarEvents.length,
     filteredEventsCount: filteredEvents.length,
     tasksInFiltered: filteredEvents.filter(e => e.type === 'task').length,
@@ -302,9 +299,6 @@ function CalendarWrapper({
   defaultView,
   enableKeyboardShortcuts,
   calendarLocale,
-  // timeFormat,
-  // dateFormat, 
-  // showWeekNumbers,
   highlightWeekends,
   compactMode,
 }: {

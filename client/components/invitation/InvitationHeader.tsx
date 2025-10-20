@@ -1,4 +1,4 @@
-import { Clock, MapPin, Users } from 'lucide-react';
+﻿import { Clock, MapPin, Users } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { CardDescription, CardHeader, CardTitle } from '@/components/ui/card';

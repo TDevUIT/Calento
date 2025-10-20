@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect } from 'react';
 import { useGoogleAuth } from './use-google-auth';
@@ -21,7 +21,6 @@ export const useGoogleTokenRefresh = () => {
       try {
         await refreshToken();
       } catch (error) {
-        // Token refresh will be retried on next user action
         if (process.env.NODE_ENV === 'development') {
           console.warn('Failed to auto-refresh Google token:', error);
         }
@@ -29,6 +28,5 @@ export const useGoogleTokenRefresh = () => {
     }, refreshTime);
 
     return () => clearTimeout(timer);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isConnected, connectionStatus?.expires_at]);
 };

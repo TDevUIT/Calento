@@ -1,4 +1,4 @@
-interface LogConfig {
+﻿interface LogConfig {
   enabled: boolean;
   level: 'debug' | 'info' | 'warn' | 'error';
 }
@@ -11,22 +11,22 @@ const LOG_CONFIG: LogConfig = {
 export const logger = {
   request: (method?: string, url?: string) => {
     if (!LOG_CONFIG.enabled) return;
-    console.log(`🚀 ${method?.toUpperCase()} ${url}`);
+    console.log(`ðŸš€ ${method?.toUpperCase()} ${url}`);
   },
 
   response: (status: number, method?: string, url?: string) => {
     if (!LOG_CONFIG.enabled) return;
-    console.log(`✅ ${status} ${method?.toUpperCase()} ${url}`);
+    console.log(`âœ… ${status} ${method?.toUpperCase()} ${url}`);
   },
 
   error: (status: number | string, method?: string, url?: string) => {
     if (!LOG_CONFIG.enabled) return;
-    console.error(`❌ ${status} ${method?.toUpperCase()} ${url}`);
+    console.error(`âŒ ${status} ${method?.toUpperCase()} ${url}`);
   },
 
   retry: (delay: number, attempt: number, maxRetries: number, type: string) => {
     if (!LOG_CONFIG.enabled) return;
-    console.log(`🔄 ${type}, retrying in ${delay}ms (attempt ${attempt}/${maxRetries})`);
+    console.log(`ðŸ”„ ${type}, retrying in ${delay}ms (attempt ${attempt}/${maxRetries})`);
   },
 
   warn: (message: string, ...args: unknown[]) => {
@@ -36,6 +36,6 @@ export const logger = {
 
   info: (message: string, ...args: unknown[]) => {
     if (!LOG_CONFIG.enabled) return;
-    console.log(`ℹ️  ${message}`, ...args);
+    console.log(`â„¹ï¸  ${message}`, ...args);
   },
 };

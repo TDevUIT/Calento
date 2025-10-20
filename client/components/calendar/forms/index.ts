@@ -1,4 +1,4 @@
-export { EventFormModal } from './EventFormModal';
+﻿export { EventFormModal } from './EventFormModal';
 export * from './event-form.schema';
 export * from './form-constants';
 export * from './fields';

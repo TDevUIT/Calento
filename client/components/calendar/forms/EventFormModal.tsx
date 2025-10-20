@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -49,7 +49,6 @@ export function EventFormModal({
 }: EventFormModalProps) {
   const [mounted, setMounted] = useState(false);
   const [showUnsavedWarning, setShowUnsavedWarning] = useState(false);
-  // const [shouldSendInvitations, setShouldSendInvitations] = useState(false);
   
   useEffect(() => {
     setMounted(true);
@@ -60,8 +59,6 @@ export function EventFormModal({
   const updateEvent = useUpdateEvent();
   const { mutate: sendInvitations } = useSendInvitations();
   const { mutate: sendReminders } = useSendReminders();
-  // const { mutate: sendInvitations, isPending: isSendingInvitations } = useSendInvitations();
-  // const { mutate: sendReminders, isPending: isSendingReminders } = useSendReminders();
 
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventFormSchema) as Resolver<EventFormData>,
@@ -142,10 +139,9 @@ export function EventFormModal({
         const result = await createEvent.mutateAsync(cleanedData);
         createdEventId = result.data.id;
         
-        // Auto-send invitations for new events with guests
         if (cleanedData.attendees && cleanedData.attendees.length > 0) {
           const shouldSend = confirm(
-            `Gửi lời mời đến ${cleanedData.attendees.length} người tham dự?`
+            `Gá»­i lá»i má»i Ä‘áº¿n ${cleanedData.attendees.length} ngÆ°á»i tham dá»±?`
           );
           
           if (shouldSend && createdEventId) {

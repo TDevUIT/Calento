@@ -1,10 +1,9 @@
-import React from 'react';
+﻿import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { PLATFORM_INTEGRATIONS_DATA } from '@/config/landing-data.config';
 
 export const PlatformIntegrationSection: React.FC = () => {
-  // Return null if no platform integrations to display
   if (PLATFORM_INTEGRATIONS_DATA.length === 0) {
     return null;
   }

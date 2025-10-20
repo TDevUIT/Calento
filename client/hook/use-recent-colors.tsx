@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 
 const STORAGE_KEY = 'tempra_recent_colors';
 const MAX_RECENT_COLORS = 5;

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useMutation, useQueryClient, UseMutationResult } from '@tanstack/react-query';
 import { eventService } from '@/service/event.service';

@@ -1,10 +1,9 @@
-/**
+﻿/**
  * Color utilities for event colors
  * Converts string color names to hex codes and provides color variants
  */
 
 export const COLOR_PALETTE = {
-  // Primary colors
   blue: '#3b82f6',
   red: '#ef4444', 
   green: '#22c55e',
@@ -26,7 +25,6 @@ export const COLOR_PALETTE = {
   violet: '#8b5cf6',
   sky: '#0ea5e9',
   
-  // Default fallback
   default: '#3b82f6',
 } as const;
 
@@ -34,12 +32,10 @@ export type ColorName = keyof typeof COLOR_PALETTE;
 export function getColorHex(color?: string): string {
   if (!color) return COLOR_PALETTE.default;
   
-  // If already hex code, return as-is
   if (color.startsWith('#')) {
     return color;
   }
   
-  // Convert color name to hex
   const colorName = color.toLowerCase() as ColorName;
   return COLOR_PALETTE[colorName] || COLOR_PALETTE.default;
 }
@@ -82,7 +78,6 @@ export function getContrastColor(backgroundColor: string): string {
 
 
 export const EVENT_COLOR_OPTIONS = [
-  // Row 1: Primary colors
   { name: 'Blue', value: 'blue', hex: COLOR_PALETTE.blue },
   { name: 'Red', value: 'red', hex: COLOR_PALETTE.red },
   { name: 'Green', value: 'green', hex: COLOR_PALETTE.green },
@@ -92,7 +87,6 @@ export const EVENT_COLOR_OPTIONS = [
   { name: 'Orange', value: 'orange', hex: COLOR_PALETTE.orange },
   { name: 'Cyan', value: 'cyan', hex: COLOR_PALETTE.cyan },
   
-  // Row 2: Extended palette
   { name: 'Indigo', value: 'indigo', hex: COLOR_PALETTE.indigo },
   { name: 'Teal', value: 'teal', hex: COLOR_PALETTE.teal },
   { name: 'Emerald', value: 'emerald', hex: COLOR_PALETTE.emerald },
@@ -102,7 +96,6 @@ export const EVENT_COLOR_OPTIONS = [
   { name: 'Violet', value: 'violet', hex: COLOR_PALETTE.violet },
   { name: 'Sky', value: 'sky', hex: COLOR_PALETTE.sky },
   
-  // Row 3: Neutral colors
   { name: 'Gray', value: 'gray', hex: COLOR_PALETTE.gray },
   { name: 'Slate', value: 'slate', hex: COLOR_PALETTE.slate },
   { name: 'Zinc', value: 'zinc', hex: COLOR_PALETTE.zinc },

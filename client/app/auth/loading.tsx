@@ -1,4 +1,4 @@
-export default function AuthLoading() {
+﻿export default function AuthLoading() {
   return (
     <div>
       <h1>Auth Loading</h1>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import {
   KeyboardSensor,
   PointerSensor,
@@ -143,7 +143,7 @@ export const usePriorityBoard = (bookingLinks?: BookingLink[], tasks?: Task[]) =
 
     const itemInfo = extractItemInfo(activeId);
     if (!itemInfo) {
-      console.warn('❌ Could not extract item info from:', activeId);
+      console.warn('âŒ Could not extract item info from:', activeId);
       return;
     }
 

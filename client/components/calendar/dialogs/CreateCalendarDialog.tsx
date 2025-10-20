@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -75,7 +75,6 @@ export function CreateCalendarDialog({ open, onOpenChange }: CreateCalendarDialo
   });
 
   const onSubmit = (data: CreateCalendarFormData) => {
-    // Generate unique google_calendar_id
     const google_calendar_id = `custom_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
     createCalendar(

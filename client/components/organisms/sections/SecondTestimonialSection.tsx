@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import Image from 'next/image';
 import { TESTIMONIALS_DATA } from '@/config/landing-data.config';
 

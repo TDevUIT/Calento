@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ENTERPRISE_FEATURES_DATA } from '@/constants/landing.constants';
@@ -22,7 +22,7 @@ export const EnterpriseSection: React.FC = () => {
             href="https://trust.calento.space/"
             className="inline-block text-[#0c7057] hover:text-[#0f8c6a] font-semibold text-lg transition-colors hover:scale-105 transform duration-300"
           >
-            Visit our trust center →
+            Visit our trust center â†’
           </Link>
         </div>
 

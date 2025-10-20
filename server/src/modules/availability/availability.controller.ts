@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -299,7 +299,6 @@ export class AvailabilityController {
       };
     }
 
-    // Create default rules using the service method
     await this.availabilityService.createDefaultAvailabilityRules(userId);
     const newRules = await this.availabilityService.findActive(userId);
 

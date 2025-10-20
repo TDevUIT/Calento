@@ -1,7 +1,5 @@
-'use client';
+﻿'use client';
 
-// import { format } from 'date-fns';
-// import { vi } from 'date-fns/locale';
 import { useCalendarSettings } from '../shared/CalendarSettingsProvider';
 import { formatTimeWithSettings, formatDateWithSettings } from '@/utils/calendar-format';
 import { 
@@ -61,22 +59,22 @@ export function EventDetailView({ event, onEdit, onDelete, onClose }: EventDetai
     if (!rule) return null;
     
     if (rule.includes('FREQ=WEEKLY')) {
-      const days = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
+      const days = ['Chá»§ nháº­t', 'Thá»© hai', 'Thá»© ba', 'Thá»© tÆ°', 'Thá»© nÄƒm', 'Thá»© sÃ¡u', 'Thá»© báº£y'];
       const dayName = days[startDate.getDay()];
-      return `Hàng tuần vào ${dayName}`;
+      return `HÃ ng tuáº§n vÃ o ${dayName}`;
     }
-    if (rule.includes('FREQ=DAILY')) return 'Hàng ngày';
-    if (rule.includes('FREQ=MONTHLY')) return 'Hàng tháng';
-    if (rule.includes('FREQ=YEARLY')) return 'Hàng năm';
+    if (rule.includes('FREQ=DAILY')) return 'HÃ ng ngÃ y';
+    if (rule.includes('FREQ=MONTHLY')) return 'HÃ ng thÃ¡ng';
+    if (rule.includes('FREQ=YEARLY')) return 'HÃ ng nÄƒm';
     
-    return 'Lặp lại';
+    return 'Láº·p láº¡i';
   };
 
   const formatTimeRange = () => {
     if (event.is_all_day) {
       return {
         dayName: formatDateWithSettings(startDate, dateFormat),
-        timeRange: 'Cả ngày',
+        timeRange: 'Cáº£ ngÃ y',
       };
     }
 
@@ -93,7 +91,7 @@ export function EventDetailView({ event, onEdit, onDelete, onClose }: EventDetai
   const { dayName, timeRange } = formatTimeRange();
 
   const handleShareLink = () => {
-    toast.info('Tính năng chia sẻ đang phát triển');
+    toast.info('TÃ­nh nÄƒng chia sáº» Ä‘ang phÃ¡t triá»ƒn');
   };
 
   return (
@@ -179,7 +177,7 @@ export function EventDetailView({ event, onEdit, onDelete, onClose }: EventDetai
                 {event.creator?.name || event.organizer_name || 'Unknown'}
               </p>
               <p className="text-xs text-muted-foreground">
-                {event.creator?.name ? 'Người tạo' : 'Người tổ chức'}
+                {event.creator?.name ? 'NgÆ°á»i táº¡o' : 'NgÆ°á»i tá»• chá»©c'}
               </p>
               {(event.creator?.email || event.organizer_email) && (
                 <p className="text-xs text-muted-foreground truncate">
@@ -242,9 +240,9 @@ export function EventDetailView({ event, onEdit, onDelete, onClose }: EventDetai
                 {event.reminders.map((reminder, index) => (
                   <div key={index} className="text-sm">
                     {reminder.method === 'email' && 'Email'}
-                    {reminder.method === 'popup' && 'Thông báo'}
+                    {reminder.method === 'popup' && 'ThÃ´ng bÃ¡o'}
                     {reminder.method === 'sms' && 'SMS'}
-                    {' '}{reminder.minutes} phút trước
+                    {' '}{reminder.minutes} phÃºt trÆ°á»›c
                   </div>
                 ))}
               </div>
@@ -257,7 +255,7 @@ export function EventDetailView({ event, onEdit, onDelete, onClose }: EventDetai
           <>
             <Separator />
             <div className="space-y-2">
-              <p className="text-sm font-medium">Mô tả</p>
+              <p className="text-sm font-medium">MÃ´ táº£</p>
               <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
                 {event.description}
               </p>
@@ -274,7 +272,7 @@ export function EventDetailView({ event, onEdit, onDelete, onClose }: EventDetai
             onClick={handleShareLink}
           >
             <Link2 className="h-4 w-4 mr-2" />
-            Chia sẻ sự kiện
+            Chia sáº» sá»± kiá»‡n
           </Button>
         </div>
       </div>

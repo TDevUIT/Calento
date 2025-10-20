@@ -1,4 +1,4 @@
-export type CalendarEvent = {
+﻿export type CalendarEvent = {
   id: string;
   start: Date;
   end: Date;

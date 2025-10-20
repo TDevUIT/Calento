@@ -1,4 +1,4 @@
-export interface GoogleAuthUrl {
+﻿export interface GoogleAuthUrl {
   auth_url: string;
 }
 

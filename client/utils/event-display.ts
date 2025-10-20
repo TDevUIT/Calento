@@ -1,4 +1,4 @@
-import type { CalendarEvent } from '@/components/calendar/views';
+﻿import type { CalendarEvent } from '@/components/calendar/views';
 
 export interface EventLayout {
   event: CalendarEvent;

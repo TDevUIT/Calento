@@ -1,4 +1,4 @@
-import { PricingPlans, ComparisonCategory, FAQ } from '@/types/pricing.types';
+﻿import { PricingPlans, ComparisonCategory, FAQ } from '@/types/pricing.types';
 
 export const PRICING_PLANS: PricingPlans = {
   monthly: [

@@ -1,6 +1,5 @@
-import { ReactNode } from 'react';
+﻿import { ReactNode } from 'react';
 
-// Base Component Interfaces
 export interface BaseComponentProps {
   className?: string;
   children?: ReactNode;
@@ -35,7 +34,6 @@ export interface LinkProps {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
 }
 
-// Navigation Interfaces
 export interface DropdownItem {
   label: string;
   href: string;
@@ -53,7 +51,6 @@ export interface NavigationLinkProps {
   onOpenChange?: (label: string, isOpen: boolean) => void;
 }
 
-// Integration & Badge Interfaces
 export interface IntegrationBadgeProps {
   name: string;
   icon: string;
@@ -61,7 +58,6 @@ export interface IntegrationBadgeProps {
   variant?: 'default' | 'compact';
 }
 
-// Testimonial Interfaces
 export interface TestimonialProps {
   quote: string;
   author: {
@@ -73,7 +69,6 @@ export interface TestimonialProps {
   rating?: number;
 }
 
-// Statistics Interfaces
 export interface StatItemProps {
   value: string | number;
   label: string;
@@ -81,7 +76,6 @@ export interface StatItemProps {
   icon?: ReactNode;
 }
 
-// Feature Interfaces
 export interface FeatureItemProps {
   title: string;
   description: string;
@@ -90,7 +84,6 @@ export interface FeatureItemProps {
   link?: LinkProps;
 }
 
-// Footer Interfaces
 export interface FooterSectionProps {
   title: string;
   links: Array<{

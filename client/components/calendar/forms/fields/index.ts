@@ -1,4 +1,4 @@
-export { TitleField } from './TitleField';
+﻿export { TitleField } from './TitleField';
 export { TimeRangeField } from './TimeRangeField';
 export { AllDayField } from './AllDayField';
 export { DescriptionField } from './DescriptionField';

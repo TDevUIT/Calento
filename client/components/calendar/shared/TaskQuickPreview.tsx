@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { format } from 'date-fns';
 import { 
@@ -62,7 +62,7 @@ export function TaskQuickPreview({ task }: TaskQuickPreviewProps) {
         <div className="flex items-start gap-3">
           <div className="flex-1 min-w-0">
             <h3 className={`font-semibold text-base leading-tight ${isCompleted ? 'line-through text-gray-500' : ''}`}>
-              📋 {task.title}
+              ðŸ“‹ {task.title}
             </h3>
           </div>
         </div>

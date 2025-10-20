@@ -1,4 +1,4 @@
-export const priorityColumns = [
+﻿export const priorityColumns = [
   { id: "critical", label: "Critical", color: "text-red-600" },
   { id: "high", label: "High priority", color: "text-gray-700" },
   { id: "medium", label: "Medium priority", color: "text-gray-700" },

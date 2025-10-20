@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
@@ -22,7 +22,6 @@ const SchedulingLinksPage = () => {
   const { data: bookingLinks } = useBookingLinks();
   const currentUser = useAuthStore((s) => s.user);
 
-  // Generate user slug and booking page URL
   const userSlug = useMemo(() => {
     if (!currentUser) return 'user';
     const username = currentUser.username || currentUser.email?.split('@')[0] || 'user';

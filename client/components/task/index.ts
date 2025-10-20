@@ -1,4 +1,4 @@
-export { CreateTaskDialog } from './CreateTaskDialog';
+﻿export { CreateTaskDialog } from './CreateTaskDialog';
 export { CreateTaskDropdown } from './CreateTaskDropdown';
 export { EditTaskDialog } from './EditTaskDialog';
 export { TaskItem } from './TaskItem';
