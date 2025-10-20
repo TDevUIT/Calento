@@ -1,4 +1,4 @@
-import { BaseEntity } from '../../../common/interfaces/base-entity.interface';
+﻿import { BaseEntity } from '../../../common/interfaces/base-entity.interface';
 
 export enum BookingStatus {
   PENDING = 'pending',
@@ -21,7 +21,6 @@ export interface BookingLink extends BaseEntity {
   color?: string;
   timezone: string;
   bookings_count?: number; // Count of non-cancelled bookings
-  // User info (populated from JOIN)
   user?: {
     id: string;
     username?: string;

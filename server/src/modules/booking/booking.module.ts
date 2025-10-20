@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+﻿import { Module } from '@nestjs/common';
 import { BookingLinkController, BookingController } from './booking.controller';
 import { BookingService } from './booking.service';
 import { BookingLinkRepository } from './repositories/booking-link.repository';

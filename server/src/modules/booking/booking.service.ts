@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+﻿import { Injectable, Logger } from '@nestjs/common';
 import { BookingLinkRepository } from './repositories/booking-link.repository';
 import { BookingRepository } from './repositories/booking.repository';
 import { DatabaseService } from '../../database/database.service';
@@ -107,7 +107,6 @@ export class BookingService {
       throw new BookingLinkNotFoundException(message);
     }
 
-    // Only return active booking links for public access
     if (!link.is_active) {
       const message = this.messageService.get(
         'booking.link_inactive',
