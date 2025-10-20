@@ -43,6 +43,8 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+DROP TRIGGER IF EXISTS trigger_sync_errors_updated_at ON sync_errors;
+
 CREATE TRIGGER trigger_sync_errors_updated_at
     BEFORE UPDATE ON sync_errors
     FOR EACH ROW

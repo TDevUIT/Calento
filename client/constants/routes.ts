@@ -155,6 +155,10 @@ export const API_ROUTES = {
   PRIORITY_BULK_UPDATE: '/priorities/bulk-update',
   PRIORITY_DELETE: (itemId: string, itemType: string) => `/priorities/item/${itemId}/${itemType}`,
   PRIORITY_RESET: '/priorities/reset',
+  
+  AI_CHAT: '/ai/chat',
+  AI_CHAT_STREAM: '/ai/chat/stream',
+  AI_FUNCTION_EXECUTE: '/ai/function/execute',
 } as const;
 
 export const PUBLIC_ROUTE_PATTERNS = [

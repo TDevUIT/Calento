@@ -809,7 +809,7 @@ export class EventRepository extends BaseRepository<Event> {
     await this.userValidationService.validateUserExists(userId);
 
     const whereCondition =
-      'e.organizer_id = $1 AND e.start_time <= $3 AND e.end_time >= $2';
+      'organizer_id = $1 AND start_time <= $3 AND end_time >= $2';
     const whereParams = [userId, startDate, endDate];
 
     try {
@@ -839,10 +839,10 @@ export class EventRepository extends BaseRepository<Event> {
 
     const searchPattern = `%${searchTerm}%`;
     const whereCondition = `
-            e.organizer_id = $1 
-            AND e.start_time <= $4 
-            AND e.end_time >= $3 
-            AND (e.title ILIKE $2 OR e.description ILIKE $2)
+            organizer_id = $1 
+            AND start_time <= $4 
+            AND end_time >= $3 
+            AND (title ILIKE $2 OR description ILIKE $2)
         `;
     const whereParams = [userId, searchPattern, startDate, endDate];
 

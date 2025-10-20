@@ -26,6 +26,6 @@ import { RecurringEventsService } from '../../common/services/recurring-events.s
     SyncChecker,
     RecurringEventsService,
   ],
-  exports: [EventSyncService, CalendarSyncManagerService, EventInvitationService],
+  exports: [EventService, EventRepository, EventSyncService, CalendarSyncManagerService, EventInvitationService],
 })
 export class EventModule {}

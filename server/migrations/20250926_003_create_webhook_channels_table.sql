@@ -36,6 +36,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_update_webhook_channels_updated_at ON webhook_channels;
+
 CREATE TRIGGER trigger_update_webhook_channels_updated_at
     BEFORE UPDATE ON webhook_channels
     FOR EACH ROW

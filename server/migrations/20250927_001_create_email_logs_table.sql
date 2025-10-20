@@ -36,6 +36,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_update_email_logs_updated_at ON email_logs;
+
 CREATE TRIGGER trigger_update_email_logs_updated_at
 BEFORE UPDATE ON email_logs
 FOR EACH ROW

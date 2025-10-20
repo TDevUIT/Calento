@@ -80,5 +80,13 @@ export {
   type GoogleCalendarEvent,
 } from './invitation.service';
 
+// AI service functions
+export {
+  chat,
+  chatStream,
+  executeFunction,
+  aiService,
+} from './ai.service';
+
 // HTTP utilities
 export { default as api, getErrorMessage, isNetworkError, isTimeoutError, isServerError, isClientError } from '../config/axios';

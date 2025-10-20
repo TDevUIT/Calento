@@ -39,6 +39,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_update_tasks_updated_at ON tasks;
+
 CREATE TRIGGER trigger_update_tasks_updated_at
     BEFORE UPDATE ON tasks
     FOR EACH ROW

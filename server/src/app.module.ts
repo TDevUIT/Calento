@@ -20,6 +20,7 @@ import { BlogModule } from './modules/blog/blog.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { TaskModule } from './modules/task/task.module';
 import { PriorityModule } from './modules/priority/priority.module';
+import { AIModule } from './modules/ai/ai.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { DebugController } from './debug-cors.controller';
 
@@ -47,6 +48,7 @@ import { DebugController } from './debug-cors.controller';
     AnalyticsModule,
     TaskModule,
     PriorityModule,
+    AIModule,
   ],
   controllers: [DebugController],
   providers: [

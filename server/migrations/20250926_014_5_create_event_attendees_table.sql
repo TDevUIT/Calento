@@ -33,6 +33,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_update_event_attendees_updated_at ON event_attendees;
+
 CREATE TRIGGER trigger_update_event_attendees_updated_at
     BEFORE UPDATE ON event_attendees
     FOR EACH ROW
