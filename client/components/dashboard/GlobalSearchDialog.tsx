@@ -27,9 +27,9 @@ interface SearchItem {
 interface GlobalSearchDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  events?: any[];
-  tasks?: any[];
-  bookingLinks?: any[];
+  events?: unknown[];
+  tasks?: unknown[];
+  bookingLinks?: unknown[];
 }
 
 const GlobalSearchDialog = ({ 
@@ -58,39 +58,42 @@ const GlobalSearchDialog = ({
     const items: SearchItem[] = [];
 
     events.forEach((event) => {
+      const e = event as { id: string; title?: string; start_time?: string };
       items.push({
-        id: event.id,
-        title: event.title || "Untitled Event",
+        id: e.id,
+        title: e.title || "Untitled Event",
         category: "Events",
         type: "event",
         metadata: {
-          date: event.start_time ? new Date(event.start_time).toLocaleDateString() : undefined,
-          time: event.start_time ? new Date(event.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : undefined,
+          date: e.start_time ? new Date(e.start_time).toLocaleDateString() : undefined,
+          time: e.start_time ? new Date(e.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : undefined,
         }
       });
     });
 
     tasks.forEach((task) => {
+      const t = task as { id: string; title?: string; status?: string; due_date?: string };
       items.push({
-        id: task.id,
-        title: task.title || "Untitled Task",
+        id: t.id,
+        title: t.title || "Untitled Task",
         category: "Tasks",
         type: "task",
         metadata: {
-          status: task.status,
-          date: task.due_date ? new Date(task.due_date).toLocaleDateString() : undefined,
+          status: t.status,
+          date: t.due_date ? new Date(t.due_date).toLocaleDateString() : undefined,
         }
       });
     });
 
     bookingLinks.forEach((link) => {
+      const l = link as { id: string; title?: string; duration_minutes?: number };
       items.push({
-        id: link.id,
-        title: link.title || "Untitled Link",
+        id: l.id,
+        title: l.title || "Untitled Link",
         category: "Scheduling Links",
         type: "booking_link",
         metadata: {
-          duration: link.duration_minutes,
+          duration: l.duration_minutes,
         }
       });
     });
