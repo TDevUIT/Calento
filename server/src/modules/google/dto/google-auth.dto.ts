@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsUrl, IsNotEmpty } from 'class-validator';
+﻿import { IsString, IsOptional, IsUrl, IsNotEmpty } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class GoogleAuthCallbackDto {

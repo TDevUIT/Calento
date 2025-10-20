@@ -1,4 +1,4 @@
-import {
+﻿import {
   Controller,
   Get,
   Post,
@@ -45,12 +45,12 @@ export class GoogleController {
   @ApiBearerAuth('bearer')
   @ApiCookieAuth('cookie')
   @ApiOperation({
-    summary: '🔗 Get Google OAuth URL',
+    summary: 'ðŸ”— Get Google OAuth URL',
     description: 'Generate OAuth URL for Google Calendar connection',
   })
   @ApiResponse({
     status: 200,
-    description: '✅ OAuth URL generated',
+    description: 'âœ… OAuth URL generated',
     schema: {
       example: {
         status: 200,
@@ -74,7 +74,7 @@ export class GoogleController {
 
   @Get('auth/callback')
   @ApiOperation({
-    summary: '🔄 OAuth Callback Handler',
+    summary: 'ðŸ”„ OAuth Callback Handler',
     description: 'Handle OAuth callback from Google and save credentials',
   })
   @ApiQuery({ name: 'code', description: 'Authorization code from Google' })
@@ -85,7 +85,7 @@ export class GoogleController {
   })
   @ApiResponse({
     status: 302,
-    description: '✅ Redirects to frontend with success/error',
+    description: 'âœ… Redirects to frontend with success/error',
   })
   async handleCallback(
     @Query('code') code: string,
@@ -122,12 +122,12 @@ export class GoogleController {
   @ApiBearerAuth('bearer')
   @ApiCookieAuth('cookie')
   @ApiOperation({
-    summary: '📊 Get Connection Status',
+    summary: 'ðŸ“Š Get Connection Status',
     description: 'Check if user is connected to Google Calendar',
   })
   @ApiResponse({
     status: 200,
-    description: '✅ Status retrieved',
+    description: 'âœ… Status retrieved',
     type: SuccessResponseDto,
   })
   async getConnectionStatus(
@@ -158,12 +158,12 @@ export class GoogleController {
   @ApiBearerAuth('bearer')
   @ApiCookieAuth('cookie')
   @ApiOperation({
-    summary: '🔌 Disconnect Google Calendar',
+    summary: 'ðŸ”Œ Disconnect Google Calendar',
     description: 'Revoke access and delete stored credentials',
   })
   @ApiResponse({
     status: 200,
-    description: '✅ Disconnected successfully',
+    description: 'âœ… Disconnected successfully',
     type: SuccessResponseDto,
   })
   async disconnect(
@@ -182,12 +182,12 @@ export class GoogleController {
   @ApiBearerAuth('bearer')
   @ApiCookieAuth('cookie')
   @ApiOperation({
-    summary: '🔄 Sync Calendars from Google',
+    summary: 'ðŸ”„ Sync Calendars from Google',
     description: 'Fetch and sync all calendars from Google Calendar',
   })
   @ApiResponse({
     status: 200,
-    description: '✅ Calendars synced',
+    description: 'âœ… Calendars synced',
     type: SuccessResponseDto,
   })
   async syncCalendars(
@@ -214,12 +214,12 @@ export class GoogleController {
   @ApiBearerAuth('bearer')
   @ApiCookieAuth('cookie')
   @ApiOperation({
-    summary: '📅 List Google Calendars',
+    summary: 'ðŸ“… List Google Calendars',
     description: 'Get list of all calendars from Google Calendar',
   })
   @ApiResponse({
     status: 200,
-    description: '✅ Calendars retrieved',
+    description: 'âœ… Calendars retrieved',
     type: SuccessResponseDto,
   })
   async listGoogleCalendars(
@@ -238,12 +238,12 @@ export class GoogleController {
   @ApiBearerAuth('bearer')
   @ApiCookieAuth('cookie')
   @ApiOperation({
-    summary: '🔄 Refresh Access Token',
+    summary: 'ðŸ”„ Refresh Access Token',
     description: 'Manually refresh Google OAuth access token',
   })
   @ApiResponse({
     status: 200,
-    description: '✅ Token refreshed',
+    description: 'âœ… Token refreshed',
     type: SuccessResponseDto,
   })
   async refreshToken(
@@ -263,18 +263,18 @@ export class GoogleController {
   @ApiBearerAuth('bearer')
   @ApiCookieAuth('cookie')
   @ApiOperation({
-    summary: '📹 Create Google Meet Link',
+    summary: 'ðŸ“¹ Create Google Meet Link',
     description:
       'Generate a Google Meet conference link for an event. Requires Google Calendar connection.',
   })
   @ApiResponse({
     status: 200,
-    description: '✅ Google Meet link created',
+    description: 'âœ… Google Meet link created',
     type: SuccessResponseDto,
   })
   @ApiResponse({
     status: 401,
-    description: '❌ Not connected to Google Calendar',
+    description: 'âŒ Not connected to Google Calendar',
   })
   async createGoogleMeet(
     @CurrentUserId() userId: string,

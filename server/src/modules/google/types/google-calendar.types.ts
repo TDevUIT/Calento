@@ -1,4 +1,4 @@
-import { calendar_v3 } from 'googleapis';
+﻿import { calendar_v3 } from 'googleapis';
 
 export type GoogleCalendar = calendar_v3.Schema$Calendar;
 export type GoogleEvent = calendar_v3.Schema$Event;

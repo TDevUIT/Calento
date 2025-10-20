@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+﻿import { Injectable, Logger } from '@nestjs/common';
 import { google, calendar_v3 } from 'googleapis';
 import { GoogleAuthService } from './google-auth.service';
 import { Calendar } from '../../calendar/calendar';
@@ -148,7 +148,7 @@ export class GoogleCalendarService {
       if (event.hangoutLink) {
         requestBody.description = requestBody.description || '';
         if (!requestBody.description.includes(event.hangoutLink)) {
-          requestBody.description += `\n\n🔗 Meeting Link: ${event.hangoutLink}`;
+          requestBody.description += `\n\nðŸ”— Meeting Link: ${event.hangoutLink}`;
         }
       }
 
@@ -214,7 +214,7 @@ export class GoogleCalendarService {
 
       if (event.hangoutLink && updateData.description) {
         if (!updateData.description.includes(event.hangoutLink)) {
-          updateData.description += `\n\n🔗 Meeting Link: ${event.hangoutLink}`;
+          updateData.description += `\n\nðŸ”— Meeting Link: ${event.hangoutLink}`;
         }
       }
 
