@@ -1,22 +1,22 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import { MainLayoutProvider } from "@/components/Layout-provider";
 import { AuthProvider } from "@/components/providers";
 import { QueryProvider } from "@/provider/query-provider";
+import { DEFAULT_METADATA } from "@/config/metadata.config";
 
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
-  fallback: ['system-ui', 'arial']
+  fallback: ['system-ui', 'arial'],
+  preload: true,
+  adjustFontFallback: true,
 });
 
-export const metadata: Metadata = {
-  title: 'Calento - AI Calendar Assistant',
-  description: 'Smart calendar management with AI-powered scheduling'
-};
+export const metadata: Metadata = DEFAULT_METADATA;
 
 
 export default function RootLayout({

@@ -1,4 +1,4 @@
-﻿import { HeroSection } from '@/components/organisms/sections/HeroSection';
+import { HeroSection } from '@/components/organisms/sections/HeroSection';
 import { FocusStatsSection } from '@/components/organisms/sections/FocusStatsSection';
 import { ProductivitySection } from '@/components/organisms/sections/ProductivitySection';
 import { DepartmentsSection } from '@/components/organisms/sections/DepartmentsSection';
@@ -6,10 +6,15 @@ import { TestimonialSection } from '@/components/organisms/sections/TestimonialS
 import { GreenStatsSection } from '@/components/organisms/sections/GreenStatsSection';
 import { IntegrationsSection } from '@/components/organisms/sections/IntegrationsSection';
 import { SecondTestimonialSection } from '@/components/organisms/sections/SecondTestimonialSection';
+import { StructuredData } from '@/components/seo/StructuredData';
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-[#f6f6f6] via-white/30 to-white dark:from-[#121212] dark:via-[#3d3d3d]/30 dark:to-[#121212] font-sans overflow-x-hidden transition-colors duration-300">
+    <>
+      <StructuredData type="Organization" />
+      <StructuredData type="WebSite" />
+      <StructuredData type="SoftwareApplication" />
+      <main className="min-h-screen bg-gradient-to-b from-[#f6f6f6] via-white/30 to-white dark:from-[#121212] dark:via-[#3d3d3d]/30 dark:to-[#121212] font-sans overflow-x-hidden transition-colors duration-300">
       <div className="relative bg-white dark:bg-[#121212] transition-colors duration-300">
         <HeroSection />
         <div className="bg-[#f6f6f6] dark:bg-[#3d3d3d] transition-colors duration-300">
@@ -35,5 +40,6 @@ export default function Home() {
         </div>
       </div>
     </main>
+    </>
   );
 }
