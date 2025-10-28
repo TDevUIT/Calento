@@ -126,7 +126,7 @@ export const EventsList = ({ events, message }: EventsListProps) => {
                 <span className="text-sm font-semibold text-gray-700">
                   {group.dateFormatted}
                 </span>
-                <span className="text-xs text-gray-500">â€¢ {group.events.length} events</span>
+                <span className="text-xs text-gray-500">• {group.events.length} events</span>
               </div>
             </div>
 

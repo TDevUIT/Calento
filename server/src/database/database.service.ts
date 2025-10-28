@@ -33,6 +33,8 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
         idleTimeoutMillis: env.DB_POOL_IDLE_TIMEOUT,
         connectionTimeoutMillis: env.DB_POOL_CONNECTION_TIMEOUT,
         maxUses: env.DB_POOL_MAX_USES,
+        // Ensure UTF-8 encoding for proper emoji/unicode support
+        client_encoding: 'UTF8',
       });
       const client = await this.pool.connect();
       await client.query('SELECT NOW()');

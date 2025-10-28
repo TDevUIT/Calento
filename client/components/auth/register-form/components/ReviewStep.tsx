@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { Button } from '@/components/ui/button'
 import { BackButton, TermsAndPolicy, Spinner } from '@/components/atoms'
@@ -24,37 +24,37 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
   onBack,
 }) => {
   return (
-    <form onSubmit={onSubmit} className="space-y-3 md:space-y-4 animate-in fade-in duration-300">
-      <div className="flex items-center justify-center mb-3 md:mb-4 relative">
+    <form onSubmit={onSubmit} className="space-y-4 animate-in fade-in duration-300">
+      <div className="flex items-center justify-center mb-4 relative">
         <BackButton onClick={onBack} />
-        <h3 className="text-base md:text-lg 2xl:text-xl font-semibold">
+        <h3 className="text-lg font-semibold">
           Almost Done!
         </h3>
       </div>
       
-      <div className="bg-muted/50 p-3 md:p-4 rounded-lg space-y-1.5 md:space-y-2">
-        <p className="text-xs md:text-sm font-medium">Review your information:</p>
-        <p className="text-xs md:text-sm text-muted-foreground">
+      <div className="bg-muted/50 p-4 rounded-lg space-y-2">
+        <p className="text-sm font-medium">Review your information:</p>
+        <p className="text-sm text-muted-foreground">
           <strong>Name:</strong> {firstName} {lastName}
         </p>
-        <p className="text-xs md:text-sm text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           <strong>Email:</strong> {email}
         </p>
-        <p className="text-xs md:text-sm text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           <strong>Username:</strong> {username}
         </p>
       </div>
 
-      <div className="pt-1 md:pt-2">
+      <div className="pt-2">
         <TermsAndPolicy 
           text="By creating an account, you agree to our"
-          className="text-[10px] md:text-xs"
+          className="text-xs"
         />
       </div>
 
       <Button 
         type="submit"
-        className="w-full mt-2 md:mt-0 rounded-lg h-10 md:h-11 2xl:h-12 text-sm md:text-base 2xl:text-base font-semibold shadow-md hover:shadow-lg transition-all"
+        className="w-full rounded-lg h-11 text-sm font-semibold shadow-md hover:shadow-lg transition-all"
         disabled={loading}
       >
         {loading ? (
@@ -65,7 +65,7 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
         ) : (
           <>
             {AUTH_BUTTON_TEXT.register.idle}
-            <svg className="ml-2 h-4 w-4 md:h-5 md:w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="ml-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </>

@@ -525,7 +525,7 @@ html body[data-scroll-locked] {
 
 /* Hover effects for column events */
 .event-column:hover {
-  transform: translateY(-1px) scale(1.02);
+  transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 1000 !important;
 }
@@ -572,14 +572,123 @@ html body[data-scroll-locked] {
 @keyframes eventSlideIn {
   from {
     opacity: 0;
-    transform: translateX(-10px) scale(0.95);
+    transform: translateX(-10px);
   }
   to {
     opacity: 1;
-    transform: translateX(0) scale(1);
+    transform: translateX(0);
   }
 }
 
 .event-column {
   animation: eventSlideIn 0.3s ease-out;
+}
+
+/* ============================================
+   Enhanced Event Overlap Styles
+   ============================================ */
+
+/* Event Density Indicators */
+.event-density-low {
+  --event-spacing: 0.5rem;
+}
+
+.event-density-medium {
+  --event-spacing: 0.25rem;
+}
+
+.event-density-high {
+  --event-spacing: 0.125rem;
+}
+
+/* Stacked Events Animation */
+@keyframes stack-reveal {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.event-stacked {
+  animation: stack-reveal 0.2s ease-out;
+}
+
+/* Overlap Separator for better visual distinction */
+.event-overlap-separator {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(255, 255, 255, 0.3) 20%,
+    rgba(255, 255, 255, 0.3) 80%,
+    transparent
+  );
+}
+
+/* Enhanced Hover States for Grouped Events */
+.event-column-group:hover .event-column {
+  filter: brightness(0.95);
+}
+
+.event-column-group:hover .event-column:hover {
+  filter: brightness(1.1);
+  z-index: 1000 !important;
+}
+
+/* Badge Pulse Animation */
+@keyframes badge-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.event-stack-badge {
+  animation: badge-pulse 2s ease-in-out infinite;
+}
+
+/* Event Density Background Gradient */
+.event-hour-dense {
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(59, 130, 246, 0.03) 30%,
+    rgba(59, 130, 246, 0.03) 70%,
+    transparent
+  );
+}
+
+/* Smooth transitions for all event interactions */
+.event-column {
+  will-change: transform, box-shadow, opacity;
+  transition-property: transform, box-shadow, opacity, filter;
+  transition-duration: 0.2s;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced shadow for stacked events */
+.event-column[data-stacked="true"] {
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(0, 0, 0, 0.1),
+    0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Hover effect for stacked events */
+.event-column[data-stacked="true"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.2),
+    0 0 0 2px rgba(59, 130, 246, 0.3),
+    0 8px 24px rgba(0, 0, 0, 0.12);
 }

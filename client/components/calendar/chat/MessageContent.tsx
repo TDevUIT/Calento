@@ -28,7 +28,7 @@ export const MessageContent = ({ content }: MessageContentProps) => {
         elements.push(
           <ul key={`list-${listIndex++}`} className="space-y-2 my-3">
             {currentList.map((item, idx) => {
-              const richMatch = item.match(/^[\s]*[\*\-â€¢]\s*(?:([ðŸ“…âœ…â°ðŸ”ŽðŸŽ¯âš¡])\s*)?(?:\*\*(.*?)\*\*)?(.*)$/);
+              const richMatch = item.match(/^[\s]*[\*\-•]\s*(?:([📅✅⏰🔎🎯⚡])\s*)?(?:\*\*(.*?)\*\*)?(.*)$/);
               if (richMatch) {
                 const [, emoji, boldMaybe, restRaw] = richMatch;
                 const boldText = (boldMaybe || '').trim();
@@ -49,7 +49,7 @@ export const MessageContent = ({ content }: MessageContentProps) => {
                 return (
                   <li key={idx} className="flex items-start gap-2 group">
                     <div className="h-6 w-6 rounded-md bg-blue-50 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-100 transition-colors">
-                      {Icon ? <Icon className="h-3.5 w-3.5 text-blue-600" /> : <span className="text-blue-600">â€¢</span>}
+                      {Icon ? <Icon className="h-3.5 w-3.5 text-blue-600" /> : <span className="text-blue-600">•</span>}
                     </div>
                     <div className="flex-1 pt-0.5">
                       {boldText ? (
@@ -74,7 +74,7 @@ export const MessageContent = ({ content }: MessageContentProps) => {
                 );
               }
 
-              const simpleMatch = item.match(/^[\s]*[\*\-â€¢]\s*(.+)$/);
+              const simpleMatch = item.match(/^[\s]*[\*\-•]\s*(.+)$/);
               if (simpleMatch) {
                 const text = simpleMatch[1];
                 const parts = text.split(/(\*\*.*?\*\*)/g);
@@ -82,7 +82,7 @@ export const MessageContent = ({ content }: MessageContentProps) => {
                 const exampleText = exampleMatch ? exampleMatch[1] : '';
                 return (
                   <li key={idx} className="flex items-start gap-2">
-                    <span className="text-blue-600 mt-1">â€¢</span>
+                    <span className="text-blue-600 mt-1">•</span>
                     <div className="text-gray-700 flex-1">
                       <span>
                         {parts.map((part, i) =>
@@ -116,7 +116,7 @@ export const MessageContent = ({ content }: MessageContentProps) => {
     };
 
     lines.forEach((line, idx) => {
-      if (line.trim().startsWith('*') || line.trim().startsWith('-') || line.trim().startsWith('â€¢')) {
+      if (line.trim().startsWith('*') || line.trim().startsWith('-') || line.trim().startsWith('•')) {
         currentList.push(line);
       } else {
         flushList();

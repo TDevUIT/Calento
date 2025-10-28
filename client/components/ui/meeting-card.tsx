@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { cn } from '@/lib/utils';
@@ -41,7 +41,7 @@ export const MeetingCard: React.FC<MeetingCardProps> = ({
               <path d="M8 4v4l3 2" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
             <span>{time}</span>
-            <span className="text-gray-400">â€¢</span>
+            <span className="text-gray-400">•</span>
             <span>{duration}</span>
           </div>
         </div>

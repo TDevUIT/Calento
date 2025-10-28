@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
@@ -114,7 +114,7 @@ export function BookingCard({ booking, onCancel, onReschedule }: BookingCardProp
           <span className="font-medium">
             {format(startTime, "dd MMM yyyy", { locale: vi })}
           </span>
-          <span className="text-gray-400">â€¢</span>
+          <span className="text-gray-400">•</span>
           <Clock className="h-4 w-4 text-gray-400 flex-shrink-0" />
           <span>
             {format(startTime, "HH:mm")} - {format(endTime, "HH:mm")}

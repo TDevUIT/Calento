@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { ConferenceData } from '@/interface/event.interface';
 import { Video, Copy, Phone, Lock, Info } from 'lucide-react';
@@ -122,7 +122,7 @@ export function ConferenceInfo({ conference }: ConferenceInfoProps) {
             <Badge variant="outline" className="text-xs">
               Máº­t kháº©u
             </Badge>
-            <span className="text-xs font-mono">{'â€¢'.repeat(conference.password.length)}</span>
+            <span className="text-xs font-mono">{'•'.repeat(conference.password.length)}</span>
             <Button
               variant="ghost"
               size="icon"
@@ -141,7 +141,7 @@ export function ConferenceInfo({ conference }: ConferenceInfoProps) {
             <span className="text-xs">{conference.phone}</span>
             {conference.pin && (
               <>
-                <span className="text-xs text-muted-foreground">â€¢</span>
+                <span className="text-xs text-muted-foreground">•</span>
                 <span className="text-xs">PIN: {conference.pin}</span>
               </>
             )}

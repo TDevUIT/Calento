@@ -1,4 +1,4 @@
-﻿import { format, parseISO } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import {
   INVITATION_STATUS,
   INVITATION_STATUS_LABELS,
@@ -77,7 +77,7 @@ export function formatEventTimeRange(startTime: string, endTime: string): string
   const endFormatted = format(end, 'h:mm a');
   const dateFormatted = format(start, 'EEEE, MMM d, yyyy');
   
-  return `${dateFormatted} â€¢ ${startFormatted} - ${endFormatted}`;
+  return `${dateFormatted} • ${startFormatted} - ${endFormatted}`;
 }
 
 /**

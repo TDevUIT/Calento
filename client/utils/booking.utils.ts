@@ -1,4 +1,4 @@
-﻿import { format, parseISO, addDays, startOfDay } from 'date-fns';
+import { format, parseISO, addDays, startOfDay } from 'date-fns';
 import {
   BOOKING_STATUS,
   BOOKING_STATUS_LABELS,
@@ -152,7 +152,7 @@ export function getBookingTimeRange(booking: Booking): string {
   const endFormatted = format(endTime, 'h:mm a');
   const dateFormatted = format(startTime, 'MMM d, yyyy');
   
-  return `${dateFormatted} â€¢ ${startFormatted} - ${endFormatted}`;
+  return `${dateFormatted} • ${startFormatted} - ${endFormatted}`;
 }
 
 

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -41,6 +41,20 @@ import type { Task } from '@/interface/task.interface';
 import { calculateEventLayouts, getEventLayoutStyles, getEventTextClasses } from '@/utils/event-display';
 import { getStoredCalendarView, saveCalendarView } from '@/utils/calendar-storage';
 import { useCalendarSettings } from '../shared/CalendarSettingsProvider';
+
+// Helper function to fix emoji encoding issues
+const fixEmojiText = (text: string): string => {
+  if (!text) return '';
+  // Fix common mojibake patterns for emoji
+  return text
+    .replace(/ðŸ"‹/g, String.fromCodePoint(0x1F4CB)) // Clipboard
+    .replace(/ðŸ"…/g, String.fromCodePoint(0x1F4C5)) // Calendar
+    .replace(/âœ…/g, String.fromCodePoint(0x2705)) // Checkmark
+    .replace(/ðŸš€/g, String.fromCodePoint(0x1F680)) // Rocket
+    .replace(/ðŸŽ‰/g, String.fromCodePoint(0x1F389)) // Party
+    .replace(/ðŸ'¡/g, String.fromCodePoint(0x1F4A1)) // Bulb
+    .replace(/â­/g, String.fromCodePoint(0x2B50)); // Star
+};
 
 type View = 'day' | 'week' | 'month' | 'year';
 
@@ -210,14 +224,19 @@ const HourEvents = ({
   hour: Date;
 }) => {
   const { onEventClick } = useCalendar();
+  const [hoveredEventId, setHoveredEventId] = useState<string | null>(null);
   
   const hourEvents = events.filter((event) => isSameHour(event.start, hour));
   
   const eventLayouts = calculateEventLayouts(hourEvents);
   
+  // Count stacked events for badge
+  const stackedEvents = eventLayouts.filter(l => l.isStacked);
+  const hasStackedEvents = stackedEvents.length > 0;
+  
   return (
     <div className="h-20 border-t last:border-b relative group hover:bg-accent/5 transition-colors">
-      {eventLayouts.map((layout) => {
+      {eventLayouts.map((layout, index) => {
         const { event } = layout;
         const hoursDifference = differenceInMinutes(event.end, event.start) / 60;
         const startPosition = event.start.getMinutes() / 60;
@@ -226,6 +245,9 @@ const HourEvents = ({
         
         const eventColor = event.color || '#3b82f6';
         const { titleClass, timeClass } = getEventTextClasses(eventColor);
+        
+        const isHovered = hoveredEventId === event.id;
+        const showStackBadge = layout.isStacked && layout.stackIndex === 0 && layout.totalStacked;
         
         return (
           <EventOrTaskCard
@@ -239,7 +261,12 @@ const HourEvents = ({
             onDelete={() => {}}
           >
             <div
-              className="absolute mx-0.5 font-medium rounded-md p-2 text-xs shadow-sm cursor-pointer transition-all hover:shadow-lg hover:scale-[1.01] hover:-translate-y-0.5 border event-column"
+              className={cn(
+                "absolute mx-0.5 font-medium rounded-md p-2 text-xs cursor-pointer transition-all border event-column",
+                layout.isStacked && "hover:z-[1000]",
+                isHovered && "shadow-xl z-[999]",
+                !isHovered && "shadow-sm hover:shadow-lg"
+              )}
               style={{
                 top: `${startPosition * 100}%`,
                 height: `${hoursDifference * 100}%`,
@@ -250,11 +277,15 @@ const HourEvents = ({
                 borderStyle: event.type === 'task' ? 'dashed' : 'solid',
                 ...layoutStyles,
                 padding: layout.totalColumns > 2 ? '4px 6px' : '8px 10px',
+                // Opacity effect for stacked events
+                opacity: layout.isStacked && !isHovered ? 0.95 : 1,
               }}
               onClick={() => onEventClick?.(event)}
+              onMouseEnter={() => setHoveredEventId(event.id)}
+              onMouseLeave={() => setHoveredEventId(null)}
             >
               <div className={`font-bold truncate leading-tight ${event.type === 'task' ? 'text-gray-900' : titleClass}`}>
-                {event.title}
+                {fixEmojiText(event.title)}
               </div>
               {/* Only show time if there's enough space */}
               {layout.width > 30 && (
@@ -268,10 +299,24 @@ const HourEvents = ({
                   {format(event.start, 'HH:mm')}
                 </div>
               )}
+              
+              {/* Stacked Badge - Show "+N more" */}
+              {showStackBadge && (
+                <div className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full px-1.5 py-0.5 text-[9px] font-bold shadow-md ring-2 ring-white z-10">
+                  +{layout.totalStacked}
+                </div>
+              )}
             </div>
           </EventOrTaskCard>
         );
       })}
+      
+      {/* Stacked Events Indicator */}
+      {hasStackedEvents && (
+        <div className="absolute bottom-1 right-1 text-[9px] text-muted-foreground bg-white/80 backdrop-blur-sm px-1.5 py-0.5 rounded-full border border-border shadow-sm">
+          {eventLayouts.length} events
+        </div>
+      )}
     </div>
   );
 };
@@ -467,7 +512,7 @@ const CalendarMonthView = () => {
                       onDelete={() => {}}
                     >
                       <div
-                        className="px-2 py-1.5 rounded-md text-xs flex items-center gap-2 transition-all cursor-pointer hover:shadow-md hover:scale-[1.01] relative border"
+                        className="px-2 py-1.5 rounded-md text-xs flex items-center gap-2 transition-all cursor-pointer hover:shadow-md relative border"
                         style={{
                           backgroundColor: event.type === 'task' ? 'white' : eventColor,
                           borderColor: event.type === 'task' ? eventColor : 'rgba(0,0,0,0.1)',
@@ -479,7 +524,7 @@ const CalendarMonthView = () => {
                         onClick={() => onEventClick?.(event)}
                       >
                         <span className={`flex-1 truncate font-bold ${event.type === 'task' ? 'text-gray-900' : titleClass}`}>
-                          {event.title}
+                          {fixEmojiText(event.title)}
                         </span>
                         <time 
                           className={`tabular-nums text-[10px] font-semibold ${event.type === 'task' ? 'text-gray-600' : timeClass}`}
@@ -738,7 +783,7 @@ const TimeTable = () => {
           >
             {isCurrentHour && (
               <div
-                className="absolute z-20 left-full translate-x-3 w-dvw h-[2px] bg-primary shadow-lg animate-pulse"
+                className="absolute z-[1100] left-full translate-x-3 w-dvw h-[2px] bg-primary shadow-lg animate-pulse"
                 style={{
                   top: `${(now.getMinutes() / 60) * 100}%`,
                 }}

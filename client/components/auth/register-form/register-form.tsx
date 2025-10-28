@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
@@ -44,8 +44,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
 
   useEffect(() => {
     if (isSuccess) {
-      toast.success('ðŸŽ‰ ' + AUTH_SUCCESS_MESSAGES.register.title, {
-        description: 'âœ¨ ' + AUTH_SUCCESS_MESSAGES.register.description,
+      toast.success('🎉 ' + AUTH_SUCCESS_MESSAGES.register.title, {
+        description: '✨ ' + AUTH_SUCCESS_MESSAGES.register.description,
         duration: SUCCESS_TOAST_DURATION,
       })
       setTimeout(() => {
@@ -132,14 +132,14 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
   }
 
   return (
-    <div className={cn('w-full flex justify-center ', className)}>
-      <div className="w-full max-w-sm 2xl:max-w-md space-y-4 md:space-y-5">
+    <div className={cn('w-full flex justify-center', className)}>
+      <div className="w-full max-w-md space-y-5">
         <RegisterSocialOptions onGoogleRegister={onGoogleRegister} />
 
-        <div className="max-h-[calc(100vh-240px)] sm:max-h-[calc(100vh-260px)] md:max-h-[calc(100vh-280px)] lg:max-h-[calc(100vh-240px)] xl:max-h-[calc(100vh-260px)] overflow-y-auto overflow-x-hidden pr-1 space-y-4 md:space-y-5 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent">
+        <div className="max-h-[70vh] lg:max-h-[75vh] overflow-y-auto overflow-x-hidden pr-2 space-y-5 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent">
           <ProgressIndicator currentStep={currentStep} />
 
-          <div className="space-y-3 md:space-y-4 relative pb-4 mb-10">
+          <div className="space-y-4 relative pb-4">
             {currentStep === 1 && (
               <PersonalInfoStep
                 firstName={firstName}

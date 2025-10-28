@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -26,14 +26,14 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
   const isValid = firstName && lastName && email
 
   return (
-    <div className="space-y-3 md:space-y-4 animate-in fade-in duration-300">
-      <h3 className="text-base md:text-lg 2xl:text-xl font-semibold text-center mb-3 md:mb-4">
+    <div className="space-y-4 animate-in fade-in duration-300">
+      <h3 className="text-lg font-semibold text-center mb-4">
         Personal Information
       </h3>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 md:gap-3">
-        <div className="space-y-1.5 md:space-y-2">
-          <Label htmlFor="firstName" className="text-sm md:text-base 2xl:text-base font-semibold">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="space-y-2">
+          <Label htmlFor="firstName" className="text-sm font-semibold">
             First Name
           </Label>
           <Input
@@ -43,12 +43,12 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             value={firstName}
             onChange={(e) => onFirstNameChange(e.target.value)}
             required
-            className="h-9 md:h-10 2xl:h-11 text-sm md:text-base 2xl:text-base border-gray-300 dark:border-gray-600 focus-visible:ring-2 focus-visible:ring-blue-500 dark:focus-visible:ring-blue-400 transition-all"
+            className="h-10 text-sm border-gray-300 dark:border-gray-600 focus-visible:ring-2 focus-visible:ring-blue-500 dark:focus-visible:ring-blue-400 transition-all"
           />
         </div>
         
-        <div className="space-y-1.5 md:space-y-2">
-          <Label htmlFor="lastName" className="text-sm md:text-base 2xl:text-base font-semibold">
+        <div className="space-y-2">
+          <Label htmlFor="lastName" className="text-sm font-semibold">
             Last Name
           </Label>
           <Input
@@ -58,13 +58,13 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
             value={lastName}
             onChange={(e) => onLastNameChange(e.target.value)}
             required
-            className="h-9 md:h-10 2xl:h-11 text-sm md:text-base 2xl:text-base border-gray-300 dark:border-gray-600 focus-visible:ring-2 focus-visible:ring-blue-500 dark:focus-visible:ring-blue-400 transition-all"
+            className="h-10 text-sm border-gray-300 dark:border-gray-600 focus-visible:ring-2 focus-visible:ring-blue-500 dark:focus-visible:ring-blue-400 transition-all"
           />
         </div>
       </div>
 
-      <div className="space-y-1.5 md:space-y-2">
-        <Label htmlFor="email" className="text-sm md:text-base 2xl:text-base font-semibold">
+      <div className="space-y-2">
+        <Label htmlFor="email" className="text-sm font-semibold">
           Email Address
         </Label>
         <Input
@@ -74,9 +74,9 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
           value={email}
           onChange={(e) => onEmailChange(e.target.value)}
           required
-          className="h-9 md:h-10 2xl:h-11 text-sm md:text-base 2xl:text-base border-gray-300 dark:border-gray-600 focus-visible:ring-2 focus-visible:ring-blue-500 dark:focus-visible:ring-blue-400 transition-all"
+          className="h-10 text-sm border-gray-300 dark:border-gray-600 focus-visible:ring-2 focus-visible:ring-blue-500 dark:focus-visible:ring-blue-400 transition-all"
         />
-        <p className="text-[10px] md:text-xs text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           Use your real email to verify your account
         </p>
       </div>
@@ -84,7 +84,7 @@ export const PersonalInfoStep: React.FC<PersonalInfoStepProps> = ({
       <Button 
         type="button"
         onClick={onNext}
-        className="w-full mt-2 md:mt-0 rounded-lg h-10 md:h-11 2xl:h-12 text-sm md:text-base 2xl:text-base font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-md"
+        className="w-full rounded-lg h-11 text-sm font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-md"
         disabled={!isValid}
       >
         {isValid ? (

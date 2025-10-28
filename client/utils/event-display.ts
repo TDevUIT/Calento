@@ -1,4 +1,4 @@
-﻿import type { CalendarEvent } from '@/components/calendar/views';
+import type { CalendarEvent } from '@/components/calendar/views';
 
 export interface EventLayout {
   event: CalendarEvent;
@@ -7,6 +7,10 @@ export interface EventLayout {
   width: number;
   left: number;
   zIndex: number;
+  isStacked?: boolean;
+  stackIndex?: number;
+  totalStacked?: number;
+  shouldShowFull?: boolean;
 }
 
 const layoutCache = new Map<string, EventLayout[]>();
@@ -177,20 +181,77 @@ function calculateGroupColumnLayout(group: CalendarEvent[]): EventLayout[] {
   }
   
   const totalColumns = columns.length;
-  const columnWidth = Math.floor(100 / totalColumns);
   
-  for (let colIndex = 0; colIndex < columns.length; colIndex++) {
-    const columnEvents = columns[colIndex];
+  // Smart layout: If too many columns (>4), use stacked view
+  const useStackedView = totalColumns > 4;
+  const maxVisibleColumns = useStackedView ? 3 : totalColumns;
+  
+  if (useStackedView) {
+    // Stacked view: Show first 3 columns normally, stack the rest
+    const visibleColumns = columns.slice(0, maxVisibleColumns);
+    const stackedColumns = columns.slice(maxVisibleColumns);
     
-    for (const event of columnEvents) {
-      layouts.push({
-        event,
-        column: colIndex,
-        totalColumns,
-        width: columnWidth,
-        left: colIndex * columnWidth,
-        zIndex: calculateEventZIndex(event, group, { baseZIndex: 200 + colIndex })
-      });
+    const columnWidth = Math.floor(100 / maxVisibleColumns);
+    
+    // Layout visible columns
+    for (let colIndex = 0; colIndex < visibleColumns.length; colIndex++) {
+      const columnEvents = visibleColumns[colIndex];
+      
+      for (const event of columnEvents) {
+        layouts.push({
+          event,
+          column: colIndex,
+          totalColumns: maxVisibleColumns,
+          width: columnWidth,
+          left: colIndex * columnWidth,
+          zIndex: calculateEventZIndex(event, group, { baseZIndex: 200 + colIndex }),
+          isStacked: false,
+          shouldShowFull: true,
+        });
+      }
+    }
+    
+    // Layout stacked columns (overlapped position)
+    const stackedWidth = columnWidth;
+    const stackedLeft = (maxVisibleColumns - 1) * columnWidth;
+    
+    for (let stackIndex = 0; stackIndex < stackedColumns.length; stackIndex++) {
+      const columnEvents = stackedColumns[stackIndex];
+      
+      for (const event of columnEvents) {
+        layouts.push({
+          event,
+          column: maxVisibleColumns + stackIndex,
+          totalColumns,
+          width: stackedWidth,
+          left: stackedLeft,
+          zIndex: calculateEventZIndex(event, group, { baseZIndex: 300 + stackIndex }),
+          isStacked: true,
+          stackIndex,
+          totalStacked: stackedColumns.length,
+          shouldShowFull: false,
+        });
+      }
+    }
+  } else {
+    // Normal view: Equal width columns
+    const columnWidth = Math.floor(100 / totalColumns);
+    
+    for (let colIndex = 0; colIndex < columns.length; colIndex++) {
+      const columnEvents = columns[colIndex];
+      
+      for (const event of columnEvents) {
+        layouts.push({
+          event,
+          column: colIndex,
+          totalColumns,
+          width: columnWidth,
+          left: colIndex * columnWidth,
+          zIndex: calculateEventZIndex(event, group, { baseZIndex: 200 + colIndex }),
+          isStacked: false,
+          shouldShowFull: true,
+        });
+      }
     }
   }
   
@@ -250,12 +311,39 @@ export function getEventTextClasses(backgroundColor: string): {
 }
 
 export function getEventLayoutStyles(layout: EventLayout): React.CSSProperties {
-  return {
+  const baseStyles: React.CSSProperties = {
     width: `${layout.width}%`,
     left: `${layout.left}%`,
     zIndex: layout.zIndex,
     position: 'absolute' as const,
   };
+  
+  // Enhanced styles for stacked events
+  if (layout.isStacked && layout.stackIndex !== undefined) {
+    return {
+      ...baseStyles,
+      // Offset slightly for visual separation
+      transform: `translateX(${layout.stackIndex * 4}px)`,
+      // Add shadow for depth
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.1)',
+      // Subtle scale for stacked effect
+      transition: 'all 0.2s ease-in-out',
+    };
+  }
+  
+  // Enhanced styles for normal overlapping events
+  if (layout.totalColumns > 1) {
+    return {
+      ...baseStyles,
+      // Add separator border
+      borderRight: layout.column < layout.totalColumns - 1 ? '1px solid rgba(255, 255, 255, 0.3)' : 'none',
+      // Enhance shadow for better separation
+      boxShadow: '0 1px 4px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05)',
+      transition: 'all 0.2s ease-in-out',
+    };
+  }
+  
+  return baseStyles;
 }
 
 export function getEventLayerClass(

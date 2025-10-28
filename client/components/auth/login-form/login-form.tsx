@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -33,8 +33,8 @@ const LoginForm: React.FC<LoginFormProps> = ({
 
   useEffect(() => {
     if (isSuccess) {
-      toast.success('ðŸŽ‰ ' + AUTH_SUCCESS_MESSAGES.login.title, {
-        description: 'ðŸš€ ' + AUTH_SUCCESS_MESSAGES.login.description,
+      toast.success('🎉 ' + AUTH_SUCCESS_MESSAGES.login.title, {
+        description: '🚀 ' + AUTH_SUCCESS_MESSAGES.login.description,
         duration: SUCCESS_TOAST_DURATION,
       })
       setTimeout(() => {

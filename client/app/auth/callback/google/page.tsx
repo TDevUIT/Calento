@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -42,7 +42,7 @@ export default function GoogleCallbackPage() {
         setUser(authResponse.user);
         setStatus('success');
         setMessage('Login successful! Redirecting to calendar...');
-        toast.success('ðŸŽ‰ Welcome back!', { 
+        toast.success('🎉 Welcome back!', { 
           description: `Logged in as ${authResponse.user.email}` 
         });
         
