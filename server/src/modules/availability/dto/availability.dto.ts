@@ -1,4 +1,4 @@
-﻿import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsInt,
   IsString,
@@ -153,6 +153,14 @@ export class GetAvailableSlotsDto {
   @Min(15)
   @Max(480)
   duration_minutes?: number;
+
+  @ApiPropertyOptional({
+    description: 'Timezone (IANA timezone name) for slot generation',
+    example: 'Asia/Bangkok',
+  })
+  @IsOptional()
+  @IsString()
+  timezone?: string;
 
   @ApiPropertyOptional({
     description: 'User ID to get slots for (defaults to current user)',

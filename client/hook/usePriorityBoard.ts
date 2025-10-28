@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   KeyboardSensor,
   PointerSensor,
@@ -39,12 +39,9 @@ export const priorityColumns = [
 export const usePriorityBoard = (bookingLinks?: BookingLink[], tasks?: Task[]) => {
   const [items, setItems] = useState<PriorityItem[]>([]);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
-  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({
-    "Scheduling Links": true,
-    "Tasks": true,
-    "Habits": true,
-    "Smart Meetings": true,
-  });
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
+
+  const getCategoryKey = (priority: string, category: string) => `${priority}-${category}`;
 
   const { mutate: bulkUpdatePriorities } = useBulkUpdatePriorities();
   const { data: savedPriorities = [] } = usePriorities();
@@ -174,33 +171,40 @@ export const usePriorityBoard = (bookingLinks?: BookingLink[], tasks?: Task[]) =
     return grouped;
   };
 
-  const toggleCategoryGroup = (category: string) => {
+  const toggleCategoryGroup = (priority: string, category: string) => {
+    const key = getCategoryKey(priority, category);
     setExpandedCategories(prev => ({
       ...prev,
-      [category]: !prev[category]
+      [key]: prev[key] === undefined ? false : !prev[key]
     }));
   };
 
-  const expandAllCategories = () => {
-    setExpandedCategories({
-      "Scheduling Links": true,
-      "Tasks": true,
-      "Habits": true,
-      "Smart Meetings": true,
+  const expandAllInColumn = (priority: string, categories: string[]) => {
+    const updates: Record<string, boolean> = {};
+    categories.forEach(category => {
+      updates[getCategoryKey(priority, category)] = true;
+    });
+    setExpandedCategories(prev => ({ ...prev, ...updates }));
+  };
+
+  const collapseAllInColumn = (priority: string, categories: string[]) => {
+    const updates: Record<string, boolean> = {};
+    categories.forEach(category => {
+      updates[getCategoryKey(priority, category)] = false;
+    });
+    setExpandedCategories(prev => ({ ...prev, ...updates }));
+  };
+
+  const areAllCategoriesExpanded = (priority: string, columnCategories: string[]) => {
+    return columnCategories.every(category => {
+      const key = getCategoryKey(priority, category);
+      return expandedCategories[key] === true;
     });
   };
 
-  const collapseAllCategories = () => {
-    setExpandedCategories({
-      "Scheduling Links": false,
-      "Tasks": false,
-      "Habits": false,
-      "Smart Meetings": false,
-    });
-  };
-
-  const areAllCategoriesExpanded = (columnCategories: string[]) => {
-    return columnCategories.every(category => expandedCategories[category] === true);
+  const isCategoryExpanded = (priority: string, category: string) => {
+    const key = getCategoryKey(priority, category);
+    return expandedCategories[key] === undefined ? true : expandedCategories[key];
   };
 
   return {
@@ -215,8 +219,9 @@ export const usePriorityBoard = (bookingLinks?: BookingLink[], tasks?: Task[]) =
     getItemsByPriority,
     getItemsByPriorityAndCategory,
     toggleCategoryGroup,
-    expandAllCategories,
-    collapseAllCategories,
+    expandAllInColumn,
+    collapseAllInColumn,
     areAllCategoriesExpanded,
+    isCategoryExpanded,
   };
 };

@@ -1,8 +1,9 @@
-﻿import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { AvailabilityRepository } from '../repositories/availability.repository';
 import { DatabaseService } from '../../../database/database.service';
 import { MessageService } from '../../../common/message/message.service';
 import { TIME_CONSTANTS } from '../../../common/constants';
+import { toZonedTime, fromZonedTime } from 'date-fns-tz';
 import {
   Availability,
   DayOfWeek,
@@ -206,9 +207,21 @@ export class AvailabilityService {
     userId: string,
     dto: GetAvailableSlotsDto,
   ): Promise<TimeSlot[]> {
-    const startDate = new Date(dto.start_date);
-    const endDate = new Date(dto.end_date);
+    const timezone = dto.timezone || 'UTC';
+    this.logger.log(`Generating slots for user ${userId} in timezone: ${timezone}`);
+    
+    const startDateStr = `${dto.start_date}T00:00:00`;
+    // Create dates in user's timezone, then convert to UTC for processing
+    const startDateInTz = new Date(startDateStr);
+    const endDateInTz = new Date(`${dto.end_date}T23:59:59`);
+    
+    const startDate = fromZonedTime(startDateInTz, timezone);
+    const endDate = fromZonedTime(endDateInTz, timezone);
+    
     const durationMinutes = dto.duration_minutes || 30;
+    
+    this.logger.log(`Date range in ${timezone}: ${startDateStr} to ${dto.end_date}`);
+    this.logger.log(`Date range in UTC: ${startDate.toISOString()} to ${endDate.toISOString()}`);
 
     if (startDate > endDate) {
       const message = this.messageService.get(
@@ -232,8 +245,8 @@ export class AvailabilityService {
       await this.availabilityRepository.findActiveByUserId(userId);
 
     if (availabilityRules.length === 0) {
-      this.logger.log(`No availability rules found for user ${userId}, creating default rules`);
-      await this.createDefaultAvailabilityRules(userId);
+      this.logger.log(`No availability rules found for user ${userId}, creating default rules in timezone: ${timezone}`);
+      await this.createDefaultAvailabilityRules(userId, timezone);
       
       const newAvailabilityRules = await this.availabilityRepository.findActiveByUserId(userId);
       
@@ -259,11 +272,15 @@ export class AvailabilityService {
       );
 
       for (const rule of dayRules) {
+        // Convert currentDate to user's timezone for slot generation
+        const currentDateInTz = toZonedTime(currentDate, timezone);
+        
         const daySlots = await this.generateSlotsForDay(
-          currentDate,
+          currentDateInTz,
           rule,
           durationMinutes,
           userId,
+          timezone,
         );
         slots.push(...daySlots);
       }
@@ -277,7 +294,10 @@ export class AvailabilityService {
   /**
    * Creates default availability rules for a user (Monday-Friday, 9 AM - 5 PM)
    */
-  async createDefaultAvailabilityRules(userId: string): Promise<void> {
+  async createDefaultAvailabilityRules(
+    userId: string,
+    timezone: string = 'UTC',
+  ): Promise<void> {
     const defaultRules = [
       { day_of_week: 1, start_time: '09:00', end_time: '17:00' }, // Monday
       { day_of_week: 2, start_time: '09:00', end_time: '17:00' }, // Tuesday
@@ -293,7 +313,7 @@ export class AvailabilityService {
           day_of_week: rule.day_of_week as DayOfWeek,
           start_time: rule.start_time,
           end_time: rule.end_time,
-          timezone: 'UTC', // Default timezone
+          timezone: timezone, // Use provided timezone
           is_active: true,
         });
       }
@@ -309,36 +329,48 @@ export class AvailabilityService {
     rule: Availability,
     durationMinutes: number,
     userId: string,
+    timezone: string = 'UTC',
   ): Promise<TimeSlot[]> {
     const slots: TimeSlot[] = [];
+    
+    // Parse availability rule times
     const [startHour, startMinute] = rule.start_time.split(':').map(Number);
     const [endHour, endMinute] = rule.end_time.split(':').map(Number);
 
-    const slotStart = new Date(date);
-    slotStart.setHours(startHour, startMinute, 0, 0);
+    // Create slot times in the user's timezone
+    const slotStartInTz = new Date(date);
+    slotStartInTz.setHours(startHour, startMinute, 0, 0);
 
-    const dayEnd = new Date(date);
-    dayEnd.setHours(endHour, endMinute, 0, 0);
+    const dayEndInTz = new Date(date);
+    dayEndInTz.setHours(endHour, endMinute, 0, 0);
 
-    while (slotStart < dayEnd) {
-      const slotEnd = new Date(slotStart);
-      slotEnd.setMinutes(slotEnd.getMinutes() + durationMinutes);
+    // Convert to UTC for database comparison
+    let currentSlotUtc = fromZonedTime(slotStartInTz, timezone);
+    const dayEndUtc = fromZonedTime(dayEndInTz, timezone);
 
-      if (slotEnd <= dayEnd) {
+    while (currentSlotUtc < dayEndUtc) {
+      const slotEndUtc = new Date(currentSlotUtc);
+      slotEndUtc.setMinutes(slotEndUtc.getMinutes() + durationMinutes);
+
+      if (slotEndUtc <= dayEndUtc) {
+        // Check conflicts in UTC (events are stored in UTC)
         const conflicts = await this.getEventConflicts(
           userId,
-          slotStart,
-          slotEnd,
+          currentSlotUtc,
+          slotEndUtc,
         );
 
+        // Store slots in UTC (ISO format)
         slots.push({
-          start_time: slotStart.toISOString(),
-          end_time: slotEnd.toISOString(),
+          start_time: currentSlotUtc.toISOString(),
+          end_time: slotEndUtc.toISOString(),
           available: conflicts.length === 0,
         });
       }
 
-      slotStart.setMinutes(slotStart.getMinutes() + durationMinutes);
+      // Move to next slot
+      currentSlotUtc = new Date(currentSlotUtc);
+      currentSlotUtc.setMinutes(currentSlotUtc.getMinutes() + durationMinutes);
     }
 
     return slots;

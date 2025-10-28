@@ -1,7 +1,6 @@
-﻿import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { BookingLinkRepository } from './repositories/booking-link.repository';
 import { BookingRepository } from './repositories/booking.repository';
-import { DatabaseService } from '../../database/database.service';
 import { MessageService } from '../../common/message/message.service';
 import { TIME_CONSTANTS } from '../../common/constants';
 import {
@@ -257,6 +256,7 @@ export class BookingService {
         end_date: dto.end_date,
         duration_minutes:
           bookingLink.duration_minutes + bookingLink.buffer_time_minutes,
+        timezone: dto.timezone || 'UTC', // Pass timezone from request
       },
     );
 

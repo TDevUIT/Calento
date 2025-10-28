@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { Search, Filter, Columns3, HelpCircle, Loader2 } from "lucide-react";
@@ -44,7 +44,6 @@ const PrioritiesPage = () => {
   const isLoading = isLoadingLinks || isLoadingTasks || isLoadingPriorities;
   
   const {
-    expandedCategories,
     sensors,
     handleDragStart,
     handleDragOver,
@@ -52,9 +51,10 @@ const PrioritiesPage = () => {
     getItemsByPriority,
     getItemsByPriorityAndCategory,
     toggleCategoryGroup,
-    expandAllCategories,
-    collapseAllCategories,
+    expandAllInColumn,
+    collapseAllInColumn,
     areAllCategoriesExpanded,
+    isCategoryExpanded,
     allItems,
   } = usePriorityBoard(bookingLinks, tasks);
 
@@ -141,13 +141,13 @@ const PrioritiesPage = () => {
                 const groupedItems = getItemsByPriorityAndCategory(column.id);
                 const hasItems = Object.keys(groupedItems).length > 0;
                 const columnCategories = Object.keys(groupedItems);
-                const allExpanded = areAllCategoriesExpanded(columnCategories);
+                const allExpanded = areAllCategoriesExpanded(column.id, columnCategories);
                 
                 const handleToggleAll = () => {
                   if (allExpanded) {
-                    collapseAllCategories();
+                    collapseAllInColumn(column.id, columnCategories);
                   } else {
-                    expandAllCategories();
+                    expandAllInColumn(column.id, columnCategories);
                   }
                 };
                 
@@ -177,11 +177,11 @@ const PrioritiesPage = () => {
                           <div className="h-2" />
                           {Object.entries(groupedItems).map(([category, categoryItems]) => (
                             <CategoryGroup
-                              key={category}
+                              key={`${column.id}-${category}`}
                               category={category}
                               items={categoryItems}
-                              isExpanded={expandedCategories[category] ?? true}
-                              onToggle={() => toggleCategoryGroup(category)}
+                              isExpanded={isCategoryExpanded(column.id, category)}
+                              onToggle={() => toggleCategoryGroup(column.id, category)}
                             >
                               {categoryItems.map(item => (
                                 <DraggableItem key={item.id} item={item} />
