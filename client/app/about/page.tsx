@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { motion } from "framer-motion";
 import { MainContent } from "@/components/layout/main-content";
@@ -14,17 +14,17 @@ interface TeamMember {
 
 const values = [
   {
-    icon: "ðŸŽ¯",
+    icon: "🎯",
     title: "Mission-Driven", 
     description: "Making time management effortless and productive for everyone."
   },
   {
-    icon: "ðŸ¤–",
+    icon: "🤖",
     title: "AI-Powered",
     description: "Smart scheduling solutions powered by artificial intelligence."
   },
   {
-    icon: "ðŸ”’",
+    icon: "🔒",
     title: "Privacy First",
     description: "Your data stays yours. Security and privacy are our priorities."
   }

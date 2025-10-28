@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { Plus, Users, Settings, Mail, Send, Bell } from 'lucide-react';
@@ -106,7 +106,6 @@ export function GuestsField({
 
   return (
     <div className="space-y-4">
-      {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div className="flex items-center gap-2">
           <Users className="h-5 w-5 text-muted-foreground" />
@@ -128,7 +127,7 @@ export function GuestsField({
                 className="text-xs"
               >
                 <Send className="h-4 w-4 mr-1" />
-                Gá»­i lá»i má»i
+                Send Invitations
               </Button>
               {stats.pending > 0 && (
                 <Button
@@ -139,7 +138,7 @@ export function GuestsField({
                   className="text-xs"
                 >
                   <Bell className="h-4 w-4 mr-1" />
-                  Nháº¯c nhá»Ÿ ({stats.pending})
+                  Send Reminders ({stats.pending})
                 </Button>
               )}
             </>
@@ -152,12 +151,11 @@ export function GuestsField({
             className="text-xs"
           >
             <Settings className="h-4 w-4 mr-1" />
-            Quyá»n
+            Permissions
           </Button>
         </div>
       </div>
 
-      {/* Add Guest Input */}
       <div className="space-y-2">
         <div className="flex gap-2 items-center">
           <div className="relative flex-1">
@@ -186,7 +184,6 @@ export function GuestsField({
         </p>
       </div>
 
-      {/* Guest Stats */}
       {attendees.length > 0 && (
         <div className="flex items-center gap-4 text-xs text-muted-foreground">
           <span className="flex items-center gap-1">
@@ -210,7 +207,6 @@ export function GuestsField({
         </div>
       )}
 
-      {/* Guest List */}
       {attendees.length > 0 && (
         <div className="space-y-2 max-h-64 overflow-y-auto">
           {attendees.map((attendee, index) => (
@@ -227,7 +223,6 @@ export function GuestsField({
         </div>
       )}
 
-      {/* Guest Permissions */}
       {showPermissions && (
         <>
           <Separator />

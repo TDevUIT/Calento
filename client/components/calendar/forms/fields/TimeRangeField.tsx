@@ -99,7 +99,7 @@ export function TimeRangeField({ form }: TimeRangeFieldProps) {
           
           {!isAllDay && (
             <>
-              <span className="text-muted-foreground text-sm">tá»›i</span>
+              <span className="text-muted-foreground text-sm">to</span>
               <FormField
                 control={form.control}
                 name="end_time"

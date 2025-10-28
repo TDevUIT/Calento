@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -141,7 +141,7 @@ export function EventFormModal({
         
         if (cleanedData.attendees && cleanedData.attendees.length > 0) {
           const shouldSend = confirm(
-            `Gá»­i lá»i má»i Ä‘áº¿n ${cleanedData.attendees.length} ngÆ°á»i tham dá»±?`
+            `Send invitation to ${cleanedData.attendees.length} attendees?`
           );
           
           if (shouldSend && createdEventId) {
@@ -326,7 +326,7 @@ export function EventFormModal({
                       </div>
                     </div>
 
-                  <div className="w-96 border-l overflow-y-auto flex-shrink-0">
+                  <div className="w-[500px] border-l overflow-y-auto flex-shrink-0">
                     <div className="p-6">
                       <GuestsField 
                         form={form}
