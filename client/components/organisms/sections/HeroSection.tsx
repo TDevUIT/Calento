@@ -219,14 +219,27 @@ export const HeroSection = () => {
             className="py-8 overflow-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
           >
             {[
-              { name: 'Google', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/google/google-original.svg' },
-              { name: 'Microsoft', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/azure/azure-original.svg' },
-              { name: 'Slack', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/slack/slack-original.svg' },
-              { name: 'Notion', logo: 'https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png' },
-              { name: 'GitHub', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg' },
-              { name: 'Stripe', logo: 'https://images.ctfassets.net/fzn2n1nzq965/HTTOloNPhisV9P4hlMPNA/cacf1bb88b9fc492dfad34378d844280/Stripe_icon_-_square.svg' },
-              { name: 'Vercel', logo: 'https://assets.vercel.com/image/upload/v1662130559/nextjs/Icon_dark_background.png' }
-            ].map((company, index) => (
+              { name: "CNN", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/cnn.svg" },
+              { name: "IKEA", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/ikea.svg" },
+              { name: "NVIDIA", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/nvidia.svg" },
+              { name: "Nintendo", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/nintendo.svg" },
+              { name: "Ubisoft", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/ubisoft.svg" },
+              { name: "Harvard", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/harvard.svg" },
+              { name: "NBA", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/nba.svg" },
+              { name: "CoinMarketCap", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/coinmarketcap.svg" },
+              { name: "MailOnline", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/mailonline.svg" },
+              { name: "Roblox", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/roblox.svg" },
+              { name: "Urban Dictionary", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/urban.svg" },
+              { name: "Rotten Tomatoes", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/rotten-tomatoes.svg" },
+              { name: "OLX", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/olx.svg" },
+              { name: "Der Spiegel", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/der-spiegel.svg" },
+              { name: "Upwork", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/upwork.svg" },
+              { name: "GOV.GR", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/govgr.svg" },
+              { name: "Tawk.to", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/tawk.to.png" },
+              { name: "Foot Locker", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/foot-locker.svg" },
+              { name: "EuroVision", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/euro-vision.svg" }
+            ]
+              .map((company, index) => (
               <div
                 key={`${company.name}-${index}`}
                 className="mx-8 group cursor-pointer"
@@ -235,15 +248,15 @@ export const HeroSection = () => {
                   <Image 
                     src={company.logo} 
                     alt={`${company.name} logo`}
-                    width={40}
-                    height={40}
-                    className="h-8 w-8 object-contain transition-all duration-300"
+                    width={260}
+                    height={260}
+                    className="h-32 w-32 object-contain transition-all duration-300"
                   />
                 </div>
               </div>
             ))}
             
-            {[
+            {/* {[
               { name: 'Google', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/google/google-original.svg' },
               { name: 'Microsoft', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/azure/azure-original.svg' },
               { name: 'Slack', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/slack/slack-original.svg' },
@@ -267,7 +280,7 @@ export const HeroSection = () => {
                   />
                 </div>
               </div>
-            ))}
+            ))} */}
           </Marquee>
       </motion.div>
 

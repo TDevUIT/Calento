@@ -1,6 +1,5 @@
-﻿import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { AIFunctionCall } from '../interfaces/ai.interface';
-import { FunctionExecutionException, InvalidFunctionCallException } from '../exceptions/ai.exceptions';
 import { EventService } from '../../event/event.service';
 import { TaskService } from '../../task/task.service';
 import { CalendarService } from '../../calendar/calendar.service';
@@ -10,6 +9,17 @@ import { AIAnalysisService } from './ai-analysis.service';
 @Injectable()
 export class AIFunctionCallingService {
   private readonly logger = new Logger(AIFunctionCallingService.name);
+
+  private handleSuccess(result: any): { success: true; result: any } {
+    return { success: true, result };
+  }
+
+  private handleError(error: any, operation: string): { success: false; error: string } {
+    return {
+      success: false,
+      error: `Unable to ${operation}: ${error.message}`
+    };
+  }
 
   constructor(
     private readonly eventService: EventService,
@@ -70,10 +80,10 @@ export class AIFunctionCallingService {
     try {
       const primaryCalendar = await this.calendarService.getPrimaryCalendar(userId);
       if (!primaryCalendar) {
-        return {
-          success: false,
-          error: 'You do not have a calendar yet. Please connect Google Calendar first.',
-        };
+        return this.handleError(
+          new Error('You do not have a calendar yet. Please connect Google Calendar first.'),
+          'create event'
+        );
       }
 
       const event = await this.eventService.createEvent(
@@ -92,21 +102,15 @@ export class AIFunctionCallingService {
         userId
       );
 
-      return {
-        success: true,
-        result: {
-          event_id: event.id,
-          title: event.title,
-          start_time: event.start_time,
-          end_time: event.end_time,
-          message: `Successfully created event "${event.title}"`,
-        },
-      };
+      return this.handleSuccess({
+        event_id: event.id,
+        title: event.title,
+        start_time: event.start_time,
+        end_time: event.end_time,
+        message: `Successfully created event "${event.title}"`,
+      });
     } catch (error) {
-      return {
-        success: false,
-        error: `Unable to create event: ${error.message}`,
-      };
+      return this.handleError(error, 'create event');
     }
   }
 
@@ -126,21 +130,15 @@ export class AIFunctionCallingService {
         args.duration_minutes || 60
       );
 
-      return {
-        success: true,
-        result: {
-          free_slots: freeSlots,
-          total_events: eventsResult.data.length,
-          message: freeSlots.length > 0
-            ? `Found ${freeSlots.length} free time slot(s)`
-            : 'No free time slots in this time range',
-        },
-      };
+      return this.handleSuccess({
+        free_slots: freeSlots,
+        total_events: eventsResult.data.length,
+        message: freeSlots.length > 0
+          ? `Found ${freeSlots.length} free time slot(s)`
+          : 'No free time slots in this time range',
+      });
     } catch (error) {
-      return {
-        success: false,
-        error: `Unable to check availability: ${error.message}`,
-      };
+      return this.handleError(error, 'check availability');
     }
   }
 
@@ -158,22 +156,16 @@ export class AIFunctionCallingService {
         status: TaskStatus.TODO,
       });
 
-      return {
-        success: true,
-        result: {
-          task_id: task.id,
-          title: task.title,
-          due_date: task.due_date,
-          estimated_duration: task.estimated_duration,
-          priority: task.priority,
-          message: `Successfully created task "${task.title}" (${estimatedDuration} minutes)`,
-        },
-      };
+      return this.handleSuccess({
+        task_id: task.id,
+        title: task.title,
+        due_date: task.due_date,
+        estimated_duration: task.estimated_duration,
+        priority: task.priority,
+        message: `Successfully created task "${task.title}" (${estimatedDuration} minutes)`,
+      });
     } catch (error) {
-      return {
-        success: false,
-        error: `Unable to create task: ${error.message}`,
-      };
+      return this.handleError(error, 'create task');
     }
   }
 
@@ -201,7 +193,7 @@ export class AIFunctionCallingService {
       
       const query = args.query || '';
       
-      this.logger.log(`ðŸ” Searching events for user ${userId}`);
+      this.logger.log(`Searching events for user ${userId}`);
       this.logger.log(`   Date range: ${startDate.toISOString()} to ${endDate.toISOString()}`);
       this.logger.log(`   Query: "${query}"`);
 
@@ -243,11 +235,8 @@ export class AIFunctionCallingService {
         },
       };
     } catch (error) {
-      this.logger.error(`âŒ Error searching events: ${error.message}`, error.stack);
-      return {
-        success: false,
-        error: `Unable to search events: ${error.message}`,
-      };
+      this.logger.error(`Error searching events: ${error.message}`, error.stack);
+      return this.handleError(error, 'search events');
     }
   }
 
@@ -259,19 +248,13 @@ export class AIFunctionCallingService {
         userId
       );
 
-      return {
-        success: true,
-        result: {
-          event_id: event.id,
-          title: event.title,
-          message: `Successfully updated event`,
-        },
-      };
+      return this.handleSuccess({
+        event_id: event.id,
+        title: event.title,
+        message: `Successfully updated event`,
+      });
     } catch (error) {
-      return {
-        success: false,
-        error: `Unable to update: ${error.message}`,
-      };
+      return this.handleError(error, 'update event');
     }
   }
 
@@ -279,17 +262,11 @@ export class AIFunctionCallingService {
     try {
       await this.eventService.deleteEvent(args.event_id, userId);
 
-      return {
-        success: true,
-        result: {
-          message: `Successfully deleted event`,
-        },
-      };
+      return this.handleSuccess({
+        message: `Successfully deleted event`,
+      });
     } catch (error) {
-      return {
-        success: false,
-        error: `Unable to delete: ${error.message}`,
-      };
+      return this.handleError(error, 'delete event');
     }
   }
 
@@ -396,8 +373,8 @@ export class AIFunctionCallingService {
             availability: w.availability_percentage,
           })),
           message: bestMatch
-            ? `âœ… Perfect! Found an ideal time when ${bestMatch.available_members}/${bestMatch.total_members} members are available`
-            : 'âŒ No suitable time slots found. Try adjusting the date range or duration.',
+            ? `Perfect! Found an ideal time when ${bestMatch.available_members}/${bestMatch.total_members} members are available`
+            : 'No suitable time slots found. Try adjusting the date range or duration.',
         },
       };
     } catch (error) {
@@ -427,7 +404,7 @@ export class AIFunctionCallingService {
       reasons.push('Good availability window');
     }
 
-    return reasons.join(' â€¢ ');
+    return reasons.join(' - ');
   }
 
   private calculateFreeSlots(

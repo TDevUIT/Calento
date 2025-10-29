@@ -1,12 +1,9 @@
-﻿import { Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { BaseTool } from './base-tool';
 import { AgentContext } from '../agents/base/agent.interface';
 import { AIAnalysisService } from '../services/ai-analysis.service';
 import { FUNCTION_DESCRIPTIONS } from '../prompts/function-prompts';
 
-/**
- * Analyze Team Availability Tool
- */
 @Injectable()
 export class AnalyzeTeamAvailabilityTool extends BaseTool {
   constructor(private readonly aiAnalysisService: AIAnalysisService) {
@@ -61,8 +58,8 @@ export class AnalyzeTeamAvailabilityTool extends BaseTool {
         availability: w.availability_percentage,
       })),
       message: bestMatch
-        ? `âœ… Perfect! Found an ideal time when ${bestMatch.available_members}/${bestMatch.total_members} members are available`
-        : 'âŒ No suitable time slots found. Try adjusting the date range or duration.',
+        ? `Perfect! Found an ideal time when ${bestMatch.available_members}/${bestMatch.total_members} members are available`
+        : 'No suitable time slots found. Try adjusting the date range or duration.',
     };
   }
 
@@ -84,6 +81,6 @@ export class AnalyzeTeamAvailabilityTool extends BaseTool {
       reasons.push('Good availability window');
     }
 
-    return reasons.join(' â€¢ ');
+    return reasons.join(' - ');
   }
 }

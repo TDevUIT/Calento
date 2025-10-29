@@ -9,22 +9,32 @@ import {
   Calendar,
   Clock,
   Settings,
-  ChevronRight,
   CheckCircle2,
   X,
   Loader2,
+  Plus,
+  History,
+  PanelLeftClose,
+  PanelLeft,
 } from 'lucide-react';
 import { useAIChat } from '@/hook/ai/use-ai-chat';
+import { useConversation, useConversations, useDeleteConversation } from '@/hook/ai/use-conversations';
+import { useConversationState } from '@/hook/ai/use-conversation-state';
+import { ConversationList } from './ConversationList';
 import { AIMessage, FunctionCall, ActionPerformed } from '@/interface/ai.interface';
 import { ThinkingProcess } from './ThinkingProcess';
 import { MessageContent } from './MessageContent';
 import { ActionConfirmationDialog } from './ActionConfirmationDialog';
 import { TimeSlotsList } from './TimeSlotsList';
 import { EventsList } from './EventsList';
+import { EmptyState } from './EmptyState';
 import { toast } from 'sonner';
 
 interface ChatBoxProps {
   onClose?: () => void;
+  conversationId?: string;
+  onConversationCreated?: (conversationId: string) => void;
+  hideHeader?: boolean;
 }
 
 interface ChatMessage extends AIMessage {
@@ -47,10 +57,19 @@ interface PendingActionType {
   parameters: Record<string, string | number | boolean>;
 }
 
-export function ChatBox({ onClose }: ChatBoxProps) {
+export function ChatBox({ onClose, conversationId: externalConversationId, onConversationCreated, hideHeader = false }: ChatBoxProps) {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [conversationId, setConversationId] = useState<string>();
+  const [showHistory, setShowHistory] = useState(false);
+  
+  const { activeConversationId, setConversation, clearConversation } = useConversationState();
+  const displayConversationId = externalConversationId || activeConversationId;
+  
+  const { data: conversationData, isLoading: isLoadingConversation } = useConversation(displayConversationId);
+  const { data: conversationsData } = useConversations();
+  const deleteConversation = useDeleteConversation();
+  
+  const conversations = conversationsData?.data || [];
   const [thinkingSteps, setThinkingSteps] = useState<ThinkingStep[]>([]);
   const [pendingAction, setPendingAction] = useState<PendingActionType | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
@@ -75,6 +94,24 @@ export function ChatBox({ onClose }: ChatBoxProps) {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  useEffect(() => {
+    if (!displayConversationId) {
+      setMessages([]);
+    }
+  }, [displayConversationId]);
+
+  useEffect(() => {
+    if (conversationData?.data?.messages) {
+      const loadedMessages: ChatMessage[] = conversationData.data.messages.map(msg => ({
+        role: msg.role,
+        content: msg.content,
+      }));
+      setMessages(loadedMessages);
+    }
+  }, [conversationData]);
+
+  const isLoading = isLoadingConversation && externalConversationId;
   
 
   const handleSend = async () => {
@@ -128,7 +165,7 @@ export function ChatBox({ onClose }: ChatBoxProps) {
       
       const response = await chatMutation.mutateAsync({
         message: input.trim(),
-        conversation_id: conversationId,
+        conversation_id: displayConversationId,
         history: cleanHistory,
         context: {
           current_date: now.toISOString(),
@@ -142,10 +179,11 @@ export function ChatBox({ onClose }: ChatBoxProps) {
         },
       });
       
-      console.log('âœ… Chat completed');
+      console.log('✅ Chat completed');
       
-      if (response.data.conversation_id && !conversationId) {
-        setConversationId(response.data.conversation_id);
+      if (response.data.conversation_id && !displayConversationId) {
+        setConversation(response.data.conversation_id);
+        onConversationCreated?.(response.data.conversation_id);
       }
       
       const assistantMessage: ChatMessage = {
@@ -199,85 +237,136 @@ export function ChatBox({ onClose }: ChatBoxProps) {
     toast.info('Action cancelled');
   };
 
+  const handleNewConversation = () => {
+    setMessages([]);
+    clearConversation();
+    setInput('');
+    toast.success('Started new conversation');
+  };
+
+  const handleSelectConversation = (id: string) => {
+    setConversation(id);
+    if (onConversationCreated) {
+      onConversationCreated(id);
+    }
+  };
+
+  const handleDeleteConversation = (id: string) => {
+    if (displayConversationId === id) {
+      clearConversation();
+      setMessages([]);
+    }
+    deleteConversation.mutate(id);
+  };
+
   return (
-    <div className="flex flex-col bg-white border-l shadow-xl h-full overflow-hidden">
+    <div className={`flex flex-col bg-white ${hideHeader ? '' : 'border-l shadow-xl'} h-full overflow-hidden`}>
       <ActionConfirmationDialog
         open={showConfirmDialog}
         action={pendingAction}
         onConfirm={handleConfirmAction}
         onCancel={handleCancelAction}
       />
-      <div className="flex items-center justify-between p-4 border-b flex-shrink-0 bg-white z-10">
-        <div className="flex items-center gap-2">
-          <div className="h-6 w-6 flex items-center justify-center">
-            <Sparkles className="h-5 w-5 text-blue-600" />
+      
+      {!hideHeader && (
+        <div className="flex items-center justify-between p-4 border-b flex-shrink-0 bg-white z-10">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-8 rounded-lg bg-gray-100 flex items-center justify-center">
+              <Sparkles className="h-4 w-4 text-gray-700" />
+            </div>
+            <div className="flex flex-col">
+              <h2 className="text-base font-semibold text-gray-900">Calento Assistant</h2>
+              {displayConversationId && (
+                <p className="text-xs text-gray-500">Conversation active</p>
+              )}
+            </div>
           </div>
-          <h2 className="text-base font-semibold text-gray-900">Calento Assistant</h2>
-        </div>
-        <div className="flex items-center gap-1">
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <Settings className="h-4 w-4 text-gray-500" />
-          </Button>
-          {onClose && (
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose}>
-              <X className="h-4 w-4 text-gray-500" />
+          <div className="flex items-center gap-1">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-8 gap-1.5"
+              onClick={() => setShowHistory(!showHistory)}
+            >
+              {showHistory ? <PanelLeftClose className="h-4 w-4" /> : <History className="h-4 w-4" />}
+              <span className="text-xs">{showHistory ? 'Hide' : 'History'}</span>
             </Button>
-          )}
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <ChevronRight className="h-4 w-4 text-gray-500" />
-          </Button>
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400">
-        {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center px-4">
-            <div className="h-16 w-16 rounded-full bg-blue-50 flex items-center justify-center mb-4">
-              <Sparkles className="h-8 w-8 text-blue-600" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              Calento AI Assistant
-            </h3>
-            <p className="text-sm text-gray-600 mb-6 max-w-md">
-              I can help you schedule meetings, check availability, manage tasks, and optimize your calendar.
-            </p>
-            <div className="grid grid-cols-1 gap-2 w-full max-w-md">
-              <button
-                onClick={() => setInput('Find me 1 hour this week to meet with the design team')}
-                className="text-left p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-colors text-sm"
+            {messages.length > 0 && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-8 gap-1.5"
+                onClick={handleNewConversation}
               >
-                <Clock className="h-4 w-4 inline mr-2 text-blue-600" />
-                Find time for a team meeting
-              </button>
-              <button
-                onClick={() => setInput('Check my availability for tomorrow')}
-                className="text-left p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-colors text-sm"
-              >
-                <Calendar className="h-4 w-4 inline mr-2 text-blue-600" />
-                Check my availability
-              </button>
-            </div>
+                <Plus className="h-3.5 w-3.5" />
+                <span className="text-xs">New</span>
+              </Button>
+            )}
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Settings className="h-4 w-4 text-gray-500" />
+            </Button>
+            {onClose && (
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose}>
+                <X className="h-4 w-4 text-gray-500" />
+              </Button>
+            )}
           </div>
+        </div>
+      )}
+
+      <div className="flex flex-1 overflow-hidden">
+        {showHistory && (
+          <div className="w-72 flex-shrink-0 border-r bg-gray-50">
+            <ConversationList
+              conversations={conversations}
+              activeConversationId={displayConversationId}
+              onSelectConversation={handleSelectConversation}
+              onDeleteConversation={handleDeleteConversation}
+              onNewConversation={handleNewConversation}
+            />
+          </div>
+        )}
+
+        <div className="flex flex-col flex-1 overflow-hidden">
+          <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-white">
+        {isLoading ? (
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="animate-pulse space-y-3">
+                <div className="flex justify-end">
+                  <div className="bg-gray-200 rounded-lg h-12 w-3/4"></div>
+                </div>
+                <div className="flex justify-start">
+                  <div className="space-y-2 w-4/5">
+                    <div className="bg-gray-200 rounded-lg h-16 w-full"></div>
+                    <div className="bg-gray-200 rounded-lg h-8 w-3/4"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : messages.length === 0 ? (
+          <EmptyState onSuggestionClick={(text) => setInput(text)} />
         ) : (
           messages.map((message, index) => (
             <div key={index} className="animate-in fade-in slide-in-from-bottom-2 duration-300">
               {message.role === 'user' ? (
-                <div className="bg-blue-600 text-white rounded-lg px-2 py-2 ml-auto max-w-[80%]">
-                  <p className="text-sm font-medium leading-relaxed">
-                    {message.content}
-                  </p>
+                <div className="flex justify-end">
+                  <div className="bg-blue-600 text-white rounded-lg px-4 py-2.5 max-w-[75%]">
+                    <p className="text-sm leading-relaxed">
+                      {message.content}
+                    </p>
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {message.content && (
-                    <div className="bg-gray-50 rounded-2xl p-4 max-w-[85%]">
-                      <div className="flex items-start gap-3">
-                        <div className="h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-                          <Sparkles className="h-3.5 w-3.5 text-white" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <MessageContent content={message.content} />
-                        </div>
+                    <div className="flex items-start gap-3 max-w-[85%]">
+                      <div className="h-8 w-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0 mt-1">
+                        <Sparkles className="h-4 w-4 text-gray-600" />
+                      </div>
+                      <div className="flex-1 bg-gray-50 rounded-lg p-4">
+                        <MessageContent content={message.content} />
                       </div>
                     </div>
                   )}
@@ -305,13 +394,13 @@ export function ChatBox({ onClose }: ChatBoxProps) {
                           )}
                           
                           {action.type === 'createEvent' && action.result && (
-                            <div className="bg-white rounded-xl p-4 space-y-3">
-                              <div className="flex items-center gap-2 text-green-600">
+                            <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
+                              <div className="flex items-center gap-2 text-blue-600">
                                 <CheckCircle2 className="h-4 w-4" />
                                 <h4 className="text-sm font-semibold">Event Created</h4>
                               </div>
                               <div className="flex items-start gap-3">
-                                <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                                <div className="h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
                                   <Calendar className="h-5 w-5 text-blue-600" />
                                 </div>
                                 <div className="flex-1">
@@ -336,21 +425,21 @@ export function ChatBox({ onClose }: ChatBoxProps) {
                           )}
                           
                           {action.type === 'createTask' && action.result && (
-                            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                              <div className="bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-3 border-b border-gray-200">
+                            <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                              <div className="bg-blue-50 px-4 py-3 border-b border-blue-100">
                                 <div className="flex items-center gap-2">
-                                  <div className="h-8 w-8 rounded-lg bg-white shadow-sm flex items-center justify-center">
-                                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                                  <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center">
+                                    <CheckCircle2 className="h-4 w-4 text-white" />
                                   </div>
                                   <div>
-                                    <h4 className="text-sm font-semibold text-gray-900">Task Created Successfully</h4>
+                                    <h4 className="text-sm font-semibold text-gray-900">Task Created</h4>
                                     <p className="text-xs text-gray-600">Added to your task list</p>
                                   </div>
                                 </div>
                               </div>
                               <div className="p-4 space-y-3">
                                 <div>
-                                  <h5 className="text-base font-semibold text-gray-900 mb-2">{action.result.title}</h5>
+                                  <h5 className="text-sm font-semibold text-gray-900 mb-1">{action.result.title}</h5>
                                   {action.result.description && (
                                     <p className="text-sm text-gray-600">{action.result.description}</p>
                                   )}
@@ -375,8 +464,8 @@ export function ChatBox({ onClose }: ChatBoxProps) {
                                   )}
                                   {action.result.estimated_duration && (
                                     <div className="flex items-center gap-2">
-                                      <div className="h-8 w-8 rounded-lg bg-purple-50 flex items-center justify-center">
-                                        <Clock className="h-4 w-4 text-purple-600" />
+                                      <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center">
+                                        <Clock className="h-4 w-4 text-blue-600" />
                                       </div>
                                       <div>
                                         <p className="text-xs text-gray-500">Duration</p>
@@ -399,89 +488,90 @@ export function ChatBox({ onClose }: ChatBoxProps) {
         )}
         
         {thinkingSteps.length > 0 && (
-          <div className="bg-gray-50 rounded-2xl p-4 max-w-[85%] animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <div className="flex items-start gap-2 mb-3">
-              <Sparkles className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-              <p className="text-sm font-medium text-gray-900">Thinking...</p>
+          <div className="flex items-start gap-3 max-w-[85%] animate-in fade-in slide-in-from-bottom-2 duration-300">
+            <div className="h-8 w-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0 mt-1">
+              <Sparkles className="h-4 w-4 text-gray-600" />
             </div>
-            <ThinkingProcess steps={thinkingSteps} />
+            <div className="flex-1 bg-gray-50 rounded-lg p-4">
+              <p className="text-sm font-medium text-gray-900 mb-3">Thinking...</p>
+              <ThinkingProcess steps={thinkingSteps} />
+            </div>
           </div>
         )}
         
         <div ref={messagesEndRef} />
-      </div>
+          </div>
 
-      <div className="border-t border-gray-100 p-3 bg-gray-50 flex-shrink-0 z-10">
-        <div className="flex items-center gap-4 text-sm">
-          <button 
-            onClick={() => setInput('Check my availability this week')}
-            className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors"
-          >
-            <Clock className="h-4 w-4" />
-            <span>Find time</span>
-          </button>
-          <button 
-            onClick={() => setInput('Show my calendar for today')}
-            className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors"
-          >
-            <Calendar className="h-4 w-4" />
-            <span>Check calendar</span>
-          </button>
-          <button 
-            onClick={() => setInput('Create a task for code review')}
-            className="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors"
-          >
-            <CheckCircle2 className="h-4 w-4" />
-            <span>Create task</span>
-          </button>
-        </div>
-      </div>
-
-      <div className="border-t p-4 bg-white flex-shrink-0 z-10">
-        <div className="flex gap-2">
-          <div className="flex-1 relative">
-            <Input
-              ref={inputRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && !(chatMutation.isPending || isProcessing) && handleSend()}
-              placeholder="Ask about your schedule..."
-              className="pr-24 border-gray-300 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 transition-all"
-              disabled={chatMutation.isPending || isProcessing}
-            />
-            <div className="absolute right-12 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
-              <kbd className="px-1.5 py-0.5 text-xs font-mono bg-white text-gray-500 border border-gray-300 rounded">
-                Ctrl+L
-              </kbd>
-            </div>
-            <div className="absolute right-3 top-1/2 -translate-y-1/2">
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-6 w-6"
-                onClick={handleSend}
-                disabled={!input.trim() || chatMutation.isPending || isProcessing}
+          <div className="border-t border-gray-200 p-4 bg-white flex-shrink-0">
+            <p className="text-xs text-gray-500 mb-3">Try asking me to:</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <button 
+                onClick={() => setInput('Find time for a team meeting')}
+                className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-gray-200"
               >
-                {(chatMutation.isPending || isProcessing) ? (
-                  <Loader2 className="h-4 w-4 text-blue-600 animate-spin" />
-                ) : (
-                  <Send className="h-4 w-4 text-blue-600" />
-                )}
-              </Button>
+                <Clock className="h-4 w-4" />
+                <span>Find time for a team meeting</span>
+              </button>
+              <button 
+                onClick={() => setInput('Check my availability')}
+                className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-gray-200"
+              >
+                <Calendar className="h-4 w-4" />
+                <span>Check my availability</span>
+              </button>
+              <button 
+                onClick={() => setInput('Create a task')}
+                className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-gray-200"
+              >
+                <CheckCircle2 className="h-4 w-4" />
+                <span>Create a task</span>
+              </button>
             </div>
           </div>
-        </div>
-        
-        <div className="flex items-center justify-between mt-2 px-1">
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-100">
-              <Sparkles className="h-3.5 w-3.5 text-blue-600" />
-              <span className="text-xs font-medium text-gray-700">Gemini Flash</span>
+
+          <div className="border-t border-gray-200 p-4 bg-white flex-shrink-0">
+            <div className="flex gap-2">
+              <div className="flex-1 relative">
+                <Input
+                  ref={inputRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && !(chatMutation.isPending || isProcessing) && handleSend()}
+                  placeholder="Ask about your schedule..."
+                  className="pr-24 border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  disabled={chatMutation.isPending || isProcessing}
+                />
+                <div className="absolute right-12 top-1/2 -translate-y-1/2">
+                  <kbd className="px-1.5 py-0.5 text-xs font-mono bg-gray-50 text-gray-500 border border-gray-200 rounded">
+                    Ctrl+L
+                  </kbd>
+                </div>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-7 w-7 absolute right-2 top-1/2 -translate-y-1/2"
+                  onClick={handleSend}
+                  disabled={!input.trim() || chatMutation.isPending || isProcessing}
+                >
+                  {(chatMutation.isPending || isProcessing) ? (
+                    <Loader2 className="h-4 w-4 text-blue-600 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4 text-blue-600" />
+                  )}
+                </Button>
+              </div>
             </div>
-            <div className="h-4 w-px bg-gray-300" />
-            <div className="flex items-center gap-1.5">
-              <Calendar className="h-3.5 w-3.5 text-gray-500" />
-              <span className="text-xs text-gray-600">Calendar Intelligence</span>
+            
+            <div className="flex items-center gap-3 mt-3 text-xs text-gray-500">
+              <div className="flex items-center gap-1.5">
+                <Sparkles className="h-3.5 w-3.5 text-blue-600" />
+                <span>Powered by Gemini</span>
+              </div>
+              <div className="h-3 w-px bg-gray-300" />
+              <div className="flex items-center gap-1.5">
+                <Calendar className="h-3.5 w-3.5" />
+                <span>Calendar Intelligence</span>
+              </div>
             </div>
           </div>
         </div>

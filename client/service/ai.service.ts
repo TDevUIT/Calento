@@ -1,10 +1,13 @@
-﻿import { api, getErrorMessage } from '../config/axios';
+import { api, getErrorMessage } from '../config/axios';
 import {
   ChatRequest,
   ChatResponse,
   StreamChatRequest,
   FunctionExecutionRequest,
   FunctionExecutionResponse,
+  ConversationResponse,
+  ConversationsListResponse,
+  DeleteConversationResponse,
 } from '../interface/ai.interface';
 import { API_ROUTES } from '../constants/routes';
 
@@ -183,10 +186,55 @@ export const executeFunction = async (
   }
 };
 
+export const getConversations = async (
+  limit: number = 50
+): Promise<ConversationsListResponse> => {
+  try {
+    const response = await api.get<ConversationsListResponse>(
+      `${API_ROUTES.AI_CONVERSATIONS}?limit=${limit}`,
+      { withCredentials: true }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+};
+
+export const getConversation = async (
+  conversationId: string
+): Promise<ConversationResponse> => {
+  try {
+    const response = await api.get<ConversationResponse>(
+      API_ROUTES.AI_CONVERSATION_DETAIL(conversationId),
+      { withCredentials: true }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+};
+
+export const deleteConversation = async (
+  conversationId: string
+): Promise<DeleteConversationResponse> => {
+  try {
+    const response = await api.delete<DeleteConversationResponse>(
+      API_ROUTES.AI_CONVERSATION_DELETE(conversationId),
+      { withCredentials: true }
+    );
+    return response.data;
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+};
+
 export const aiService = {
   chat,
   chatStream,
   executeFunction,
+  getConversations,
+  getConversation,
+  deleteConversation,
 };
 
 export default aiService;

@@ -1,4 +1,4 @@
-﻿import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { GoogleGenerativeAI, GenerativeModel, Content } from '@google/generative-ai';
 import { ConfigService } from '@nestjs/config';
 import { GeminiAPIException } from '../exceptions/ai.exceptions';
@@ -65,7 +65,7 @@ export class GeminiService {
       this.logger.log(`Processing chat message: "${message.substring(0, 50)}..."`);
 
       if (!this.apiKey) {
-        this.logger.error('âŒ GEMINI_API_KEY not configured');
+        this.logger.error('GEMINI_API_KEY not configured');
         throw new GeminiAPIException(
           'Gemini API key not configured',
           'Please set GEMINI_API_KEY environment variable'
@@ -112,31 +112,7 @@ export class GeminiService {
         text: responseText || 'I processed your request.',
       };
     } catch (error) {
-      this.logger.error('Gemini API error:', error);
-      this.logger.error('Error details:', {
-        message: error.message,
-        status: error.status,
-        statusText: error.statusText,
-      });
-      
-      if (error.message?.includes('API_KEY_INVALID')) {
-        throw new GeminiAPIException(
-          'Invalid Gemini API key',
-          'Please check your GEMINI_API_KEY environment variable'
-        );
-      }
-      
-      if (error.message?.includes('PERMISSION_DENIED')) {
-        throw new GeminiAPIException(
-          'Gemini API access denied',
-          'Please verify your API key has proper permissions'
-        );
-      }
-      
-      throw new GeminiAPIException(
-        'Failed to process chat message',
-        error.message
-      );
+      this.handleApiError(error);
     }
   }
 
@@ -161,30 +137,30 @@ export class GeminiService {
   private buildContextMessage(context: Record<string, any>): string {
     const parts: string[] = [];
 
-    parts.push('ðŸ§  **REMEMBER:** You are in a multi-turn conversation. Review ALL previous messages before responding.');
+    parts.push('**REMEMBER:** You are in a multi-turn conversation. Review ALL previous messages before responding.');
     parts.push('\n**Current Context:**');
 
     if (context.current_date) {
-      parts.push(`â° Current Date/Time: ${context.current_date} (${context.current_date_formatted || 'N/A'})`);
+      parts.push(`Current Date/Time: ${context.current_date} (${context.current_date_formatted || 'N/A'})`);
     }
 
     if (context.timezone) {
-      parts.push(`ðŸŒ Timezone: ${context.timezone}`);
+      parts.push(`Timezone: ${context.timezone}`);
     }
 
     if (context.preferences) {
-      parts.push(`âš™ï¸ User Preferences: ${JSON.stringify(context.preferences)}`);
+      parts.push(`User Preferences: ${JSON.stringify(context.preferences)}`);
     }
 
     if (context.upcoming_events && context.upcoming_events.length > 0) {
-      parts.push(`ðŸ“… Upcoming events: ${context.upcoming_events.length} events`);
+      parts.push(`Upcoming events: ${context.upcoming_events.length} events`);
     }
 
     if (context.conversation_turn) {
-      parts.push(`\nðŸ’¬ Turn ${context.conversation_turn} - Build upon previous exchanges`);
+      parts.push(`\nTurn ${context.conversation_turn} - Build upon previous exchanges`);
     }
 
-    parts.push('\nâš ï¸ If user provides information (emails, names, dates), USE IT immediately. Don\'t ask again!');
+    parts.push('\nWARNING: If user provides information (emails, names, dates), USE IT immediately. Don\'t ask again!');
 
     return parts.join('\n') + '\n';
   }
@@ -198,5 +174,33 @@ export class GeminiService {
       this.logger.error('Invalid Gemini API key:', error);
       return false;
     }
+  }
+
+  private handleApiError(error: any): never {
+    this.logger.error('Gemini API error:', error);
+    this.logger.error('Error details:', {
+      message: error.message,
+      status: error.status,
+      statusText: error.statusText,
+    });
+    
+    if (error.message?.includes('API_KEY_INVALID')) {
+      throw new GeminiAPIException(
+        'Invalid Gemini API key',
+        'Please check your GEMINI_API_KEY environment variable'
+      );
+    }
+    
+    if (error.message?.includes('PERMISSION_DENIED')) {
+      throw new GeminiAPIException(
+        'Gemini API access denied',
+        'Please verify your API key has proper permissions'
+      );
+    }
+    
+    throw new GeminiAPIException(
+      'Failed to process chat message',
+      error.message
+    );
   }
 }

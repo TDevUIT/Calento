@@ -1,4 +1,4 @@
-﻿import {
+import {
   Controller,
   Post,
   Get,
@@ -22,6 +22,10 @@ export class AIController {
   private readonly logger = new Logger(AIController.name);
   
   constructor(private readonly conversationService: AIConversationService) {}
+
+  private getUserId(req: any): string {
+    return req.user?.id || req.user?.sub;
+  }
 
   @Get('health')
   @ApiOperation({ summary: 'Check AI service health' })
@@ -49,11 +53,11 @@ export class AIController {
     @Body() dto: ChatRequestDto,
     @Req() req: any,
   ): Promise<ChatResponseDto> {
-    const userId = req.user?.id || req.user?.sub;
+    const userId = this.getUserId(req);
     
     try {
-      this.logger.log(`ðŸ¤– AI Chat request from user: ${userId}`);
-      this.logger.log(`ðŸ“ Message: "${dto.message.substring(0, 50)}..."`);
+      this.logger.log(`AI Chat request from user: ${userId}`);
+      this.logger.log(`Message: "${dto.message.substring(0, 50)}..."`);
       
       const result = await this.conversationService.chat(
         dto.message,
@@ -62,10 +66,10 @@ export class AIController {
         dto.context
       );
       
-      this.logger.log(`âœ… AI Chat completed successfully`);
+      this.logger.log(`AI Chat completed successfully`);
       return result;
     } catch (error) {
-      this.logger.error(`âŒ AI Chat failed:`, error);
+      this.logger.error(`AI Chat failed:`, error);
       this.logger.error(`Error stack:`, error.stack);
       throw error;
     }
@@ -82,7 +86,7 @@ export class AIController {
     type: [Object]
   })
   async getConversations(@Req() req: any) {
-    const userId = req.user.sub || req.user.id;
+    const userId = this.getUserId(req);
     return this.conversationService.getUserConversations(userId);
   }
 
@@ -99,7 +103,7 @@ export class AIController {
     @Param('id') conversationId: string,
     @Req() req: any
   ) {
-    const userId = req.user.sub || req.user.id;
+    const userId = this.getUserId(req);
     return this.conversationService.getConversation(conversationId, userId);
   }
 
@@ -116,7 +120,7 @@ export class AIController {
     @Param('id') conversationId: string,
     @Req() req: any
   ) {
-    const userId = req.user.sub || req.user.id;
+    const userId = this.getUserId(req);
     await this.conversationService.deleteConversation(conversationId, userId);
     return { 
       success: true, 
@@ -138,9 +142,9 @@ export class AIController {
     @Body() dto: ConfirmActionDto,
     @Req() req: any
   ): Promise<ChatResponseDto> {
-    const userId = req.user.sub || req.user.id;
+    const userId = this.getUserId(req);
     
-    this.logger.log(`ðŸ“‹ Action confirmation: ${dto.action_id} - ${dto.confirmed ? 'Approved' : 'Rejected'}`);
+    this.logger.log(`Action confirmation: ${dto.action_id} - ${dto.confirmed ? 'Approved' : 'Rejected'}`);
     
     return this.conversationService.confirmAction(
       dto.action_id,

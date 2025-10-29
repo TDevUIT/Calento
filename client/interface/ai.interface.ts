@@ -1,4 +1,4 @@
-﻿export interface AIMessage {
+export interface AIMessage {
   role: 'user' | 'assistant' | 'system' | 'function';
   content: string;
   function_call?: {
@@ -87,4 +87,41 @@ export interface FunctionExecutionResponse {
     result: any;
     execution_time: number;
   };
+}
+
+export interface Conversation {
+  id: string;
+  user_id: string;
+  messages: AIMessage[];
+  context?: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ConversationListItem {
+  id: string;
+  preview: string;
+  message_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ConversationResponse {
+  success: boolean;
+  data: Conversation;
+}
+
+export interface ConversationsListResponse {
+  success: boolean;
+  data: ConversationListItem[];
+  pagination?: {
+    total: number;
+    page: number;
+    limit: number;
+  };
+}
+
+export interface DeleteConversationResponse {
+  success: boolean;
+  message: string;
 }

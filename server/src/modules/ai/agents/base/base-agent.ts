@@ -1,4 +1,4 @@
-﻿import { Logger } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import {
   IAgent,
   AgentConfig,
@@ -8,10 +8,6 @@ import {
   AgentContext,
 } from './agent.interface';
 
-/**
- * Base Agent Class
- * All specialized agents extend this class
- */
 export abstract class BaseAgent implements IAgent {
   protected readonly logger: Logger;
   protected lastActivity: Date;
@@ -24,9 +20,6 @@ export abstract class BaseAgent implements IAgent {
     this.initializeStats();
   }
 
-  /**
-   * Initialize stats counters
-   */
   private initializeStats() {
     this.stats.set('total_requests', 0);
     this.stats.set('successful_requests', 0);
@@ -34,18 +27,10 @@ export abstract class BaseAgent implements IAgent {
     this.stats.set('tool_calls', 0);
   }
 
-  /**
-   * Check if agent can handle the request
-   * Override this method in specialized agents for custom logic
-   */
   async canHandle(request: AgentRequest): Promise<boolean> {
     return this.hasRelevantKeywords(request.message);
   }
 
-  /**
-   * Process the request
-   * This is the main entry point for all agents
-   */
   async process(request: AgentRequest): Promise<AgentResponse> {
     this.updateActivity();
     this.incrementStat('total_requests');
@@ -84,9 +69,6 @@ export abstract class BaseAgent implements IAgent {
     }
   }
 
-  /**
-   * Get agent status
-   */
   getStatus() {
     return {
       healthy: true,
@@ -95,20 +77,8 @@ export abstract class BaseAgent implements IAgent {
     };
   }
 
-  /**
-   * Abstract method: Execute agent-specific logic
-   * Must be implemented by specialized agents
-   */
   protected abstract execute(request: AgentRequest): Promise<AgentResponse>;
-
-  /**
-   * Check if message contains relevant keywords for this agent
-   */
   protected abstract hasRelevantKeywords(message: string): boolean;
-
-  /**
-   * Validate request
-   */
   protected validateRequest(request: AgentRequest) {
     if (!request.message || request.message.trim().length === 0) {
       throw new Error('Message is required');
@@ -119,24 +89,18 @@ export abstract class BaseAgent implements IAgent {
     }
   }
 
-  /**
-   * Update last activity timestamp
-   */
+
   protected updateActivity() {
     this.lastActivity = new Date();
   }
 
-  /**
-   * Increment stat counter
-   */
+
   protected incrementStat(key: string, value: number = 1) {
     const current = this.stats.get(key) || 0;
     this.stats.set(key, current + value);
   }
 
-  /**
-   * Build enhanced context for AI
-   */
+
   protected buildEnhancedPrompt(basePrompt: string, context: AgentContext): string {
     const contextParts: string[] = [basePrompt];
 
@@ -158,9 +122,7 @@ export abstract class BaseAgent implements IAgent {
     return contextParts.join('');
   }
 
-  /**
-   * Format tool calls for response
-   */
+
   protected formatToolCalls(toolCalls: ToolCall[]): string {
     if (toolCalls.length === 0) return '';
 
@@ -170,14 +132,14 @@ export abstract class BaseAgent implements IAgent {
     let result = '';
 
     if (successful.length > 0) {
-      result += `\n\nâœ… **Executed ${successful.length} action(s):**\n`;
+      result += `\n\n**Executed ${successful.length} action(s):**\n`;
       successful.forEach((tc) => {
         result += `- ${tc.toolName}\n`;
       });
     }
 
     if (failed.length > 0) {
-      result += `\n\nâŒ **${failed.length} action(s) failed:**\n`;
+      result += `\n\n**${failed.length} action(s) failed:**\n`;
       failed.forEach((tc) => {
         result += `- ${tc.toolName}: ${tc.error}\n`;
       });
@@ -186,9 +148,6 @@ export abstract class BaseAgent implements IAgent {
     return result;
   }
 
-  /**
-   * Extract keywords from message
-   */
   protected extractKeywords(message: string): string[] {
     return message
       .toLowerCase()
@@ -196,9 +155,7 @@ export abstract class BaseAgent implements IAgent {
       .filter((word) => word.length > 2);
   }
 
-  /**
-   * Calculate confidence score for handling this request
-   */
+
   protected calculateConfidence(message: string, keywords: string[]): number {
     const messageKeywords = this.extractKeywords(message);
     const matches = messageKeywords.filter((mk) => keywords.includes(mk));

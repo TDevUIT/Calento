@@ -1,4 +1,4 @@
-﻿import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { GeminiService } from './gemini.service';
 import { AIFunctionCallingService } from './ai-function-calling.service';
 import { AIConversationRepository } from '../repositories/ai-conversation.repository';
@@ -10,6 +10,12 @@ import { EventService } from '../../event/event.service';
 @Injectable()
 export class AIConversationService {
   private readonly logger = new Logger(AIConversationService.name);
+
+  private readonly DEFAULT_TIMEZONE = 'Asia/Ho_Chi_Minh';
+  private readonly DEFAULT_WORK_HOURS = { start: '09:00', end: '18:00' };
+  private readonly DEFAULT_DURATION = 60;
+  private readonly UPCOMING_EVENTS_LIMIT = 5;
+  private readonly UPCOMING_EVENTS_DAYS = 7;
 
   constructor(
     private readonly geminiService: GeminiService,
@@ -65,7 +71,7 @@ export class AIConversationService {
     } catch (error) {
       this.logger.error('AI chat failed:', error);
       return {
-        response: `âŒ Sorry, I encountered an error: ${error.message}`,
+        response: `ERROR: Sorry, I encountered an error: ${error.message}`,
         conversation_id: conversation.id,
         function_calls: [],
         actions: [],
@@ -175,7 +181,7 @@ export class AIConversationService {
 
     if (!confirmed) {
       return {
-        response: 'âŒ Action cancelled. Let me know if you\'d like to try something else.',
+        response: 'Action cancelled. Let me know if you\'d like to try something else.',
         conversation_id: conversationId || '',
         function_calls: [],
         actions: [],
@@ -184,7 +190,7 @@ export class AIConversationService {
     }
 
     return {
-      response: 'âœ… Action confirmed and executed successfully!',
+      response: 'Action confirmed and executed successfully!',
       conversation_id: conversationId || '',
       function_calls: [],
       actions: [{
@@ -199,12 +205,28 @@ export class AIConversationService {
     };
   }
 
+  private getDefaultContext(userId: string): Omit<AICalendarContext, 'upcoming_events' | 'preferences'> {
+    const now = new Date();
+    return {
+      user_id: userId,
+      timezone: this.DEFAULT_TIMEZONE,
+      current_date: now.toISOString(),
+      current_date_formatted: now.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }),
+    };
+  }
+
   private async buildCalendarContext(userId: string): Promise<AICalendarContext> {
+    const defaultContext = this.getDefaultContext(userId);
+
     try {
-      const now = new Date();
       const startDate = new Date();
       const endDate = new Date();
-      endDate.setDate(endDate.getDate() + 7);
+      endDate.setDate(endDate.getDate() + this.UPCOMING_EVENTS_DAYS);
 
       const upcomingEvents = await this.eventService.getEventsByDateRange(
         userId,
@@ -214,20 +236,12 @@ export class AIConversationService {
       );
 
       return {
-        user_id: userId,
-        timezone: 'Asia/Ho_Chi_Minh',
-        current_date: now.toISOString(),
-        current_date_formatted: now.toLocaleDateString('en-US', {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        }),
+        ...defaultContext,
         preferences: {
-          default_duration: 60,
-          work_hours: { start: '09:00', end: '18:00' },
+          default_duration: this.DEFAULT_DURATION,
+          work_hours: this.DEFAULT_WORK_HOURS,
         },
-        upcoming_events: upcomingEvents.data.slice(0, 5).map(e => ({
+        upcoming_events: upcomingEvents.data.slice(0, this.UPCOMING_EVENTS_LIMIT).map(e => ({
           id: e.id,
           title: e.title,
           start_time: e.start_time,
@@ -236,18 +250,7 @@ export class AIConversationService {
       };
     } catch (error) {
       this.logger.warn('Failed to build calendar context:', error);
-      const now = new Date();
-      return {
-        user_id: userId,
-        timezone: 'Asia/Ho_Chi_Minh',
-        current_date: now.toISOString(),
-        current_date_formatted: now.toLocaleDateString('en-US', {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        }),
-      };
+      return defaultContext;
     }
   }
 
@@ -261,7 +264,7 @@ export class AIConversationService {
     const failedActions = actions.filter(a => a.status === 'failed');
 
     if (failedActions.length > 0) {
-      response += '\n\nâŒ **Error:**\n';
+      response += '\n\n**ERROR:**\n';
       failedActions.forEach(action => {
         response += `- ${action.error}\n`;
       });

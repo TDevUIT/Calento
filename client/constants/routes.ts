@@ -1,4 +1,4 @@
-﻿export const BASE_FE_URL = process.env.NEXT_PUBLIC_APP_FE_URL || 'http://localhost:3000';
+export const BASE_FE_URL = process.env.NEXT_PUBLIC_APP_FE_URL || 'http://localhost:3000';
 
 export const PUBLIC_ROUTES = {
   HOME: '/',
@@ -35,6 +35,7 @@ export const PROTECTED_ROUTES = {
   DASHBOARD_HELP: '/dashboard/help',
   DASHBOARD_PROFILE: '/dashboard/profile',
   DASHBOARD_PRIORITIES: '/dashboard/priorities',
+  DASHBOARD_AI_CHAT: '/dashboard/ai-chat',
   DASHBOARD_SCHEDULING: '/dashboard/scheduling-links',
   DASHBOARD_TASKS: '/dashboard/tasks',
   DASHBOARD_BOOKINGS: '/dashboard/bookings',
@@ -147,6 +148,9 @@ export const API_ROUTES = {
   AI_CHAT: '/ai/chat',
   AI_CHAT_STREAM: '/ai/chat/stream',
   AI_FUNCTION_EXECUTE: '/ai/function/execute',
+  AI_CONVERSATIONS: '/ai/conversations',
+  AI_CONVERSATION_DETAIL: (id: string) => `/ai/conversations/${id}`,
+  AI_CONVERSATION_DELETE: (id: string) => `/ai/conversations/${id}`,
   
   BLOG_POSTS: '/blog',
   BLOG_PUBLISHED: '/blog/public/published',

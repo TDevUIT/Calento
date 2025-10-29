@@ -1,4 +1,5 @@
-﻿import { Module, OnModuleInit } from '@nestjs/common';
+import { Module, OnModuleInit } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { AIController } from './ai.controller';
 import { GeminiService } from './services/gemini.service';
@@ -72,31 +73,28 @@ import { AnalyzeTeamAvailabilityTool } from './tools/analysis-tools';
   ],
 })
 export class AIModule implements OnModuleInit {
+  private readonly tools = [
+    CreateEventTool,
+    CheckAvailabilityTool,
+    SearchEventsTool,
+    UpdateEventTool,
+    DeleteEventTool,
+    CreateTaskTool,
+    CreateLearningPlanTool,
+    AnalyzeTeamAvailabilityTool,
+  ];
+
   constructor(
     private readonly toolRegistry: ToolRegistry,
-    private readonly createEventTool: CreateEventTool,
-    private readonly checkAvailabilityTool: CheckAvailabilityTool,
-    private readonly searchEventsTool: SearchEventsTool,
-    private readonly updateEventTool: UpdateEventTool,
-    private readonly deleteEventTool: DeleteEventTool,
-    private readonly createTaskTool: CreateTaskTool,
-    private readonly createLearningPlanTool: CreateLearningPlanTool,
-    private readonly analyzeTeamAvailabilityTool: AnalyzeTeamAvailabilityTool,
+    private readonly moduleRef: ModuleRef,
   ) {}
 
-  /**
-   * Register all tools on module initialization
-   */
   onModuleInit() {
-    this.toolRegistry.register(this.createEventTool);
-    this.toolRegistry.register(this.checkAvailabilityTool);
-    this.toolRegistry.register(this.searchEventsTool);
-    this.toolRegistry.register(this.updateEventTool);
-    this.toolRegistry.register(this.deleteEventTool);
-
-    this.toolRegistry.register(this.createTaskTool);
-    this.toolRegistry.register(this.createLearningPlanTool);
-
-    this.toolRegistry.register(this.analyzeTeamAvailabilityTool);
+    this.tools.forEach((ToolClass) => {
+      const tool = this.moduleRef.get(ToolClass, { strict: false });
+      if (tool) {
+        this.toolRegistry.register(tool);
+      }
+    });
   }
 }
