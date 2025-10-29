@@ -1,6 +1,6 @@
-﻿"use client";
+"use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,26 +24,6 @@ export function UpcomingEvents({ maxEvents = 5 }: UpcomingEventsProps) {
     maxEvents,
     enabled: true
   });
-
-  console.log('ðŸŽ¯ [UpcomingEvents] Component state:', {
-    isLoading,
-    isError,
-    error,
-    eventsCount: upcomingEvents.length,
-    events: upcomingEvents,
-  });
-
-  useEffect(() => {
-    console.log('ðŸš€ [UpcomingEvents] Component mounted');
-  }, []);
-
-  useEffect(() => {
-    console.log('ðŸ”„ [UpcomingEvents] Data changed:', {
-      isLoading,
-      isError,
-      eventsCount: upcomingEvents.length,
-    });
-  }, [upcomingEvents, isLoading, isError]);
 
   const getTimeDisplay = (startTime: string, endTime: string) => {
     const start = new Date(startTime);
@@ -122,10 +102,7 @@ export function UpcomingEvents({ maxEvents = 5 }: UpcomingEventsProps) {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => {
-              console.log('ðŸ”„ Manual refetch triggered');
-              refetch();
-            }}
+            onClick={() => refetch()}
             className="h-7 w-7 p-0"
           >
             <RefreshCw className="h-3 w-3" />
@@ -156,7 +133,7 @@ export function UpcomingEvents({ maxEvents = 5 }: UpcomingEventsProps) {
                   className="border-l-4 hover:bg-accent/50 transition-colors cursor-pointer hover:shadow-sm" 
                   style={{ borderLeftColor: event.color || '#3b82f6' }}
                   onClick={() => {
-                    console.log('Navigate to event:', event.id);
+                    window.location.href = `/dashboard/calendar?event=${event.id}`;
                   }}
                 >
                   <CardContent className="p-3">
@@ -219,7 +196,7 @@ export function UpcomingEvents({ maxEvents = 5 }: UpcomingEventsProps) {
               className="w-full justify-center text-xs"
               onClick={() => {
                 setIsOpen(false);
-                console.log("Navigate to calendar");
+                window.location.href = '/dashboard/calendar';
               }}
             >
               View all in calendar

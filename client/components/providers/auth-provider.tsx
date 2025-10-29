@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useRef } from 'react';
 import { useAuthStore } from '@/store/auth.store';
@@ -20,7 +20,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         console.warn('Auth initialization failed:', error);
       }
     });
-  }, []);
+  }, [checkAuthStatus]);
 
   return <>{children}</>;
 };

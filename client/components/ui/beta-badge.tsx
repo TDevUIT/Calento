@@ -1,4 +1,4 @@
-﻿import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 
 interface BetaBadgeProps {
   variant?: 'default' | 'small' | 'header';
@@ -17,7 +17,7 @@ export function BetaBadge({ variant = 'default', className }: BetaBadgeProps) {
   return (
     <span 
       className={cn(baseClasses, variantClasses[variant], className)}
-      title="PhiÃªn báº£n thá»­ nghiá»‡m - BETA"
+      title="Phiên bản thử nghiệm - BETA"
       style={{
         fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace'
       }}

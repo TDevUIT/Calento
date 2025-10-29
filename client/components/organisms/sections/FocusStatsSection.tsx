@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React from 'react';
 import { STATS_DATA } from '@/config/landing-data.config';
@@ -14,7 +14,7 @@ export const FocusStatsSection: React.FC = () => {
       <div className="relative max-w-7xl mx-auto">
         <div className="text-center mb-16 space-y-6">
           <p className="text-lg md:text-xl text-cod-gray-600 dark:text-cod-gray-400 max-w-3xl mx-auto font-medium transition-colors duration-300">
-            Deleting meetings doesn&apos;t work â€“ you need to prioritize focus time.
+            Deleting meetings doesn&apos;t work — you need to prioritize focus time.
           </p>
           
           <h2 

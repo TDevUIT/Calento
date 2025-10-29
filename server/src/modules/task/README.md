@@ -4,17 +4,17 @@ Module quản lý công việc (tasks/to-do) cho người dùng với đầy đ�
 
 ## Features
 
-- ✅ **CRUD Operations**: Create, Read, Update, Delete tasks
-- ✅ **Soft Delete**: Tasks được đánh dấu xóa thay vì xóa vĩnh viễn
-- ✅ **Status Management**: TODO, IN_PROGRESS, COMPLETED, CANCELLED
-- ✅ **Priority Levels**: LOW, MEDIUM, HIGH, CRITICAL
-- ✅ **Advanced Filtering**: Filter theo status, priority, project, date range, tags
-- ✅ **Search**: Full-text search trong title và description
-- ✅ **Statistics**: Task statistics với breakdown theo status và priority
-- ✅ **Pagination**: Hỗ trợ pagination cho tất cả list endpoints
-- ✅ **Subtasks**: Hỗ trợ parent-child relationships
-- ✅ **Tags**: Categorization với tags array
-- ✅ **Time Tracking**: Estimated và actual duration
+- **CRUD Operations**: Create, Read, Update, Delete tasks
+- **Soft Delete**: Tasks được đánh dấu xóa thay vì xóa vĩnh viễn
+- **Status Management**: TODO, IN_PROGRESS, COMPLETED, CANCELLED
+- **Priority Levels**: LOW, MEDIUM, HIGH, CRITICAL
+- **Advanced Filtering**: Filter theo status, priority, project, date range, tags
+- **Search**: Full-text search trong title và description
+- **Statistics**: Task statistics với breakdown theo status và priority
+- **Pagination**: Hỗ trợ pagination cho tất cả list endpoints
+- **Subtasks**: Hỗ trợ parent-child relationships
+- **Tags**: Categorization với tags array
+- **Time Tracking**: Estimated và actual duration
 
 ## Database Schema
 

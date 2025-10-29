@@ -1,18 +1,17 @@
 'use client';
 
 import React from 'react';
-import { CheckCircle, Calendar, Clock, Search } from 'lucide-react';
+import { CheckCircle, Calendar, Clock, Search, type LucideIcon } from 'lucide-react';
 
 interface MessageContentProps {
   content: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const iconMap: Record<string, any> = {
-  'âœ…': CheckCircle,
-  'ðŸ“…': Calendar,
-  'â°': Clock,
-  'ðŸ”Ž': Search,
+const iconMap: Record<string, LucideIcon> = {
+  '✅': CheckCircle,
+  '📅': Calendar,
+  '⏰': Clock,
+  '🔎': Search,
 };
 
 export const MessageContent = ({ content }: MessageContentProps) => {
@@ -28,7 +27,7 @@ export const MessageContent = ({ content }: MessageContentProps) => {
         elements.push(
           <ul key={`list-${listIndex++}`} className="space-y-2 my-3">
             {currentList.map((item, idx) => {
-              const richMatch = item.match(/^[\s]*[\*\-•]\s*(?:([📅✅⏰🔎🎯⚡])\s*)?(?:\*\*(.*?)\*\*)?(.*)$/);
+              const richMatch = item.match(/^[\s]*[\*\-•]\s*(?:([📅✅⏰🔎🎯⚡💡🚀✨])\s*)?(?:\*\*(.*?)\*\*)?(.*)$/);
               if (richMatch) {
                 const [, emoji, boldMaybe, restRaw] = richMatch;
                 const boldText = (boldMaybe || '').trim();
@@ -43,7 +42,7 @@ export const MessageContent = ({ content }: MessageContentProps) => {
                   else if (key.includes('time') || key.includes('duration')) Icon = Clock;
                 }
 
-                const exampleMatch = rest.match(/\"([^\"]+)\"/);
+                const exampleMatch = rest.match(/"([^"]+)"/);
                 const exampleText = exampleMatch ? exampleMatch[1] : '';
 
                 return (
@@ -59,9 +58,9 @@ export const MessageContent = ({ content }: MessageContentProps) => {
                           {exampleText && (
                             <div className="mt-1">
                               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-gray-100 text-gray-700 text-xs">
-                                <span className="opacity-70">â€œ</span>
+                                <span className="opacity-70">“</span>
                                 <span className="font-medium">{exampleText}</span>
-                                <span className="opacity-70">â€</span>
+                                <span className="opacity-70">”</span>
                               </span>
                             </div>
                           )}
@@ -78,7 +77,7 @@ export const MessageContent = ({ content }: MessageContentProps) => {
               if (simpleMatch) {
                 const text = simpleMatch[1];
                 const parts = text.split(/(\*\*.*?\*\*)/g);
-                const exampleMatch = text.match(/\"([^\"]+)\"/);
+                const exampleMatch = text.match(/"([^"]+)"/);
                 const exampleText = exampleMatch ? exampleMatch[1] : '';
                 return (
                   <li key={idx} className="flex items-start gap-2">
@@ -96,9 +95,9 @@ export const MessageContent = ({ content }: MessageContentProps) => {
                       {exampleText && (
                         <div className="mt-1">
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-gray-100 text-gray-700 text-xs">
-                            <span className="opacity-70">â€œ</span>
+                            <span className="opacity-70">“</span>
                             <span className="font-medium">{exampleText}</span>
-                            <span className="opacity-70">â€</span>
+                            <span className="opacity-70">”</span>
                           </span>
                         </div>
                       )}
@@ -150,8 +149,8 @@ export const MessageContent = ({ content }: MessageContentProps) => {
           );
           firstParagraphRendered = true;
         } else {
-          const hasEmoji = /[ðŸ“…âœ…â°ðŸ”ŽðŸŽ¯âš¡ðŸ’¡ðŸš€âœ¨]/g.test(line);
-          const isQuestion = /\?\s*([ðŸ“…âœ…â°ðŸ”ŽðŸŽ¯âš¡ðŸ’¡ðŸš€âœ¨])?$/.test(line.trim());
+          const hasEmoji = /[📅✅⏰🔎🎯⚡💡🚀✨]/g.test(line);
+          const isQuestion = /\?\s*([📅✅⏰🔎🎯⚡💡🚀✨])?$/.test(line.trim());
           elements.push(
             <p key={`text-${idx}`} className={`text-sm ${!firstParagraphRendered ? 'text-gray-900 font-medium' : 'text-gray-700'} ${hasEmoji ? 'leading-relaxed' : ''} ${isQuestion ? 'mt-3' : ''} mb-2`}>
               {line}

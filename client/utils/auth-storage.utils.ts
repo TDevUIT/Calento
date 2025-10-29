@@ -1,10 +1,12 @@
-﻿export const clearAuthStorage = () => {
+import { logger } from './logger.utils';
+
+export const clearAuthStorage = () => {
   try {
     localStorage.removeItem('auth-storage');
     sessionStorage.removeItem('auth-storage');
-    console.log('âœ… Auth storage cleared successfully');
+    logger.info('Auth storage cleared successfully');
   } catch (error) {
-    console.error('âŒ Failed to clear auth storage:', error);
+    logger.error(`Failed to clear auth storage: ${error instanceof Error ? error.message : String(error)}`);
   }
 };
 
@@ -13,17 +15,17 @@ export const getStoredAuthData = () => {
     const data = localStorage.getItem('auth-storage');
     return data ? JSON.parse(data) : null;
   } catch (error) {
-    console.error('âŒ Failed to parse auth storage:', error);
+    logger.error(`Failed to parse auth storage: ${error instanceof Error ? error.message : String(error)}`);
     return null;
   }
 };
 
 export const debugAuthStorage = () => {
   const data = getStoredAuthData();
-  console.log('ðŸ“¦ Current auth storage:', data);
+  logger.info('Current auth storage:', data);
   
   if (data?.state?.user) {
-    console.log('ðŸ‘¤ User data structure:', {
+    logger.info('User data structure:', {
       hasData: !!data.state.user.data,
       hasDirectFields: !!data.state.user.first_name,
       user: data.state.user,

@@ -1,5 +1,8 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+
+const isDev = process.env.NODE_ENV === 'development';
+const log = (...args: unknown[]) => isDev && console.log(...args);
 
 async function verifyAuthFromCookies(request: NextRequest): Promise<boolean> {
   try {
@@ -7,25 +10,23 @@ async function verifyAuthFromCookies(request: NextRequest): Promise<boolean> {
     const refreshToken: string | undefined = request.cookies.get('refresh_token')?.value;
     
     const allCookies = request.cookies.getAll();
-    console.log('[Middleware] All cookies:', allCookies.map(c => ({ name: c.name, hasValue: Boolean(c.value) })));
+    log('[Middleware] All cookies:', allCookies.map(c => ({ name: c.name, hasValue: Boolean(c.value) })));
     
     const isAuthenticated: boolean = Boolean(accessToken || refreshToken);
     
     if (!isAuthenticated) {
-      console.log('[Middleware] No authentication tokens found in cookies');
+      log('[Middleware] No authentication tokens found in cookies');
       return false;
     }
     
-    console.log('[Middleware] Authentication tokens found in cookies', {
+    log('[Middleware] Authentication tokens found in cookies', {
       hasAccessToken: Boolean(accessToken),
-      hasRefreshToken: Boolean(refreshToken),
-      accessTokenLength: accessToken?.length || 0,
-      refreshTokenLength: refreshToken?.length || 0
+      hasRefreshToken: Boolean(refreshToken)
     });
     return true;
     
   } catch (error) {
-    console.log('[Middleware] Cookie verification failed:', error);
+    log('[Middleware] Cookie verification failed:', error);
     return false;
   }
 }
@@ -36,7 +37,7 @@ async function verifyAuthFromAPI(request: NextRequest): Promise<boolean> {
     const apiPrefix = process.env.NEXT_PUBLIC_API_PREFIX || 'api/v1';
     const verifyUrl = `${apiUrl}/${apiPrefix}/auth/verify`;
     
-    console.log('[Middleware] Attempting API verification:', verifyUrl);
+    log('[Middleware] Attempting API verification:', verifyUrl);
     
     const cookieHeader = request.headers.get('cookie') || '';
     
@@ -50,21 +51,20 @@ async function verifyAuthFromAPI(request: NextRequest): Promise<boolean> {
     });
     
     if (!response.ok) {
-      console.log('[Middleware] API verification failed with status:', response.status);
+      log('[Middleware] API verification failed with status:', response.status);
       return false;
     }
     
     const data = await response.json();
     const isAuthenticated = data?.data?.authenticated === true;
     
-    console.log('[Middleware] API verification result:', {
-      authenticated: isAuthenticated,
-      user: data?.data?.user?.email || 'unknown'
+    log('[Middleware] API verification result:', {
+      authenticated: isAuthenticated
     });
     
     return isAuthenticated;
   } catch (error) {
-    console.log('[Middleware] API verification error:', error instanceof Error ? error.message : 'Unknown error');
+    log('[Middleware] API verification error:', error instanceof Error ? error.message : 'Unknown error');
     return false;
   }
 }
@@ -72,7 +72,7 @@ async function verifyAuthFromAPI(request: NextRequest): Promise<boolean> {
 export async function middleware(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
   
-  console.log('[Middleware] Running for pathname:', pathname);
+  log('[Middleware] Running for pathname:', pathname);
   
   if (pathname.startsWith('/api/')) {
     return NextResponse.next();
@@ -85,7 +85,7 @@ export async function middleware(request: NextRequest) {
   let isAuthenticated = await verifyAuthFromCookies(request);
   
   if (!isAuthenticated) {
-    console.log('[Middleware] Cookie auth failed, trying API verification...');
+    log('[Middleware] Cookie auth failed, trying API verification...');
     isAuthenticated = await verifyAuthFromAPI(request);
   }
   
@@ -94,14 +94,14 @@ export async function middleware(request: NextRequest) {
   );
   
   if (requiresAuth && !isAuthenticated) {
-    console.log('[Middleware] Access denied - redirecting to login');
+    log('[Middleware] Access denied - redirecting to login');
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('returnUrl', pathname);
     return NextResponse.redirect(loginUrl);
   }
   
   if (guestOnlyRoutes.includes(pathname) && isAuthenticated) {
-    console.log('[Middleware] Authenticated user accessing guest route - redirecting');
+    log('[Middleware] Authenticated user accessing guest route - redirecting');
     const returnUrl = searchParams.get('returnUrl');
     const redirectTo = returnUrl && protectedPrefixes.some(prefix => 
       returnUrl === prefix || returnUrl.startsWith(prefix + '/')
@@ -110,7 +110,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL(redirectTo, request.url));
   }
 
-  console.log('[Middleware] Access granted for:', pathname);
+  log('[Middleware] Access granted for:', pathname);
   return NextResponse.next();
 }
 

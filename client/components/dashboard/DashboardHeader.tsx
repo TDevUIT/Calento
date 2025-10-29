@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -55,15 +55,15 @@ export function DashboardHeader({ notificationCount = 3 }: DashboardHeaderProps)
   };
 
   const handleCalendarView = () => {
-    console.log("Opening calendar view...");
+    window.location.href = '/dashboard/calendar';
   };
 
   const handleNotifications = () => {
-    console.log("Opening notifications...");
+    // TODO: Implement notifications panel
   };
 
   const handleUpgrade = () => {
-    console.log("Opening upgrade page...");
+    window.location.href = '/pricing';
   };
 
   return (
@@ -96,7 +96,7 @@ export function DashboardHeader({ notificationCount = 3 }: DashboardHeaderProps)
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Search (âŒ˜K)</p>
+              <p>Search (⌘K / Ctrl+K)</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

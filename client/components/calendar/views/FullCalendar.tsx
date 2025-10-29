@@ -236,7 +236,7 @@ const HourEvents = ({
   
   return (
     <div className="h-20 border-t last:border-b relative group hover:bg-accent/5 transition-colors">
-      {eventLayouts.map((layout, index) => {
+      {eventLayouts.map((layout) => {
         const { event } = layout;
         const hoursDifference = differenceInMinutes(event.end, event.start) / 60;
         const startPosition = event.start.getMinutes() / 60;

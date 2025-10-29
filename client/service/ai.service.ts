@@ -10,6 +10,7 @@ import {
   DeleteConversationResponse,
 } from '../interface/ai.interface';
 import { API_ROUTES } from '../constants/routes';
+import { logger } from '../utils/logger.utils';
 
 export const chat = async (data: ChatRequest): Promise<ChatResponse> => {
   try {
@@ -33,22 +34,22 @@ export const chatStream = async (
   let buffer = '';
   
   try {
-    console.log('ðŸŒ Starting stream to:', API_ROUTES.AI_CHAT_STREAM);
-    console.log('ðŸ“‹ Request data:', data);
-    console.log('ðŸ”§ Axios baseURL:', api.defaults.baseURL);
+    logger.info('Starting stream to:', API_ROUTES.AI_CHAT_STREAM);
+    logger.info('Request data:', data);
+    logger.info('Axios baseURL:', api.defaults.baseURL);
     
     const fullUrl = `${api.defaults.baseURL}${API_ROUTES.AI_CHAT_STREAM}`;
-    console.log('ðŸ”— Full URL:', fullUrl);
+    logger.info('Full URL:', fullUrl);
     
-    console.log('ðŸ§ª Testing backend connectivity...');
+    logger.info('Testing backend connectivity...');
     try {
       const testResponse = await fetch(`${api.defaults.baseURL}/ai/health`, {
         method: 'GET',
         credentials: 'include',
       });
-      console.log('ðŸ¥ Health check status:', testResponse.status);
+      logger.info('Health check status:', testResponse.status);
     } catch (healthError) {
-      console.error('âŒ Backend health check failed:', healthError);
+      logger.error(`Backend health check failed: ${healthError instanceof Error ? healthError.message : String(healthError)}`);
       throw new Error(`Backend not reachable: ${healthError instanceof Error ? healthError.message : String(healthError)}`);
     }
 
@@ -63,22 +64,17 @@ export const chatStream = async (
       body: JSON.stringify(data),
       credentials: 'include', // Always include cookies for authentication
     }).catch((fetchError) => {
-      console.error('âŒ Fetch failed:', fetchError);
+      logger.error(`Fetch failed: ${fetchError.message}`);
       throw new Error(`Network error: ${fetchError.message}. Please check if the server is running.`);
     });
 
     if (!response.ok) {
       const errorText = await response.text().catch(() => 'Unknown error');
-      console.error('âŒ Streaming request failed:', {
-        status: response.status,
-        statusText: response.statusText,
-        url: fullUrl,
-        errorBody: errorText,
-      });
+      logger.error(`Streaming request failed: ${response.status} - ${response.statusText}`, fullUrl);
       throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}. ${errorText}`);
     }
     
-    console.log('âœ… Streaming connection established');
+    logger.info('Streaming connection established');
 
     const reader = response.body?.getReader();
     if (!reader) {
@@ -93,13 +89,13 @@ export const chatStream = async (
           const { done, value } = await reader.read();
           
           if (done) {
-            console.log('ðŸ Reader done');
+            logger.info('Reader done');
             onComplete();
             break;
           }
 
           buffer += decoder.decode(value, { stream: true });
-          console.log('ðŸ“¦ Raw buffer chunk:', buffer.substring(0, 100));
+          logger.info('Raw buffer chunk:', buffer.substring(0, 100));
           
           const lines = buffer.split('\n');
           buffer = lines.pop() || ''; // Keep incomplete line in buffer
@@ -111,10 +107,10 @@ export const chatStream = async (
             
             if (trimmedLine.startsWith('event:')) {
               const eventType = trimmedLine.substring(6).trim();
-              console.log('ðŸ“¡ SSE Event type:', eventType);
+              logger.info('SSE Event type:', eventType);
               
               if (eventType === 'error') {
-                console.error('âŒ Backend error event detected');
+                logger.error('Backend error event detected');
               }
               continue;
             }
@@ -122,51 +118,51 @@ export const chatStream = async (
             if (trimmedLine.startsWith('data:')) {
               try {
                 const jsonStr = trimmedLine.substring(5).trim();
-                console.log('ðŸ” Parsing JSON:', jsonStr);
+                logger.info('Parsing JSON:', jsonStr);
                 
                 try {
                   const parsed = JSON.parse(jsonStr);
-                  console.log('ðŸ“¨ Received SSE:', parsed);
+                  logger.info('Received SSE:', parsed);
                   
                   const eventData = parsed.data || parsed;
                   
                   if (eventData.error) {
-                    console.error('âŒ Backend error:', eventData.error);
+                    logger.error(`Backend error: ${eventData.error}`);
                     onError(new Error(eventData.error));
                     return;
                   }
                   
                   if (eventData.text) {
-                    console.log('âœï¸ Chunk text:', eventData.text);
+                    logger.info('Chunk text:', eventData.text);
                     onMessage(eventData.text);
                   }
                   
                   if (eventData.done) {
-                    console.log('ðŸ Stream done');
+                    logger.info('Stream done');
                     onComplete();
                     return;
                   }
                 } catch (jsonError) {
-                  console.error('âŒ Backend error message:', jsonStr);
+                  logger.error(`Backend error message: ${jsonStr}`);
                   onError(new Error(`Backend error: ${jsonStr}`));
                   return;
                 }
               } catch (parseError) {
-                console.warn('âš ï¸ Failed to parse SSE data:', trimmedLine);
-                console.warn('Parse error:', parseError);
+                logger.warn('Failed to parse SSE data:', trimmedLine);
+                logger.warn('Parse error:', parseError);
               }
             }
           }
         }
       } catch (error) {
-        console.error('âŒ readStream error:', error);
+        logger.error(`readStream error: ${error instanceof Error ? error.message : String(error)}`);
         onError(new Error(getErrorMessage(error)));
       }
     };
 
     await readStream();
   } catch (error) {
-    console.error('âŒ chatStream error:', error);
+    logger.error(`chatStream error: ${error instanceof Error ? error.message : String(error)}`);
     onError(new Error(getErrorMessage(error)));
   }
 };

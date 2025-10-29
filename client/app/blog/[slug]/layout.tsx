@@ -15,7 +15,7 @@ async function getBlogPost(slug: string) {
     if (!response.ok) return null;
     const data = await response.json();
     return data?.data || null;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -67,7 +67,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       publishedTime,
       modifiedTime,
       authors: post.author_name ? [post.author_name] : undefined,
-      tags: post.tags?.map((tag: any) => tag.name) || undefined,
+      tags: post.tags?.map((tag: { name: string }) => tag.name) || undefined,
     },
     twitter: {
       card: 'summary_large_image',

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useMemo, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
@@ -108,7 +108,7 @@ export default function Page() {
       recurringEventsQuery.refetch(),
       tasksQuery.refetch(),
     ]);
-  }, [currentMonth, startDate, endDate]);
+  }, [currentMonth, startDate, endDate, queryClient, regularEventsQuery, recurringEventsQuery, tasksQuery]);
   
   const { items: regularEvents = [] } = useApiData<Event>(regularEventsQuery);
   const { items: recurringEvents = [] } = useApiData<Event>(recurringEventsQuery);

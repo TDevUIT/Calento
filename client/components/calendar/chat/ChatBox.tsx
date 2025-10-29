@@ -15,7 +15,6 @@ import {
   Plus,
   History,
   PanelLeftClose,
-  PanelLeft,
 } from 'lucide-react';
 import { useAIChat } from '@/hook/ai/use-ai-chat';
 import { useConversation, useConversations, useDeleteConversation } from '@/hook/ai/use-conversations';
@@ -226,7 +225,7 @@ export function ChatBox({ onClose, conversationId: externalConversationId, onCon
         content: 'âœ… Meeting has been scheduled and invites sent to all participants.',
       };
       setMessages((prev) => [...prev, confirmMessage]);
-    } catch (error) {
+    } catch {
       toast.error('Failed to confirm action');
     }
   };

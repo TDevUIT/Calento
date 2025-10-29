@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useCalendarSettings } from '../shared/CalendarSettingsProvider';
 import { formatTimeWithSettings, formatDateWithSettings } from '@/utils/calendar-format';
@@ -12,10 +12,7 @@ import {
   Pencil,
   Trash2,
   X,
-  Mail,
-  Eye,
-  EyeOff,
-  Lock
+  Mail
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -24,57 +21,39 @@ import { toast } from 'sonner';
 import { ConferenceInfo } from '../shared/ConferenceInfo';
 import { AttendeesList } from '../shared/AttendeesList';
 import type { Event } from '@/interface/event.interface';
+import { EVENT_COLORS, VISIBILITY_ICONS, DAY_NAMES } from '@/constants/event.constants';
 
 interface EventDetailViewProps {
   event: Event;
   onEdit?: () => void;
   onDelete?: () => void;
   onClose?: () => void;
-  /** Enable edit with EventFormModal (default: false) */
-  enableEditModal?: boolean;
 }
 
-export function EventDetailView({ event, onEdit, onDelete, onClose }: EventDetailViewProps) {
+export const EventDetailView = ({ event, onEdit, onDelete, onClose }: EventDetailViewProps) => {
   const startDate = new Date(event.start_time);
   const endDate = new Date(event.end_time);
   const { timeFormat, dateFormat } = useCalendarSettings();
-
-  const colorClasses: Record<string, string> = {
-    blue: 'bg-blue-500',
-    green: 'bg-green-500',
-    pink: 'bg-pink-500',
-    purple: 'bg-purple-500',
-    orange: 'bg-orange-500',
-    red: 'bg-red-500',
-  };
-
-  const visibilityIcons = {
-    public: <Eye className="h-3.5 w-3.5" />,
-    private: <EyeOff className="h-3.5 w-3.5" />,
-    confidential: <Lock className="h-3.5 w-3.5" />,
-    default: null,
-  };
 
   const formatRecurrence = (rule?: string) => {
     if (!rule) return null;
     
     if (rule.includes('FREQ=WEEKLY')) {
-      const days = ['Chá»§ nháº­t', 'Thá»© hai', 'Thá»© ba', 'Thá»© tÆ°', 'Thá»© nÄƒm', 'Thá»© sÃ¡u', 'Thá»© báº£y'];
-      const dayName = days[startDate.getDay()];
-      return `HÃ ng tuáº§n vÃ o ${dayName}`;
+      const dayName = DAY_NAMES[startDate.getDay()];
+      return `Hàng tuần vào ${dayName}`;
     }
-    if (rule.includes('FREQ=DAILY')) return 'HÃ ng ngÃ y';
-    if (rule.includes('FREQ=MONTHLY')) return 'HÃ ng thÃ¡ng';
-    if (rule.includes('FREQ=YEARLY')) return 'HÃ ng nÄƒm';
+    if (rule.includes('FREQ=DAILY')) return 'Hàng ngày';
+    if (rule.includes('FREQ=MONTHLY')) return 'Hàng tháng';
+    if (rule.includes('FREQ=YEARLY')) return 'Hàng năm';
     
-    return 'Láº·p láº¡i';
+    return 'Lặp lại';
   };
 
   const formatTimeRange = () => {
     if (event.is_all_day) {
       return {
         dayName: formatDateWithSettings(startDate, dateFormat),
-        timeRange: 'Cáº£ ngÃ y',
+        timeRange: 'Cả ngày',
       };
     }
 
@@ -91,25 +70,27 @@ export function EventDetailView({ event, onEdit, onDelete, onClose }: EventDetai
   const { dayName, timeRange } = formatTimeRange();
 
   const handleShareLink = () => {
-    toast.info('TÃ­nh nÄƒng chia sáº» Ä‘ang phÃ¡t triá»ƒn');
+    toast.info('Tính năng chia sẻ đang phát triển');
   };
 
   return (
     <div className="w-full max-w-md bg-background border rounded-lg shadow-lg overflow-hidden">
-      {/* Header */}
       <div className="flex items-start justify-between p-4 pb-3 border-b">
         <div className="flex items-start gap-3 flex-1">
-          <div className={`h-2 w-2 rounded-full mt-2 ${colorClasses[event.color || 'blue']}`} />
+          <div className={`h-2 w-2 rounded-full mt-2 ${EVENT_COLORS[event.color || 'blue']}`} />
           <div className="flex-1 min-w-0">
             <h2 className="text-xl font-semibold leading-tight">
               {event.title}
             </h2>
-            {event.visibility && event.visibility !== 'default' && (
-              <Badge variant="outline" className="mt-1.5 text-xs">
-                {visibilityIcons[event.visibility]}
-                <span className="ml-1 capitalize">{event.visibility}</span>
-              </Badge>
-            )}
+            {event.visibility && event.visibility !== 'default' && (() => {
+              const IconComponent = VISIBILITY_ICONS[event.visibility as keyof typeof VISIBILITY_ICONS];
+              return IconComponent ? (
+                <Badge variant="outline" className="mt-1.5 text-xs">
+                  <IconComponent className="h-3.5 w-3.5" />
+                  <span className="ml-1 capitalize">{event.visibility}</span>
+                </Badge>
+              ) : null;
+            })()}
           </div>
         </div>
         <div className="flex items-center gap-1">
@@ -147,7 +128,6 @@ export function EventDetailView({ event, onEdit, onDelete, onClose }: EventDetai
       </div>
 
       <div className="px-4 py-4 space-y-4 max-h-[600px] overflow-y-auto">
-        {/* Time */}
         <div className="flex items-start gap-3">
           <Clock className="h-5 w-5 mt-0.5 text-muted-foreground flex-shrink-0" />
           <div className="flex-1">
@@ -168,7 +148,7 @@ export function EventDetailView({ event, onEdit, onDelete, onClose }: EventDetai
           </div>
         </div>
 
-        {/* Creator/Organizer */}
+        
         {(event.creator || event.organizer_name) && (
           <div className="flex items-center gap-3">
             <User className="h-5 w-5 text-muted-foreground flex-shrink-0" />
@@ -177,7 +157,7 @@ export function EventDetailView({ event, onEdit, onDelete, onClose }: EventDetai
                 {event.creator?.name || event.organizer_name || 'Unknown'}
               </p>
               <p className="text-xs text-muted-foreground">
-                {event.creator?.name ? 'NgÆ°á»i táº¡o' : 'NgÆ°á»i tá»• chá»©c'}
+                {event.creator?.name ? 'Người tạo' : 'Người tổ chức'}
               </p>
               {(event.creator?.email || event.organizer_email) && (
                 <p className="text-xs text-muted-foreground truncate">
@@ -201,7 +181,7 @@ export function EventDetailView({ event, onEdit, onDelete, onClose }: EventDetai
           </div>
         )}
 
-        {/* Conference */}
+        
         {event.conference_data && (
           <>
             <Separator />
@@ -209,7 +189,7 @@ export function EventDetailView({ event, onEdit, onDelete, onClose }: EventDetai
           </>
         )}
 
-        {/* Physical location */}
+        
         {event.location && !event.conference_data && (
           <>
             <Separator />
@@ -222,7 +202,7 @@ export function EventDetailView({ event, onEdit, onDelete, onClose }: EventDetai
           </>
         )}
 
-        {/* Attendees */}
+        
         {event.attendees && event.attendees.length > 0 && (
           <>
             <Separator />
@@ -230,7 +210,7 @@ export function EventDetailView({ event, onEdit, onDelete, onClose }: EventDetai
           </>
         )}
 
-        {/* Reminders */}
+        
         {event.reminders && event.reminders.length > 0 && (
           <>
             <Separator />
@@ -240,9 +220,9 @@ export function EventDetailView({ event, onEdit, onDelete, onClose }: EventDetai
                 {event.reminders.map((reminder, index) => (
                   <div key={index} className="text-sm">
                     {reminder.method === 'email' && 'Email'}
-                    {reminder.method === 'popup' && 'ThÃ´ng bÃ¡o'}
+                    {reminder.method === 'popup' && 'Thông báo'}
                     {reminder.method === 'sms' && 'SMS'}
-                    {' '}{reminder.minutes} phÃºt trÆ°á»›c
+                    {' '}{reminder.minutes} phút trước
                   </div>
                 ))}
               </div>
@@ -250,12 +230,12 @@ export function EventDetailView({ event, onEdit, onDelete, onClose }: EventDetai
           </>
         )}
 
-        {/* Description */}
+        
         {event.description && (
           <>
             <Separator />
             <div className="space-y-2">
-              <p className="text-sm font-medium">MÃ´ táº£</p>
+              <p className="text-sm font-medium">Mô tả</p>
               <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
                 {event.description}
               </p>
@@ -263,7 +243,7 @@ export function EventDetailView({ event, onEdit, onDelete, onClose }: EventDetai
           </>
         )}
 
-        {/* Share button */}
+        
         <div className="pt-2">
           <Button 
             variant="outline" 
@@ -272,7 +252,7 @@ export function EventDetailView({ event, onEdit, onDelete, onClose }: EventDetai
             onClick={handleShareLink}
           >
             <Link2 className="h-4 w-4 mr-2" />
-            Chia sáº» sá»± kiá»‡n
+            Chia sẻ sự kiện
           </Button>
         </div>
       </div>

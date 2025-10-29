@@ -42,20 +42,20 @@ export function ConferenceInfo({ conference }: ConferenceInfoProps) {
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(conference.url);
-    toast.success('ÄÃ£ sao chÃ©p liÃªn káº¿t');
+    toast.success('Đã sao chép liên kết');
   };
 
   const handleCopyMeetingId = () => {
     if (conference.id) {
       navigator.clipboard.writeText(conference.id);
-      toast.success('ÄÃ£ sao chÃ©p Meeting ID');
+      toast.success('Đã sao chép Meeting ID');
     }
   };
 
   const handleCopyPassword = () => {
     if (conference.password) {
       navigator.clipboard.writeText(conference.password);
-      toast.success('ÄÃ£ sao chÃ©p máº­t kháº©u');
+      toast.success('Đã sao chép mật khẩu');
     }
   };
 
@@ -65,7 +65,6 @@ export function ConferenceInfo({ conference }: ConferenceInfoProps) {
 
   return (
     <div className="space-y-3">
-      {/* Header with icon and name */}
       <div className="flex items-center gap-3">
         <div className={`${config.color} rounded-lg p-2`}>
           <Video className={`h-5 w-5 ${config.iconColor}`} />
@@ -77,7 +76,7 @@ export function ConferenceInfo({ conference }: ConferenceInfoProps) {
             className={`h-auto p-0 ${config.textColor} font-medium text-sm`}
             onClick={handleJoinMeeting}
           >
-            Tham gia cuá»™c há»p
+            Tham gia cuộc họp
           </Button>
         </div>
         <Button
@@ -90,14 +89,11 @@ export function ConferenceInfo({ conference }: ConferenceInfoProps) {
         </Button>
       </div>
 
-      {/* Meeting details */}
       <div className="space-y-2 pl-11">
-        {/* Meeting URL */}
         <div className="text-xs text-muted-foreground truncate">
           {conference.url}
         </div>
-
-        {/* Meeting ID */}
+        
         {conference.id && (
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="text-xs">
@@ -115,12 +111,12 @@ export function ConferenceInfo({ conference }: ConferenceInfoProps) {
           </div>
         )}
 
-        {/* Password */}
+        
         {conference.password && (
           <div className="flex items-center gap-2">
             <Lock className="h-3.5 w-3.5 text-muted-foreground" />
             <Badge variant="outline" className="text-xs">
-              Máº­t kháº©u
+              Mật khẩu
             </Badge>
             <span className="text-xs font-mono">{'•'.repeat(conference.password.length)}</span>
             <Button
@@ -134,7 +130,7 @@ export function ConferenceInfo({ conference }: ConferenceInfoProps) {
           </div>
         )}
 
-        {/* Phone dial-in */}
+        
         {conference.phone && (
           <div className="flex items-center gap-2">
             <Phone className="h-3.5 w-3.5 text-muted-foreground" />
@@ -148,7 +144,7 @@ export function ConferenceInfo({ conference }: ConferenceInfoProps) {
           </div>
         )}
 
-        {/* Additional notes */}
+        
         {conference.notes && (
           <div className="flex items-start gap-2 pt-1">
             <Info className="h-3.5 w-3.5 text-muted-foreground mt-0.5" />

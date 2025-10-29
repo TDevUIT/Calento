@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { Clock, MapPin, Users, Video, Bell, Repeat, ExternalLink, User } from 'lucide-react';
 import { useCalendarSettings } from '../shared/CalendarSettingsProvider';
@@ -36,7 +36,7 @@ export function EventPreview({ event }: EventPreviewProps) {
             {formatDateWithSettings(startDate, dateFormat)}
           </p>
           <p className="text-muted-foreground">
-            {event.is_all_day ? 'Cáº£ ngÃ y' : `${formatTimeWithSettings(startDate, timeFormat)} - ${formatTimeWithSettings(endDate, timeFormat)}`}
+            {event.is_all_day ? 'Cả ngày' : `${formatTimeWithSettings(startDate, timeFormat)} - ${formatTimeWithSettings(endDate, timeFormat)}`}
           </p>
         </div>
       </div>
@@ -56,7 +56,7 @@ export function EventPreview({ event }: EventPreviewProps) {
                 {event.creator.name || 'Unknown'}
               </p>
               <p className="text-xs text-muted-foreground truncate">
-                NgÆ°á»i tá»• chá»©c
+                Người tổ chức
               </p>
             </div>
           </div>

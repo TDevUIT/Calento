@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
 import { ConversationListItem } from '@/interface/ai.interface';
-import { formatDistanceToNow, isToday, isYesterday, format } from 'date-fns';
+import { formatDistanceToNow, isToday, isYesterday } from 'date-fns';
 import { useState, useMemo } from 'react';
 
 interface ConversationListProps {

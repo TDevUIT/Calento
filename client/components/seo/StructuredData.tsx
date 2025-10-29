@@ -2,7 +2,7 @@ import { BASE_URL } from '@/config/metadata.config';
 
 interface StructuredDataProps {
   type: 'Organization' | 'WebSite' | 'SoftwareApplication' | 'Product';
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
 }
 
 const organizationData = {

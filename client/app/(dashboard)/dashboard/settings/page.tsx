@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState } from 'react';
 import { useAuthStore } from '@/store/auth.store';
@@ -165,9 +165,9 @@ export default function SettingsPage() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="en">English</SelectItem>
-                        <SelectItem value="vi">Tiáº¿ng Viá»‡t</SelectItem>
-                        <SelectItem value="es">EspaÃ±ol</SelectItem>
-                        <SelectItem value="fr">FranÃ§ais</SelectItem>
+                        <SelectItem value="vi">Tiếng Việt</SelectItem>
+                        <SelectItem value="es">Español</SelectItem>
+                        <SelectItem value="fr">Français</SelectItem>
                         <SelectItem value="de">Deutsch</SelectItem>
                       </SelectContent>
                     </Select>

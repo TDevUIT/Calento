@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { EventAttendee } from '@/interface/event.interface';
 import { User, Check, X, Clock, HelpCircle, Star } from 'lucide-react';
@@ -21,25 +21,25 @@ const responseStatusConfig = {
     icon: Check,
     color: 'text-green-600 dark:text-green-400',
     bg: 'bg-green-50 dark:bg-green-950',
-    label: 'ÄÃ£ cháº¥p nháº­n',
+    label: 'Đã chấp nhận',
   },
   declined: {
     icon: X,
     color: 'text-red-600 dark:text-red-400',
     bg: 'bg-red-50 dark:bg-red-950',
-    label: 'ÄÃ£ tá»« chá»‘i',
+    label: 'Đã từ chối',
   },
   tentative: {
     icon: HelpCircle,
     color: 'text-yellow-600 dark:text-yellow-400',
     bg: 'bg-yellow-50 dark:bg-yellow-950',
-    label: 'ChÆ°a cháº¯c cháº¯n',
+    label: 'Chưa chắc chắn',
   },
   needsAction: {
     icon: Clock,
     color: 'text-gray-600 dark:text-gray-400',
     bg: 'bg-gray-50 dark:bg-gray-900',
-    label: 'ChÆ°a pháº£n há»“i',
+    label: 'Chưa phản hồi',
   },
 };
 
@@ -79,20 +79,18 @@ export function AttendeesList({ attendees, organizerEmail }: AttendeesListProps)
 
   return (
     <div className="space-y-3">
-      {/* Header with summary */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <User className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm font-medium">
-            {totalCount} ngÆ°á»i tham gia
+            {totalCount} người tham gia
           </span>
         </div>
         <Badge variant="secondary" className="text-xs">
-          {acceptedCount} Ä‘Ã£ cháº¥p nháº­n
+          {acceptedCount} đã chấp nhận
         </Badge>
       </div>
 
-      {/* Attendees list */}
       <div className="space-y-2">
         {sortedAttendees.map((attendee, index) => {
           const status = attendee.response_status || 'needsAction';
@@ -123,7 +121,7 @@ export function AttendeesList({ attendees, organizerEmail }: AttendeesListProps)
                         )}
                         {attendee.is_optional && (
                           <Badge variant="outline" className="text-xs px-1.5 py-0">
-                            TÃ¹y chá»n
+                            Tuỳ chọn
                           </Badge>
                         )}
                       </div>
@@ -147,11 +145,11 @@ export function AttendeesList({ attendees, organizerEmail }: AttendeesListProps)
                       <p className="text-xs text-muted-foreground">{attendee.email}</p>
                     )}
                     <p className="text-xs">
-                      <span className="font-medium">Tráº¡ng thÃ¡i:</span> {config.label}
+                      <span className="font-medium">Trạng thái:</span> {config.label}
                     </p>
                     {isOrganizer && (
                       <p className="text-xs font-medium text-yellow-600">
-                        NgÆ°á»i tá»• chá»©c
+                        Người tổ chức
                       </p>
                     )}
                     {attendee.comment && (

@@ -1,4 +1,4 @@
-﻿import { APP_CONFIG, EXTERNAL_LINKS } from '@/config/app.config';
+import { APP_CONFIG, EXTERNAL_LINKS } from '@/config/app.config';
 
 export interface FooterSectionData {
   title: string;
@@ -122,7 +122,7 @@ export const REGISTER_CTA = {
 } as const;
 
 export const FOOTER_BOTTOM = {
-  copyright: `Â© ${new Date().getFullYear()} ${APP_CONFIG.name}. All rights reserved.`,
+  copyright: `© ${new Date().getFullYear()} ${APP_CONFIG.name}. All rights reserved.`,
   email: APP_CONFIG.support.email,
   links: [
     { label: "Terms", href: "/terms" },

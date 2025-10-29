@@ -1,4 +1,4 @@
-﻿export interface EventAttendee {
+export interface EventAttendee {
   email: string;
   name?: string;
   response_status?: 'accepted' | 'declined' | 'tentative' | 'needsAction';
@@ -45,7 +45,7 @@ export interface Event {
   organizer_id?: string;
   organizer_email?: string;
   organizer_name?: string;
-  organizer_avatar?: string; // Avatar URL cá»§a ngÆ°á»i tá»• chá»©c
+  organizer_avatar?: string;
   
   attendees?: EventAttendee[];
   conference_data?: ConferenceData;
@@ -54,9 +54,9 @@ export interface Event {
   visibility?: 'default' | 'public' | 'private' | 'confidential';
   response_status?: 'accepted' | 'declined' | 'tentative' | 'needsAction';
   
-  google_calendar_url?: string; // Link Ä‘áº¿n Google Calendar
-  source?: string; // Nguá»“n táº¡o event (e.g., "Reclaim.ai", "Manual", "Google Calendar")
-  source_url?: string; // URL cá»§a á»©ng dá»¥ng táº¡o event
+  google_calendar_url?: string;
+  source?: string;
+  source_url?: string;
   
   created_at: Date | string;
   updated_at: Date | string;
@@ -123,8 +123,8 @@ export interface EventQueryParams {
 }
 
 export interface RecurringEventsQueryParams {
-  start_date: string; // ISO 8601 format
-  end_date: string;   // ISO 8601 format
+  start_date: string;
+  end_date: string;
   max_occurrences?: number;
   page?: number;
   limit?: number;
