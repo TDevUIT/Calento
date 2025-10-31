@@ -22,6 +22,7 @@ import { TaskModule } from './modules/task/task.module';
 import { PriorityModule } from './modules/priority/priority.module';
 import { AIModule } from './modules/ai/ai.module';
 import { ContactModule } from './modules/contact/contact.module';
+import { TeamModule } from './modules/team/team.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { DebugController } from './debug-cors.controller';
 
@@ -51,6 +52,7 @@ import { DebugController } from './debug-cors.controller';
     PriorityModule,
     AIModule,
     ContactModule,
+    TeamModule,
   ],
   controllers: [DebugController],
   providers: [

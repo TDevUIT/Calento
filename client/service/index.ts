@@ -1,4 +1,4 @@
-﻿export {
+export {
   register,
   login,
   logout,
@@ -76,5 +76,29 @@ export {
   executeFunction,
   aiService,
 } from './ai.service';
+
+export {
+  getMyTeams,
+  getOwnedTeams,
+  getTeamById,
+  createTeam,
+  updateTeam,
+  deleteTeam,
+  getTeamMembers,
+  inviteMember,
+  acceptInvitation,
+  declineInvitation,
+  updateMemberRole,
+  removeMember,
+  leaveTeam,
+  getTeamRituals,
+  createRitual,
+  updateRitual,
+  deleteRitual,
+  getRotationHistory,
+  getAvailabilityHeatmap,
+  findOptimalTimes,
+  teamService,
+} from './team.service';
 
 export { default as api, getErrorMessage, isNetworkError, isTimeoutError, isServerError, isClientError } from '../config/axios';
