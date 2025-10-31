@@ -1,10 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { BookOpen, Search, TrendingUp, Calendar, Clock, Eye, ArrowRight } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { BookOpen, Search, ArrowRight } from 'lucide-react';
+import { Card, CardContent} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { usePublishedPosts, useFeaturedPosts, usePopularPosts } from '@/hook/blog';
 import { PUBLIC_ROUTES } from '@/constants/routes';
@@ -40,7 +39,6 @@ const BlogPage = () => {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Clean Minimal Header */}
       <div className="border-b border-gray-200 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="max-w-3xl">
@@ -56,7 +54,6 @@ const BlogPage = () => {
             </p>
           </div>
           
-          {/* Minimal Search */}
           <div className="max-w-2xl mt-12">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -72,11 +69,9 @@ const BlogPage = () => {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           <div className="lg:col-span-2">
-            {/* Featured Posts - Clean Design */}
             {featuredPosts.length > 0 && (
               <div className="mb-16">
                 <div className="flex items-baseline gap-3 mb-8">
@@ -134,7 +129,6 @@ const BlogPage = () => {
               </div>
             )}
 
-            {/* Latest Posts */}
             <div>
               <div className="flex items-baseline gap-3 mb-8">
                 <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">
@@ -250,10 +244,8 @@ const BlogPage = () => {
             </div>
           </div>
 
-          {/* Sidebar */}
           <div className="lg:col-span-1">
             <div className="sticky top-8 space-y-12">
-              {/* Popular Posts */}
               <div>
                 <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-6">
                   Popular
@@ -289,7 +281,6 @@ const BlogPage = () => {
                 )}
               </div>
 
-              {/* Newsletter */}
               <div className="border border-gray-200 rounded-lg p-6">
                 <h3 className="text-lg font-bold text-gray-900 mb-2">
                   Stay Updated

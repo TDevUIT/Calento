@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { useBlogPosts, useDeleteBlogPost, usePublishPost, useUnpublishPost } from '@/hook/blog';
-import { BlogPostStatus } from '@/interface/blog.interface';
-import { Card, CardContent } from '@/components/ui/card';
+import { useBlogPosts, useDeleteBlogPost, 
+  // usePublishPost, useUnpublishPost 
+} from '@/hook/blog';
+import { BlogPostListItem, BlogPostStatus } from '@/interface/blog.interface';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -14,8 +16,8 @@ import {
   Edit, 
   Trash2, 
   FileText, 
-  CheckCircle2, 
-  XCircle,
+  // CheckCircle2, 
+  // XCircle,
   MoreHorizontal,
   Filter
 } from 'lucide-react';
@@ -52,8 +54,8 @@ const BlogAdminPage = () => {
   });
 
   const deleteMutation = useDeleteBlogPost();
-  const publishMutation = usePublishPost();
-  const unpublishMutation = useUnpublishPost();
+  // const publishMutation = usePublishPost();
+  // const unpublishMutation = useUnpublishPost();
 
   const posts = Array.isArray(data?.data) ? data.data : [];
   const meta = data?.meta;
@@ -66,19 +68,19 @@ const BlogAdminPage = () => {
     });
   };
 
-  const getStatusBadge = (status: BlogPostStatus) => {
-    const styles = {
-      published: 'bg-green-100 text-green-800 border-green-200',
-      draft: 'bg-gray-100 text-gray-800 border-gray-200',
-      archived: 'bg-red-100 text-red-800 border-red-200',
-    };
+  // const getStatusBadge = (status: BlogPostStatus) => {
+  //   const styles = {
+  //     published: 'bg-green-100 text-green-800 border-green-200',
+  //     draft: 'bg-gray-100 text-gray-800 border-gray-200',
+  //     archived: 'bg-red-100 text-red-800 border-red-200',
+  //   };
 
-    return (
-      <Badge variant="outline" className={styles[status]}>
-        {status.charAt(0).toUpperCase() + status.slice(1)}
-      </Badge>
-    );
-  };
+  //   return (
+  //     <Badge variant="outline" className={styles[status]}>
+  //       {status.charAt(0).toUpperCase() + status.slice(1)}
+  //     </Badge>
+  //   );
+  // };
 
   const handleDelete = async (id: string, title: string) => {
     if (confirm(`Are you sure you want to delete "${title}"?`)) {
@@ -86,19 +88,14 @@ const BlogAdminPage = () => {
     }
   };
 
-  const handlePublish = async (id: string) => {
-    await publishMutation.mutateAsync(id);
-  };
+  // const handlePublish = async (id: string) => {
+  //   await publishMutation.mutateAsync(id);
+  // };
 
-  const handleUnpublish = async (id: string) => {
-    await unpublishMutation.mutateAsync(id);
-  };
+  // const handleUnpublish = async (id: string) => {
+  //   await unpublishMutation.mutateAsync(id);
+  // };
 
-  const stats = {
-    total: meta?.total || 0,
-    published: posts.filter((p: any) => p.status === 'published').length,
-    draft: posts.filter((p: any) => p.status === 'draft').length,
-  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -185,7 +182,7 @@ const BlogAdminPage = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                posts.map((post: any) => (
+                posts.map((post: BlogPostListItem) => (
                   <TableRow key={post.id} className="border-gray-200 hover:bg-gray-50">
                     <TableCell>
                       {post.featured_image && (
@@ -214,7 +211,7 @@ const BlogAdminPage = () => {
                         </Badge>
                       )}
                     </TableCell>
-                    <TableCell>{getStatusBadge(post.status)}</TableCell>
+                    {/* <TableCell>{getStatusBadge(post.)}</TableCell> */}
                     <TableCell>
                       <div className="flex items-center gap-1 text-gray-600">
                         <Eye className="h-4 w-4" />
@@ -243,7 +240,7 @@ const BlogAdminPage = () => {
                             Edit
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          {post.status === 'published' ? (
+                          {/* {post.status === 'published' ? (
                             <DropdownMenuItem onClick={() => handleUnpublish(post.id)}>
                               <XCircle className="h-4 w-4 mr-2" />
                               Unpublish
@@ -253,7 +250,7 @@ const BlogAdminPage = () => {
                               <CheckCircle2 className="h-4 w-4 mr-2" />
                               Publish
                             </DropdownMenuItem>
-                          )}
+                          )} */}
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             onClick={() => handleDelete(post.id, post.title)}

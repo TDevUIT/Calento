@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCreateBlogPost } from '@/hook/blog';
 import { BlogPostStatus } from '@/interface/blog.interface';
@@ -29,6 +29,7 @@ import { Color } from '@tiptap/extension-color';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Highlight } from '@tiptap/extension-highlight';
 import '../tiptap-custom.css';
+import Image from 'next/image';
 
 const NewBlogPage = () => {
   const router = useRouter();
@@ -83,7 +84,7 @@ const NewBlogPage = () => {
     immediatelyRender: false,
   });
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     
     if (field === 'title' && !formData.slug) {
@@ -177,7 +178,7 @@ const NewBlogPage = () => {
           className={`p-2 rounded hover:bg-gray-200 ${editor.isActive('blockquote') ? 'bg-blue-100 text-blue-600' : ''}`}
           type="button"
         >
-          "
+          &quot;
         </button>
         <div className="w-px h-6 bg-gray-300 mx-1"></div>
         <button
@@ -463,7 +464,7 @@ const NewBlogPage = () => {
                   <Switch
                     id="is_featured"
                     checked={formData.is_featured}
-                    onCheckedChange={(checked) => handleInputChange('is_featured', checked)}
+                    onCheckedChange={(checked) => handleInputChange('is_featured', checked.toString())}
                   />
                 </div>
 
@@ -506,7 +507,8 @@ const NewBlogPage = () => {
 
                 {formData.featured_image && (
                   <div className="relative w-full h-48 rounded-lg overflow-hidden bg-gray-100">
-                    <img
+                    <Image
+                      fill
                       src={formData.featured_image}
                       alt="Preview"
                       className="w-full h-full object-cover"

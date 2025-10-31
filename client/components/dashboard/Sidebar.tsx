@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React from "react";
 import Link from "next/link";
@@ -12,6 +12,7 @@ import {
   BarChart3,
   HelpCircle,
   CheckSquare,
+  Users,
 } from "lucide-react";
 import { FaCoins } from "react-icons/fa6";
 import {
@@ -45,6 +46,11 @@ const calendarScheduleItems = [
     title: "Tasks",
     href: PROTECTED_ROUTES.DASHBOARD_TASKS,
     icon: CheckSquare,
+  },
+  {
+    title: "Teams",
+    href: PROTECTED_ROUTES.DASHBOARD_TEAMS,
+    icon: Users,
   },
   {
     title: "Priorities",
