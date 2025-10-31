@@ -1,6 +1,11 @@
 import { Module, OnModuleInit } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
+import { DatabaseModule } from '../../database/database.module';
+import { EventModule } from '../event/event.module';
+import { TaskModule } from '../task/task.module';
+import { CalendarModule } from '../calendar/calendar.module';
+
 import { AIController } from './ai.controller';
 import { GeminiService } from './services/gemini.service';
 import { AIConversationService } from './services/ai-conversation.service';
@@ -8,10 +13,6 @@ import { AIAnalysisService } from './services/ai-analysis.service';
 import { AIFunctionCallingService } from './services/ai-function-calling.service';
 import { AIConversationRepository } from './repositories/ai-conversation.repository';
 import { AIActionRepository } from './repositories/ai-action.repository';
-import { DatabaseModule } from '../../database/database.module';
-import { EventModule } from '../event/event.module';
-import { TaskModule } from '../task/task.module';
-import { CalendarModule } from '../calendar/calendar.module';
 
 import { CalendarAgent } from './agents/calendar-agent';
 import { TaskAgent } from './agents/task-agent';

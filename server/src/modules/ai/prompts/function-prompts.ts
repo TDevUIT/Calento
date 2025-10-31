@@ -1,36 +1,22 @@
-﻿export const FUNCTION_DESCRIPTIONS = {
+const OBJECT_TYPE = 'object' as const;
+const STRING_TYPE = 'string';
+const NUMBER_TYPE = 'number';
+const ARRAY_TYPE = 'array';
+
+export const FUNCTION_DESCRIPTIONS = {
   CREATE_EVENT: {
     name: 'createEvent',
     description: 'Create a new event in the user\'s calendar',
     category: 'calendar' as const,
     parameters: {
-      type: 'object' as const,
+      type: OBJECT_TYPE,
       properties: {
-        title: {
-          type: 'string',
-          description: 'Event title',
-        },
-        start_time: {
-          type: 'string',
-          description: 'Start time (ISO 8601 format: YYYY-MM-DDTHH:mm:ss)',
-        },
-        end_time: {
-          type: 'string',
-          description: 'End time (ISO 8601 format)',
-        },
-        description: {
-          type: 'string',
-          description: 'Detailed event description (optional)',
-        },
-        location: {
-          type: 'string',
-          description: 'Location (optional)',
-        },
-        attendees: {
-          type: 'array',
-          items: { type: 'string' },
-          description: 'List of attendee emails (optional)',
-        },
+        title: { type: STRING_TYPE, description: 'Event title' },
+        start_time: { type: STRING_TYPE, description: 'Start time (ISO 8601 format: YYYY-MM-DDTHH:mm:ss)' },
+        end_time: { type: STRING_TYPE, description: 'End time (ISO 8601 format)' },
+        description: { type: STRING_TYPE, description: 'Detailed event description (optional)' },
+        location: { type: STRING_TYPE, description: 'Location (optional)' },
+        attendees: { type: ARRAY_TYPE, items: { type: STRING_TYPE }, description: 'List of attendee emails (optional)' },
       },
       required: ['title', 'start_time', 'end_time'],
     },
@@ -41,20 +27,11 @@
     description: 'Check user\'s calendar availability within a time range',
     category: 'calendar' as const,
     parameters: {
-      type: 'object' as const,
+      type: OBJECT_TYPE,
       properties: {
-        start_date: {
-          type: 'string',
-          description: 'Start date to check (ISO 8601)',
-        },
-        end_date: {
-          type: 'string',
-          description: 'End date to check (ISO 8601)',
-        },
-        duration_minutes: {
-          type: 'number',
-          description: 'Meeting duration to find (minutes, optional)',
-        },
+        start_date: { type: STRING_TYPE, description: 'Start date to check (ISO 8601)' },
+        end_date: { type: STRING_TYPE, description: 'End date to check (ISO 8601)' },
+        duration_minutes: { type: NUMBER_TYPE, description: 'Meeting duration to find (minutes, optional)' },
       },
       required: ['start_date', 'end_date'],
     },
@@ -65,20 +42,11 @@
     description: 'Search for events by criteria',
     category: 'calendar' as const,
     parameters: {
-      type: 'object' as const,
+      type: OBJECT_TYPE,
       properties: {
-        query: {
-          type: 'string',
-          description: 'Search keyword',
-        },
-        start_date: {
-          type: 'string',
-          description: 'Search start date (optional)',
-        },
-        end_date: {
-          type: 'string',
-          description: 'Search end date (optional)',
-        },
+        query: { type: STRING_TYPE, description: 'Search keyword' },
+        start_date: { type: STRING_TYPE, description: 'Search start date (optional)' },
+        end_date: { type: STRING_TYPE, description: 'Search end date (optional)' },
       },
       required: ['query'],
     },
@@ -89,16 +57,10 @@
     description: 'Update event information',
     category: 'calendar' as const,
     parameters: {
-      type: 'object' as const,
+      type: OBJECT_TYPE,
       properties: {
-        event_id: {
-          type: 'string',
-          description: 'ID of the event to update',
-        },
-        updates: {
-          type: 'object',
-          description: 'Fields to update (title, start_time, end_time, description, location)',
-        },
+        event_id: { type: STRING_TYPE, description: 'ID of the event to update' },
+        updates: { type: OBJECT_TYPE, description: 'Fields to update (title, start_time, end_time, description, location)' },
       },
       required: ['event_id', 'updates'],
     },
@@ -109,12 +71,9 @@
     description: 'Delete an event from the calendar',
     category: 'calendar' as const,
     parameters: {
-      type: 'object' as const,
+      type: OBJECT_TYPE,
       properties: {
-        event_id: {
-          type: 'string',
-          description: 'ID of the event to delete',
-        },
+        event_id: { type: STRING_TYPE, description: 'ID of the event to delete' },
       },
       required: ['event_id'],
     },
@@ -125,25 +84,12 @@
     description: 'Create a new task/work item',
     category: 'task' as const,
     parameters: {
-      type: 'object' as const,
+      type: OBJECT_TYPE,
       properties: {
-        title: {
-          type: 'string',
-          description: 'Task title',
-        },
-        description: {
-          type: 'string',
-          description: 'Detailed description (optional)',
-        },
-        due_date: {
-          type: 'string',
-          description: 'Due date (ISO 8601, optional)',
-        },
-        priority: {
-          type: 'string',
-          enum: ['low', 'medium', 'high', 'critical'],
-          description: 'Priority level (optional)',
-        },
+        title: { type: STRING_TYPE, description: 'Task title' },
+        description: { type: STRING_TYPE, description: 'Detailed description (optional)' },
+        due_date: { type: STRING_TYPE, description: 'Due date (ISO 8601, optional)' },
+        priority: { type: STRING_TYPE, enum: ['low', 'medium', 'high', 'critical'], description: 'Priority level (optional)' },
       },
       required: ['title'],
     },
@@ -154,24 +100,12 @@
     description: 'Create a long-term learning plan with multiple tasks',
     category: 'task' as const,
     parameters: {
-      type: 'object' as const,
+      type: OBJECT_TYPE,
       properties: {
-        topic: {
-          type: 'string',
-          description: 'Learning topic',
-        },
-        duration_weeks: {
-          type: 'number',
-          description: 'Learning duration (weeks)',
-        },
-        hours_per_day: {
-          type: 'number',
-          description: 'Study hours per day (optional)',
-        },
-        start_date: {
-          type: 'string',
-          description: 'Start date (optional, defaults to today)',
-        },
+        topic: { type: STRING_TYPE, description: 'Learning topic' },
+        duration_weeks: { type: NUMBER_TYPE, description: 'Learning duration (weeks)' },
+        hours_per_day: { type: NUMBER_TYPE, description: 'Study hours per day (optional)' },
+        start_date: { type: STRING_TYPE, description: 'Start date (optional, defaults to today)' },
       },
       required: ['topic', 'duration_weeks'],
     },
@@ -182,36 +116,17 @@
     description: 'Analyze availability of multiple team members and suggest optimal meeting times with AI-powered conflict detection and match scoring',
     category: 'analysis' as const,
     parameters: {
-      type: 'object' as const,
+      type: OBJECT_TYPE,
       properties: {
-        member_ids: {
-          type: 'array',
-          items: { type: 'string' },
-          description: 'Array of user IDs to check availability for',
-        },
-        start_date: {
-          type: 'string',
-          description: 'Start date for availability check (ISO 8601)',
-        },
-        end_date: {
-          type: 'string',
-          description: 'End date for availability check (ISO 8601)',
-        },
-        meeting_duration: {
-          type: 'number',
-          description: 'Meeting duration in minutes (default: 60)',
-        },
+        member_ids: { type: ARRAY_TYPE, items: { type: STRING_TYPE }, description: 'Array of user IDs to check availability for' },
+        start_date: { type: STRING_TYPE, description: 'Start date for availability check (ISO 8601)' },
+        end_date: { type: STRING_TYPE, description: 'End date for availability check (ISO 8601)' },
+        meeting_duration: { type: NUMBER_TYPE, description: 'Meeting duration in minutes (default: 60)' },
         preferred_time_range: {
-          type: 'object',
+          type: OBJECT_TYPE,
           properties: {
-            start_hour: {
-              type: 'number',
-              description: 'Preferred start hour (0-23, default: 9)',
-            },
-            end_hour: {
-              type: 'number',
-              description: 'Preferred end hour (0-23, default: 18)',
-            },
+            start_hour: { type: NUMBER_TYPE, description: 'Preferred start hour (0-23, default: 9)' },
+            end_hour: { type: NUMBER_TYPE, description: 'Preferred end hour (0-23, default: 18)' },
           },
           description: 'Preferred time range for meetings (optional)',
         },
@@ -221,18 +136,13 @@
   },
 };
 
-export function getFunctionsByCategory(category: 'calendar' | 'task' | 'analysis' | 'all') {
-  if (category === 'all') {
-    return Object.values(FUNCTION_DESCRIPTIONS);
-  }
+export const getFunctionsByCategory = (category: 'calendar' | 'task' | 'analysis' | 'all') => 
+  category === 'all' 
+    ? Object.values(FUNCTION_DESCRIPTIONS)
+    : Object.values(FUNCTION_DESCRIPTIONS).filter((func) => func.category === category);
 
-  return Object.values(FUNCTION_DESCRIPTIONS).filter((func) => func.category === category);
-}
+export const getFunctionByName = (name: string) => 
+  Object.values(FUNCTION_DESCRIPTIONS).find((func) => func.name === name);
 
-export function getFunctionByName(name: string) {
-  return Object.values(FUNCTION_DESCRIPTIONS).find((func) => func.name === name);
-}
-
-export function getAllFunctionNames() {
-  return Object.values(FUNCTION_DESCRIPTIONS).map((func) => func.name);
-}
+export const getAllFunctionNames = () => 
+  Object.values(FUNCTION_DESCRIPTIONS).map((func) => func.name);

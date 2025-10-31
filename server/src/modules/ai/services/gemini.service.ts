@@ -5,6 +5,7 @@ import { GeminiAPIException } from '../exceptions/ai.exceptions';
 import { AIMessage, AIFunctionDeclaration, AIFunctionCall } from '../interfaces/ai.interface';
 import { SYSTEM_PROMPTS } from '../prompts/system-prompts';
 import { FUNCTION_DESCRIPTIONS } from '../prompts/function-prompts';
+import { AI_CONSTANTS, ERROR_MESSAGES } from '../constants/ai.constants';
 
 @Injectable()
 export class GeminiService {
@@ -30,12 +31,12 @@ export class GeminiService {
     const functionDeclarations = this.getFunctionDeclarations() as any;
 
     this.model = this.genAI.getGenerativeModel({
-      model: 'gemini-2.5-flash',
+      model: AI_CONSTANTS.GEMINI.MODEL,
       generationConfig: {
-        temperature: 0.7,
-        topP: 0.95,
-        topK: 40,
-        maxOutputTokens: 2048,
+        temperature: AI_CONSTANTS.GEMINI.TEMPERATURE,
+        topP: AI_CONSTANTS.GEMINI.TOP_P,
+        topK: AI_CONSTANTS.GEMINI.TOP_K,
+        maxOutputTokens: AI_CONSTANTS.GEMINI.MAX_OUTPUT_TOKENS,
       },
       systemInstruction: this.getSystemInstruction(),
       tools: [{ functionDeclarations }],
@@ -65,9 +66,9 @@ export class GeminiService {
       this.logger.log(`Processing chat message: "${message.substring(0, 50)}..."`);
 
       if (!this.apiKey) {
-        this.logger.error('GEMINI_API_KEY not configured');
+        this.logger.error(ERROR_MESSAGES.API_KEY_NOT_CONFIGURED);
         throw new GeminiAPIException(
-          'Gemini API key not configured',
+          ERROR_MESSAGES.API_KEY_NOT_CONFIGURED,
           'Please set GEMINI_API_KEY environment variable'
         );
       }

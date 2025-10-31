@@ -1,19 +1,12 @@
-﻿import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ITool } from './base-tool';
 import { AgentContext } from '../agents/base/agent.interface';
 
-/**
- * Tool Registry
- * Centralized management of all available tools
- */
 @Injectable()
 export class ToolRegistry {
   private readonly logger = new Logger(ToolRegistry.name);
   private readonly tools: Map<string, ITool> = new Map();
 
-  /**
-   * Register a tool
-   */
   register(tool: ITool) {
     if (this.tools.has(tool.name)) {
       this.logger.warn(`Tool ${tool.name} is already registered. Overwriting...`);
@@ -23,37 +16,22 @@ export class ToolRegistry {
     this.logger.log(`Registered tool: ${tool.name} (${tool.category})`);
   }
 
-  /**
-   * Register multiple tools
-   */
   registerMany(tools: ITool[]) {
     tools.forEach((tool) => this.register(tool));
   }
 
-  /**
-   * Get a tool by name
-   */
   getTool(name: string): ITool | undefined {
     return this.tools.get(name);
   }
 
-  /**
-   * Get all tools
-   */
   getAllTools(): ITool[] {
     return Array.from(this.tools.values());
   }
 
-  /**
-   * Get tools by category
-   */
   getToolsByCategory(category: 'calendar' | 'task' | 'analysis'): ITool[] {
     return this.getAllTools().filter((tool) => tool.category === category);
   }
 
-  /**
-   * Execute a tool
-   */
   async execute(
     toolName: string,
     args: Record<string, any>,
@@ -83,9 +61,6 @@ export class ToolRegistry {
     }
   }
 
-  /**
-   * Get tool descriptions for AI
-   */
   getToolDescriptions(category?: 'calendar' | 'task' | 'analysis'): any[] {
     const tools = category ? this.getToolsByCategory(category) : this.getAllTools();
 
@@ -96,16 +71,10 @@ export class ToolRegistry {
     }));
   }
 
-  /**
-   * Check if tool exists
-   */
   hasTool(name: string): boolean {
     return this.tools.has(name);
   }
 
-  /**
-   * Get registry stats
-   */
   getStats() {
     const byCategory = {
       calendar: this.getToolsByCategory('calendar').length,

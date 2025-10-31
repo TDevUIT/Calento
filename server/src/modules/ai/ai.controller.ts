@@ -23,9 +23,7 @@ export class AIController {
   
   constructor(private readonly conversationService: AIConversationService) {}
 
-  private getUserId(req: any): string {
-    return req.user?.id || req.user?.sub;
-  }
+  private getUserId = (req: any): string => req.user?.id || req.user?.sub;
 
   @Get('health')
   @ApiOperation({ summary: 'Check AI service health' })
@@ -69,8 +67,7 @@ export class AIController {
       this.logger.log(`AI Chat completed successfully`);
       return result;
     } catch (error) {
-      this.logger.error(`AI Chat failed:`, error);
-      this.logger.error(`Error stack:`, error.stack);
+      this.logger.error(`AI Chat failed:`, error.stack);
       throw error;
     }
   }

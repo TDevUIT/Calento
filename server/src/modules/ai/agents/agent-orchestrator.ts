@@ -1,9 +1,9 @@
-﻿import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { IAgent, AgentRequest, AgentResponse, AgentType } from './base/agent.interface';
 import { CalendarAgent } from './calendar-agent';
 import { TaskAgent } from './task-agent';
 import { AnalysisAgent } from './analysis-agent';
-import { SYSTEM_PROMPTS } from '../prompts/system-prompts';
+import { AGENT_CONSTANTS, AGENT_KEYWORDS } from '../constants/agent.constants';
 
 @Injectable()
 export class AgentOrchestrator {
@@ -72,11 +72,13 @@ export class AgentOrchestrator {
 
     candidates.sort((a, b) => b.confidence - a.confidence);
 
-    const selected = candidates.filter((c) => c.confidence > 20).map((c) => c.agent);
+    const selected = candidates.filter((c) => c.confidence > AGENT_CONSTANTS.CONFIDENCE.MIN_THRESHOLD).map((c) => c.agent);
 
     if (selected.length > 1) {
       const topConfidence = candidates[0].confidence;
-      const similarAgents = candidates.filter((c) => c.confidence >= topConfidence - 10);
+      const similarAgents = candidates.filter(
+        (c) => c.confidence >= topConfidence - AGENT_CONSTANTS.CONFIDENCE.SIMILARITY_THRESHOLD
+      );
 
       const hasAnalysis = similarAgents.find((c) => c.agent.config.type === AgentType.ANALYSIS);
       if (hasAnalysis && request.message.toLowerCase().includes('team')) {
@@ -95,43 +97,33 @@ export class AgentOrchestrator {
 
     switch (agent.config.type) {
       case AgentType.CALENDAR:
-        const calendarKeywords = ['calendar', 'schedule', 'event', 'meeting', 'appointment', 'book'];
-        confidence = this.matchKeywords(message, calendarKeywords);
+        confidence = this.matchKeywords(message, AGENT_KEYWORDS.CALENDAR);
         break;
 
       case AgentType.TASK:
-        const taskKeywords = ['task', 'work', 'todo', 'plan', 'planning', 'learn', 'study'];
-        confidence = this.matchKeywords(message, taskKeywords);
+        confidence = this.matchKeywords(message, AGENT_KEYWORDS.TASK);
         break;
 
       case AgentType.ANALYSIS:
-        const analysisKeywords = [
-          'analyze',
-          'analysis',
-          'team',
-          'group',
-          'member',
-          'people',
-          'availability',
-          'free',
-          'optimal',
-        ];
-        confidence = this.matchKeywords(message, analysisKeywords);
+        confidence = this.matchKeywords(message, AGENT_KEYWORDS.ANALYSIS);
 
         if (message.includes('team') || message.includes('group')) {
-          confidence += 20;
+          confidence += AGENT_CONSTANTS.TEAM_KEYWORDS_BONUS;
         }
         break;
     }
 
-    return Math.min(confidence, 100);
+    return Math.min(confidence, AGENT_CONSTANTS.CONFIDENCE.MAX_SCORE);
   }
 
   private matchKeywords(message: string, keywords: string[]): number {
     const matches = keywords.filter((keyword) => message.includes(keyword));
     if (matches.length === 0) return 0;
 
-    return Math.min((matches.length / keywords.length) * 100, 80);
+    return Math.min(
+      (matches.length / keywords.length) * AGENT_CONSTANTS.CONFIDENCE.MAX_SCORE,
+      AGENT_CONSTANTS.CONFIDENCE.KEYWORD_MATCH_WEIGHT
+    );
   }
 
   private async handleMultiAgent(

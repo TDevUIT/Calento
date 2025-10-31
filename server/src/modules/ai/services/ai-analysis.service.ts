@@ -1,5 +1,6 @@
-﻿import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { EventService } from '../../event/event.service';
+import { AI_CONSTANTS } from '../constants/ai.constants';
 
 export interface TimeWindow {
   start: Date;
@@ -46,7 +47,10 @@ export class AIAnalysisService {
     const analysisStartTime = Date.now();
     this.logger.log(`Starting team availability analysis for ${memberIds.length} members`);
 
-    const timeRange = preferredTimeRange || { start_hour: 9, end_hour: 18 };
+    const timeRange = preferredTimeRange || {
+      start_hour: AI_CONSTANTS.WORK_HOURS.START,
+      end_hour: AI_CONSTANTS.WORK_HOURS.END,
+    };
     
     const memberCalendars = await this.fetchMemberCalendars(
       memberIds,
@@ -99,7 +103,7 @@ export class AIAnalysisService {
           memberId,
           startDate,
           endDate,
-          { page: 1, limit: 1000 }
+          { page: 1, limit: AI_CONSTANTS.ANALYSIS.MAX_EVENTS_FETCH }
         );
         return { memberId, events: events.data };
       } catch (error) {
@@ -163,7 +167,7 @@ export class AIAnalysisService {
             }
           }
 
-          if (availableMembers >= totalMembers * 0.5) {
+          if (availableMembers >= totalMembers * AI_CONSTANTS.ANALYSIS.MIN_AVAILABILITY_THRESHOLD) {
             windows.push({
               start: slotStart,
               end: slotEnd,
@@ -237,7 +241,8 @@ export class AIAnalysisService {
         let score = window.availability_percentage;
 
         const hour = window.start.getHours();
-        if ((hour >= 9 && hour < 11) || (hour >= 14 && hour < 16)) {
+        const { MORNING, AFTERNOON } = AI_CONSTANTS.ANALYSIS.PRODUCTIVITY_HOURS;
+        if ((hour >= MORNING.START && hour < MORNING.END) || (hour >= AFTERNOON.START && hour < AFTERNOON.END)) {
           score += 10;
         }
 

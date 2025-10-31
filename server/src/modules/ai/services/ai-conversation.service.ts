@@ -6,16 +6,12 @@ import { AIActionRepository } from '../repositories/ai-action.repository';
 import { AIMessage, AICalendarContext } from '../interfaces/ai.interface';
 import { ConversationNotFoundException } from '../exceptions/ai.exceptions';
 import { EventService } from '../../event/event.service';
+import { AI_CONSTANTS, ERROR_MESSAGES } from '../constants/ai.constants';
 
 @Injectable()
 export class AIConversationService {
   private readonly logger = new Logger(AIConversationService.name);
 
-  private readonly DEFAULT_TIMEZONE = 'Asia/Ho_Chi_Minh';
-  private readonly DEFAULT_WORK_HOURS = { start: '09:00', end: '18:00' };
-  private readonly DEFAULT_DURATION = 60;
-  private readonly UPCOMING_EVENTS_LIMIT = 5;
-  private readonly UPCOMING_EVENTS_DAYS = 7;
 
   constructor(
     private readonly geminiService: GeminiService,
@@ -66,7 +62,7 @@ export class AIConversationService {
       );
       
       if (!aiResponse || (!aiResponse.text && !aiResponse.functionCalls)) {
-        throw new Error('Empty AI response');
+        throw new Error(ERROR_MESSAGES.EMPTY_AI_RESPONSE);
       }
     } catch (error) {
       this.logger.error('AI chat failed:', error);
@@ -209,7 +205,7 @@ export class AIConversationService {
     const now = new Date();
     return {
       user_id: userId,
-      timezone: this.DEFAULT_TIMEZONE,
+      timezone: AI_CONSTANTS.TIMEZONE.DEFAULT,
       current_date: now.toISOString(),
       current_date_formatted: now.toLocaleDateString('en-US', {
         weekday: 'long',
@@ -226,7 +222,7 @@ export class AIConversationService {
     try {
       const startDate = new Date();
       const endDate = new Date();
-      endDate.setDate(endDate.getDate() + this.UPCOMING_EVENTS_DAYS);
+      endDate.setDate(endDate.getDate() + AI_CONSTANTS.ANALYSIS.UPCOMING_EVENTS_DAYS);
 
       const upcomingEvents = await this.eventService.getEventsByDateRange(
         userId,
@@ -238,10 +234,13 @@ export class AIConversationService {
       return {
         ...defaultContext,
         preferences: {
-          default_duration: this.DEFAULT_DURATION,
-          work_hours: this.DEFAULT_WORK_HOURS,
+          default_duration: AI_CONSTANTS.EVENT.DEFAULT_DURATION,
+          work_hours: {
+            start: `${AI_CONSTANTS.WORK_HOURS.START.toString().padStart(2, '0')}:00`,
+            end: `${AI_CONSTANTS.WORK_HOURS.END.toString().padStart(2, '0')}:00`,
+          },
         },
-        upcoming_events: upcomingEvents.data.slice(0, this.UPCOMING_EVENTS_LIMIT).map(e => ({
+        upcoming_events: upcomingEvents.data.slice(0, AI_CONSTANTS.ANALYSIS.UPCOMING_EVENTS_LIMIT).map(e => ({
           id: e.id,
           title: e.title,
           start_time: e.start_time,
