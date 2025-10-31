@@ -39,96 +39,109 @@ const BlogPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="text-center">
-            <BookOpen className="h-12 w-12 text-white mx-auto mb-4" />
-            <h1 className="text-4xl font-bold text-white mb-4">Tempra Blog</h1>
-            <p className="text-xl text-blue-100 mb-8">
-              Insights, tips, and stories about productivity and time management
+    <div className="min-h-screen bg-white">
+      {/* Clean Minimal Header */}
+      <div className="border-b border-gray-200 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 text-gray-700 text-sm font-medium mb-6">
+              <BookOpen className="h-4 w-4" />
+              Blog
+            </div>
+            <h1 className="text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+              Insights & Stories
+            </h1>
+            <p className="text-xl text-gray-600 leading-relaxed">
+              Exploring productivity, time management, and the art of getting things done.
             </p>
-            
-            <div className="max-w-2xl mx-auto">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <Input
-                  type="text"
-                  placeholder="Search articles..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 pr-4 py-6 text-lg bg-white shadow-lg"
-                />
-              </div>
+          </div>
+          
+          {/* Minimal Search */}
+          <div className="max-w-2xl mt-12">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <Input
+                type="text"
+                placeholder="Search articles..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-12 pr-4 py-3 text-base bg-gray-50 border-gray-300 rounded-lg focus:bg-white focus:ring-1 focus:ring-gray-900"
+              />
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           <div className="lg:col-span-2">
+            {/* Featured Posts - Clean Design */}
             {featuredPosts.length > 0 && (
-              <div className="mb-12">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                  <TrendingUp className="h-6 w-6 text-blue-600" />
-                  Featured Posts
-                </h2>
-                <div className="grid grid-cols-1 gap-6">
+              <div className="mb-16">
+                <div className="flex items-baseline gap-3 mb-8">
+                  <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">
+                    Featured
+                  </h2>
+                  <div className="flex-1 h-px bg-gray-200"></div>
+                </div>
+                <div className="space-y-8">
                   {featuredPosts.map((post) => (
-                    <Card key={post.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                      <div className="grid md:grid-cols-2 gap-6">
-                        {post.featured_image && (
-                          <div className="relative h-64 md:h-full">
-                            <Image
-                              src={post.featured_image}
-                              alt={post.alt_text || post.title}
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-                        )}
-                        <CardContent className="p-6 flex flex-col justify-center">
-                          {post.category_name && (
-                            <Badge 
-                              className="w-fit mb-3"
-                              style={{ backgroundColor: post.category_color || '#6366f1' }}
-                            >
-                              {post.category_name}
-                            </Badge>
+                    <Link 
+                      key={post.id} 
+                      href={PUBLIC_ROUTES.BLOG_POST(post.slug)}
+                      className="block group"
+                    >
+                      <article className="border border-gray-200 rounded-lg overflow-hidden hover:border-gray-900 transition-colors">
+                        <div className="grid md:grid-cols-5 gap-0">
+                          {post.featured_image && (
+                            <div className="relative h-64 md:h-full md:col-span-2">
+                              <Image
+                                src={post.featured_image}
+                                alt={post.alt_text || post.title}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
                           )}
-                          <h3 className="text-2xl font-bold text-gray-900 mb-3 hover:text-blue-600">
-                            <Link href={PUBLIC_ROUTES.BLOG_POST(post.slug)}>
+                          <div className="p-8 md:col-span-3 flex flex-col justify-center">
+                            {post.category_name && (
+                              <span className="text-xs font-medium text-gray-600 uppercase tracking-wider mb-3">
+                                {post.category_name}
+                              </span>
+                            )}
+                            <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-gray-600 transition-colors">
                               {post.title}
-                            </Link>
-                          </h3>
-                          {post.excerpt && (
-                            <p className="text-gray-600 mb-4 line-clamp-3">{post.excerpt}</p>
-                          )}
-                          <div className="flex items-center gap-4 text-sm text-gray-500">
-                            <div className="flex items-center gap-1">
-                              <Calendar className="h-4 w-4" />
-                              {formatDate(post.published_at)}
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Clock className="h-4 w-4" />
-                              {formatReadingTime(post.reading_time)}
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Eye className="h-4 w-4" />
-                              {post.views_count}
+                            </h3>
+                            {post.excerpt && (
+                              <p className="text-gray-600 mb-6 line-clamp-2 leading-relaxed">{post.excerpt}</p>
+                            )}
+                            <div className="flex items-center gap-6 text-sm text-gray-500">
+                              <time>{formatDate(post.published_at)}</time>
+                              <span className="flex items-center gap-1">
+                                {formatReadingTime(post.reading_time)}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                {post.views_count} views
+                              </span>
                             </div>
                           </div>
-                        </CardContent>
-                      </div>
-                    </Card>
+                        </div>
+                      </article>
+                    </Link>
                   ))}
                 </div>
               </div>
             )}
 
+            {/* Latest Posts */}
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Latest Posts</h2>
+              <div className="flex items-baseline gap-3 mb-8">
+                <h2 className="text-sm font-semibold text-gray-900 uppercase tracking-wider">
+                  Latest Articles
+                </h2>
+                <div className="flex-1 h-px bg-gray-200"></div>
+              </div>
               {postsLoading ? (
                 <div className="text-center py-12">
                   <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -151,88 +164,84 @@ const BlogPage = () => {
                 </Card>
               ) : (
                 <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                  <div className="space-y-8 mb-12">
                     {posts.map((post) => (
-                      <Card key={post.id} className="hover:shadow-lg transition-shadow">
-                        {post.featured_image && (
-                          <div className="relative h-48 w-full">
-                            <Image
-                              src={post.featured_image}
-                              alt={post.alt_text || post.title}
-                              fill
-                              className="object-cover rounded-t-lg"
-                            />
-                          </div>
-                        )}
-                        <CardHeader>
-                          {post.category_name && (
-                            <Badge 
-                              className="w-fit mb-2"
-                              style={{ backgroundColor: post.category_color || '#6366f1' }}
-                            >
-                              {post.category_name}
-                            </Badge>
-                          )}
-                          <CardTitle className="hover:text-blue-600">
-                            <Link href={PUBLIC_ROUTES.BLOG_POST(post.slug)}>
-                              {post.title}
-                            </Link>
-                          </CardTitle>
-                          {post.excerpt && (
-                            <CardDescription className="line-clamp-2 mt-2">
-                              {post.excerpt}
-                            </CardDescription>
-                          )}
-                        </CardHeader>
-                        <CardContent>
-                          <div className="flex items-center gap-3 text-sm text-gray-500 mb-4">
-                            {post.author_avatar && (
-                              <Image
-                                src={post.author_avatar}
-                                alt={post.author_name}
-                                width={24}
-                                height={24}
-                                className="rounded-full"
-                              />
-                            )}
-                            <span>{post.author_name}</span>
-                          </div>
-                          <div className="flex items-center justify-between text-sm text-gray-500">
-                            <div className="flex items-center gap-3">
-                              <div className="flex items-center gap-1">
-                                <Clock className="h-4 w-4" />
-                                {formatReadingTime(post.reading_time)}
+                      <Link 
+                        key={post.id} 
+                        href={PUBLIC_ROUTES.BLOG_POST(post.slug)}
+                        className="block group"
+                      >
+                        <article className="border-b border-gray-200 pb-8 hover:border-gray-900 transition-colors">
+                          <div className="flex gap-6">
+                            {post.featured_image && (
+                              <div className="relative w-32 h-32 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
+                                <Image
+                                  src={post.featured_image}
+                                  alt={post.alt_text || post.title}
+                                  fill
+                                  className="object-cover"
+                                />
                               </div>
-                              <div className="flex items-center gap-1">
-                                <Eye className="h-4 w-4" />
-                                {post.views_count}
+                            )}
+                            <div className="flex-1 min-w-0">
+                              {post.category_name && (
+                                <span className="text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                  {post.category_name}
+                                </span>
+                              )}
+                              <h3 className="text-xl font-bold text-gray-900 mt-2 mb-2 group-hover:text-gray-600 transition-colors">
+                                {post.title}
+                              </h3>
+                              {post.excerpt && (
+                                <p className="text-gray-600 line-clamp-2 mb-4 leading-relaxed">
+                                  {post.excerpt}
+                                </p>
+                              )}
+                              <div className="flex items-center gap-4 text-sm text-gray-500">
+                                <div className="flex items-center gap-2">
+                                  {post.author_avatar && (
+                                    <Image
+                                      src={post.author_avatar}
+                                      alt={post.author_name}
+                                      width={20}
+                                      height={20}
+                                      className="rounded-full"
+                                    />
+                                  )}
+                                  <span>{post.author_name}</span>
+                                </div>
+                                <span>•</span>
+                                <time>{formatDate(post.published_at)}</time>
+                                <span>•</span>
+                                <span>{formatReadingTime(post.reading_time)}</span>
                               </div>
                             </div>
-                            <span>{formatDate(post.published_at)}</span>
                           </div>
-                        </CardContent>
-                      </Card>
+                        </article>
+                      </Link>
                     ))}
                   </div>
 
                   {meta && meta.totalPages > 1 && (
-                    <div className="flex justify-center items-center gap-2">
+                    <div className="flex justify-between items-center pt-8 border-t border-gray-200">
                       <Button
-                        variant="outline"
+                        variant="ghost"
                         onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                         disabled={currentPage === 1}
+                        className="text-gray-900 hover:text-gray-600"
                       >
-                        Previous
+                        ← Previous
                       </Button>
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-gray-500">
                         Page {meta.page} of {meta.totalPages}
                       </span>
                       <Button
-                        variant="outline"
+                        variant="ghost"
                         onClick={() => setCurrentPage((prev) => Math.min(prev + 1, meta.totalPages))}
                         disabled={currentPage === meta.totalPages}
+                        className="text-gray-900 hover:text-gray-600"
                       >
-                        Next
+                        Next →
                       </Button>
                     </div>
                   )}
@@ -241,64 +250,58 @@ const BlogPage = () => {
             </div>
           </div>
 
+          {/* Sidebar */}
           <div className="lg:col-span-1">
-            <div className="sticky top-4 space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5 text-orange-600" />
-                    Popular Posts
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {popularPosts.length === 0 ? (
-                    <p className="text-sm text-gray-500">No popular posts yet.</p>
-                  ) : (
-                    <ul className="space-y-4">
-                      {popularPosts.map((post, index) => (
-                        <li key={post.id} className="flex gap-3 group">
-                          <span className="text-2xl font-bold text-gray-300 group-hover:text-blue-600">
-                            {index + 1}
+            <div className="sticky top-8 space-y-12">
+              {/* Popular Posts */}
+              <div>
+                <h3 className="text-sm font-semibold text-gray-900 uppercase tracking-wider mb-6">
+                  Popular
+                </h3>
+                {popularPosts.length === 0 ? (
+                  <p className="text-sm text-gray-500">No popular posts yet.</p>
+                ) : (
+                  <div className="space-y-6">
+                    {popularPosts.map((post, index) => (
+                      <Link 
+                        key={post.id}
+                        href={PUBLIC_ROUTES.BLOG_POST(post.slug)}
+                        className="block group"
+                      >
+                        <article className="flex gap-4">
+                          <span className="text-3xl font-bold text-gray-200 group-hover:text-gray-400 transition-colors leading-none pt-1">
+                            {(index + 1).toString().padStart(2, '0')}
                           </span>
-                          <div className="flex-1">
-                            <Link 
-                              href={PUBLIC_ROUTES.BLOG_POST(post.slug)}
-                              className="font-medium text-gray-900 hover:text-blue-600 line-clamp-2 text-sm"
-                            >
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-gray-900 group-hover:text-gray-600 line-clamp-2 mb-2 transition-colors">
                               {post.title}
-                            </Link>
-                            <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
-                              <div className="flex items-center gap-1">
-                                <Eye className="h-3 w-3" />
-                                {post.views_count}
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <Calendar className="h-3 w-3" />
-                                {formatDate(post.published_at)}
-                              </div>
+                            </h4>
+                            <div className="flex items-center gap-3 text-xs text-gray-500">
+                              <span>{post.views_count} views</span>
+                              <span>•</span>
+                              <time>{formatDate(post.published_at)}</time>
                             </div>
                           </div>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </CardContent>
-              </Card>
+                        </article>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
 
-              <Card className="bg-gradient-to-br from-blue-50 to-purple-50">
-                <CardContent className="pt-6">
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">
-                    Stay Updated
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Subscribe to get the latest articles delivered to your inbox.
-                  </p>
-                  <Button className="w-full">
-                    Subscribe Now
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </CardContent>
-              </Card>
+              {/* Newsletter */}
+              <div className="border border-gray-200 rounded-lg p-6">
+                <h3 className="text-lg font-bold text-gray-900 mb-2">
+                  Stay Updated
+                </h3>
+                <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+                  Get the latest articles delivered to your inbox.
+                </p>
+                <Button className="w-full bg-gray-900 hover:bg-gray-800 text-white">
+                  Subscribe
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>

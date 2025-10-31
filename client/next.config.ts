@@ -93,6 +93,11 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'www.jsdelivr.com',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'tenten.vn',
+        pathname: '/**',
       }
     ],
   },

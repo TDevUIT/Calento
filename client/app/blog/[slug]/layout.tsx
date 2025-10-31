@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { BASE_URL } from '@/config/metadata.config';
 
 interface BlogPostPageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 async function getBlogPost(slug: string) {
@@ -21,7 +21,8 @@ async function getBlogPost(slug: string) {
 }
 
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
-  const post = await getBlogPost(params.slug);
+  const { slug } = await params;
+  const post = await getBlogPost(slug);
 
   if (!post) {
     return {
@@ -34,7 +35,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   const description = post.seo_description || post.excerpt || post.title;
   const keywords = post.seo_keywords?.split(',').map((k: string) => k.trim()) || [];
   const image = post.featured_image || '/og-image.png';
-  const url = `${BASE_URL}/blog/${params.slug}`;
+  const url = `${BASE_URL}/blog/${slug}`;
   const publishedTime = post.published_at || post.created_at;
   const modifiedTime = post.updated_at || publishedTime;
 

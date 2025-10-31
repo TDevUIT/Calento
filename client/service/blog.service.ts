@@ -1,4 +1,4 @@
-﻿import { api, getErrorMessage } from '../config/axios';
+import { api, getErrorMessage } from '../config/axios';
 import {
   BlogPost,
   BlogPostWithRelations,
@@ -23,11 +23,11 @@ export const getBlogPosts = async (
   params?: BlogPostQueryParams
 ): Promise<PaginatedBlogResponse<BlogPostListItem>> => {
   try {
-    const response = await api.get<PaginatedBlogResponse<BlogPostListItem>>(
+    const response = await api.get<any>(
       API_ROUTES.BLOG_POSTS,
       { params }
     );
-    return response.data;
+    return response.data?.data || response.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
   }

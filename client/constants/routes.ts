@@ -269,6 +269,9 @@ export const isInvitationRoute = (pathname: string): boolean => {
   return pathname.startsWith('/invitation');
 };
 
+export const isAdminRoute = (pathname: string): boolean =>  {
+  return pathname.startsWith('/admin')
+} 
 
 export const getLoginRedirectUrl = (returnUrl?: string): string => {
   if (!returnUrl || returnUrl === '/') {

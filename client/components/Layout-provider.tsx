@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import { usePathname } from 'next/navigation';
-import { isGuestOnlyRoute, isDashboardRoute, isBookingRoute, isInvitationRoute } from '@/constants/routes';
+import { isGuestOnlyRoute, isDashboardRoute, isBookingRoute, isInvitationRoute, isAdminRoute } from '@/constants/routes';
 import { cn } from '@/lib/utils';
 import { Footer, Header } from './organisms';
 
@@ -19,7 +19,8 @@ export const MainLayoutProvider: React.FC<MainLayoutProviderProps> = ({
   const isDashboard = isDashboardRoute(pathname);
   const isBooking = isBookingRoute(pathname);
   const isInvitation = isInvitationRoute(pathname);
-  const showHeaderFooter = !isAuthPage && !isDashboard && !isBooking && !isInvitation;
+  const isAdminPage = isAdminRoute(pathname);
+  const showHeaderFooter = !isAuthPage && !isDashboard && !isBooking && !isInvitation && !isAdminPage;
 
   return (
     <main 
