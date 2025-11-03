@@ -1,7 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '@/store/auth.store';
+import { useUserSettingsStore } from '@/store/user-settings.store';
+import {
+  useUserSettings,
+  useUpdateUserSettings,
+  useChangePassword,
+  useDeleteAccount,
+} from '@/hook/user/use-user-settings';
 import {
   Card,
   CardContent,
@@ -38,53 +45,80 @@ import { toast } from 'sonner';
 export default function SettingsPage() {
   const user = useAuthStore((state) => state.user);
   const isLoading = useAuthStore((state) => state.isLoading);
+  const settings = useUserSettingsStore();
+  const { data: serverSettings, isLoading: isLoadingSettings } = useUserSettings();
+  const updateSettingsMutation = useUpdateUserSettings();
+  const changePasswordMutation = useChangePassword();
+  const deleteAccountMutation = useDeleteAccount();
 
-  const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('account');
-
-  const [accountSettings, setAccountSettings] = useState({
-    language: 'en',
-    timezone: 'UTC',
-    dateFormat: 'MM/DD/YYYY',
-    timeFormat: '12h',
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
   });
 
-  const [notificationSettings, setNotificationSettings] = useState({
-    emailNotifications: true,
-    pushNotifications: false,
-    eventReminders: true,
-    weeklyDigest: true,
-    newFeatures: false,
-    marketingEmails: false,
-  });
+  useEffect(() => {
+    if (serverSettings) {
+      settings.setSettings(serverSettings);
+    }
+  }, [serverSettings]);
 
-  const [securitySettings, setSecuritySettings] = useState({
-    twoFactorAuth: false,
-    sessionTimeout: '30',
-    loginAlerts: true,
-  });
+  const handleSaveAccountSettings = async () => {
+    await updateSettingsMutation.mutateAsync({
+      language: settings.language,
+      timezone: settings.timezone,
+      dateFormat: settings.dateFormat,
+      timeFormat: settings.timeFormat,
+    });
+  };
 
-  const [appearanceSettings, setAppearanceSettings] = useState({
-    theme: 'system',
-    compactMode: false,
-    showWeekNumbers: false,
-  });
+  const handleSaveNotificationSettings = async () => {
+    await updateSettingsMutation.mutateAsync({
+      emailNotifications: settings.emailNotifications,
+      pushNotifications: settings.pushNotifications,
+      eventReminders: settings.eventReminders,
+      weeklyDigest: settings.weeklyDigest,
+      newFeatures: settings.newFeatures,
+      marketingEmails: settings.marketingEmails,
+    });
+  };
 
-  const handleSaveSettings = async (section: string) => {
-    setIsSaving(true);
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      
-      toast.success(`${section} settings updated successfully`);
-    } catch (error) {
-      toast.error(`Failed to update ${section} settings`);
-      console.error(error);
-    } finally {
-      setIsSaving(false);
+  const handleSaveSecuritySettings = async () => {
+    await updateSettingsMutation.mutateAsync({
+      twoFactorAuth: settings.twoFactorAuth,
+      sessionTimeout: settings.sessionTimeout,
+      loginAlerts: settings.loginAlerts,
+    });
+  };
+
+  const handleSaveAppearanceSettings = async () => {
+    await updateSettingsMutation.mutateAsync({
+      theme: settings.theme,
+      compactMode: settings.compactMode,
+      showWeekNumbers: settings.showWeekNumbers,
+    });
+  };
+
+  const handleChangePassword = async () => {
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+    await changePasswordMutation.mutateAsync({
+      currentPassword: passwordData.currentPassword,
+      newPassword: passwordData.newPassword,
+    });
+    setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  };
+
+  const handleDeleteAccount = async () => {
+    if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+      await deleteAccountMutation.mutateAsync();
     }
   };
 
-  if (isLoading) {
+  if (isLoading || isLoadingSettings) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -155,10 +189,8 @@ export default function SettingsPage() {
                   <div className="space-y-2">
                     <Label htmlFor="language">Language</Label>
                     <Select
-                      value={accountSettings.language}
-                      onValueChange={(value) =>
-                        setAccountSettings({ ...accountSettings, language: value })
-                      }
+                      value={settings.language}
+                      onValueChange={(value) => settings.updateSetting('language', value)}
                     >
                       <SelectTrigger id="language">
                         <SelectValue placeholder="Select language" />
@@ -176,10 +208,8 @@ export default function SettingsPage() {
                   <div className="space-y-2">
                     <Label htmlFor="timezone">Timezone</Label>
                     <Select
-                      value={accountSettings.timezone}
-                      onValueChange={(value) =>
-                        setAccountSettings({ ...accountSettings, timezone: value })
-                      }
+                      value={settings.timezone}
+                      onValueChange={(value) => settings.updateSetting('timezone', value)}
                     >
                       <SelectTrigger id="timezone">
                         <SelectValue placeholder="Select timezone" />
@@ -197,10 +227,8 @@ export default function SettingsPage() {
                   <div className="space-y-2">
                     <Label htmlFor="dateFormat">Date Format</Label>
                     <Select
-                      value={accountSettings.dateFormat}
-                      onValueChange={(value) =>
-                        setAccountSettings({ ...accountSettings, dateFormat: value })
-                      }
+                      value={settings.dateFormat}
+                      onValueChange={(value) => settings.updateSetting('dateFormat', value)}
                     >
                       <SelectTrigger id="dateFormat">
                         <SelectValue placeholder="Select date format" />
@@ -216,10 +244,8 @@ export default function SettingsPage() {
                   <div className="space-y-2">
                     <Label htmlFor="timeFormat">Time Format</Label>
                     <Select
-                      value={accountSettings.timeFormat}
-                      onValueChange={(value) =>
-                        setAccountSettings({ ...accountSettings, timeFormat: value })
-                      }
+                      value={settings.timeFormat}
+                      onValueChange={(value) => settings.updateSetting('timeFormat', value)}
                     >
                       <SelectTrigger id="timeFormat">
                         <SelectValue placeholder="Select time format" />
@@ -236,11 +262,11 @@ export default function SettingsPage() {
 
                 <div className="flex justify-end">
                   <Button
-                    onClick={() => handleSaveSettings('Account')}
-                    disabled={isSaving}
+                    onClick={handleSaveAccountSettings}
+                    disabled={updateSettingsMutation.isPending}
                     className="gap-2"
                   >
-                    {isSaving ? (
+                    {updateSettingsMutation.isPending ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin" />
                         Saving...
@@ -312,12 +338,9 @@ export default function SettingsPage() {
                     </div>
                     <Switch
                       id="email-notifications"
-                      checked={notificationSettings.emailNotifications}
+                      checked={settings.emailNotifications}
                       onCheckedChange={(checked) =>
-                        setNotificationSettings({
-                          ...notificationSettings,
-                          emailNotifications: checked,
-                        })
+                        settings.updateSetting('emailNotifications', checked)
                       }
                     />
                   </div>
@@ -335,12 +358,9 @@ export default function SettingsPage() {
                     </div>
                     <Switch
                       id="push-notifications"
-                      checked={notificationSettings.pushNotifications}
+                      checked={settings.pushNotifications}
                       onCheckedChange={(checked) =>
-                        setNotificationSettings({
-                          ...notificationSettings,
-                          pushNotifications: checked,
-                        })
+                        settings.updateSetting('pushNotifications', checked)
                       }
                     />
                   </div>
@@ -358,12 +378,9 @@ export default function SettingsPage() {
                     </div>
                     <Switch
                       id="event-reminders"
-                      checked={notificationSettings.eventReminders}
+                      checked={settings.eventReminders}
                       onCheckedChange={(checked) =>
-                        setNotificationSettings({
-                          ...notificationSettings,
-                          eventReminders: checked,
-                        })
+                        settings.updateSetting('eventReminders', checked)
                       }
                     />
                   </div>
@@ -381,12 +398,9 @@ export default function SettingsPage() {
                     </div>
                     <Switch
                       id="weekly-digest"
-                      checked={notificationSettings.weeklyDigest}
+                      checked={settings.weeklyDigest}
                       onCheckedChange={(checked) =>
-                        setNotificationSettings({
-                          ...notificationSettings,
-                          weeklyDigest: checked,
-                        })
+                        settings.updateSetting('weeklyDigest', checked)
                       }
                     />
                   </div>
@@ -404,12 +418,9 @@ export default function SettingsPage() {
                     </div>
                     <Switch
                       id="new-features"
-                      checked={notificationSettings.newFeatures}
+                      checked={settings.newFeatures}
                       onCheckedChange={(checked) =>
-                        setNotificationSettings({
-                          ...notificationSettings,
-                          newFeatures: checked,
-                        })
+                        settings.updateSetting('newFeatures', checked)
                       }
                     />
                   </div>
@@ -427,12 +438,9 @@ export default function SettingsPage() {
                     </div>
                     <Switch
                       id="marketing-emails"
-                      checked={notificationSettings.marketingEmails}
+                      checked={settings.marketingEmails}
                       onCheckedChange={(checked) =>
-                        setNotificationSettings({
-                          ...notificationSettings,
-                          marketingEmails: checked,
-                        })
+                        settings.updateSetting('marketingEmails', checked)
                       }
                     />
                   </div>
@@ -442,11 +450,11 @@ export default function SettingsPage() {
 
                 <div className="flex justify-end">
                   <Button
-                    onClick={() => handleSaveSettings('Notification')}
-                    disabled={isSaving}
+                    onClick={handleSaveNotificationSettings}
+                    disabled={updateSettingsMutation.isPending}
                     className="gap-2"
                   >
-                    {isSaving ? (
+                    {updateSettingsMutation.isPending ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin" />
                         Saving...
@@ -487,12 +495,9 @@ export default function SettingsPage() {
                     </div>
                     <Switch
                       id="two-factor"
-                      checked={securitySettings.twoFactorAuth}
+                      checked={settings.twoFactorAuth}
                       onCheckedChange={(checked) =>
-                        setSecuritySettings({
-                          ...securitySettings,
-                          twoFactorAuth: checked,
-                        })
+                        settings.updateSetting('twoFactorAuth', checked)
                       }
                     />
                   </div>
@@ -502,12 +507,9 @@ export default function SettingsPage() {
                   <div className="space-y-2">
                     <Label htmlFor="session-timeout">Session Timeout (minutes)</Label>
                     <Select
-                      value={securitySettings.sessionTimeout}
+                      value={settings.sessionTimeout}
                       onValueChange={(value) =>
-                        setSecuritySettings({
-                          ...securitySettings,
-                          sessionTimeout: value,
-                        })
+                        settings.updateSetting('sessionTimeout', value)
                       }
                     >
                       <SelectTrigger id="session-timeout">
@@ -536,12 +538,9 @@ export default function SettingsPage() {
                     </div>
                     <Switch
                       id="login-alerts"
-                      checked={securitySettings.loginAlerts}
+                      checked={settings.loginAlerts}
                       onCheckedChange={(checked) =>
-                        setSecuritySettings({
-                          ...securitySettings,
-                          loginAlerts: checked,
-                        })
+                        settings.updateSetting('loginAlerts', checked)
                       }
                     />
                   </div>
@@ -551,11 +550,11 @@ export default function SettingsPage() {
 
                 <div className="flex justify-end">
                   <Button
-                    onClick={() => handleSaveSettings('Security')}
-                    disabled={isSaving}
+                    onClick={handleSaveSecuritySettings}
+                    disabled={updateSettingsMutation.isPending}
                     className="gap-2"
                   >
-                    {isSaving ? (
+                    {updateSettingsMutation.isPending ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin" />
                         Saving...
@@ -585,6 +584,10 @@ export default function SettingsPage() {
                     id="current-password"
                     type="password"
                     placeholder="Enter current password"
+                    value={passwordData.currentPassword}
+                    onChange={(e) =>
+                      setPasswordData({ ...passwordData, currentPassword: e.target.value })
+                    }
                   />
                 </div>
                 <div className="space-y-2">
@@ -593,6 +596,10 @@ export default function SettingsPage() {
                     id="new-password"
                     type="password"
                     placeholder="Enter new password"
+                    value={passwordData.newPassword}
+                    onChange={(e) =>
+                      setPasswordData({ ...passwordData, newPassword: e.target.value })
+                    }
                   />
                 </div>
                 <div className="space-y-2">
@@ -601,15 +608,32 @@ export default function SettingsPage() {
                     id="confirm-password"
                     type="password"
                     placeholder="Confirm new password"
+                    value={passwordData.confirmPassword}
+                    onChange={(e) =>
+                      setPasswordData({ ...passwordData, confirmPassword: e.target.value })
+                    }
                   />
                 </div>
 
                 <Separator />
 
                 <div className="flex justify-end">
-                  <Button onClick={() => handleSaveSettings('Password')} className="gap-2">
-                    <Save className="h-4 w-4" />
-                    Update Password
+                  <Button
+                    onClick={handleChangePassword}
+                    disabled={changePasswordMutation.isPending}
+                    className="gap-2"
+                  >
+                    {changePasswordMutation.isPending ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Updating...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4" />
+                        Update Password
+                      </>
+                    )}
                   </Button>
                 </div>
               </CardContent>
@@ -633,7 +657,20 @@ export default function SettingsPage() {
                       Permanently delete your account and all associated data
                     </p>
                   </div>
-                  <Button variant="destructive">Delete Account</Button>
+                  <Button
+                    variant="destructive"
+                    onClick={handleDeleteAccount}
+                    disabled={deleteAccountMutation.isPending}
+                  >
+                    {deleteAccountMutation.isPending ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Deleting...
+                      </>
+                    ) : (
+                      'Delete Account'
+                    )}
+                  </Button>
                 </div>
               </CardContent>
             </Card>
@@ -655,13 +692,8 @@ export default function SettingsPage() {
                   <div className="space-y-2">
                     <Label htmlFor="theme">Theme</Label>
                     <Select
-                      value={appearanceSettings.theme}
-                      onValueChange={(value) =>
-                        setAppearanceSettings({
-                          ...appearanceSettings,
-                          theme: value,
-                        })
-                      }
+                      value={settings.theme}
+                      onValueChange={(value) => settings.updateSetting('theme', value)}
                     >
                       <SelectTrigger id="theme">
                         <SelectValue placeholder="Select theme" />
@@ -687,12 +719,9 @@ export default function SettingsPage() {
                     </div>
                     <Switch
                       id="compact-mode"
-                      checked={appearanceSettings.compactMode}
+                      checked={settings.compactMode}
                       onCheckedChange={(checked) =>
-                        setAppearanceSettings({
-                          ...appearanceSettings,
-                          compactMode: checked,
-                        })
+                        settings.updateSetting('compactMode', checked)
                       }
                     />
                   </div>
@@ -710,12 +739,9 @@ export default function SettingsPage() {
                     </div>
                     <Switch
                       id="week-numbers"
-                      checked={appearanceSettings.showWeekNumbers}
+                      checked={settings.showWeekNumbers}
                       onCheckedChange={(checked) =>
-                        setAppearanceSettings({
-                          ...appearanceSettings,
-                          showWeekNumbers: checked,
-                        })
+                        settings.updateSetting('showWeekNumbers', checked)
                       }
                     />
                   </div>
@@ -725,11 +751,11 @@ export default function SettingsPage() {
 
                 <div className="flex justify-end">
                   <Button
-                    onClick={() => handleSaveSettings('Appearance')}
-                    disabled={isSaving}
+                    onClick={handleSaveAppearanceSettings}
+                    disabled={updateSettingsMutation.isPending}
                     className="gap-2"
                   >
-                    {isSaving ? (
+                    {updateSettingsMutation.isPending ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin" />
                         Saving...

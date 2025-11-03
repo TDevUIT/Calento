@@ -1,4 +1,4 @@
-﻿import {
+import {
   IsString,
   IsEmail,
   IsOptional,
@@ -103,6 +103,14 @@ export class UpdateUserDto extends StatusEntityDto {
   last_name?: string;
 
   @ApiPropertyOptional({
+    description: 'Avatar URL',
+    example: 'https://res.cloudinary.com/demo/image/upload/v1234567890/avatars/user_123.jpg',
+  })
+  @IsString()
+  @IsOptional()
+  avatar?: string | null;
+
+  @ApiPropertyOptional({
     description: 'Email verification status',
     example: true,
   })
@@ -135,6 +143,12 @@ export class UserResponseDto extends StatusEntityDto {
     example: 'Doe',
   })
   last_name?: string;
+
+  @ApiPropertyOptional({
+    description: 'Avatar URL',
+    example: 'https://res.cloudinary.com/demo/image/upload/v1234567890/avatars/user_123.jpg',
+  })
+  avatar?: string;
 
   @ApiProperty({
     description: 'Email verification status',

@@ -1,4 +1,4 @@
-﻿import { Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { User } from './user.entity';
 import { CreateUserDto, UpdateUserDto } from './dto/user.dto';
@@ -57,5 +57,13 @@ export class UserService {
 
   async userExists(id: string): Promise<boolean> {
     return this.userRepository.exists(id);
+  }
+
+  async updateAvatar(userId: string, avatarUrl: string): Promise<User | null> {
+    return this.userRepository.updateUser(userId, { avatar: avatarUrl });
+  }
+
+  async removeAvatar(userId: string): Promise<User | null> {
+    return this.userRepository.updateUser(userId, { avatar: null });
   }
 }

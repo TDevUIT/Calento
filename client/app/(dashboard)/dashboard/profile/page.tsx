@@ -1,7 +1,7 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useAuthStore } from '@/store/auth.store';
+import { useProfile } from '@/hook/auth/use-profile';
 import { getUserInitials, getUserFullName } from '@/utils/user.utils';
 import {
   Card,
@@ -32,8 +32,7 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 
 export default function ProfilePage() {
-  const user = useAuthStore((state) => state.user);
-  const isLoading = useAuthStore((state) => state.isLoading);
+  const { data: user, isLoading, error, refetch } = useProfile();
 
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -65,6 +64,7 @@ export default function ProfilePage() {
     try {
       await new Promise((resolve) => setTimeout(resolve, 1500));
       toast.success('Profile updated successfully');
+      await refetch();
       setIsEditing(false);
     } catch (error) {
       toast.error('Failed to update profile');
@@ -92,6 +92,18 @@ export default function ProfilePage() {
         <div className="text-center">
           <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
           <p className="text-gray-600">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-red-600 mb-2">Failed to load profile</p>
+          <p className="text-sm text-gray-600 mb-4">{error instanceof Error ? error.message : 'Unknown error'}</p>
+          <Button onClick={() => refetch()}>Try Again</Button>
         </div>
       </div>
     );
