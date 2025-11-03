@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -6,6 +6,8 @@ import { addDays } from "date-fns";
 import { EVENT_QUERY_KEYS } from "@/hook/event/query-keys";
 import { getEventsByDateRange } from "@/service/event.service";
 import type { Event } from "@/interface/event.interface";
+import { DEFAULT_EVENT_COLOR } from "@/constants/theme.constants";
+import { CACHE_CONFIG } from "@/constants/api.constants";
 
 interface UseUpcomingEventsOptions {
   enabled?: boolean;
@@ -47,22 +49,9 @@ export function useUpcomingEvents(options: UseUpcomingEventsOptions = {}) {
     };
   }, [daysAhead]); // Only recalculate if daysAhead changes
 
-  console.log('âš™ï¸ [useUpcomingEvents] Hook setup:', {
-    now: startDateISO,
-    endDate: endDateISO,
-    maxEvents,
-    enabled,
-  });
-
   const query = useQuery({
     queryKey: EVENT_QUERY_KEYS.upcoming(startDateISO, endDateISO, maxEvents),
     queryFn: async () => {
-      console.log('ðŸ” [useUpcomingEvents] queryFn called - Fetching upcoming events...', {
-        startDate: startDateISO,
-        endDate: endDateISO,
-        maxEvents,
-      });
-
       const response = await getEventsByDateRange(
         startDateISO,
         endDateISO,
@@ -71,12 +60,6 @@ export function useUpcomingEvents(options: UseUpcomingEventsOptions = {}) {
           limit: maxEvents * 2, // Get more to filter properly
         }
       );
-
-      console.log('ðŸ“¦ [useUpcomingEvents] API Response:', {
-        totalItems: response.data.items?.length || 0,
-        meta: response.data.meta,
-        items: response.data.items,
-      });
 
       const upcomingEvents: UpcomingEvent[] = response.data.items
         .filter((event: Event) => {
@@ -94,7 +77,7 @@ export function useUpcomingEvents(options: UseUpcomingEventsOptions = {}) {
           end_time: typeof event.end_time === 'string' ? event.end_time : event.end_time.toISOString(),
           location: event.location,
           attendees: event.attendees?.length || 0,
-          color: event.color || '#3b82f6',
+          color: event.color || DEFAULT_EVENT_COLOR,
           creator: event.creator ? {
             id: event.creator.id,
             name: event.creator.name || event.creator.email,
@@ -103,29 +86,15 @@ export function useUpcomingEvents(options: UseUpcomingEventsOptions = {}) {
           } : undefined,
         }));
 
-      console.log('âœ… [useUpcomingEvents] Transformed events:', {
-        count: upcomingEvents.length,
-        events: upcomingEvents,
-      });
-
       return upcomingEvents;
     },
     enabled,
-    staleTime: 0, // Disable cache for debugging
-    gcTime: 0, // Disable cache for debugging (formerly cacheTime)
-    refetchInterval: false, // Disable auto refetch for now
+    staleTime: CACHE_CONFIG.STALE_TIME,
+    gcTime: CACHE_CONFIG.GC_TIME,
+    refetchInterval: false,
     refetchOnWindowFocus: true,
     refetchOnMount: true,
-    retry: 2,
-  });
-
-  console.log('ðŸ“Š [useUpcomingEvents] Query state:', {
-    status: query.status,
-    fetchStatus: query.fetchStatus,
-    isLoading: query.isLoading,
-    isFetching: query.isFetching,
-    isError: query.isError,
-    dataLength: query.data?.length || 0,
+    retry: CACHE_CONFIG.RETRY,
   });
 
   return {

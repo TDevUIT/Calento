@@ -1,4 +1,4 @@
-﻿import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { GoogleAuthService } from '../../google/services/google-auth.service';
 import { GoogleCalendarService } from '../../google/services/google-calendar.service';
@@ -194,55 +194,44 @@ export class WebhookService {
       );
       this.logger.log(`ðŸ“¨ Channel ID: ${event.channel_id}`);
       this.logger.log(`ðŸ“¦ Resource ID: ${event.resource_id}`);
-      this.logger.log(`ðŸ“Š Resource State: ${event.resource_state}`);
-      this.logger.log(`ðŸ”— Resource URI: ${event.resource_uri}`);
-      this.logger.log(`#ï¸âƒ£ Message Number: ${event.message_number}`);
-      this.logger.log(`â° Timestamp: ${event.timestamp}`);
       this.logger.log(`========================================`);
-      
-      console.log('\nðŸ” Full Webhook Event Data:', JSON.stringify(event, null, 2));
 
       const channel = await this.webhookChannelRepo.findByChannelId(
         event.channel_id,
       );
 
       if (!channel) {
-        this.logger.warn(`âŒ Channel ${event.channel_id} not found in database`);
-        this.logger.warn(`ðŸ” Searched for channel_id: ${event.channel_id}`);
+        this.logger.warn(`Channel ${event.channel_id} not found in database`);
+        this.logger.warn(`Searched for channel_id: ${event.channel_id}`);
         return;
       }
 
-      this.logger.log(`âœ… Channel found: ${channel.channel_id}`);
-      this.logger.log(`ðŸ‘¤ User ID: ${channel.user_id}`);
-      this.logger.log(`ðŸ“… Calendar ID: ${channel.calendar_id}`);
-      console.log('ðŸ“‹ Channel Details:', JSON.stringify(channel, null, 2));
+      this.logger.log(`Channel found: ${channel.channel_id}`);
+      this.logger.log(`User ID: ${channel.user_id}`);
+      this.logger.log(`Calendar ID: ${channel.calendar_id}`);
 
       if (!channel.is_active) {
-        this.logger.warn(`âš ï¸ Channel ${event.channel_id} is not active`);
+        this.logger.warn(`Channel ${event.channel_id} is not active`);
         return;
       }
 
       if (event.resource_state === 'sync') {
-        this.logger.log(
-          `ðŸ”„ Sync notification (initial setup) - ignoring`,
-        );
+        this.logger.log(`Sync notification (initial setup) - ignoring`);
         return;
       }
 
       if (event.resource_state === 'exists') {
         this.logger.log(
-          `ðŸŽ¯ Change detected for user ${channel.user_id}, calendar ${channel.calendar_id}`,
+          `Change detected for user ${channel.user_id}, calendar ${channel.calendar_id}`,
         );
-        console.log('ðŸš€ Starting calendar sync...\n');
 
         await this.syncCalendarEvents(channel.user_id, channel.calendar_id);
       }
     } catch (error) {
       this.logger.error(
-        `âŒ Error handling webhook notification: ${error.message}`,
+        `Error handling webhook notification: ${error.message}`,
         error.stack,
       );
-      console.error('ðŸ’¥ Full Error:', error);
     }
   }
 
@@ -251,11 +240,9 @@ export class WebhookService {
     calendarId: string,
   ): Promise<void> {
     try {
-      this.logger.log(
-        `ðŸ“¥ ===== SYNCING CALENDAR EVENTS =====`,
-      );
-      this.logger.log(`ðŸ‘¤ User ID: ${userId}`);
-      this.logger.log(`ðŸ“… Calendar ID: ${calendarId}`);
+      this.logger.log(`===== SYNCING CALENDAR EVENTS =====`);
+      this.logger.log(`User ID: ${userId}`);
+      this.logger.log(`Calendar ID: ${calendarId}`);
 
       const timeMin = new Date();
       timeMin.setDate(timeMin.getDate() - 30);
@@ -263,8 +250,7 @@ export class WebhookService {
       const timeMax = new Date();
       timeMax.setDate(timeMax.getDate() + 90);
 
-      this.logger.log(`ðŸ“† Time Range: ${timeMin.toISOString()} to ${timeMax.toISOString()}`);
-      console.log('â±ï¸ Fetching events from Google Calendar...');
+      this.logger.log(`Time Range: ${timeMin.toISOString()} to ${timeMax.toISOString()}`);
 
       const googleEvents = await this.googleCalendarService.listEvents(
         userId,
@@ -276,23 +262,7 @@ export class WebhookService {
         },
       );
 
-      this.logger.log(
-        `âœ… Fetched ${googleEvents.length} events from Google Calendar`,
-      );
-
-      if (googleEvents.length > 0) {
-        console.log('\nðŸ“‹ Sample Events from Google Calendar (first 3):');
-        googleEvents.slice(0, 3).forEach((event, index) => {
-          console.log(`\n  Event ${index + 1}:`);
-          console.log(`    ID: ${event.id}`);
-          console.log(`    Title: ${event.summary}`);
-          console.log(`    Start: ${event.start?.dateTime}`);
-          console.log(`    End: ${event.end?.dateTime}`);
-          console.log(`    Status: ${event.status}`);
-          console.log(`    Meet Link: ${event.hangoutLink || 'N/A'}`);
-        });
-        console.log('');
-      }
+      this.logger.log(`Fetched ${googleEvents.length} events from Google Calendar`);
 
       const tempraCalendarId = await this.getTempraCalendarId(
         userId,
@@ -309,12 +279,11 @@ export class WebhookService {
       let created = 0;
       let updated = 0;
       let deleted = 0;
-      console.log(`\nðŸ”„ Processing ${googleEvents.length} events...`);
-      
+
       for (const googleEvent of googleEvents) {
         try {
           if (!this.isValidGoogleEvent(googleEvent)) {
-            console.log(`âš ï¸ Skipping invalid event: ${googleEvent.id}`);
+            this.logger.debug(`Skipping invalid event: ${googleEvent.id}`);
             continue;
           }
 
@@ -327,7 +296,6 @@ export class WebhookService {
             if (existingEvent) {
               await this.deleteEventFromTempra(existingEvent.id, userId);
               deleted++;
-              console.log(`ðŸ—‘ï¸ Deleted event: "${googleEvent.summary}" (${googleEvent.id})`);
             }
             continue;
           }
@@ -344,7 +312,6 @@ export class WebhookService {
               userId,
             );
             updated++;
-            console.log(`âœï¸ Updated event: "${googleEvent.summary}" (${googleEvent.id})`);
           } else {
             await this.createEventInTempra(
               eventData,
@@ -352,32 +319,24 @@ export class WebhookService {
               googleEvent.id!,
             );
             created++;
-            console.log(`âœ¨ Created new event: "${googleEvent.summary}" (${googleEvent.id})`);
-            console.log(`   Start: ${googleEvent.start?.dateTime}`);
-            console.log(`   End: ${googleEvent.end?.dateTime}`);
           }
         } catch (error) {
-          console.error(`âŒ Failed to sync event ${googleEvent.id}:`, error.message);
           this.logger.error(
             `Failed to sync event ${googleEvent.id}: ${error.message}`,
           );
         }
       }
 
-      this.logger.log(
-        `âœ… ===== SYNC COMPLETED =====`,
-      );
-      this.logger.log(`ðŸ“Š Summary for user ${userId}:`);
-      this.logger.log(`   âœ¨ Created: ${created}`);
-      this.logger.log(`   âœï¸ Updated: ${updated}`);
-      this.logger.log(`   ðŸ—‘ï¸ Deleted: ${deleted}`);
-      console.log('\n');
+      this.logger.log(`===== SYNC COMPLETED =====`);
+      this.logger.log(`Summary for user ${userId}:`);
+      this.logger.log(`   Created: ${created}`);
+      this.logger.log(`   Updated: ${updated}`);
+      this.logger.log(`   Deleted: ${deleted}`);
     } catch (error) {
       this.logger.error(
         `Failed to sync calendar events: ${error.message}`,
         error.stack,
       );
-      console.error('ðŸ’¥ Sync Error:', error);
     }
   }
 

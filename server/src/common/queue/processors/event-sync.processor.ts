@@ -210,13 +210,8 @@ export class EventSyncProcessor implements OnModuleInit, OnModuleDestroy {
     const total = eventIds.length;
 
     for (const eventId of eventIds) {
-      // TODO: Process each event based on operation
-      // switch (operation) {
-      //     case 'create': await this.eventSyncService.createEventWithSync(...); break;
-      //     case 'update': await this.eventSyncService.updateEventWithSync(...); break;
-      //     case 'delete': await this.eventSyncService.deleteEventWithSync(...); break;
-      // }
-
+      // Batch processing currently uses simulation
+      // Real implementation requires EventSyncService integration
       await this.simulateWork(100);
       processed++;
 

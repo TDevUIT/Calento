@@ -28,6 +28,7 @@ import { TimeSlotsList } from './TimeSlotsList';
 import { EventsList } from './EventsList';
 import { EmptyState } from './EmptyState';
 import { toast } from 'sonner';
+import { THINKING_ANIMATION } from '@/constants/timing.constants';
 
 interface ChatBoxProps {
   onClose?: () => void;
@@ -140,7 +141,7 @@ export function ChatBox({ onClose, conversationId: externalConversationId, onCon
           i === 1 ? { ...s, status: 'active' as const } : s
         );
       });
-    }, 1000);
+    }, THINKING_ANIMATION.STEP_DELAY);
     
     setTimeout(() => {
       setThinkingSteps(prev => {
@@ -150,7 +151,7 @@ export function ChatBox({ onClose, conversationId: externalConversationId, onCon
           i === 2 ? { ...s, status: 'active' as const } : s
         );
       });
-    }, 2200);
+    }, THINKING_ANIMATION.STEP_DELAY + THINKING_ANIMATION.STEP_TRANSITION + 400);
 
     const cleanHistory = messages.map(msg => ({
       role: msg.role,
@@ -160,8 +161,6 @@ export function ChatBox({ onClose, conversationId: externalConversationId, onCon
     const now = new Date();
     
     try {
-      console.log('ðŸš€ Sending chat request...');
-      
       const response = await chatMutation.mutateAsync({
         message: input.trim(),
         conversation_id: displayConversationId,
@@ -177,8 +176,6 @@ export function ChatBox({ onClose, conversationId: externalConversationId, onCon
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         },
       });
-      
-      console.log('✅ Chat completed');
       
       if (response.data.conversation_id && !displayConversationId) {
         setConversation(response.data.conversation_id);
@@ -197,7 +194,7 @@ export function ChatBox({ onClose, conversationId: externalConversationId, onCon
       
       setTimeout(() => {
         setThinkingSteps([]);
-      }, 800);
+      }, THINKING_ANIMATION.COMPLETE_DELAY);
       
       setIsProcessing(false);
     } catch (err) {

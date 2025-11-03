@@ -1,9 +1,12 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
-const STORAGE_KEY = 'tempra_recent_colors';
-const MAX_RECENT_COLORS = 5;
+import { DEFAULT_RECENT_COLORS } from '@/constants/theme.constants';
+import { STORAGE_KEYS, API_LIMITS } from '@/constants/api.constants';
 
-const DEFAULT_COLORS = ['#3b82f6', '#ef4444', '#22c55e', '#eab308', '#a855f7'];
+const STORAGE_KEY = STORAGE_KEYS.RECENT_COLORS;
+const MAX_RECENT_COLORS = API_LIMITS.MAX_RECENT_COLORS;
+
+const DEFAULT_COLORS = DEFAULT_RECENT_COLORS;
 
 export function useRecentColors() {
   const [recentColors, setRecentColors] = useState<string[]>(() => {

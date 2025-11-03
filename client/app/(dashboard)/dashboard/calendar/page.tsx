@@ -36,6 +36,7 @@ import { CalendarSettingsDialog } from '@/components/calendar/settings/CalendarS
 import { CalendarSettingsProvider } from '@/components/calendar/shared/CalendarSettingsProvider';
 import { useControllerStore } from '@/store/controller.store';
 import { useCalendarSettingsStore } from '@/store/calendar-settings.store';
+import { COLORS } from '@/constants/theme.constants';
 
 export default function Page() {
   const queryClient = useQueryClient();
@@ -71,12 +72,6 @@ export default function Page() {
 
   const startDate = useMemo(() => startOfMonth(currentMonth).toISOString(), [currentMonth]);
   const endDate = useMemo(() => endOfMonth(currentMonth).toISOString(), [currentMonth]);
-
-  console.log('ðŸ“… Current Month Range:', {
-    currentMonth: currentMonth,
-    startDate,
-    endDate,
-  });
 
   const queryParams = useMemo(() => ({
     page: 1,
@@ -114,14 +109,6 @@ export default function Page() {
   const { items: recurringEvents = [] } = useApiData<Event>(recurringEventsQuery);
   const { items: tasks = [] } = useApiData<Task>(tasksQuery);
 
-  console.log('ðŸ”Ž Tasks Query Debug:', {
-    isLoading: tasksQuery.isLoading,
-    isError: tasksQuery.isError,
-    error: tasksQuery.error,
-    data: tasksQuery.data,
-    extractedTasks: tasks,
-  });
-  
   const apiEvents = useMemo(() => {
     return [...regularEvents, ...recurringEvents];
   }, [regularEvents, recurringEvents]);
@@ -158,10 +145,10 @@ export default function Page() {
       .map((task: Task) => {
         const dueDate = new Date(task.due_date!);
         const priorityColors = {
-          low: '#94a3b8',
-          medium: '#3b82f6',
-          high: '#f59e0b',
-          critical: '#ef4444',
+          low: COLORS.PRIORITY_LOW,
+          medium: COLORS.PRIORITY_MEDIUM,
+          high: COLORS.PRIORITY_HIGH,
+          critical: COLORS.PRIORITY_CRITICAL,
         };
         return {
           id: task.id,
@@ -177,28 +164,12 @@ export default function Page() {
         };
       });
 
-    console.log('ðŸ“Š Calendar Debug:', {
-      totalTasks: tasks.length,
-      tasksWithDueDate: tasks.filter((t: Task) => t.due_date && !t.is_deleted).length,
-      taskItemsCount: taskItems.length,
-      rawTasks: tasks,
-      convertedTaskItems: taskItems,
-    });
-
     return [...eventItems, ...taskItems];
   }, [apiEvents, tasks]);
 
   const filteredEvents = calendarEvents.filter(event => {
     if (event.type === 'task') return true;
     return visibleCalendarIds.size === 0 || visibleCalendarIds.has(event.calendarId || '');
-  });
-
-  console.log('ðŸ” Filtered Events:', {
-    totalCalendarEvents: calendarEvents.length,
-    filteredEventsCount: filteredEvents.length,
-    tasksInFiltered: filteredEvents.filter(e => e.type === 'task').length,
-    eventsInFiltered: filteredEvents.filter(e => e.type === 'event').length,
-    visibleCalendarIds: Array.from(visibleCalendarIds),
   });
 
   if (isLoading) {

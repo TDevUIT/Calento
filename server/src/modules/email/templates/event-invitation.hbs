@@ -1,53 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Event Invitation</title>
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             line-height: 1.6;
-            color: #1f2937;
+            color: #000;
             margin: 0;
             padding: 0;
-            background-color: #ffffff;
+            background: #fff;
         }
-        .email-wrapper {
+        .wrapper {
             max-width: 600px;
-            margin: 0 auto;
-            background: #ffffff;
+            margin: 60px auto;
+            padding: 0 40px;
         }
-        .logo-section {
-            text-align: center;
-            padding: 40px 20px 20px;
-        }
-        .logo {
-            max-width: 180px;
-            height: auto;
-        }
-        .header {
-            padding: 20px 40px;
-            text-align: center;
-        }
-        .header h1 {
-            color: #667eea;
-            font-size: 28px;
+        h1 {
+            font-size: 24px;
             font-weight: 600;
-            margin: 0;
+            color: #000;
+            margin: 0 0 30px 0;
         }
-        .content {
-            padding: 20px 40px;
+        h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #000;
+            margin: 0 0 20px 0;
         }
-        .content p {
-            margin: 15px 0;
-            color: #4b5563;
+        p {
+            margin: 0 0 20px 0;
+            color: #000;
         }
-        .organizer-info {
-            border: 2px solid #667eea;
+        .organizer {
+            border: 1px solid #000;
             padding: 20px;
             margin: 25px 0;
-            border-radius: 8px;
             display: flex;
             align-items: center;
         }
@@ -56,268 +45,175 @@
             height: 48px;
             border-radius: 50%;
             margin-right: 15px;
-            background: #667eea;
+            background: #000;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            color: #fff;
             font-weight: bold;
-            font-size: 18px;
-        }
-        .organizer-details {
-            flex: 1;
         }
         .organizer-name {
             font-weight: 600;
-            color: #1f2937;
             margin: 0 0 4px 0;
         }
         .organizer-email {
-            color: #6b7280;
+            color: #666;
             font-size: 14px;
             margin: 0;
         }
-        .event-card {
-            border: 2px solid #667eea;
-            padding: 25px;
-            margin: 25px 0;
-            border-radius: 8px;
+        .card {
+            border: 1px solid #000;
+            padding: 30px;
+            margin: 30px 0;
         }
-        .event-title {
-            font-size: 22px;
-            font-weight: 700;
-            color: #1f2937;
-            margin: 0 0 20px 0;
-        }
-        .event-detail {
+        .detail {
             margin: 15px 0;
-            color: #4b5563;
             padding-bottom: 15px;
-            border-bottom: 1px solid #f3f4f6;
+            border-bottom: 1px solid #e0e0e0;
         }
-        .event-detail:last-child {
+        .detail:last-child {
             border-bottom: none;
             padding-bottom: 0;
         }
-        .detail-label {
-            font-weight: 600;
-            color: #1f2937;
+        .detail strong {
             display: block;
             margin-bottom: 5px;
         }
-        .attendees-list {
-            margin-top: 8px;
-        }
-        .attendee-item {
+        .attendee {
             padding: 6px 0;
             display: flex;
-            align-items: center;
             justify-content: space-between;
         }
         .attendee-email {
-            color: #6b7280;
+            color: #666;
             font-size: 14px;
         }
-        .status-badge {
-            display: inline-block;
+        .badge {
             padding: 4px 12px;
-            border-radius: 12px;
+            border: 1px solid #000;
             font-size: 12px;
-            font-weight: 500;
-            border: 1px solid #667eea;
-            color: #667eea;
-            background: #ffffff;
-        }
-        .action-buttons {
-            text-align: center;
-            margin: 30px 0 20px;
         }
         .button {
             display: inline-block;
-            padding: 14px 32px;
-            margin: 8px;
+            padding: 12px 24px;
+            background: #000;
+            color: #fff;
             text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 15px;
-            transition: all 0.3s ease;
+            margin: 10px 10px 10px 0;
         }
-        .button-accept {
-            background: #667eea;
-            color: #ffffff;
+        .button-secondary {
+            background: #fff;
+            color: #000;
+            border: 1px solid #000;
         }
-        .button-decline {
-            background: #ffffff;
-            color: #667eea;
-            border: 2px solid #667eea;
-        }
-        .button-tentative {
-            background: #ffffff;
-            color: #667eea;
-            border: 2px solid #667eea;
-        }
-        .secondary-actions {
-            text-align: center;
+        .notice {
+            border-left: 3px solid #000;
+            padding: 15px 20px;
             margin: 20px 0;
+            background: #f5f5f5;
         }
-        .link-button {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 500;
-            margin: 0 10px;
-        }
-        .link-button:hover {
-            text-decoration: underline;
-        }
-        .footer {
-            padding: 30px 40px;
-            text-align: center;
-        }
-        .footer p {
-            color: #9ca3af;
-            font-size: 13px;
-            margin: 8px 0;
-        }
-        .link {
-            color: #667eea;
-            text-decoration: none;
+        .notice p {
+            margin: 5px 0;
+            font-size: 14px;
         }
         .divider {
             height: 1px;
-            background: #e5e7eb;
-            margin: 20px 0;
+            background: #e0e0e0;
+            margin: 40px 0;
         }
-        .info-box {
-            background: #f0f4ff;
-            border-left: 4px solid #667eea;
-            padding: 15px 20px;
-            margin: 20px 0;
-            border-radius: 6px;
-        }
-        .info-box p {
-            margin: 5px 0;
-            color: #4b5563;
-            font-size: 14px;
-        }
-        .info-box strong {
-            color: #667eea;
+        .footer {
+            color: #999;
+            font-size: 12px;
+            margin-top: 40px;
         }
     </style>
 </head>
 <body>
-    <div class="email-wrapper">
-        <!-- Logo -->
-        <div class="logo-section">
-            <img src="https://res.cloudinary.com/dq2z27agv/image/upload/q_auto,f_webp,w_1200/v1760519001/f6x9prkhpd10u7svw2il.webp" alt="Calento" class="logo" />
-        </div>
-
-        <!-- Header -->
-        <div class="header">
-            <h1>You're Invited to an Event</h1>
-        </div>
+    <div class="wrapper">
+        <h1>Event Invitation</h1>
         
-        <div class="content">
-            <!-- Organizer Info -->
-            <div class="organizer-info">
-                {{#if organizerAvatar}}
-                <img src="{{organizerAvatar}}" alt="{{organizerName}}" class="organizer-avatar" />
-                {{else}}
-                <div class="organizer-avatar">{{organizerInitials}}</div>
-                {{/if}}
-                <div class="organizer-details">
-                    <p class="organizer-name">{{organizerName}}</p>
-                    <p class="organizer-email">{{organizerEmail}}</p>
-                </div>
+        <div class="organizer">
+            {{#if organizerAvatar}}
+            <img src="{{organizerAvatar}}" alt="{{organizerName}}" class="organizer-avatar" />
+            {{else}}
+            <div class="organizer-avatar">{{organizerInitials}}</div>
+            {{/if}}
+            <div>
+                <p class="organizer-name">{{organizerName}}</p>
+                <p class="organizer-email">{{organizerEmail}}</p>
             </div>
+        </div>
 
-            <p>Hi <strong>{{guestName}}</strong>,</p>
-            <p>You're invited to the following event:</p>
+        <p>Hi {{guestName}},</p>
+        <p>You're invited to this event:</p>
+        
+        <div class="card">
+            <h2>{{eventTitle}}</h2>
             
-            <!-- Event Card -->
-            <div class="event-card">
-                <h2 class="event-title">{{eventTitle}}</h2>
-                
-                <div class="event-detail">
-                    <span class="detail-label">When</span>
-                    {{eventStartTime}}
-                    {{#if eventEndTime}}
-                    - {{eventEndTime}}
+            <div class="detail">
+                <strong>When</strong>
+                {{eventStartTime}}
+                {{#if eventEndTime}}
+                - {{eventEndTime}}
+                {{/if}}
+            </div>
+            
+            {{#if eventLocation}}
+            <div class="detail">
+                <strong>Where</strong>
+                {{eventLocation}}
+            </div>
+            {{/if}}
+
+            {{#if conferenceUrl}}
+            <div class="detail">
+                <strong>Online Meeting</strong>
+                <a href="{{conferenceUrl}}">Join Meeting</a>
+            </div>
+            {{/if}}
+            
+            {{#if eventDescription}}
+            <div class="detail">
+                <strong>Description</strong>
+                {{eventDescription}}
+            </div>
+            {{/if}}
+
+            {{#if showAttendees}}
+            <div class="detail">
+                <strong>Attendees ({{attendeeCount}})</strong>
+                {{#each attendees}}
+                <div class="attendee">
+                    <span class="attendee-email">{{this.email}}</span>
+                    {{#if this.responseStatus}}
+                    <span class="badge">
+                        {{#ifEquals this.responseStatus "accepted"}}Going{{/ifEquals}}
+                        {{#ifEquals this.responseStatus "tentative"}}Maybe{{/ifEquals}}
+                        {{#ifEquals this.responseStatus "needsAction"}}Pending{{/ifEquals}}
+                    </span>
                     {{/if}}
                 </div>
-                
-                {{#if eventLocation}}
-                <div class="event-detail">
-                    <span class="detail-label">Where</span>
-                    {{eventLocation}}
-                </div>
-                {{/if}}
-
-                {{#if conferenceUrl}}
-                <div class="event-detail">
-                    <span class="detail-label">Online Meeting</span>
-                    <a href="{{conferenceUrl}}" class="link">Join Meeting</a>
-                </div>
-                {{/if}}
-                
-                {{#if eventDescription}}
-                <div class="event-detail">
-                    <span class="detail-label">Description</span>
-                    {{eventDescription}}
-                </div>
-                {{/if}}
-
-                {{#if showAttendees}}
-                <div class="event-detail">
-                    <span class="detail-label">Attendees ({{attendeeCount}})</span>
-                    <div class="attendees-list">
-                        {{#each attendees}}
-                        <div class="attendee-item">
-                            <span class="attendee-email">{{this.email}}</span>
-                            {{#if this.responseStatus}}
-                            <span class="status-badge">
-                                {{#ifEquals this.responseStatus "accepted"}}Going{{/ifEquals}}
-                                {{#ifEquals this.responseStatus "tentative"}}Maybe{{/ifEquals}}
-                                {{#ifEquals this.responseStatus "needsAction"}}Pending{{/ifEquals}}
-                            </span>
-                            {{/if}}
-                        </div>
-                        {{/each}}
-                    </div>
-                </div>
-                {{/if}}
+                {{/each}}
             </div>
-            
-            <!-- Action Buttons -->
-            <div class="action-buttons">
-                <p style="margin-bottom: 20px; color: #6b7280;">Will you attend this event?</p>
-                <a href="{{acceptUrl}}" class="button button-accept">Accept</a>
-                <a href="{{tentativeUrl}}" class="button button-tentative">Maybe</a>
-                <a href="{{declineUrl}}" class="button button-decline">Decline</a>
-            </div>
+            {{/if}}
+        </div>
+        
+        <p>Will you attend?</p>
+        <a href="{{acceptUrl}}" class="button">Accept</a>
+        <a href="{{tentativeUrl}}" class="button button-secondary">Maybe</a>
+        <a href="{{declineUrl}}" class="button button-secondary">Decline</a>
 
-            <div class="info-box">
-                <p><strong>Note:</strong> When you accept this invitation:</p>
-                <p>&bull; <strong>Calento users:</strong> Event will be automatically added to your calendar with reminders</p>
-                <p>&bull; <strong>Guest users:</strong> We'll record your response and send you a calendar invite (.ics file)</p>
-            </div>
-
-            <div class="secondary-actions">
-                <a href="{{viewEventUrl}}" class="link-button">View Event Details</a>
-                {{#if addToCalendarUrl}}
-                <span style="color: #d1d5db;">•</span>
-                <a href="{{addToCalendarUrl}}" class="link-button">Add to Google Calendar</a>
-                {{/if}}
-            </div>
-
-            <div class="divider"></div>
-            
-            <p>Best regards,<br><strong>The Calento Team</strong></p>
+        <div class="notice">
+            <p>Calento users: Event auto-added to calendar</p>
+            <p>Guest users: You'll receive calendar invite (.ics)</p>
         </div>
 
-        <!-- Footer -->
+        <div class="divider"></div>
+        
+        <p>The Calento Team</p>
+        
         <div class="footer">
-            <p>© {{year}} Calento. All rights reserved.</p>
-            <p>Event invitation from <a href="{{appUrl}}" class="link">Calento Calendar</a></p>
+            <p>© {{year}} Calento</p>
         </div>
     </div>
 </body>

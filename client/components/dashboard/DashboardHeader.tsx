@@ -18,6 +18,8 @@ import GlobalSearchDialog from "./GlobalSearchDialog";
 import { useEvents } from "@/hook/event";
 import { useTasks } from "@/hook/task";
 import { useBookingLinks } from "@/hook/booking";
+import { logger } from "@/utils/logger";
+import { toast } from "sonner";
 
 interface DashboardHeaderProps {
   notificationCount?: number;
@@ -59,7 +61,12 @@ export function DashboardHeader({ notificationCount = 3 }: DashboardHeaderProps)
   };
 
   const handleNotifications = () => {
-    // TODO: Implement notifications panel
+    // Notifications panel - future feature
+    logger.info('Notifications feature coming soon', {
+      component: 'DashboardHeader',
+      action: 'OPEN_NOTIFICATIONS'
+    });
+    toast.info('Notifications feature coming soon!');
   };
 
   const handleUpgrade = () => {

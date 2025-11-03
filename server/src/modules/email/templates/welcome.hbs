@@ -1,136 +1,87 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to Calento</title>
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             line-height: 1.6;
-            color: #1f2937;
+            color: #000;
             margin: 0;
             padding: 0;
-            background-color: #ffffff;
+            background: #fff;
         }
-        .email-wrapper {
+        .wrapper {
             max-width: 600px;
-            margin: 0 auto;
-            background: #ffffff;
+            margin: 60px auto;
+            padding: 0 40px;
         }
-        .logo-section {
-            text-align: center;
-            padding: 40px 20px 20px;
-        }
-        .logo {
-            max-width: 180px;
-            height: auto;
-        }
-        .header {
-            padding: 20px 40px;
-            text-align: center;
-        }
-        .header h1 {
-            color: #667eea;
-            font-size: 28px;
+        h1 {
+            font-size: 24px;
             font-weight: 600;
-            margin: 0;
+            color: #000;
+            margin: 0 0 30px 0;
         }
-        .content {
-            padding: 20px 40px;
+        p {
+            margin: 0 0 20px 0;
+            color: #000;
         }
-        .content p {
-            margin: 15px 0;
-            color: #4b5563;
-        }
-        .feature-list {
+        ul {
             list-style: none;
             padding: 0;
-            margin: 25px 0;
+            margin: 30px 0;
         }
-        .feature-list li {
-            padding: 12px 0;
-            color: #4b5563;
-            border-bottom: 1px solid #f3f4f6;
+        li {
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
         }
-        .feature-list li:last-child {
+        li:last-child {
             border-bottom: none;
-        }
-        .button-container {
-            text-align: center;
-            margin: 35px 0;
         }
         .button {
             display: inline-block;
-            padding: 14px 40px;
-            background: #667eea;
-            color: #ffffff;
+            padding: 12px 32px;
+            background: #000;
+            color: #fff;
             text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 16px;
+            margin: 30px 0;
         }
         .divider {
             height: 1px;
-            background: #e5e7eb;
-            margin: 30px 0;
+            background: #e0e0e0;
+            margin: 40px 0;
         }
         .footer {
-            padding: 30px 40px;
-            text-align: center;
-        }
-        .footer p {
-            color: #9ca3af;
-            font-size: 13px;
-            margin: 8px 0;
-        }
-        .link {
-            color: #667eea;
-            text-decoration: none;
+            color: #999;
+            font-size: 12px;
+            margin-top: 40px;
         }
     </style>
 </head>
 <body>
-    <div class="email-wrapper">
-        <!-- Logo -->
-        <div class="logo-section">
-            <img src="https://res.cloudinary.com/dq2z27agv/image/upload/q_auto,f_webp,w_1200/v1760519001/f6x9prkhpd10u7svw2il.webp" alt="Calento" class="logo" />
-        </div>
-
-        <!-- Header -->
-        <div class="header">
-            <h1>Welcome to Calento!</h1>
-        </div>
-
-        <!-- Content -->
-        <div class="content">
-            <p>Hi <strong>{{userName}}</strong>,</p>
-            
-            <p>We're thrilled to have you join Calento - your AI-powered calendar assistant!</p>
-            
-            <p>With Calento, you can:</p>
-            <ul class="feature-list">
-                <li>Automatically sync all your calendars</li>
-                <li>Let AI find the best meeting times</li>
-                <li>Track your time and productivity</li>
-                <li>Get smart reminders for your events</li>
-            </ul>
-            
-            <div class="button-container">
-                <a href="{{dashboardUrl}}" class="button">Go to Dashboard</a>
-            </div>
-            
-            <p>Need help getting started? Check out our <a href="{{docsUrl}}" class="link">documentation</a> or reply to this email.</p>
-
-            <div class="divider"></div>
-            
-            <p>Best regards,<br><strong>The Calento Team</strong></p>
-        </div>
-
-        <!-- Footer -->
+    <div class="wrapper">
+        <h1>Welcome to Calento</h1>
+        
+        <p>Hi {{userName}},</p>
+        
+        <p>Welcome to Calento.</p>
+        
+        <ul>
+            <li>Sync all your calendars</li>
+            <li>AI finds best meeting times</li>
+            <li>Track time and productivity</li>
+            <li>Smart event reminders</li>
+        </ul>
+        
+        <a href="{{dashboardUrl}}" class="button">Go to Dashboard</a>
+        
+        <div class="divider"></div>
+        
+        <p>The Calento Team</p>
+        
         <div class="footer">
-            <p>© {{year}} Calento. All rights reserved.</p>
-            <p>You received this email because you signed up for Calento.</p>
+            <p>© {{year}} Calento</p>
         </div>
     </div>
 </body>

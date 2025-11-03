@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { API_BASE_URL, API_PREFIX } from '@/constants/api.constants';
 
 const isDev = process.env.NODE_ENV === 'development';
-const log = (...args: unknown[]) => isDev && console.log(...args);
+// Middleware logging - keep minimal for performance
+const log = (...args: unknown[]) => isDev && console.log('[Middleware]', ...args);
 
 async function verifyAuthFromCookies(request: NextRequest): Promise<boolean> {
   try {
@@ -33,9 +35,7 @@ async function verifyAuthFromCookies(request: NextRequest): Promise<boolean> {
 
 async function verifyAuthFromAPI(request: NextRequest): Promise<boolean> {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-    const apiPrefix = process.env.NEXT_PUBLIC_API_PREFIX || 'api/v1';
-    const verifyUrl = `${apiUrl}/${apiPrefix}/auth/verify`;
+    const verifyUrl = `${API_BASE_URL}/${API_PREFIX}/auth/verify`;
     
     log('[Middleware] Attempting API verification:', verifyUrl);
     

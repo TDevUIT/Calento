@@ -1,4 +1,4 @@
-﻿import {
+import {
   Controller,
   Get,
   Post,
@@ -8,13 +8,17 @@
   Query,
   HttpCode,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
+  ApiCookieAuth,
 } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
+import { CurrentUserId } from '../../../common/decorators/current-user.decorator';
 import { PriorityService } from '../services/priority.service';
 import {
   UpdatePriorityDto,
@@ -23,14 +27,12 @@ import {
 } from '../dto/priority.dto';
 
 @ApiTags('priorities')
-@ApiBearerAuth()
 @Controller('priorities')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth('bearer')
+@ApiCookieAuth('cookie')
 export class PriorityController {
   constructor(private readonly priorityService: PriorityService) {}
-
-  private getUserId(): string {
-    return '18b0ed75-56d6-40b4-aa5d-a9a17a9fe1d8'; // Temporary hardcoded user ID
-  }
 
   @Get()
   @ApiOperation({ summary: 'Get all priorities for the current user' })
@@ -39,8 +41,7 @@ export class PriorityController {
     description: 'Returns all user priorities',
     type: [PriorityResponseDto],
   })
-  async getUserPriorities() {
-    const userId = this.getUserId();
+  async getUserPriorities(@CurrentUserId() userId: string) {
     const priorities = await this.priorityService.getUserPriorities(userId);
 
     return {
@@ -59,10 +60,10 @@ export class PriorityController {
   })
   @ApiResponse({ status: 404, description: 'Priority not found' })
   async getItemPriority(
+    @CurrentUserId() userId: string,
     @Param('itemId') itemId: string,
     @Param('itemType') itemType: string
   ) {
-    const userId = this.getUserId();
     const priority = await this.priorityService.getItemPriority(
       userId,
       itemId,
@@ -83,8 +84,10 @@ export class PriorityController {
     description: 'Returns all items with the specified priority',
     type: [PriorityResponseDto],
   })
-  async getPrioritiesByLevel(@Param('priority') priority: string) {
-    const userId = this.getUserId();
+  async getPrioritiesByLevel(
+    @CurrentUserId() userId: string,
+    @Param('priority') priority: string
+  ) {
     const priorities = await this.priorityService.getPrioritiesByLevel(
       userId,
       priority
@@ -104,8 +107,10 @@ export class PriorityController {
     description: 'Returns all priorities for the specified item type',
     type: [PriorityResponseDto],
   })
-  async getPrioritiesByType(@Param('itemType') itemType: string) {
-    const userId = this.getUserId();
+  async getPrioritiesByType(
+    @CurrentUserId() userId: string,
+    @Param('itemType') itemType: string
+  ) {
     const priorities = await this.priorityService.getPrioritiesByType(
       userId,
       itemType
@@ -126,9 +131,11 @@ export class PriorityController {
     description: 'Priority updated successfully',
     type: PriorityResponseDto,
   })
-  async updatePriority(@Body() dto: UpdatePriorityDto) {
-    const userId = this.getUserId();
-    const priority = await this.priorityService.updatePriority(userId, dto);
+  async updatePriority(
+    @CurrentUserId() userId: string,
+    @Body() updateDto: UpdatePriorityDto
+  ) {
+    const priority = await this.priorityService.updatePriority(userId, updateDto);
 
     return {
       success: true,
@@ -145,11 +152,13 @@ export class PriorityController {
     description: 'Priorities updated successfully',
     type: [PriorityResponseDto],
   })
-  async bulkUpdatePriorities(@Body() dto: BulkUpdatePriorityDto) {
-    const userId = this.getUserId();
+  async bulkUpdatePriorities(
+    @CurrentUserId() userId: string,
+    @Body() bulkUpdateDto: BulkUpdatePriorityDto
+  ) {
     const priorities = await this.priorityService.bulkUpdatePriorities(
       userId,
-      dto
+      bulkUpdateDto
     );
 
     return {
@@ -165,10 +174,10 @@ export class PriorityController {
   @ApiResponse({ status: 200, description: 'Priority deleted successfully' })
   @ApiResponse({ status: 404, description: 'Priority not found' })
   async deletePriority(
+    @CurrentUserId() userId: string,
     @Param('itemId') itemId: string,
     @Param('itemType') itemType: string
   ) {
-    const userId = this.getUserId();
     await this.priorityService.deletePriority(userId, itemId, itemType);
 
     return {
@@ -184,8 +193,7 @@ export class PriorityController {
     status: 200,
     description: 'All priorities reset successfully',
   })
-  async resetPriorities() {
-    const userId = this.getUserId();
+  async resetPriorities(@CurrentUserId() userId: string) {
     await this.priorityService.resetUserPriorities(userId);
 
     return {

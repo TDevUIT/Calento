@@ -1,4 +1,4 @@
-﻿import { api, getErrorMessage } from '../config/axios';
+import { api, getErrorMessage } from '../config/axios';
 import {
   AuthResponse,
   LoginRequest,
@@ -8,6 +8,7 @@ import {
   ApiSuccessResponse,
 } from '../interface/auth.interface';
 import { API_ROUTES } from '../constants/routes';
+import { logger } from '@/utils/logger';
 
 export const register = async (userData: RegisterRequest): Promise<AuthResponse> => {
   try {
@@ -39,9 +40,10 @@ export const logout = async (): Promise<void> => {
   try {
     await api.post(API_ROUTES.AUTH_LOGOUT, {}, { withCredentials: true });
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
-      console.warn('Logout request failed:', getErrorMessage(error));
-    }
+    logger.warn('Logout request failed', {
+      component: 'AuthService',
+      metadata: { error: getErrorMessage(error) }
+    });
   }
 };
 

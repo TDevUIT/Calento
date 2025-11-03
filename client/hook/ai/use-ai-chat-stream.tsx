@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useCallback } from 'react';
 import { aiService } from '@/service/ai.service';
@@ -26,26 +26,18 @@ export const useAIChatStream = (): UseAIChatStreamReturn => {
   }, []);
 
   const startStream = useCallback(async (data: StreamChatRequest) => {
-    console.log('ðŸŽ¬ useAIChatStream: Starting stream with data:', data);
     setIsStreaming(true);
     setStreamedContent('');
 
     await aiService.chatStream(
       data,
       (chunk: string) => {
-        console.log('ðŸ“¥ useAIChatStream: Received chunk:', chunk);
-        setStreamedContent((prev) => {
-          const newContent = prev + chunk;
-          console.log('ðŸ“Š useAIChatStream: Total content length:', newContent.length);
-          return newContent;
-        });
+        setStreamedContent((prev) => prev + chunk);
       },
       () => {
-        console.log('âœ… useAIChatStream: Stream completed');
         setIsStreaming(false);
       },
       (error: Error) => {
-        console.error('âŒ useAIChatStream: Stream error:', error);
         setIsStreaming(false);
         toast.error('Streaming failed', {
           description: error.message,
