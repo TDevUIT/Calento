@@ -1,4 +1,4 @@
-﻿import { Injectable, Logger, OnModuleInit, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit, Inject, forwardRef } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthRepository } from './auth.repository';
 import { PasswordService } from '../../common/services/password.service';
@@ -204,7 +204,7 @@ export class AuthService {
     }
   }
 
-  async resetPassword(identifier: string, secret: string, password: string) {
+  async resetPasswordLegacy(identifier: string, secret: string, password: string) {
     try {
       const user =
         await this.userValidationService.findUserByResetToken(identifier);
@@ -240,6 +240,34 @@ export class AuthService {
       throw new AuthenticationFailedException(
         this.messageService.get('auth.reset_password_failed'),
       );
+    }
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    try {
+      const user = await this.authRepository.findByPasswordResetToken(token);
+
+      if (!user) {
+        this.logger.warn('Invalid or expired password reset token');
+        throw new InvalidCredentialsException();
+      }
+
+      const hashedPassword = await this.passwordService.hashPassword(newPassword);
+      await this.authRepository.updatePassword(user.id, hashedPassword);
+
+      this.logger.log(`Password successfully reset for user: ${user.email}`);
+
+      await this.emailService.sendEmail({
+        to: user.email,
+        subject: 'Password Successfully Reset',
+        template: 'password-reset-confirmation',
+        context: {
+          user_name: user.first_name || user.username,
+        },
+      });
+    } catch (error) {
+      this.logger.error(`Password reset failed: ${error.message}`, error.stack);
+      throw new AuthenticationFailedException('Failed to reset password');
     }
   }
 
@@ -469,6 +497,41 @@ export class AuthService {
       }
       
       throw new AuthenticationFailedException('Google login failed');
+    }
+  }
+
+  async requestPasswordReset(email: string): Promise<void> {
+    try {
+      const user = await this.authRepository.findByEmail(email);
+
+      if (!user) {
+        this.logger.warn(`Password reset requested for non-existent email: ${email}`);
+        return;
+      }
+
+      const resetToken = randomBytes(32).toString('hex');
+      const expiresAt = new Date(Date.now() + SECURITY_CONSTANTS.PASSWORD_RESET_TOKEN_EXPIRY);
+
+      await this.authRepository.savePasswordResetToken(user.id, resetToken, expiresAt);
+
+      const frontendUrl = this.configService.frontendUrl;
+      const resetUrl = `${frontendUrl}/auth/reset-password?token=${resetToken}`;
+
+      await this.emailService.sendEmail({
+        to: user.email,
+        subject: 'Password Reset Request',
+        template: 'password-reset',
+        context: {
+          user_name: user.first_name || user.username,
+          reset_url: resetUrl,
+          expiry_hours: SECURITY_CONSTANTS.PASSWORD_RESET_TOKEN_EXPIRY / (1000 * 60 * 60),
+        },
+      });
+
+      this.logger.log(`Password reset email sent to: ${email}`);
+    } catch (error) {
+      this.logger.error(`Password reset request failed: ${error.message}`, error.stack);
+      throw new AuthenticationFailedException('Failed to process password reset request');
     }
   }
 }

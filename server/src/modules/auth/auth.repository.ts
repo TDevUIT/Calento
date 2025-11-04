@@ -1,4 +1,4 @@
-﻿import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { DatabaseService } from '../../database/database.service';
 import { UserValidationService } from '../../common/services/user-validation.service';
 import { User } from '../users/user.entity';
@@ -110,40 +110,6 @@ export class AuthRepository {
     }
   }
 
-  async updatePassword(userId: string, passwordHash: string): Promise<void> {
-    try {
-      const query = `
-        UPDATE users 
-        SET password_hash = $1, updated_at = CURRENT_TIMESTAMP
-        WHERE id = $2 AND is_active = true
-      `;
-
-      const result = await this.databaseService.query(query, [
-        passwordHash,
-        userId,
-      ]);
-
-      if (result.rowCount === 0) {
-        throw new UserNotFoundException();
-      }
-
-      this.logger.log(`Password updated for user: ${userId}`);
-    } catch (error) {
-      this.logger.error(
-        `Failed to update password: ${error.message}`,
-        error.stack,
-      );
-
-      if (error instanceof UserNotFoundException) {
-        throw error;
-      }
-
-      throw new DatabaseOperationException(
-        'Database error during password update',
-      );
-    }
-  }
-
   async verifyEmail(userId: string): Promise<void> {
     try {
       const query = `
@@ -245,6 +211,86 @@ export class AuthRepository {
       );
       throw new DatabaseOperationException(
         'Database error during username check',
+      );
+    }
+  }
+
+  async savePasswordResetToken(
+    userId: string,
+    token: string,
+    expiresAt: Date,
+  ): Promise<void> {
+    try {
+      const query = `
+        UPDATE users
+        SET password_reset_token = $1, password_reset_expires = $2, updated_at = NOW()
+        WHERE id = $3
+      `;
+      await this.databaseService.query(query, [token, expiresAt, userId]);
+      this.logger.log(`Password reset token saved for user: ${userId}`);
+    } catch (error) {
+      this.logger.error(
+        `Failed to save password reset token: ${error.message}`,
+        error.stack,
+      );
+      throw new DatabaseOperationException(
+        'Failed to save password reset token',
+      );
+    }
+  }
+
+  async findByPasswordResetToken(token: string): Promise<User | null> {
+    try {
+      const query = `
+        SELECT * FROM users
+        WHERE password_reset_token = $1 AND password_reset_expires > NOW()
+      `;
+      const result = await this.databaseService.query(query, [token]);
+      return result.rows[0] || null;
+    } catch (error) {
+      this.logger.error(
+        `Failed to find user by reset token: ${error.message}`,
+        error.stack,
+      );
+      throw new DatabaseOperationException(
+        'Failed to verify password reset token',
+      );
+    }
+  }
+
+  async updatePassword(userId: string, passwordHash: string): Promise<void> {
+    try {
+      const query = `
+        UPDATE users
+        SET password_hash = $1,
+            password_reset_token = NULL,
+            password_reset_expires = NULL,
+            updated_at = NOW()
+        WHERE id = $2
+      `;
+      await this.databaseService.query(query, [passwordHash, userId]);
+      this.logger.log(`Password updated for user: ${userId}`);
+    } catch (error) {
+      this.logger.error(
+        `Failed to update password: ${error.message}`,
+        error.stack,
+      );
+      throw new DatabaseOperationException('Failed to update password');
+    }
+  }
+
+  async clearPasswordResetToken(userId: string): Promise<void> {
+    try {
+      const query = `
+        UPDATE users
+        SET password_reset_token = NULL, password_reset_expires = NULL, updated_at = NOW()
+        WHERE id = $1
+      `;
+      await this.databaseService.query(query, [userId]);
+    } catch (error) {
+      this.logger.error(
+        `Failed to clear reset token: ${error.message}`,
+        error.stack,
       );
     }
   }

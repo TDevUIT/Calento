@@ -1,4 +1,4 @@
-﻿import {
+import {
   Controller,
   Get,
   Post,
@@ -26,6 +26,7 @@ import { AuthService } from './auth.service';
 import { CookieAuthService } from './services/cookie-auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { PasswordResetRequestDto, PasswordResetDto } from './dto/password-reset.dto';
 import { AuthResponseDto, AuthUserResponseDto } from './dto/auth-response.dto';
 import { AuthResponse } from './interfaces/auth.interface';
 import { Public } from '../../common/decorators/public.decorator';
@@ -118,28 +119,6 @@ export class AuthController {
     const result = await this.authService.forgetPassword(loginDto.email);
     return new SuccessResponseDto(
       this.messageService.get('auth.forget_password_success'),
-      result,
-    );
-  }
-
-  @Post('reset-password')
-  @ApiOperation({
-    summary: 'Reset password',
-    description: 'Reset user password',
-  })
-  @ApiResponse({ status: 200, description: 'User successfully reset password' })
-  async resetPassword(
-    @Body() identifier: string,
-    @Body() secret: string,
-    @Body() password: string,
-  ): Promise<SuccessResponseDto<{ email: string }>> {
-    const result = await this.authService.resetPassword(
-      identifier,
-      secret,
-      password,
-    );
-    return new SuccessResponseDto(
-      this.messageService.get('auth.reset_password_success'),
       result,
     );
   }
@@ -391,6 +370,54 @@ export class AuthController {
     return new SuccessResponseDto(
       this.messageService.get('auth.google_login_success'),
       result,
+    );
+  }
+
+  @Public()
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: '🔑 Request password reset',
+    description: 'Send password reset email to user',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Password reset email sent if account exists',
+    type: SuccessResponseDto,
+  })
+  @ApiResponse({ status: 400, description: 'Invalid email format' })
+  async requestPasswordReset(
+    @Body() dto: PasswordResetRequestDto,
+  ): Promise<SuccessResponseDto<null>> {
+    await this.authService.requestPasswordReset(dto.email);
+    
+    return new SuccessResponseDto(
+      'If an account exists with this email, a password reset link has been sent',
+      null,
+    );
+  }
+
+  @Public()
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: '🔐 Reset password',
+    description: 'Reset user password with token',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Password reset successfully',
+    type: SuccessResponseDto,
+  })
+  @ApiResponse({ status: 400, description: 'Invalid or expired token' })
+  async resetPassword(
+    @Body() dto: PasswordResetDto,
+  ): Promise<SuccessResponseDto<null>> {
+    await this.authService.resetPassword(dto.token, dto.new_password);
+    
+    return new SuccessResponseDto(
+      this.messageService.get('auth.password_reset_success'),
+      null,
     );
   }
 }

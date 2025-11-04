@@ -13,6 +13,7 @@ import {
   HelpCircle,
   CheckSquare,
   Users,
+  Clock,
 } from "lucide-react";
 import { FaCoins } from "react-icons/fa6";
 import {
@@ -46,6 +47,11 @@ const calendarScheduleItems = [
     title: "Tasks",
     href: PROTECTED_ROUTES.DASHBOARD_TASKS,
     icon: CheckSquare,
+  },
+  {
+    title: "Availability",
+    href: PROTECTED_ROUTES.DASHBOARD_AVAILABILITY,
+    icon: Clock,
   },
   {
     title: "Teams",

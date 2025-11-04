@@ -62,6 +62,7 @@ export default function SettingsPage() {
     if (serverSettings) {
       settings.setSettings(serverSettings);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serverSettings]);
 
   const handleSaveAccountSettings = async () => {

@@ -132,6 +132,14 @@ export class ConfigService {
     return this.config.CORS_MAX_AGE;
   }
 
+  get frontendUrl(): string {
+    return this.config.FRONTEND_URL;
+  }
+
+  get frontendDomain(): string {
+    return this.config.FRONTEND_DOMAIN;
+  }
+
   get maxFileSize(): number {
     return this.config.MAX_FILE_SIZE;
   }

@@ -101,4 +101,6 @@ export {
   teamService,
 } from './team.service';
 
+export { availabilityService } from './availability.service';
+
 export { default as api, getErrorMessage, isNetworkError, isTimeoutError, isServerError, isClientError } from '../config/axios';

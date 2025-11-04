@@ -1,5 +1,6 @@
 export * from './ai';
 export * from './auth';
+export * from './availability';
 export * from './booking';
 export * from './calendar';
 export * from './event';

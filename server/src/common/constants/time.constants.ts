@@ -77,6 +77,9 @@ export const SECURITY_CONSTANTS = {
     WEBHOOK_TOKEN: 16,
   },
 
+  // Password reset token expiry (1 hour)
+  PASSWORD_RESET_TOKEN_EXPIRY: 60 * 60 * 1000,
+
   // Rate limiting
   RATE_LIMITS: {
     LOGIN_ATTEMPTS: 5,

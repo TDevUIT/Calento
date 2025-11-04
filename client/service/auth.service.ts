@@ -94,6 +94,30 @@ export const loginWithGoogle = async (code: string): Promise<AuthResponse> => {
   }
 };
 
+export const requestPasswordReset = async (email: string): Promise<void> => {
+  try {
+    await api.post(
+      API_ROUTES.AUTH_FORGOT_PASSWORD,
+      { email },
+      { withCredentials: true }
+    );
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+};
+
+export const resetPassword = async (token: string, newPassword: string): Promise<void> => {
+  try {
+    await api.post(
+      API_ROUTES.AUTH_RESET_PASSWORD,
+      { token, new_password: newPassword },
+      { withCredentials: true }
+    );
+  } catch (error) {
+    throw new Error(getErrorMessage(error));
+  }
+};
+
 export const authService = {
   register,
   login,
@@ -102,6 +126,8 @@ export const authService = {
   getCurrentUser,
   checkAuthStatus,
   loginWithGoogle,
+  requestPasswordReset,
+  resetPassword,
 };
 
 export default authService;

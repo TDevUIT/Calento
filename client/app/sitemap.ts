@@ -10,20 +10,31 @@ interface BlogPost {
 
 async function getBlogPosts(): Promise<BlogPost[]> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    // Skip fetch during build if API is not available
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+    if (!baseUrl) {
+      // During build without API URL, return empty array
+      return [];
+    }
+
     const response = await fetch(`${baseUrl}/api/blog-posts/published?limit=1000`, {
       next: { revalidate: 3600 }, // Cache for 1 hour
+      cache: 'no-store', // Don't cache during build
     });
     
     if (!response.ok) {
-      console.error('Failed to fetch blog posts for sitemap');
+      // Silently fail and return empty array
       return [];
     }
     
     const data = await response.json();
     return data?.data || [];
   } catch (error) {
-    console.error('Error fetching blog posts:', error);
+    // Silently fail during build - API may not be running
+    // Only log in development
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('Blog posts unavailable during build:', error instanceof Error ? error.message : 'Unknown error');
+    }
     return [];
   }
 }

@@ -40,6 +40,7 @@ export const PROTECTED_ROUTES = {
   DASHBOARD_TASKS: '/dashboard/tasks',
   DASHBOARD_BOOKINGS: '/dashboard/bookings',
   BOOKING_DETAIL: (id: string) => `/dashboard/bookings/${id}`,
+  DASHBOARD_AVAILABILITY: '/dashboard/availability',
   DASHBOARD_TEAMS: '/dashboard/teams',
   TEAM_DETAIL: (id: string) => `/dashboard/teams/${id}`,
   TEAM_CREATE: '/dashboard/teams/create',
@@ -76,6 +77,8 @@ export const API_ROUTES = {
   AUTH_REFRESH: '/auth/refresh',
   AUTH_ME: '/auth/me',
   AUTH_GOOGLE_LOGIN: '/auth/google/login',
+  AUTH_FORGOT_PASSWORD: '/auth/forgot-password',
+  AUTH_RESET_PASSWORD: '/auth/reset-password',
   
   EVENTS: '/events',
   EVENT_CREATE: '/events',
