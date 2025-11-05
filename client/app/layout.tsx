@@ -6,6 +6,8 @@ import { MainLayoutProvider } from "@/components/Layout-provider";
 import { AuthProvider } from "@/components/providers";
 import { QueryProvider } from "@/provider/query-provider";
 import { DEFAULT_METADATA } from "@/config/metadata.config";
+import JsonLd from "@/components/seo/JsonLd";
+import { organizationSchema, websiteSchema, softwareApplicationSchema } from "@/utils/seo-schema";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -26,6 +28,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <JsonLd data={[organizationSchema, websiteSchema, softwareApplicationSchema]} />
+      </head>
       <body className={`${inter.variable} antialiased bg-[#F7F8FC]`} suppressHydrationWarning>
         <QueryProvider>
           <AuthProvider>

@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "validate:seo": "node scripts/validate-seo.js"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
