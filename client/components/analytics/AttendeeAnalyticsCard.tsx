@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { AttendeeAnalytics } from '@/interface/analytics.interface';
@@ -40,13 +40,25 @@ export const AttendeeAnalyticsCard = ({
 
   if (!data || data.top_attendees.length === 0) {
     return (
-      <Card>
+      <Card className="bg-white dark:bg-gray-900 shadow-none w-full">
         <CardHeader>
           <CardTitle>Top Attendees</CardTitle>
           <CardDescription>Most frequent participants</CardDescription>
         </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground text-sm">No attendee data available</p>
+        <CardContent className="min-h-[300px] flex flex-col items-center justify-center py-12">
+          <div className="flex flex-col items-center text-center space-y-4">
+            <div className="h-16 w-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+              <Users className="h-8 w-8 text-gray-400 dark:text-gray-600" />
+            </div>
+            <div className="space-y-2">
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                No attendee data available
+              </p>
+              <p className="text-xs text-muted-foreground max-w-sm">
+                Attendee information will appear here once you have events with participants
+              </p>
+            </div>
+          </div>
         </CardContent>
       </Card>
     );

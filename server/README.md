@@ -1,98 +1,346 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 🚀 Tempra Server
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+> AI-powered Calendar & Scheduling Backend API
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+[![NestJS](https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white)](https://nestjs.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io/)
 
-## Description
+## 📖 Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Tempra Backend là một REST API server được xây dựng với NestJS, cung cấp:
+- 🔐 **Authentication**: JWT + OAuth 2.0 (Google)
+- 📅 **Calendar Management**: Event CRUD + Google Calendar sync
+- 🗓️ **Booking System**: Customizable scheduling links
+- 🤖 **AI Integration**: Gemini-powered chatbot
+- 📧 **Email Service**: Multi-provider support
+- 🔄 **Background Jobs**: BullMQ queue system
 
-## Project setup
+## 📚 Documentation
 
-```bash
-$ npm install
-```
+Comprehensive documentation available:
 
-## Compile and run the project
+- **[Main Documentation](./docs/README.md)** - Overview và navigation
+- **[Authentication Flows](./docs/01-AUTHENTICATION-FLOWS.md)** - Auth với flow diagrams
+- **[Google Calendar Integration](./docs/02-GOOGLE-CALENDAR-INTEGRATION.md)** - Google sync
+- **[Event Management](./docs/03-EVENT-MANAGEMENT.md)** - Event CRUD & recurring
+- **[Booking System](./docs/04-BOOKING-SYSTEM.md)** - Scheduling links
+- **[Database Schema](./docs/DATABASE-SCHEMA.md)** - Complete DB structure
+- **[API Reference](./docs/API-REFERENCE.md)** - All endpoints
 
-```bash
-# development
-$ npm run start
+## 🛠️ Tech Stack
 
-# watch mode
-$ npm run start:dev
+- **Framework**: NestJS 10.x
+- **Language**: TypeScript 5.x
+- **Database**: PostgreSQL 14+
+- **Cache/Queue**: Redis 6+ & BullMQ
+- **APIs**: Google Calendar, Gemini AI
+- **Email**: SMTP, SendGrid, AWS SES
+- **Validation**: class-validator
+- **ORM**: Raw SQL with pg driver
 
-# production mode
-$ npm run start:prod
-```
+## 🚀 Quick Start
 
-## Run tests
+### Prerequisites
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+Node.js >= 18.x
+PostgreSQL >= 14
+Redis >= 6
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### Installation
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+# Install dependencies
+npm install
+
+# Copy environment file
+cp .env.example .env
+
+# Edit .env with your configuration
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Database Setup
 
-## Resources
+```bash
+# Create database
+createdb tempra_dev
 
-Check out a few resources that may come in handy when working with NestJS:
+# Run migrations
+npm run migration:run
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### Environment Variables
 
-## Support
+```env
+# Server
+NODE_ENV=development
+PORT=8000
+FRONTEND_URL=http://localhost:3000
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+# Database
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_NAME=tempra_dev
+DATABASE_USER=postgres
+DATABASE_PASSWORD=postgres
 
-## Stay in touch
+# Redis
+REDIS_HOST=localhost
+REDIS_PORT=6379
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+# JWT
+JWT_SECRET=your-secret-key-min-32-chars
+JWT_REFRESH_SECRET=your-refresh-secret-key
+JWT_EXPIRES_IN=1h
+JWT_REFRESH_EXPIRES_IN=7d
 
-## License
+# Google OAuth
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GOOGLE_REDIRECT_URI=http://localhost:8000/api/auth/google/callback
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+# AI (Gemini)
+GEMINI_API_KEY=your-gemini-api-key
+
+# Email (Optional)
+EMAIL_PROVIDER=smtp
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your-email@gmail.com
+SMTP_PASSWORD=your-app-password
+```
+
+## 🔧 Development
+
+```bash
+# Development mode (watch)
+npm run start:dev
+
+# Production mode
+npm run start:prod
+
+# Debug mode
+npm run start:debug
+```
+
+Server runs on: `http://localhost:8000`
+
+API Documentation (Swagger): `http://localhost:8000/api-docs`
+
+## 🧪 Testing
+
+```bash
+# Unit tests
+npm test
+
+# E2E tests
+npm run test:e2e
+
+# Test coverage
+npm run test:cov
+
+# Watch mode
+npm run test:watch
+```
+
+## 📦 Building
+
+```bash
+# Build for production
+npm run build
+
+# Start production build
+npm run start:prod
+```
+
+## 🐳 Docker
+
+```bash
+# Build image
+docker build -t tempra-server .
+
+# Run container
+docker run -d -p 8000:8000 --env-file .env tempra-server
+
+# Or use docker-compose
+docker-compose up -d
+```
+
+## 🗄️ Database
+
+### Migrations
+
+```bash
+# Run migrations
+npm run migration:run
+
+# Revert last migration
+npm run migration:revert
+
+# Generate new migration
+npm run migration:generate -- -n MigrationName
+
+# Create empty migration
+npm run migration:create -- -n MigrationName
+```
+
+### Schema
+
+See [Database Schema Documentation](./docs/DATABASE-SCHEMA.md) for complete schema.
+
+## 📡 API
+
+### Base URL
+
+```
+http://localhost:8000/api
+```
+
+### Authentication
+
+```bash
+# Header-based
+Authorization: Bearer {access_token}
+
+# Cookie-based
+Cookie: access_token={token}
+```
+
+### Example Requests
+
+```bash
+# Register
+curl -X POST http://localhost:8000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","password":"Test123!","username":"user"}'
+
+# Login
+curl -X POST http://localhost:8000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","password":"Test123!"}'
+
+# Get events
+curl -X GET http://localhost:8000/api/events \
+  -H "Authorization: Bearer {token}"
+```
+
+## 📊 Key Features
+
+### Authentication & Authorization
+- JWT-based authentication
+- Google OAuth 2.0 integration
+- Role-based access control (RBAC)
+- Password reset flow
+- HTTP-only cookies
+
+### Calendar & Events
+- Full CRUD operations
+- Recurring events (RRULE)
+- Google Calendar sync (bidirectional)
+- Event invitations & RSVP
+- Multiple calendars per user
+
+### Booking System
+- Customizable booking links
+- Availability calculation
+- Multi-timezone support
+- Buffer time between meetings
+- Automatic confirmations
+
+### AI Integration
+- Natural language processing
+- Smart scheduling
+- Event creation via chat
+- Context-aware responses
+
+### Background Jobs
+- BullMQ queue system
+- Event synchronization
+- Email sending
+- Webhook processing
+
+## 🏗️ Architecture
+
+```
+server/src/
+├── common/              # Shared utilities
+├── config/              # Configuration
+├── database/            # Database setup
+└── modules/             # Feature modules
+    ├── auth/           # Authentication
+    ├── users/          # User management
+    ├── event/          # Events & calendar
+    ├── booking/        # Booking system
+    ├── google/         # Google integration
+    ├── email/          # Email service
+    └── ai/             # AI chatbot
+```
+
+## 🔍 Code Quality
+
+```bash
+# Lint code
+npm run lint
+
+# Format code
+npm run format
+
+# Type check
+npm run type-check
+```
+
+## 📝 Contributing
+
+1. Fork the repository
+2. Create feature branch: `git checkout -b feature/new-feature`
+3. Commit changes: `git commit -m "feat: add new feature"`
+4. Push to branch: `git push origin feature/new-feature`
+5. Create Pull Request
+
+## 🐛 Troubleshooting
+
+### Database Connection Failed
+
+```bash
+# Check PostgreSQL is running
+pg_isready
+
+# Verify credentials
+psql -U postgres -d tempra_dev
+```
+
+### Redis Connection Failed
+
+```bash
+# Check Redis is running
+redis-cli ping
+
+# Start Redis
+redis-server
+```
+
+### Port Already in Use
+
+```bash
+# Change PORT in .env
+PORT=8001
+```
+
+## 📄 License
+
+MIT License - see [LICENSE](../LICENSE) file for details.
+
+## 🤝 Support
+
+- Documentation: [./docs/README.md](./docs/README.md)
+- API Reference: [./docs/API-REFERENCE.md](./docs/API-REFERENCE.md)
+- Issues: [GitHub Issues](https://github.com/your-org/tempra/issues)
+
+---
+
+**Built with NestJS** - A progressive Node.js framework
+
+For more information, visit [NestJS Documentation](https://docs.nestjs.com/)
