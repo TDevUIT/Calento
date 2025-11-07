@@ -1,22 +1,39 @@
 import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://calento.space";
 
   return {
-     rules: [
+    rules: [
       {
         userAgent: "*",
         allow: "/",
         disallow: [
           "/admin",
-          "/admin/*",
           "/profile",
           "/api",
           "/auth",
-          "/auth/*",
-          "/api/*",
         ],
+      },
+      {
+        userAgent: "GPTBot",
+        disallow: "/",
+      },
+      {
+        userAgent: "ChatGPT-User",
+        disallow: "/",
+      },
+      {
+        userAgent: "CCBot",
+        disallow: "/",
+      },
+      {
+        userAgent: "anthropic-ai",
+        disallow: "/",
+      },
+      {
+        userAgent: "Claude-Web",
+        disallow: "/",
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,
