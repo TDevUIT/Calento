@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { taskService } from '@/service/task.service';
@@ -10,6 +10,7 @@ export const useTasks = (params?: TaskQueryParams): UseQueryResult<PaginatedTask
     queryKey: TASK_QUERY_KEYS.list(params),
     queryFn: () => taskService.getTasks(params),
     staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: true,
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+    refetchOnWindowFocus: false, // Don't refetch on window focus
   });
 };

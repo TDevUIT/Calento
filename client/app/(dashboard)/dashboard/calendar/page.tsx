@@ -91,19 +91,6 @@ export default function Page() {
   const regularEventsQuery = useEvents(queryParams);
   const recurringEventsQuery = useRecurringEvents(recurringQueryParams);
   const tasksQuery = useTasks({ page: 1, limit: 100 });
-
-  useEffect(() => {
-    queryClient.invalidateQueries({ 
-      queryKey: EVENT_QUERY_KEYS.all,
-      refetchType: 'active',
-    });
-    
-    Promise.all([
-      regularEventsQuery.refetch(),
-      recurringEventsQuery.refetch(),
-      tasksQuery.refetch(),
-    ]);
-  }, [currentMonth, startDate, endDate, queryClient, regularEventsQuery, recurringEventsQuery, tasksQuery]);
   
   const { items: regularEvents = [] } = useApiData<Event>(regularEventsQuery);
   const { items: recurringEvents = [] } = useApiData<Event>(recurringEventsQuery);

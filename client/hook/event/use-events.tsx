@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { eventService } from '@/service/event.service';
@@ -9,10 +9,10 @@ export const useEvents = (params?: EventQueryParams): UseQueryResult<PaginatedEv
   return useQuery({
     queryKey: EVENT_QUERY_KEYS.list(params),
     queryFn: () => eventService.getEvents(params),
-    staleTime: 0, // Always consider data stale
-    gcTime: 0, // Don't cache - always fetch fresh data
-    refetchOnWindowFocus: true,
-    refetchOnMount: 'always',
+    staleTime: 30 * 1000, // Consider data fresh for 30 seconds
+    gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
+    refetchOnWindowFocus: false, // Don't refetch on window focus
+    refetchOnMount: true, // Refetch on mount if stale
   });
 };
 
