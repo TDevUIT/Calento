@@ -214,9 +214,9 @@ const DashboardPreview = () => {
                               <Calendar className="h-3.5 w-3.5 text-white" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h4 className="text-[11px] font-bold text-slate-900 dark:text-white mb-1">
+                              <div className="text-[11px] font-bold text-slate-900 dark:text-white mb-1">
                                 {SAMPLE_CONVERSATION.suggestedMeeting.title}
-                              </h4>
+                              </div>
                               <div className="space-y-0.5 text-[10px] text-slate-600 dark:text-slate-400">
                                 <div className="flex items-center gap-1.5">
                                   <Clock className="h-3 w-3 flex-shrink-0 text-blue-600 dark:text-blue-400" />

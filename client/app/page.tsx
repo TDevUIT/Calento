@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { HeroSection } from '@/components/organisms/sections/HeroSection';
 import { FocusStatsSection } from '@/components/organisms/sections/FocusStatsSection';
 import { ProductivitySection } from '@/components/organisms/sections/ProductivitySection';
@@ -7,6 +8,21 @@ import { GreenStatsSection } from '@/components/organisms/sections/GreenStatsSec
 import { IntegrationsSection } from '@/components/organisms/sections/IntegrationsSection';
 import { SecondTestimonialSection } from '@/components/organisms/sections/SecondTestimonialSection';
 import { StructuredData } from '@/components/seo/StructuredData';
+
+export const metadata: Metadata = {
+  title: 'AI Calendar Assistant | Smart Scheduling & Time Management',
+  description: 'Get your time back with AI. The #1 AI calendar app for individuals, teams, and organizations. Smart scheduling, calendar sync, and productivity analytics.',
+  openGraph: {
+    title: 'Calento - AI Calendar Assistant | Smart Scheduling & Time Management',
+    description: 'Get your time back with AI. The #1 AI calendar app for individuals, teams, and organizations. Smart scheduling, calendar sync, and productivity analytics.',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Calento - AI Calendar Assistant | Smart Scheduling & Time Management',
+    description: 'Get your time back with AI. The #1 AI calendar app for smart scheduling and productivity.',
+  },
+};
 
 export default function Home() {
   return (

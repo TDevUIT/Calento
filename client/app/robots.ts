@@ -1,4 +1,4 @@
-﻿import { MetadataRoute } from 'next';
+import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
@@ -22,7 +22,31 @@ export default function robots(): MetadataRoute.Robots {
         disallow: '/',
       },
       {
+        userAgent: 'ChatGPT-User',
+        disallow: '/',
+      },
+      {
         userAgent: 'CCBot',
+        disallow: '/',
+      },
+      {
+        userAgent: 'anthropic-ai',
+        disallow: '/',
+      },
+      {
+        userAgent: 'Claude-Web',
+        disallow: '/',
+      },
+      {
+        userAgent: 'Google-Extended',
+        disallow: '/',
+      },
+      {
+        userAgent: 'Omgilibot',
+        disallow: '/',
+      },
+      {
+        userAgent: 'FacebookBot',
         disallow: '/',
       },
     ],

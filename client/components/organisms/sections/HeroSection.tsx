@@ -197,9 +197,9 @@ export const HeroSection = () => {
         className="mt-12 md:mt-16 lg:mt-24"
       >
         <div className="text-center mb-16">
-          <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
             Trusted by industry leaders
-          </h3>
+          </h2>
           <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
             Join over 40,000 organizations worldwide who trust Calento to streamline their scheduling
           </p>
