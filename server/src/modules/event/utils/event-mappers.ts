@@ -1,18 +1,30 @@
-﻿import { CreateEventDto } from '../dto/events.dto';
+import { CreateEventDto } from '../dto/events.dto';
 import { Event } from '../event';
 import { GoogleEventInput } from '../../google/types/google-calendar.types';
 
 export class EventMappers {
   static googleEventToDto(googleEvent: any, calendarId: string): CreateEventDto {
+    const isAllDay = !!googleEvent.start.date && !googleEvent.start.dateTime;
+    
+    let startTime: string;
+    let endTime: string;
+    
+    if (isAllDay) {
+      startTime = googleEvent.start.date;
+      endTime = googleEvent.end.date;
+    } else {
+      startTime = googleEvent.start.dateTime || googleEvent.start.date || new Date().toISOString();
+      endTime = googleEvent.end.dateTime || googleEvent.end.date || new Date().toISOString();
+    }
+    
     return {
       calendar_id: calendarId,
       title: googleEvent.summary || 'Untitled Event',
       description: googleEvent.description ?? undefined,
-      start_time:
-        googleEvent.start.dateTime || googleEvent.start.date || new Date(),
-      end_time: googleEvent.end.dateTime || googleEvent.end.date || new Date(),
+      start_time: startTime,
+      end_time: endTime,
       location: googleEvent.location ?? undefined,
-      is_all_day: false,
+      is_all_day: isAllDay,
       recurrence_rule: googleEvent.recurrence?.[0] ?? undefined,
     };
   }
@@ -28,15 +40,17 @@ export class EventMappers {
     if (enhancedDescription) {
       enhancedDescription += '\n\n';
     }
-    enhancedDescription += 'â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”\n';
-    enhancedDescription += 'ðŸ“… Created with Tempra\n';
-    enhancedDescription += 'View source: https://tempra.app\n';
+    enhancedDescription += '────────────────────\n';
+    enhancedDescription += '📅 Created with Calento\n';
+    enhancedDescription += 'View source: https://calento.space\n';
 
     if (conferenceData?.url) {
-      enhancedDescription += '\nðŸŽ¥ Video Conference:\n';
+      enhancedDescription += '\n🎥 Video Conference:\n';
       enhancedDescription += `${conferenceData.url}\n`;
     }
 
+    const isAllDay = 'is_all_day' in event ? event.is_all_day : false;
+    
     const googleEvent: GoogleEventInput = {
       summary: title,
       description: enhancedDescription,
@@ -49,9 +63,10 @@ export class EventMappers {
           ? new Date(event.end_time)
           : (event as any).end_time,
       location: event.location,
+      is_all_day: isAllDay,
       source: {
-        title: 'Tempra',
-        url: 'https://tempra.app',
+        title: 'Calento',
+        url: 'https://calento.space',
       },
     };
 
@@ -63,7 +78,9 @@ export class EventMappers {
   }
 
   static isValidGoogleEvent(googleEvent: any): boolean {
-    return !!(googleEvent.start?.dateTime && googleEvent.end?.dateTime);
+    const hasDateTime = !!(googleEvent.start?.dateTime && googleEvent.end?.dateTime);
+    const hasDate = !!(googleEvent.start?.date && googleEvent.end?.date);
+    return hasDateTime || hasDate;
   }
 
   static nullToUndefined<T>(value: T | null): T | undefined {

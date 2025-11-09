@@ -1,4 +1,4 @@
-﻿import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { google, calendar_v3 } from 'googleapis';
 import { GoogleAuthService } from './google-auth.service';
 import { Calendar } from '../../calendar/calendar';
@@ -114,6 +114,7 @@ export class GoogleCalendarService {
       start: Date;
       end: Date;
       location?: string;
+      is_all_day?: boolean;
       source?: {
         title: string;
         url?: string;
@@ -131,15 +132,23 @@ export class GoogleCalendarService {
         summary: event.summary,
         description: event.description,
         location: event.location,
-        start: {
+      };
+
+      if (event.is_all_day) {
+        const startDate = event.start.toISOString().split('T')[0];
+        const endDate = event.end.toISOString().split('T')[0];
+        requestBody.start = { date: startDate };
+        requestBody.end = { date: endDate };
+      } else {
+        requestBody.start = {
           dateTime: event.start.toISOString(),
           timeZone: 'UTC',
-        },
-        end: {
+        };
+        requestBody.end = {
           dateTime: event.end.toISOString(),
           timeZone: 'UTC',
-        },
-      };
+        };
+      }
 
       if (event.source) {
         requestBody.source = event.source;
@@ -175,6 +184,7 @@ export class GoogleCalendarService {
       start?: Date;
       end?: Date;
       location?: string;
+      is_all_day?: boolean;
       source?: {
         title: string;
         url?: string;
@@ -195,17 +205,27 @@ export class GoogleCalendarService {
       if (event.location) updateData.location = event.location;
 
       if (event.start) {
-        updateData.start = {
-          dateTime: event.start.toISOString(),
-          timeZone: 'UTC',
-        };
+        if (event.is_all_day) {
+          const startDate = event.start.toISOString().split('T')[0];
+          updateData.start = { date: startDate };
+        } else {
+          updateData.start = {
+            dateTime: event.start.toISOString(),
+            timeZone: 'UTC',
+          };
+        }
       }
 
       if (event.end) {
-        updateData.end = {
-          dateTime: event.end.toISOString(),
-          timeZone: 'UTC',
-        };
+        if (event.is_all_day) {
+          const endDate = event.end.toISOString().split('T')[0];
+          updateData.end = { date: endDate };
+        } else {
+          updateData.end = {
+            dateTime: event.end.toISOString(),
+            timeZone: 'UTC',
+          };
+        }
       }
 
       if (event.source) {

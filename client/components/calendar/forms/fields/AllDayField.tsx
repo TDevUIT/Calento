@@ -1,6 +1,6 @@
-﻿'use client';
+'use client';
 
-import { format, startOfDay, endOfDay } from 'date-fns';
+import { format } from 'date-fns';
 import { UseFormReturn } from 'react-hook-form';
 import {
   FormControl,
@@ -30,11 +30,13 @@ export function AllDayField({ form }: AllDayFieldProps) {
       try {
         const startDate = new Date(startTime);
         if (!isNaN(startDate.getTime())) {
-          const dayStart = startOfDay(startDate);
-          const dayEnd = endOfDay(startDate);
+          const dateStr = format(startDate, 'yyyy-MM-dd');
+          const nextDay = new Date(startDate);
+          nextDay.setDate(nextDay.getDate() + 1);
+          const endDateStr = format(nextDay, 'yyyy-MM-dd');
           
-          form.setValue('start_time', format(dayStart, "yyyy-MM-dd'T'HH:mm"), { shouldValidate: true });
-          form.setValue('end_time', format(dayEnd, "yyyy-MM-dd'T'HH:mm"), { shouldValidate: true });
+          form.setValue('start_time', dateStr + 'T00:00', { shouldValidate: true });
+          form.setValue('end_time', endDateStr + 'T00:00', { shouldValidate: true });
         }
       } catch (error) {
         console.error('Error setting all-day times:', error);

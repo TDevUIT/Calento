@@ -1,4 +1,4 @@
-﻿import { calendar_v3 } from 'googleapis';
+import { calendar_v3 } from 'googleapis';
 
 export type GoogleCalendar = calendar_v3.Schema$Calendar;
 export type GoogleEvent = calendar_v3.Schema$Event;
@@ -13,6 +13,7 @@ export interface GoogleEventInput {
   location?: string;
   attendees?: string[];
   recurrence?: string[];
+  is_all_day?: boolean;
   source?: {
     title: string;
     url?: string;
