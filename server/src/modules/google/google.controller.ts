@@ -1,4 +1,4 @@
-﻿import {
+import {
   Controller,
   Get,
   Post,
@@ -30,6 +30,10 @@ import {
   CreateGoogleMeetDto,
   GoogleMeetResponseDto,
 } from './dto/google-auth.dto';
+import { CalendarSyncManagerService } from '../event/services/calendar-sync-manager.service';
+import { EventSyncService } from '../event/services/event-sync.service';
+import { SyncStrategy } from '../event/types/sync.types';
+import { WebhookService } from '../webhook/services/webhook.service';
 
 @ApiTags('Google Calendar Integration')
 @Controller('google')
@@ -38,6 +42,9 @@ export class GoogleController {
     private readonly googleAuthService: GoogleAuthService,
     private readonly googleCalendarService: GoogleCalendarService,
     private readonly messageService: MessageService,
+    private readonly syncManager: CalendarSyncManagerService,
+    private readonly eventSyncService: EventSyncService,
+    private readonly webhookService: WebhookService,
   ) {}
 
   @Get('auth/url')
@@ -74,8 +81,8 @@ export class GoogleController {
 
   @Get('auth/callback')
   @ApiOperation({
-    summary: 'ðŸ”„ OAuth Callback Handler',
-    description: 'Handle OAuth callback from Google and save credentials',
+    summary: '🔄 OAuth Callback Handler',
+    description: 'Handle OAuth callback from Google and save credentials. Automatically triggers initial sync and webhook setup.',
   })
   @ApiQuery({ name: 'code', description: 'Authorization code from Google' })
   @ApiQuery({
@@ -85,7 +92,7 @@ export class GoogleController {
   })
   @ApiResponse({
     status: 302,
-    description: 'âœ… Redirects to frontend with success/error',
+    description: '✅ Redirects to frontend with success/error',
   })
   async handleCallback(
     @Query('code') code: string,
@@ -107,12 +114,65 @@ export class GoogleController {
     const result = await this.googleAuthService.handleCallback(code, state);
 
     if (result.success) {
+      // 🔥 AUTO INITIAL SYNC - Pull existing events from Google Calendar
+      this.performBackgroundSync(state).catch((error) => {
+        this.messageService['logger'].error(
+          `Background sync failed for user ${state}:`,
+          error,
+        );
+      });
+
       return res.redirect(
-        `${process.env.FRONTEND_URL}/settings/integrations?success=google_connected`,
+        `${process.env.FRONTEND_URL}/settings/integrations?success=google_connected&sync=initializing`,
       );
     } else {
       return res.redirect(
         `${process.env.FRONTEND_URL}/settings/integrations?error=connection_failed`,
+      );
+    }
+  }
+
+  /**
+   * 🔥 Performs background initial sync and webhook setup
+   * This runs asynchronously after connection to avoid blocking the OAuth callback
+   */
+  private async performBackgroundSync(userId: string): Promise<void> {
+    try {
+      this.messageService['logger'].log(
+        `🚀 Starting background sync for user ${userId}...`,
+      );
+
+      // Step 1: Perform initial sync with MERGE strategy (keep both if conflict)
+      const syncResult = await this.syncManager.performInitialSync(
+        userId,
+        SyncStrategy.KEEP_BOTH,
+      );
+
+      this.messageService['logger'].log(
+        `✅ Initial sync completed for user ${userId}: ` +
+          `${syncResult.imported} events imported, ` +
+          `${syncResult.conflicts.length} conflicts detected`,
+      );
+
+      // Step 2: Setup webhook for real-time sync
+      try {
+        await this.webhookService.watchCalendar(userId, {
+          calendar_id: 'primary',
+          expiration: 604800000, // 7 days in ms
+        });
+        this.messageService['logger'].log(
+          `✅ Webhook setup completed for user ${userId}`,
+        );
+      } catch (webhookError) {
+        this.messageService['logger'].warn(
+          `⚠️ Webhook setup failed for user ${userId}:`,
+          webhookError,
+        );
+      }
+    } catch (error) {
+      this.messageService['logger'].error(
+        `❌ Background sync failed for user ${userId}:`,
+        error,
       );
     }
   }
@@ -122,7 +182,7 @@ export class GoogleController {
   @ApiBearerAuth('bearer')
   @ApiCookieAuth('cookie')
   @ApiOperation({
-    summary: 'ðŸ“Š Get Connection Status',
+    summary: '📊 Get Connection Status',
     description: 'Check if user is connected to Google Calendar',
   })
   @ApiResponse({
@@ -315,5 +375,138 @@ export class GoogleController {
     };
 
     return new SuccessResponseDto('Google Meet link created', response);
+  }
+
+  @Post('events/sync/pull')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('bearer')
+  @ApiCookieAuth('cookie')
+  @ApiOperation({
+    summary: '🔄 Manual Sync - Pull Events from Google',
+    description:
+      'Manually pull and sync events from Google Calendar to Calento. ' +
+      'Use this to refresh events after the initial connection or if you notice missing events.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '✅ Events synced successfully',
+    schema: {
+      example: {
+        status: 200,
+        message: 'Successfully synced 150 events from Google Calendar',
+        data: {
+          synced: 150,
+          failed: 0,
+          duration: 2500,
+          throughput: 60,
+        },
+      },
+    },
+  })
+  async manualSyncFromGoogle(
+    @CurrentUserId() userId: string,
+    @Body()
+    body?: {
+      timeMin?: string;
+      timeMax?: string;
+      maxResults?: number;
+    },
+  ): Promise<SuccessResponseDto> {
+    const timeMin = body?.timeMin
+      ? new Date(body.timeMin)
+      : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // Default: 30 days ago
+    const timeMax = body?.timeMax
+      ? new Date(body.timeMax)
+      : new Date(Date.now() + 90 * 24 * 60 * 60 * 1000); // Default: 90 days ahead
+
+    const result = await this.eventSyncService.pullEventsFromGoogle(userId, {
+      timeMin,
+      timeMax,
+      maxResults: body?.maxResults || 2500,
+    });
+
+    return new SuccessResponseDto(
+      `Successfully synced ${result.synced} events from Google Calendar`,
+      {
+        synced: result.synced,
+        failed: result.failed,
+        duration: result.duration,
+        throughput: Math.round((result.synced / result.duration) * 1000),
+        errors: result.errors.slice(0, 5), // Only show first 5 errors
+      },
+    );
+  }
+
+  @Post('events/sync/initial')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('bearer')
+  @ApiCookieAuth('cookie')
+  @ApiOperation({
+    summary: '🔄 Initial Sync with Conflict Resolution',
+    description:
+      'Perform initial sync with conflict detection and resolution strategy. ' +
+      'Use this after first connection or to resolve sync conflicts.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '✅ Initial sync completed',
+    schema: {
+      example: {
+        status: 200,
+        message: 'Initial sync completed',
+        data: {
+          totalGoogleEvents: 200,
+          totalCalentoEvents: 50,
+          imported: 180,
+          conflicts: [],
+          errors: [],
+        },
+      },
+    },
+  })
+  async manualInitialSync(
+    @CurrentUserId() userId: string,
+    @Body() body?: { strategy?: SyncStrategy },
+  ): Promise<SuccessResponseDto> {
+    const strategy = body?.strategy || SyncStrategy.KEEP_BOTH;
+
+    const result = await this.syncManager.performInitialSync(userId, strategy);
+
+    return new SuccessResponseDto('Initial sync completed', result);
+  }
+
+  @Get('sync/status')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('bearer')
+  @ApiCookieAuth('cookie')
+  @ApiOperation({
+    summary: '📊 Get Sync Status',
+    description: 'Check the status of Google Calendar synchronization',
+  })
+  @ApiResponse({
+    status: 200,
+    description: '✅ Sync status retrieved',
+  })
+  async getSyncStatus(
+    @CurrentUserId() userId: string,
+  ): Promise<SuccessResponseDto> {
+    const isConnected = await this.googleAuthService.isConnected(userId);
+
+    if (!isConnected) {
+      return new SuccessResponseDto('Not connected to Google Calendar', {
+        connected: false,
+        synced: false,
+      });
+    }
+
+    // Get conflicts if any
+    const conflicts = await this.syncManager.getConflicts(userId, false);
+
+    return new SuccessResponseDto('Sync status retrieved', {
+      connected: true,
+      synced: true,
+      unresolvedConflicts: conflicts.length,
+      conflicts: conflicts.slice(0, 10), // Only show first 10
+    });
   }
 }

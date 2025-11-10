@@ -23,7 +23,8 @@
     "migrate:up": "node src/cli/migrate-standalone.js",
     "migrate:down": "ts-node src/cli/migrate.ts down",
     "migrate:generate": "ts-node src/cli/migrate.ts generate",
-    "backfill:organizer": "ts-node src/cli/backfill-organizer.ts"
+    "backfill:organizer": "ts-node src/cli/backfill-organizer.ts",
+    "migrate:google-sync": "ts-node scripts/migrate-google-sync.ts"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

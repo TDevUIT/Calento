@@ -1,11 +1,16 @@
-﻿import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { GoogleController } from './google.controller';
 import { GoogleAuthService } from './services/google-auth.service';
 import { GoogleCalendarService } from './services/google-calendar.service';
 import { UserCredentialsRepository } from './repositories/user-credentials.repository';
+import { EventModule } from '../event/event.module';
+import { WebhookModule } from '../webhook/webhook.module';
 
 @Module({
-  imports: [],
+  imports: [
+    forwardRef(() => EventModule),
+    forwardRef(() => WebhookModule),
+  ],
   controllers: [GoogleController],
   providers: [
     GoogleAuthService,
