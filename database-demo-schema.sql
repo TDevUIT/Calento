@@ -1,11 +1,25 @@
 -- ================================================================
--- CALENTO DATABASE SCHEMA - DEMO VERSION
+-- TEMPRA (CALENTO) DATABASE SCHEMA - COMPREHENSIVE VERSION
 -- ================================================================
--- Description: Complete PostgreSQL database schema for Calento
+-- Description: Complete PostgreSQL database schema for Tempra
 --              AI-powered Calendar Assistant application
--- Version: 1.0.0
--- Created: 2025
--- Purpose: Demo and development setup
+-- Version: 2.0.0
+-- Created: 2025-11-10
+-- Last Updated: 2025-11-10
+-- Total Tables: 36
+-- Purpose: Production-ready schema with full feature set
+-- 
+-- Features Included:
+--   - User Authentication & OAuth
+--   - Google Calendar Integration with Webhooks
+--   - Event Management (Regular & Recurring)
+--   - Public Booking Links (Calendly-style)
+--   - Task Management with Priorities
+--   - AI Chatbot System
+--   - Team Collaboration & Rituals
+--   - Blog System with SEO
+--   - Email Tracking & Notifications
+--   - Sync Error Handling with Auto-Retry
 -- ================================================================
 
 -- ================================================================
@@ -177,6 +191,58 @@ CREATE TABLE sync_logs (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     
     CONSTRAINT fk_sync_logs_user_id 
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Sync log table (alternative format) - calendar sync tracking
+CREATE TABLE sync_log (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL,
+    provider VARCHAR(50) NOT NULL DEFAULT 'google',
+    status VARCHAR(50) NOT NULL,
+    details JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    CONSTRAINT fk_sync_log_user_id 
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+-- Event conflicts table - tracks sync conflicts
+CREATE TABLE event_conflicts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL,
+    calento_event_id UUID,
+    google_event_id VARCHAR(255),
+    conflict_reason VARCHAR(100) NOT NULL,
+    resolution VARCHAR(100),
+    resolved BOOLEAN DEFAULT false,
+    calento_event_data JSONB,
+    google_event_data JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    resolved_at TIMESTAMP,
+    
+    CONSTRAINT fk_event_conflicts_user 
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_event_conflicts_event 
+        FOREIGN KEY (calento_event_id) REFERENCES events(id) ON DELETE CASCADE
+);
+
+-- Sync errors table - tracks sync errors with retry logic
+CREATE TABLE sync_errors (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL,
+    error_type VARCHAR(50) NOT NULL CHECK (error_type IN ('event_sync', 'webhook_delivery', 'calendar_connection', 'token_refresh')),
+    error_message TEXT NOT NULL,
+    retry_count INTEGER NOT NULL DEFAULT 0,
+    max_retries INTEGER NOT NULL DEFAULT 3,
+    next_retry_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    metadata JSONB DEFAULT '{}',
+    resolved BOOLEAN NOT NULL DEFAULT false,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    
+    CONSTRAINT fk_sync_errors_user_id 
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -425,6 +491,41 @@ CREATE TABLE team_rituals (
         FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE CASCADE
 );
 
+-- Team availability table - track team member availability
+CREATE TABLE team_availability (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    team_id UUID NOT NULL,
+    user_id UUID NOT NULL,
+    date DATE NOT NULL,
+    available_slots JSONB,
+    timezone VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    CONSTRAINT fk_team_availability_team 
+        FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE CASCADE,
+    CONSTRAINT fk_team_availability_user 
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE(team_id, user_id, date)
+);
+
+-- Team meeting rotations table - rotation tracking
+CREATE TABLE team_meeting_rotations (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    ritual_id UUID NOT NULL,
+    user_id UUID NOT NULL,
+    scheduled_at TIMESTAMP NOT NULL,
+    event_id UUID,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    CONSTRAINT fk_team_meeting_rotations_ritual 
+        FOREIGN KEY (ritual_id) REFERENCES team_rituals(id) ON DELETE CASCADE,
+    CONSTRAINT fk_team_meeting_rotations_user 
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_team_meeting_rotations_event 
+        FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE SET NULL
+);
+
 -- ================================================================
 -- SECTION 8: INTEGRATIONS & NOTIFICATIONS
 -- ================================================================
@@ -512,6 +613,124 @@ CREATE TABLE meeting_notes (
         FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
 );
 
+-- Contacts table - contact form submissions
+CREATE TABLE contacts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    phone_number VARCHAR(20),
+    country VARCHAR(100),
+    inquiry_type VARCHAR(50) NOT NULL,
+    message TEXT NOT NULL,
+    subscribe_offers BOOLEAN DEFAULT false,
+    status VARCHAR(20) DEFAULT 'new',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ================================================================
+-- SECTION 10: BLOG SYSTEM
+-- ================================================================
+
+-- Blog categories table
+CREATE TABLE blog_categories (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    slug VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT,
+    color VARCHAR(7) DEFAULT '#6366f1',
+    sort_order INTEGER DEFAULT 0,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Blog tags table
+CREATE TABLE blog_tags (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE,
+    slug VARCHAR(50) NOT NULL UNIQUE,
+    usage_count INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Blog posts table
+CREATE TABLE blog_posts (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) NOT NULL UNIQUE,
+    excerpt TEXT,
+    content TEXT NOT NULL,
+    featured_image VARCHAR(500),
+    alt_text VARCHAR(255),
+    author_id UUID NOT NULL,
+    category_id INTEGER,
+    status VARCHAR(20) DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'archived')),
+    is_featured BOOLEAN DEFAULT FALSE,
+    published_at TIMESTAMP,
+    views_count INTEGER DEFAULT 0,
+    reading_time INTEGER,
+    seo_title VARCHAR(60),
+    seo_description VARCHAR(160),
+    seo_keywords TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    CONSTRAINT fk_blog_posts_author 
+        FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_blog_posts_category 
+        FOREIGN KEY (category_id) REFERENCES blog_categories(id) ON DELETE SET NULL
+);
+
+-- Blog post tags junction table
+CREATE TABLE blog_post_tags (
+    id SERIAL PRIMARY KEY,
+    post_id INTEGER NOT NULL,
+    tag_id INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    CONSTRAINT fk_blog_post_tags_post 
+        FOREIGN KEY (post_id) REFERENCES blog_posts(id) ON DELETE CASCADE,
+    CONSTRAINT fk_blog_post_tags_tag 
+        FOREIGN KEY (tag_id) REFERENCES blog_tags(id) ON DELETE CASCADE,
+    UNIQUE(post_id, tag_id)
+);
+
+-- Blog comments table
+CREATE TABLE blog_comments (
+    id SERIAL PRIMARY KEY,
+    post_id INTEGER NOT NULL,
+    author_name VARCHAR(100) NOT NULL,
+    author_email VARCHAR(255) NOT NULL,
+    author_website VARCHAR(255),
+    content TEXT NOT NULL,
+    status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'spam', 'deleted')),
+    parent_id INTEGER,
+    ip_address INET,
+    user_agent TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    CONSTRAINT fk_blog_comments_post 
+        FOREIGN KEY (post_id) REFERENCES blog_posts(id) ON DELETE CASCADE,
+    CONSTRAINT fk_blog_comments_parent 
+        FOREIGN KEY (parent_id) REFERENCES blog_comments(id) ON DELETE CASCADE
+);
+
+-- Blog views table - analytics
+CREATE TABLE blog_views (
+    id SERIAL PRIMARY KEY,
+    post_id INTEGER NOT NULL,
+    ip_address INET,
+    user_agent TEXT,
+    referrer VARCHAR(500),
+    viewed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    
+    CONSTRAINT fk_blog_views_post 
+        FOREIGN KEY (post_id) REFERENCES blog_posts(id) ON DELETE CASCADE
+);
+
 -- ================================================================
 -- SECTION 10: INDEXES FOR PERFORMANCE
 -- ================================================================
@@ -589,6 +808,59 @@ CREATE INDEX idx_webhook_channels_active ON webhook_channels(is_active) WHERE is
 CREATE INDEX idx_email_logs_user_id ON email_logs(user_id);
 CREATE INDEX idx_email_logs_status ON email_logs(status);
 CREATE INDEX idx_email_logs_created_at ON email_logs(created_at DESC);
+
+-- Sync log indexes
+CREATE INDEX idx_sync_log_user_provider ON sync_log(user_id, provider);
+CREATE INDEX idx_sync_log_status ON sync_log(status);
+
+-- Event conflicts indexes
+CREATE INDEX idx_event_conflicts_user ON event_conflicts(user_id);
+CREATE INDEX idx_event_conflicts_resolved ON event_conflicts(resolved);
+
+-- Sync errors indexes
+CREATE INDEX idx_sync_errors_user_id ON sync_errors(user_id);
+CREATE INDEX idx_sync_errors_error_type ON sync_errors(error_type);
+CREATE INDEX idx_sync_errors_resolved ON sync_errors(resolved);
+CREATE INDEX idx_sync_errors_next_retry ON sync_errors(next_retry_at) WHERE resolved = false;
+
+-- Team availability indexes
+CREATE INDEX idx_team_availability_team_date ON team_availability(team_id, date);
+CREATE INDEX idx_team_availability_user ON team_availability(user_id);
+
+-- Team meeting rotations indexes
+CREATE INDEX idx_team_meeting_rotations_ritual ON team_meeting_rotations(ritual_id);
+CREATE INDEX idx_team_meeting_rotations_user ON team_meeting_rotations(user_id);
+
+-- Contacts indexes
+CREATE INDEX idx_contacts_email ON contacts(email);
+CREATE INDEX idx_contacts_status ON contacts(status);
+CREATE INDEX idx_contacts_created_at ON contacts(created_at DESC);
+
+-- Blog categories indexes
+CREATE INDEX idx_blog_categories_slug ON blog_categories(slug);
+CREATE INDEX idx_blog_categories_is_active ON blog_categories(is_active);
+CREATE INDEX idx_blog_categories_sort_order ON blog_categories(sort_order);
+
+-- Blog tags indexes
+CREATE INDEX idx_blog_tags_slug ON blog_tags(slug);
+CREATE INDEX idx_blog_tags_usage_count ON blog_tags(usage_count DESC);
+
+-- Blog posts indexes
+CREATE INDEX idx_blog_posts_slug ON blog_posts(slug);
+CREATE INDEX idx_blog_posts_status ON blog_posts(status);
+CREATE INDEX idx_blog_posts_published_at ON blog_posts(published_at DESC);
+CREATE INDEX idx_blog_posts_author_id ON blog_posts(author_id);
+CREATE INDEX idx_blog_posts_category_id ON blog_posts(category_id);
+CREATE INDEX idx_blog_posts_is_featured ON blog_posts(is_featured);
+
+-- Blog comments indexes
+CREATE INDEX idx_blog_comments_post_id ON blog_comments(post_id);
+CREATE INDEX idx_blog_comments_status ON blog_comments(status);
+CREATE INDEX idx_blog_comments_parent_id ON blog_comments(parent_id);
+
+-- Blog views indexes
+CREATE INDEX idx_blog_views_post_id ON blog_views(post_id);
+CREATE INDEX idx_blog_views_viewed_at ON blog_views(viewed_at DESC);
 
 -- ================================================================
 -- SECTION 11: TRIGGERS AND FUNCTIONS
@@ -688,6 +960,34 @@ CREATE TRIGGER trigger_meeting_notes_updated_at
     BEFORE UPDATE ON meeting_notes FOR EACH ROW 
     EXECUTE FUNCTION update_updated_at_column();
 
+CREATE TRIGGER trigger_sync_log_updated_at
+    BEFORE UPDATE ON sync_log FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER trigger_sync_errors_updated_at
+    BEFORE UPDATE ON sync_errors FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_team_availability_updated_at
+    BEFORE UPDATE ON team_availability FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER trigger_update_contacts_updated_at
+    BEFORE UPDATE ON contacts FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_blog_categories_updated_at
+    BEFORE UPDATE ON blog_categories FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_blog_posts_updated_at
+    BEFORE UPDATE ON blog_posts FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_blog_comments_updated_at
+    BEFORE UPDATE ON blog_comments FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
 -- ================================================================
 -- SECTION 12: TABLE COMMENTS (DOCUMENTATION)
 -- ================================================================
@@ -698,6 +998,9 @@ COMMENT ON TABLE calendars IS 'User calendars (local and synced from Google)';
 COMMENT ON TABLE events IS 'Calendar events with recurring support';
 COMMENT ON TABLE event_attendees IS 'Event attendees and RSVP tracking';
 COMMENT ON TABLE sync_logs IS 'Calendar synchronization history';
+COMMENT ON TABLE sync_log IS 'Alternative calendar sync tracking with JSONB details';
+COMMENT ON TABLE event_conflicts IS 'Sync conflicts between local and Google events';
+COMMENT ON TABLE sync_errors IS 'Sync errors with automatic retry logic';
 COMMENT ON TABLE booking_links IS 'Public booking pages (like Calendly)';
 COMMENT ON TABLE bookings IS 'Guest bookings made through booking links';
 COMMENT ON TABLE availabilities IS 'User availability schedules';
@@ -708,11 +1011,20 @@ COMMENT ON TABLE ai_actions IS 'AI function calls and execution results';
 COMMENT ON TABLE teams IS 'Team workspace information';
 COMMENT ON TABLE team_members IS 'Team membership and roles';
 COMMENT ON TABLE team_rituals IS 'Recurring team meetings';
+COMMENT ON TABLE team_availability IS 'Track team member availability by date';
+COMMENT ON TABLE team_meeting_rotations IS 'Team meeting rotation schedule tracking';
 COMMENT ON TABLE integrations IS 'Third-party service integrations';
 COMMENT ON TABLE webhook_channels IS 'Google Calendar webhook subscriptions';
 COMMENT ON TABLE notifications IS 'Event reminder notifications';
 COMMENT ON TABLE email_logs IS 'Email sending history and status';
 COMMENT ON TABLE meeting_notes IS 'AI-generated meeting notes';
+COMMENT ON TABLE contacts IS 'Contact form submissions from landing page';
+COMMENT ON TABLE blog_categories IS 'Blog post categories';
+COMMENT ON TABLE blog_tags IS 'Blog post tags with usage tracking';
+COMMENT ON TABLE blog_posts IS 'Blog posts with SEO features';
+COMMENT ON TABLE blog_post_tags IS 'Many-to-many relationship between posts and tags';
+COMMENT ON TABLE blog_comments IS 'Blog post comments with moderation';
+COMMENT ON TABLE blog_views IS 'Blog post view analytics';
 
 -- ================================================================
 -- SECTION 13: DEMO SEED DATA (OPTIONAL)
@@ -733,8 +1045,35 @@ VALUES
 -- Success message
 DO $$
 BEGIN
-    RAISE NOTICE '✅ Calento database schema created successfully!';
-    RAISE NOTICE '📊 Total tables: 24';
-    RAISE NOTICE '🔧 Features: Users, Calendar, Events, Bookings, Tasks, AI, Teams';
-    RAISE NOTICE '🚀 Ready for demo and development';
+    RAISE NOTICE '====================================================================';
+    RAISE NOTICE '✅ Tempra (Calento) Database Schema Created Successfully!';
+    RAISE NOTICE '====================================================================';
+    RAISE NOTICE '📊 Total Tables: 36';
+    RAISE NOTICE '';
+    RAISE NOTICE '📁 Core Tables:';
+    RAISE NOTICE '   - Users & Authentication (2 tables)';
+    RAISE NOTICE '   - Calendar & Events (4 tables)';
+    RAISE NOTICE '   - Sync Management (4 tables)';
+    RAISE NOTICE '   - Booking System (3 tables)';
+    RAISE NOTICE '   - Task Management (2 tables)';
+    RAISE NOTICE '   - AI Chatbot (2 tables)';
+    RAISE NOTICE '   - Team Collaboration (5 tables)';
+    RAISE NOTICE '   - Integrations & Notifications (4 tables)';
+    RAISE NOTICE '   - Blog System (6 tables)';
+    RAISE NOTICE '   - Additional Features (4 tables)';
+    RAISE NOTICE '';
+    RAISE NOTICE '🔧 Key Features:';
+    RAISE NOTICE '   ✓ User Authentication & OAuth';
+    RAISE NOTICE '   ✓ Google Calendar Sync with Webhooks';
+    RAISE NOTICE '   ✓ Event Management with Recurring Events';
+    RAISE NOTICE '   ✓ Public Booking Links (Calendly-style)';
+    RAISE NOTICE '   ✓ Task Management with Priorities';
+    RAISE NOTICE '   ✓ AI-Powered Calendar Assistant';
+    RAISE NOTICE '   ✓ Team Collaboration & Rituals';
+    RAISE NOTICE '   ✓ Blog System with SEO';
+    RAISE NOTICE '   ✓ Email Tracking & Notifications';
+    RAISE NOTICE '   ✓ Error Handling with Auto-Retry';
+    RAISE NOTICE '';
+    RAISE NOTICE '🚀 Status: Ready for Development & Production';
+    RAISE NOTICE '====================================================================';
 END $$;

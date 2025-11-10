@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Trash2, Calendar } from "lucide-react";
+import { Loader2, Trash2, Calendar, AlertCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,15 +26,19 @@ import { AvailabilityRuleCard } from "./AvailabilityRuleCard";
 import { AddAvailabilityDialog } from "./AddAvailabilityDialog";
 import { EditAvailabilityDialog } from "./EditAvailabilityDialog";
 import { WeeklyScheduleView } from "./WeeklyScheduleView";
+import { AvailabilityManagerSkeleton, WeeklyScheduleSkeleton } from "./AvailabilitySkeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export const AvailabilityManager = () => {
   const [editingAvailability, setEditingAvailability] =
     useState<Availability | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [showDeleteAll, setShowDeleteAll] = useState(false);
+  const [activeTab, setActiveTab] = useState("schedule");
 
-  const { data: availabilities, isLoading } = useAvailabilities();
-  const { data: schedule } = useWeeklySchedule();
+  const { data: availabilities, isLoading, error, refetch } = useAvailabilities();
+  // Only fetch schedule when tab is active
+  const { data: schedule, isLoading: scheduleLoading } = useWeeklySchedule();
   const deleteMutation = useDeleteAvailability();
   const deleteAllMutation = useDeleteAllAvailabilities();
 
@@ -52,11 +56,28 @@ export const AvailabilityManager = () => {
     });
   };
 
+  // Show skeleton on initial load
   if (isLoading) {
+    return <AvailabilityManagerSkeleton />;
+  }
+
+  // Show error with retry option
+  if (error) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-      </div>
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription className="flex items-center justify-between">
+          <span>Failed to load availability data. {error.message}</span>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={() => refetch()}
+            className="ml-4"
+          >
+            Retry
+          </Button>
+        </AlertDescription>
+      </Alert>
     );
   }
 
@@ -84,7 +105,7 @@ export const AvailabilityManager = () => {
         </div>
       </div>
 
-      <Tabs defaultValue="schedule" className="w-full">
+      <Tabs defaultValue="schedule" className="w-full" onValueChange={setActiveTab}>
         <TabsList>
           <TabsTrigger value="schedule">
             <Calendar className="h-4 w-4 mr-2" />
@@ -94,7 +115,9 @@ export const AvailabilityManager = () => {
         </TabsList>
 
         <TabsContent value="schedule" className="mt-6">
-          {schedule ? (
+          {scheduleLoading ? (
+            <WeeklyScheduleSkeleton />
+          ) : schedule ? (
             <WeeklyScheduleView schedule={schedule} />
           ) : (
             <Card>

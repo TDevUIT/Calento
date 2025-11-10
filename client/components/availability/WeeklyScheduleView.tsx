@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { WeeklySchedule } from "@/interface/availability.interface";
@@ -18,7 +19,7 @@ const formatTime = (time: string) => {
 };
 
 export const WeeklyScheduleView = ({ schedule }: WeeklyScheduleViewProps) => {
-  const daysOfWeek = [0, 1, 2, 3, 4, 5, 6];
+  const daysOfWeek = useMemo(() => [0, 1, 2, 3, 4, 5, 6], []);
 
   return (
     <Card>
