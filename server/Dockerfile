@@ -13,11 +13,25 @@ RUN apt-get update && apt-get install -y \
 COPY package*.json ./
 RUN npm ci && npm cache clean --force
 
+# Copy TypeScript configuration files
+COPY tsconfig*.json ./
+COPY nest-cli.json ./
+
 # Copy source code
 COPY . . 
 
-# Build the application
-RUN npm run build
+# Verify source files are copied
+RUN echo "=== Checking source files ===" && \
+    ls -la src/ && \
+    test -d src || (echo "ERROR: src directory not found!" && exit 1)
+
+# Build the application with error checking
+RUN echo "=== Building application ===" && \
+    npm run build && \
+    echo "=== Build completed, checking output ===" && \
+    ls -la dist/ && \
+    test -f dist/main.js || (echo "ERROR: dist/main.js not found after build!" && exit 1) && \
+    echo "=== Build successful! ==="
 
 # Production stage
 FROM node:22-slim AS runner
