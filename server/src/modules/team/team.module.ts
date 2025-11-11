@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { DatabaseModule } from '../../database/database.module';
 import { EventModule } from '../event/event.module';
+import { EmailModule } from '../email/email.module';
 import { TeamController } from './team.controller';
 import { TeamRepository } from './repositories/team.repository';
 import { TeamMemberRepository } from './repositories/team-member.repository';
@@ -12,7 +13,7 @@ import { TeamRitualService } from './services/team-ritual.service';
 import { TeamAvailabilityService } from './services/team-availability.service';
 
 @Module({
-  imports: [DatabaseModule, EventModule],
+  imports: [DatabaseModule, EventModule, EmailModule],
   controllers: [TeamController],
   providers: [
     TeamRepository,

@@ -8,12 +8,13 @@ export class TeamMemberRepository {
 
     constructor(private readonly db: DatabaseService) {}
 
-    async create(teamId: string, userId: string, role: string): Promise<TeamMember> {
+    async create(teamId: string, userId: string, role: string, status: string = 'pending'): Promise<TeamMember> {
+        const joinedAt = status === 'active' ? new Date() : null;
         const result = await this.db.query(
-        `INSERT INTO team_members (team_id, user_id, role, status)
-        VALUES ($1, $2, $3, $4)
+        `INSERT INTO team_members (team_id, user_id, role, status, joined_at)
+        VALUES ($1, $2, $3, $4, $5)
         RETURNING *`,
-        [teamId, userId, role, 'pending']
+        [teamId, userId, role, status, joinedAt]
         );
         return this.mapToTeamMember(result.rows[0]);
     }
@@ -71,16 +72,26 @@ export class TeamMemberRepository {
         `UPDATE team_members SET role = $1 WHERE id = $2 RETURNING *`,
         [role, id]
         );
-        return this.mapToTeamMember(result.rows[0]);
+        
+        const updatedMember = await this.findById(id);
+        if (!updatedMember) {
+            throw new Error('Failed to fetch updated member');
+        }
+        return updatedMember;
     }
 
     async updateStatus(id: string, status: string): Promise<TeamMember> {
         const joinedAt = status === 'active' ? new Date() : null;
-        const result = await this.db.query(
-        `UPDATE team_members SET status = $1, joined_at = $2 WHERE id = $3 RETURNING *`,
+        await this.db.query(
+        `UPDATE team_members SET status = $1, joined_at = $2 WHERE id = $3`,
         [status, joinedAt, id]
         );
-        return this.mapToTeamMember(result.rows[0]);
+        
+        const updatedMember = await this.findById(id);
+        if (!updatedMember) {
+            throw new Error('Failed to fetch updated member');
+        }
+        return updatedMember;
     }
 
     async delete(id: string): Promise<void> {

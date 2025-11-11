@@ -24,6 +24,7 @@ import {
 import { TeamMember } from '@/interface/team.interface';
 import { Skeleton } from '@/components/ui/skeleton';
 import { InviteMemberDialog } from './InviteMemberDialog';
+import { useCurrentUser } from '@/hook/auth';
 
 interface TeamMembersListProps {
   teamId: string;
@@ -68,12 +69,27 @@ const getStatusBadgeColor = (status: string) => {
 export const TeamMembersList = ({ teamId, isOwner }: TeamMembersListProps) => {
   const [showInviteDialog, setShowInviteDialog] = useState(false);
   const { data: membersData, isLoading } = useTeamMembers(teamId);
+  const { data: currentUser } = useCurrentUser();
   const removeMember = useRemoveMember();
   const updateRole = useUpdateMemberRole();
   const acceptInvitation = useAcceptInvitation();
   const declineInvitation = useDeclineInvitation();
 
   const members = membersData?.data || [];
+
+  // DEBUG: Log current user and members
+  console.log('🔍 TeamMembersList Debug:', {
+    currentUserId: currentUser?.id,
+    currentUserEmail: currentUser?.email,
+    members: members.map(m => ({
+      id: m.id,
+      user_id: m.user_id,
+      email: m.user?.email,
+      status: m.status,
+      role: m.role,
+      shouldShowButtons: m.status === 'pending' && m.role !== 'owner' && currentUser?.id === m.user_id
+    }))
+  });
 
   const handleRemoveMember = async (memberId: string) => {
     if (confirm('Are you sure you want to remove this member?')) {
@@ -172,7 +188,9 @@ export const TeamMembersList = ({ teamId, isOwner }: TeamMembersListProps) => {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  {member.status === 'pending' && (
+                  {member.status === 'pending' && 
+                   member.role !== 'owner' && 
+                   currentUser?.id === member.user_id && (
                     <>
                       <Button
                         size="sm"

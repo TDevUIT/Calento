@@ -74,3 +74,27 @@ export class InvalidTimezoneException extends HttpException {
     super(`Invalid timezone: ${timezone}`, HttpStatus.BAD_REQUEST);
   }
 }
+
+export class CannotInviteOwnerException extends HttpException {
+  constructor() {
+    super('Cannot invite team owner as a member', HttpStatus.BAD_REQUEST);
+  }
+}
+
+export class UserNotFoundForInviteException extends HttpException {
+  constructor(email: string) {
+    super(`User with email ${email} not found. Please check the email address.`, HttpStatus.NOT_FOUND);
+  }
+}
+
+export class UnauthorizedInvitationActionException extends HttpException {
+  constructor() {
+    super('You are not authorized to accept/decline this invitation', HttpStatus.FORBIDDEN);
+  }
+}
+
+export class InvitationNotPendingException extends HttpException {
+  constructor(status: string) {
+    super(`Invitation is not pending. Current status: ${status}`, HttpStatus.BAD_REQUEST);
+  }
+}

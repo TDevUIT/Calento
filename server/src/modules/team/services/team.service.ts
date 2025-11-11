@@ -24,11 +24,7 @@ export class TeamService {
     
     const team = await this.teamRepo.create(userId, dto);
     
-    await this.memberRepo.create(team.id, userId, TEAM_CONSTANTS.ROLES.OWNER);
-    await this.memberRepo.updateStatus(
-      (await this.memberRepo.findByTeamAndUser(team.id, userId))!.id,
-      TEAM_CONSTANTS.STATUS.ACTIVE
-    );
+    await this.memberRepo.create(team.id, userId, TEAM_CONSTANTS.ROLES.OWNER, TEAM_CONSTANTS.STATUS.ACTIVE);
 
     return team;
   }

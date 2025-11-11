@@ -1,4 +1,4 @@
-﻿import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { APP_URL_CONSTANTS } from '../../../common/constants';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
@@ -421,5 +421,59 @@ export class EmailService {
 
     const result = await this.databaseService.query(query, [logId, userId]);
     return result.rows[0] || null;
+  }
+
+  /**
+   * Send team invitation email
+   */
+  async sendTeamInvitationEmail(
+    userId: string,
+    inviteeEmail: string,
+    inviteeName: string,
+    teamName: string,
+    teamDescription: string,
+    inviterName: string,
+    inviterEmail: string,
+    role: string,
+    teamId: string,
+    memberId: string,
+  ): Promise<SendEmailResult> {
+    try {
+      const baseUrl = this.configService.get<string>(
+        'APP_URL',
+        'http://localhost:3000',
+      );
+      const acceptUrl = `${baseUrl}/dashboard/teams/${teamId}`;
+
+      const context = {
+        inviteeName,
+        inviteeEmail,
+        teamName,
+        teamDescription,
+        inviterName,
+        inviterEmail,
+        role,
+        acceptUrl,
+        baseUrl,
+        invitedAt: new Date(),
+        year: new Date().getFullYear(),
+      };
+
+      return await this.sendEmail(
+        {
+          to: inviteeEmail,
+          subject: `You've been invited to join ${teamName} on Tempra`,
+          template: 'team-invitation',
+          context,
+        },
+        userId,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to send team invitation email to ${inviteeEmail}`,
+      );
+      this.logger.error(error);
+      throw error;
+    }
   }
 }

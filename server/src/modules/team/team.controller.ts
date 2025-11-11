@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse as SwaggerApiResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { TeamService } from './services/team.service';
 import { TeamMemberService } from './services/team-member.service';
@@ -42,6 +42,15 @@ export class TeamController {
     return await this.teamService.getMyTeams(this.getUserId(req));
   }
 
+  @Get('invitations/pending')
+  @ApiOperation({ 
+    summary: 'Get my pending team invitations',
+    description: 'Get all pending invitations for the current user where they can accept/decline'
+  })
+  async getMyPendingInvitations(@Req() req) {
+    return await this.memberService.getMyPendingInvitations(this.getUserId(req));
+  }
+
   @Get('owned')
   @ApiOperation({ summary: 'Get teams I own' })
   async getOwnedTeams(@Req() req) {
@@ -82,15 +91,27 @@ export class TeamController {
   }
 
   @Put(':teamId/members/:memberId/accept')
-  @ApiOperation({ summary: 'Accept team invitation' })
-  async acceptInvitation(@Req() req, @Param('memberId') memberId: string) {
-    return await this.memberService.acceptInvitation(memberId, this.getUserId(req));
+  @ApiOperation({ 
+    summary: 'Accept team invitation',
+    description: 'Accept a team invitation. Only the invited user can accept their own invitation.'
+  })
+  @SwaggerApiResponse({ status: 200, description: 'Invitation accepted successfully' })
+  @SwaggerApiResponse({ status: 403, description: 'Not authorized to accept this invitation' })
+  @SwaggerApiResponse({ status: 400, description: 'Invitation is not pending' })
+  async acceptInvitation(@Req() req, @Param('teamId') teamId: string, @Param('memberId') memberId: string) {
+    return await this.memberService.acceptInvitation(memberId, this.getUserId(req), teamId);
   }
 
   @Put(':teamId/members/:memberId/decline')
-  @ApiOperation({ summary: 'Decline team invitation' })
-  async declineInvitation(@Req() req, @Param('memberId') memberId: string) {
-    await this.memberService.declineInvitation(memberId, this.getUserId(req));
+  @ApiOperation({ 
+    summary: 'Decline team invitation',
+    description: 'Decline a team invitation. Only the invited user can decline their own invitation.'
+  })
+  @SwaggerApiResponse({ status: 200, description: 'Invitation declined successfully' })
+  @SwaggerApiResponse({ status: 403, description: 'Not authorized to decline this invitation' })
+  @SwaggerApiResponse({ status: 400, description: 'Invitation is not pending' })
+  async declineInvitation(@Req() req, @Param('teamId') teamId: string, @Param('memberId') memberId: string) {
+    await this.memberService.declineInvitation(memberId, this.getUserId(req), teamId);
     return { success: true };
   }
 
@@ -117,7 +138,7 @@ export class TeamController {
   @Post(':teamId/leave')
   @ApiOperation({ summary: 'Leave team' })
   async leaveTeam(@Req() req, @Param('teamId') teamId: string) {
-    await this.memberService.leaveteam(teamId, this.getUserId(req));
+    await this.memberService.leaveTeam(teamId, this.getUserId(req));
     return { success: true };
   }
 
