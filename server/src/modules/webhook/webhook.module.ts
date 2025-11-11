@@ -1,4 +1,4 @@
-﻿import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { WebhookService } from './services/webhook.service';
 import { WebhookSchedulerService } from './services/webhook-scheduler.service';
 import { WebhookChannelRepository } from './repositories/webhook-channel.repository';
@@ -9,7 +9,7 @@ import { DatabaseModule } from '../../database/database.module';
 import { CommonModule } from '../../common/common.module';
 
 @Module({
-  imports: [GoogleModule, DatabaseModule, CommonModule],
+  imports: [forwardRef(() => GoogleModule), DatabaseModule, CommonModule],
   controllers: [WebHookGoogleController, WebhookMonitoringController],
   providers: [
     WebhookService,
