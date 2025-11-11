@@ -30,8 +30,9 @@ RUN echo "=== Building application ===" && \
     npm run build && \
     echo "=== Build completed, checking output ===" && \
     ls -la dist/ && \
-    test -f dist/main.js || (echo "ERROR: dist/main.js not found after build!" && exit 1) && \
-    echo "=== Build successful! ==="
+    echo "=== Checking for main.js ===" && \
+    test -f dist/main.js || (echo "ERROR: dist/main.js not found! Build output:" && ls -la dist/ && exit 1) && \
+    echo "=== Build successful! main.js found at dist/main.js ==="
 
 # Production stage
 FROM node:22-slim AS runner
