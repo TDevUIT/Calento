@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Trash2, Calendar, AlertCircle } from "lucide-react";
+import { Trash2, Calendar, AlertCircle, Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +20,7 @@ import {
   useWeeklySchedule,
   useDeleteAvailability,
   useDeleteAllAvailabilities,
+  useBulkCreateAvailability,
 } from "@/hook";
 import type { Availability } from "@/interface/availability.interface";
 import { AvailabilityRuleCard } from "./AvailabilityRuleCard";
@@ -37,10 +38,10 @@ export const AvailabilityManager = () => {
   const [activeTab, setActiveTab] = useState("schedule");
 
   const { data: availabilities, isLoading, error, refetch } = useAvailabilities();
-  // Only fetch schedule when tab is active
   const { data: schedule, isLoading: scheduleLoading } = useWeeklySchedule();
   const deleteMutation = useDeleteAvailability();
   const deleteAllMutation = useDeleteAllAvailabilities();
+  const bulkCreateMutation = useBulkCreateAvailability();
 
   const handleDelete = () => {
     if (deleteId) {
@@ -56,12 +57,22 @@ export const AvailabilityManager = () => {
     });
   };
 
-  // Show skeleton on initial load
+  const handleSetDefaultHours = () => {
+    const defaultRules = [
+      { day_of_week: 1, start_time: "09:00:00", end_time: "17:00:00", is_active: true }, // Monday
+      { day_of_week: 2, start_time: "09:00:00", end_time: "17:00:00", is_active: true }, // Tuesday
+      { day_of_week: 3, start_time: "09:00:00", end_time: "17:00:00", is_active: true }, // Wednesday
+      { day_of_week: 4, start_time: "09:00:00", end_time: "17:00:00", is_active: true }, // Thursday
+      { day_of_week: 5, start_time: "09:00:00", end_time: "17:00:00", is_active: true }, // Friday
+    ];
+
+    bulkCreateMutation.mutate({ availabilities: defaultRules });
+  };
+
   if (isLoading) {
     return <AvailabilityManagerSkeleton />;
   }
 
-  // Show error with retry option
   if (error) {
     return (
       <Alert variant="destructive">
@@ -127,9 +138,19 @@ export const AvailabilityManager = () => {
                   No availability set
                 </h3>
                 <p className="text-gray-600 mb-4">
-                  Add your first availability rule to get started
+                  Set default working hours or add custom availability rules
                 </p>
-                <AddAvailabilityDialog />
+                <div className="flex gap-2 justify-center">
+                  <Button
+                    variant="outline"
+                    onClick={handleSetDefaultHours}
+                    disabled={bulkCreateMutation.isPending}
+                  >
+                    <Clock className="h-4 w-4 mr-2" />
+                    {bulkCreateMutation.isPending ? "Setting up..." : "Set Default Hours (9AM-5PM)"}
+                  </Button>
+                  <AddAvailabilityDialog />
+                </div>
               </CardContent>
             </Card>
           )}
@@ -155,9 +176,19 @@ export const AvailabilityManager = () => {
                   No availability rules
                 </h3>
                 <p className="text-gray-600 mb-4">
-                  Add your first availability rule to get started
+                  Set default working hours or add custom availability rules
                 </p>
-                <AddAvailabilityDialog />
+                <div className="flex gap-2 justify-center">
+                  <Button
+                    variant="outline"
+                    onClick={handleSetDefaultHours}
+                    disabled={bulkCreateMutation.isPending}
+                  >
+                    <Clock className="h-4 w-4 mr-2" />
+                    {bulkCreateMutation.isPending ? "Setting up..." : "Set Default Hours (9AM-5PM)"}
+                  </Button>
+                  <AddAvailabilityDialog />
+                </div>
               </CardContent>
             </Card>
           )}
