@@ -1,4 +1,4 @@
-﻿import {
+import {
   Controller,
   Get,
   Post,
@@ -15,7 +15,7 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
-import { CurrentUser } from '../../../common/decorators/current-user.decorator';
+import { CurrentUser, CurrentUserId } from '../../../common/decorators/current-user.decorator';
 import { WebhookSchedulerService } from '../services/webhook-scheduler.service';
 import { SyncErrorRecoveryService } from '../../../common/services/sync-error-recovery.service';
 import { SuccessResponseDto } from '../../../common/dto/base-response.dto';
@@ -78,7 +78,7 @@ export class WebhookMonitoringController {
     description: 'Webhook renewal triggered successfully',
   })
   async renewUserWebhook(
-    @CurrentUser('id') userId: string,
+    @CurrentUserId() userId: string,
     @Param('calendarId') calendarId: string,
   ): Promise<SuccessResponseDto<{ renewed: boolean }>> {
     try {
@@ -155,7 +155,7 @@ export class WebhookMonitoringController {
     description: 'User errors retrieved successfully',
   })
   async getUserErrors(
-    @CurrentUser('id') userId: string,
+    @CurrentUserId() userId: string,
     @Query('limit') limit?: string,
   ): Promise<SuccessResponseDto<any[]>> {
     try {

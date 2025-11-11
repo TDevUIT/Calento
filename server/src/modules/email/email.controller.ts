@@ -1,4 +1,4 @@
-﻿import {
+import {
   Controller,
   Post,
   Get,
@@ -19,7 +19,7 @@ import {
 import { EmailService } from './services/email.service';
 import { SendEmailDto, EmailLogResponseDto } from './dto/send-email.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { CurrentUser, CurrentUserId } from '../../common/decorators/current-user.decorator';
 import {
   SuccessResponseDto,
   PaginatedResponseDto,
@@ -61,7 +61,7 @@ export class EmailController {
   @ApiResponse({ status: 500, description: 'Failed to send email' })
   async sendEmail(
     @Body() sendEmailDto: SendEmailDto,
-    @CurrentUser('id') userId: string,
+    @CurrentUserId() userId: string,
   ): Promise<SuccessResponseDto> {
     const result = await this.emailService.sendEmail(
       {
@@ -105,7 +105,7 @@ export class EmailController {
     type: [EmailLogResponseDto],
   })
   async getEmailLogs(
-    @CurrentUser('id') userId: string,
+    @CurrentUserId() userId: string,
     @Query('limit') limit = 50,
     @Query('offset') offset = 0,
   ): Promise<PaginatedResponseDto> {
@@ -140,7 +140,7 @@ export class EmailController {
   @ApiResponse({ status: 404, description: 'Email log not found' })
   async getEmailLogById(
     @Param('id') logId: string,
-    @CurrentUser('id') userId: string,
+    @CurrentUserId() userId: string,
   ): Promise<SuccessResponseDto> {
     const log = await this.emailService.getEmailLogById(logId, userId);
 
@@ -166,7 +166,7 @@ export class EmailController {
   })
   @ApiResponse({ status: 200, description: 'Test email sent successfully' })
   async sendTestWelcomeEmail(
-    @CurrentUser('id') userId: string,
+    @CurrentUserId() userId: string,
     @CurrentUser('email') email: string,
     @CurrentUser('username') username: string,
   ): Promise<SuccessResponseDto> {
@@ -192,7 +192,7 @@ export class EmailController {
   })
   @ApiResponse({ status: 200, description: 'Test email sent successfully' })
   async sendTestReminderEmail(
-    @CurrentUser('id') userId: string,
+    @CurrentUserId() userId: string,
     @CurrentUser('email') email: string,
   ): Promise<SuccessResponseDto> {
     const result = await this.emailService.sendEventReminderEmail(

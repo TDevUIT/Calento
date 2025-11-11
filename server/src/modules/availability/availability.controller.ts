@@ -1,4 +1,4 @@
-﻿import {
+import {
   Controller,
   Get,
   Post,
@@ -28,7 +28,7 @@ import {
   CheckAvailabilityResponseDto,
 } from './dto/availability.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
-import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { CurrentUser, CurrentUserId } from '../../common/decorators/current-user.decorator';
 import { MessageService } from '../../common/message/message.service';
 
 @ApiTags('Availability')
@@ -58,7 +58,7 @@ export class AvailabilityController {
   })
   @ApiResponse({ status: 409, description: 'Overlapping availability rule' })
   async create(
-    @CurrentUser('id') userId: string,
+    @CurrentUserId() userId: string,
     @Body() dto: CreateAvailabilityDto,
   ) {
     const availability = await this.availabilityService.create(userId, dto);
@@ -82,7 +82,7 @@ export class AvailabilityController {
     type: [AvailabilityResponseDto],
   })
   async bulkCreate(
-    @CurrentUser('id') userId: string,
+    @CurrentUserId() userId: string,
     @Body() dto: BulkCreateAvailabilityDto,
   ) {
     const availabilities = await this.availabilityService.bulkCreate(
@@ -109,7 +109,7 @@ export class AvailabilityController {
     description: 'Availability rules retrieved successfully',
     type: [AvailabilityResponseDto],
   })
-  async findAll(@CurrentUser('id') userId: string) {
+  async findAll(@CurrentUserId() userId: string) {
     const availabilities = await this.availabilityService.findAll(userId);
 
     return {
@@ -132,7 +132,7 @@ export class AvailabilityController {
     description: 'Active availability rules retrieved successfully',
     type: [AvailabilityResponseDto],
   })
-  async findActive(@CurrentUser('id') userId: string) {
+  async findActive(@CurrentUserId() userId: string) {
     const availabilities = await this.availabilityService.findActive(userId);
 
     return {
@@ -154,7 +154,7 @@ export class AvailabilityController {
     status: 200,
     description: 'Weekly schedule retrieved successfully',
   })
-  async getWeeklySchedule(@CurrentUser('id') userId: string) {
+  async getWeeklySchedule(@CurrentUserId() userId: string) {
     const schedule = await this.availabilityService.getWeeklySchedule(userId);
 
     return {
@@ -175,7 +175,7 @@ export class AvailabilityController {
     type: AvailabilityResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Availability rule not found' })
-  async findOne(@Param('id') id: string, @CurrentUser('id') userId: string) {
+  async findOne(@Param('id') id: string, @CurrentUserId() userId: string) {
     const availability = await this.availabilityService.findById(id, userId);
 
     return {
@@ -199,7 +199,7 @@ export class AvailabilityController {
   @ApiResponse({ status: 409, description: 'Overlapping availability rule' })
   async update(
     @Param('id') id: string,
-    @CurrentUser('id') userId: string,
+    @CurrentUserId() userId: string,
     @Body() dto: UpdateAvailabilityDto,
   ) {
     const availability = await this.availabilityService.update(id, userId, dto);
@@ -222,7 +222,7 @@ export class AvailabilityController {
     description: 'Availability rule deleted successfully',
   })
   @ApiResponse({ status: 404, description: 'Availability rule not found' })
-  async delete(@Param('id') id: string, @CurrentUser('id') userId: string) {
+  async delete(@Param('id') id: string, @CurrentUserId() userId: string) {
     await this.availabilityService.delete(id, userId);
   }
 
@@ -236,7 +236,7 @@ export class AvailabilityController {
     status: 200,
     description: 'All availability rules deleted successfully',
   })
-  async deleteAll(@CurrentUser('id') userId: string) {
+  async deleteAll(@CurrentUserId() userId: string) {
     const count = await this.availabilityService.deleteAll(userId);
 
     return {
@@ -261,7 +261,7 @@ export class AvailabilityController {
   })
   @ApiResponse({ status: 400, description: 'Invalid date range' })
   async checkAvailability(
-    @CurrentUser('id') userId: string,
+    @CurrentUserId() userId: string,
     @Body() dto: CheckAvailabilityDto,
   ) {
     const checkUserId = dto.user_id || userId;
@@ -288,7 +288,7 @@ export class AvailabilityController {
     description: 'Default availability rules created successfully',
   })
   @ApiResponse({ status: 409, description: 'User already has availability rules' })
-  async initializeDefaultRules(@CurrentUser('id') userId: string) {
+  async initializeDefaultRules(@CurrentUserId() userId: string) {
     const existingRules = await this.availabilityService.findActive(userId);
     
     if (existingRules.length > 0) {
@@ -324,7 +324,7 @@ export class AvailabilityController {
   @ApiResponse({ status: 400, description: 'Invalid date range' })
   @ApiResponse({ status: 404, description: 'No availability rules found' })
   async getAvailableSlots(
-    @CurrentUser('id') userId: string,
+    @CurrentUserId() userId: string,
     @Body() dto: GetAvailableSlotsDto,
   ) {
     const checkUserId = dto.user_id || userId;
