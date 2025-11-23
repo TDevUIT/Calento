@@ -311,80 +311,80 @@ Dự án **Calento** hướng đến các mục tiêu cụ thể sau:
 **Các tính năng ĐƯỢC triển khai:**
 
 **1. Quản lý sự kiện (Event Management):**
-- ✅ Tạo, sửa, xóa sự kiện (CRUD operations)
-- ✅ Sự kiện định kỳ (recurring events) với RRULE standard
-- ✅ Tìm kiếm và lọc sự kiện theo nhiều tiêu chí
-- ✅ Quản lý attendees (người tham dự)
-- ✅ Cấu hình reminders (nhắc nhở)
-- ✅ Thêm địa điểm và mô tả chi tiết
+- Tạo, sửa, xóa sự kiện (CRUD operations)
+- Sự kiện định kỳ (recurring events) với RRULE standard
+- Tìm kiếm và lọc sự kiện theo nhiều tiêu chí
+- Quản lý attendees (người tham dự)
+- Cấu hình reminders (nhắc nhở)
+- Thêm địa điểm và mô tả chi tiết
 
 **2. AI Chatbot:**
-- ✅ Giao diện chat tương tác
-- ✅ Xử lý ngôn ngữ tự nhiên (tiếng Việt và tiếng Anh)
-- ✅ Function calling để thực hiện actions (tạo/sửa/xóa sự kiện)
-- ✅ Kiểm tra thời gian trống (availability checking)
-- ✅ Đề xuất thời gian họp tối ưu
-- ✅ Lưu lịch sử hội thoại
+- Giao diện chat tương tác
+- Xử lý ngôn ngữ tự nhiên (tiếng Việt và tiếng Anh)
+- Function calling để thực hiện actions (tạo/sửa/xóa sự kiện)
+- Kiểm tra thời gian trống (availability checking)
+- Đề xuất thời gian họp tối ưu
+- Lưu lịch sử hội thoại
 
 **3. Google Calendar Integration:**
-- ✅ Kết nối với Google Calendar qua OAuth 2.0
-- ✅ Đồng bộ hai chiều (sync) sự kiện
-- ✅ Webhook notifications khi có thay đổi
-- ✅ Tự động refresh access tokens
+- Kết nối với Google Calendar qua OAuth 2.0
+- Đồng bộ hai chiều (sync) sự kiện
+- Webhook notifications khi có thay đổi
+- Tự động refresh access tokens
 
 **4. Priority Management:**
-- ✅ Bảng Kanban với drag-and-drop
-- ✅ 4 cấp độ ưu tiên: Critical, High, Medium, Low
-- ✅ Quản lý tasks, booking links, habits
-- ✅ Lưu trữ vị trí items trong database
+- Bảng Kanban với drag-and-drop
+- 4 cấp độ ưu tiên: Critical, High, Medium, Low
+- Quản lý tasks, booking links, habits
+- Lưu trữ vị trí items trong database
 
 **5. Booking Links (Scheduling Links):**
-- ✅ Tạo liên kết đặt lịch công khai
-- ✅ Tùy chỉnh thời lượng cuộc hẹn
-- ✅ Tự động tìm khung giờ trống
-- ✅ Guest booking form
-- ✅ Email confirmation tự động
+- Tạo liên kết đặt lịch công khai
+- Tùy chỉnh thời lượng cuộc hẹn
+- Tự động tìm khung giờ trống
+- Guest booking form
+- Email confirmation tự động
 
 **6. Authentication & Authorization:**
-- ✅ Đăng ký/Đăng nhập với email và password
-- ✅ Google OAuth 2.0 login
-- ✅ JWT token-based authentication
-- ✅ Cookie-based session management
-- ✅ Password reset functionality
+- Đăng ký/Đăng nhập với email và password
+- Google OAuth 2.0 login
+- JWT token-based authentication
+- Cookie-based session management
+- Password reset functionality
 
 **7. Email Notifications:**
-- ✅ Email xác nhận booking
-- ✅ Email nhắc nhở sự kiện
-- ✅ Welcome email cho user mới
-- ✅ Template system với Handlebars
+- Email xác nhận booking
+- Email nhắc nhở sự kiện
+- Welcome email cho user mới
+- Template system với Handlebars
 
 **8. Background Job Processing:**
-- ✅ Queue system với BullMQ và Redis
-- ✅ Email sending jobs
-- ✅ Calendar sync jobs
-- ✅ Auto-retry với exponential backoff
+- Queue system với BullMQ và Redis
+- Email sending jobs
+- Calendar sync jobs
+- Auto-retry với exponential backoff
 
 **Các tính năng KHÔNG triển khai (ngoài phạm vi):**
 
-**❌ Mobile Application:**
+**Mobile Application:**
 - Chỉ phát triển web application
 - Responsive design cho mobile browser
 - Không phát triển native iOS/Android app
 
-**❌ Video Conferencing Integration:**
+**Video Conferencing Integration:**
 - Không tích hợp Zoom, Microsoft Teams
 - Chỉ hỗ trợ Google Meet links (có sẵn từ Google Calendar)
 
-**❌ Payment Processing:**
+**Payment Processing:**
 - Không có tính năng thanh toán
 - Ứng dụng hoàn toàn miễn phí
 
-**❌ Advanced Team Features:**
+**Advanced Team Features:**
 - Không có shared calendars cho teams
 - Không có round-robin scheduling
 - Không có meeting polls
 
-**❌ Advanced Analytics:**
+**Advanced Analytics:**
 - Không có dashboard phân tích chi tiết
 - Chỉ có thống kê cơ bản về events và bookings
 
@@ -856,12 +856,12 @@ OAuth 2.0 là một chuẩn cho phép ứng dụng truy cập dữ liệu của 
 **Tại sao cần OAuth?**
 
 Thay vì:
-- ❌ User nhập password Google vào app của bạn (nguy hiểm!)
+- User nhập password Google vào app của bạn (nguy hiểm!)
 
 OAuth cho phép:
-- ✅ User đăng nhập trên trang Google
-- ✅ Google xác nhận và cấp quyền cho app
-- ✅ App nhận "access token" để truy cập data
+- User đăng nhập trên trang Google
+- Google xác nhận và cấp quyền cho app
+- App nhận "access token" để truy cập data
 
 **Google OAuth Flow (Luồng xác thực):**
 
@@ -910,10 +910,10 @@ Authorization: Bearer ya29.a0AfH6SM...
 
 **Lợi ích của OAuth 2.0:**
 
-- ✅ **Bảo mật**: Không lưu password của user
-- ✅ **Phân quyền**: User chỉ cấp quyền cần thiết (email, calendar)
-- ✅ **Thu hồi**: User có thể thu hồi quyền bất cứ lúc nào
-- ✅ **Chuẩn hóa**: Dùng cho nhiều dịch vụ (Google, Facebook, GitHub...)
+- **Bảo mật**: Không lưu password của user
+- **Phân quyền**: User chỉ cấp quyền cần thiết (email, calendar)
+- **Thu hồi**: User có thể thu hồi quyền bất cứ lúc nào
+- **Chuẩn hóa**: Dùng cho nhiều dịch vụ (Google, Facebook, GitHub...)
 
 **Trong Calento:**
 
@@ -1005,56 +1005,30 @@ DELETE /api/events/123
 
 #### **4.5.4. Response Format (Định dạng trả về)**
 
-**Success Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "id": "123",
-    "title": "Họp team",
-    "start_time": "2024-11-10T14:00:00Z"
-  },
-  "meta": {
-    "timestamp": "2024-11-09T18:30:00Z"
-  }
-}
-```
+| Trường | Kiểu dữ liệu | Mô tả |
+| :--- | :--- | :--- |
+| `success` | boolean | Trạng thái phản hồi (true/false) |
+| `data` | object | Dữ liệu chính trả về từ API |
+| `meta` | object | Thông tin bổ sung (timestamp, pagination) |
 
 **Error Response:**
-```json
-{
-  "success": false,
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "Title is required",
-    "details": [
-      {
-        "field": "title",
-        "message": "Title cannot be empty"
-      }
-    ]
-  },
-  "meta": {
-    "timestamp": "2024-11-09T18:30:00Z"
-  }
-}
-```
+| Trường | Kiểu dữ liệu | Mô tả |
+| :--- | :--- | :--- |
+| `success` | boolean | Trạng thái thất bại (false) |
+| `error.code` | string | Mã lỗi định danh (ví dụ: VALIDATION_ERROR) |
+| `error.message` | string | Thông báo lỗi chi tiết cho người dùng |
+| `error.details` | array | Danh sách chi tiết các lỗi (nếu có) |
+| `meta.timestamp` | string | Thời điểm xảy ra lỗi |
 
 **Paginated Response:**
-```json
-{
-  "success": true,
-  "data": [
-    { "id": "1", "title": "Event 1" },
-    { "id": "2", "title": "Event 2" }
-  ],
-  "meta": {
-    "page": 1,        // Trang hiện tại
-    "limit": 20,      // Số items mỗi trang
-    "total": 100,     // Tổng số items
-    "totalPages": 5   // Tổng số trang
-  }
-}
+| Trường | Kiểu dữ liệu | Mô tả |
+| :--- | :--- | :--- |
+| `success` | boolean | Trạng thái thành công (true) |
+| `data` | array | Danh sách các đối tượng dữ liệu |
+| `meta.page` | number | Số thứ tự trang hiện tại |
+| `meta.limit` | number | Số lượng mục trên mỗi trang |
+| `meta.total` | number | Tổng số lượng mục trong cơ sở dữ liệu |
+| `meta.totalPages` | number | Tổng số trang |}
 ```
 
 #### **4.5.5. HTTP Status Codes**
@@ -1102,10 +1076,10 @@ Responses:
 ```
 
 **Lợi ích:**
-- ✅ Tài liệu tự động, không cần viết thủ công
-- ✅ Frontend dev dễ dàng hiểu API
-- ✅ Test API trực tiếp mà không cần Postman
-- ✅ Generate TypeScript types tự động
+- Tài liệu tự động, không cần viết thủ công
+- Frontend dev dễ dàng hiểu API
+- Test API trực tiếp mà không cần Postman
+- Generate TypeScript types tự động
 
 ### **2.6. Design Patterns**
 
@@ -1793,7 +1767,7 @@ graph TB
     A --> Dashboard[Dashboard /dashboard]
 
     Dashboard --> Calendar[📅 Calendar /calendar]
-    Dashboard --> Tasks[✅ Tasks /tasks]
+    Dashboard --> Tasks[Tasks /tasks]
     Dashboard --> Priorities[📊 Priorities /schedule]
     Dashboard --> SchedulingLinks[🔗 Scheduling Links /scheduling-links]
     Dashboard --> Chat[💬 AI Chat /chat]
@@ -1932,7 +1906,7 @@ flowchart TD
     X --> Y[Sync to Google Calendar]
     Y --> Z[Update Cache]
     Z --> AA[Re-render Calendar]
-    AA --> AB[✅ Show Success Toast]
+    AA --> AB[Show Success Toast]
 
     L --> L1["Type Natural Language<br>Create meeting tomorrow 3pm"]
     L1 --> L2[AI Processes Request]
@@ -1976,7 +1950,7 @@ flowchart TD
     R --> S[Create Calendar Event]
     S --> T["Send Confirmation Emails<br>Host + Guest"]
     T --> U[Generate ICS File]
-    U --> V[✅ Confirmation Page]
+    U --> V[Confirmation Page]
 
     V --> W[Guest Receives Email]
     W --> X[Add to Calendar Button]
@@ -3007,44 +2981,26 @@ Lưu trữ system notifications.
 
 **event.attendees:**
 
-```json
-[
-  {
-    "email": "user@example.com",
-    "display_name": "John Doe",
-    "response_status": "accepted"
-  }
-]
-```
+| Trường | Giá trị ví dụ | Mô tả |
+| :--- | :--- | :--- |
+| `email` | user@example.com | Email của người tham dự |
+| `display_name` | John Doe | Tên hiển thị |
+| `response_status` | accepted | Trạng thái phản hồi (accepted, declined, needs_action) |
 
 **booking_links.availability_hours:**
 
-```json
-{
-  "monday": [
-    { "start": "09:00", "end": "12:00" },
-    { "start": "13:00", "end": "17:00" }
-  ],
-  "tuesday": [...]
-}
-```
+| Ngày | Giờ bắt đầu | Giờ kết thúc |
+| :--- | :--- | :--- |
+| `monday` | 09:00 | 12:00 |
+| `monday` | 13:00 | 17:00 |
+| `tuesday` | ... | ... |
 
 **ai_conversations.messages:**
 
-```json
-[
-  {
-    "role": "user",
-    "content": "Schedule a meeting tomorrow at 2pm",
-    "timestamp": "2024-01-01T10:00:00Z"
-  },
-  {
-    "role": "assistant",
-    "content": "I've created the meeting...",
-    "timestamp": "2024-01-01T10:00:05Z"
-  }
-]
-```
+| Role | Content | Timestamp |
+| :--- | :--- | :--- |
+| `user` | Schedule a meeting tomorrow at 2pm | 2024-01-01T10:00:00Z |
+| `assistant` | I've created the meeting... | 2024-01-01T10:00:05Z |
 
 ## **4\. Thiết kế API**
 
@@ -3197,61 +3153,49 @@ Lưu trữ system notifications.
 
 **Success Response:**
 
-```json
-{
-  "success": true,
-  "data": { ... },
-  "meta": {
-    "timestamp": "2024-01-01T10:00:00Z"
-  }
-}
-```
+
+| Trường | Kiểu dữ liệu | Mô tả |
+| :--- | :--- | :--- |
+| `success` | boolean | Trạng thái phản hồi (true/false) |
+| `data` | object | Dữ liệu chính trả về từ API |
+| `meta` | object | Thông tin bổ sung (timestamp, pagination) |
 
 **Error Response:**
 
-```json
-{
-  "success": false,
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "Invalid input data",
-    "details": [...]
-  },
-  "meta": {
-    "timestamp": "2024-01-01T10:00:00Z"
-  }
-}
-```
+
+| Trường | Kiểu dữ liệu | Mô tả |
+| :--- | :--- | :--- |
+| `success` | boolean | Trạng thái thất bại (false) |
+| `error.code` | string | Mã lỗi định danh (ví dụ: VALIDATION_ERROR) |
+| `error.message` | string | Thông báo lỗi chi tiết cho người dùng |
+| `error.details` | array | Danh sách chi tiết các lỗi (nếu có) |
+| `meta.timestamp` | string | Thời điểm xảy ra lỗi |
 
 **Paginated Response:**
 
-```json
-{
-  "success": true,
-  "data": [...],
-  "meta": {
-    "page": 1,
-    "limit": 20,
-    "total": 100,
-    "totalPages": 5
-  }
-}
-```
+
+| Trường | Kiểu dữ liệu | Mô tả |
+| :--- | :--- | :--- |
+| `success` | boolean | Trạng thái thành công (true) |
+| `data` | array | Danh sách các đối tượng dữ liệu |
+| `meta.page` | number | Số thứ tự trang hiện tại |
+| `meta.limit` | number | Số lượng mục trên mỗi trang |
+| `meta.total` | number | Tổng số lượng mục trong cơ sở dữ liệu |
+| `meta.totalPages` | number | Tổng số trang |
 
 ### **3.3. Authentication Flow**
 
 **JWT Token Structure:**
 
-```json
-{
-  "sub": "user-uuid",
-  "email": "user@example.com",
-  "username": "username",
-  "type": "access",
-  "iat": 1704110400,
-  "exp": 1704114000
-}
-```
+
+| Trường (Claim) | Giá trị ví dụ | Mô tả |
+| :--- | :--- | :--- |
+| `sub` | user-uuid | ID định danh của người dùng (Subject) |
+| `email` | user@example.com | Địa chỉ email của người dùng |
+| `username` | username | Tên đăng nhập |
+| `type` | access | Loại token (access hoặc refresh) |
+| `iat` | 1704110400 | Thời điểm phát hành (Issued At) |
+| `exp` | 1704114000 | Thời điểm hết hạn (Expiration Time) |
 
 **Cookie Configuration:**
 
@@ -3274,25 +3218,14 @@ Lưu trữ system notifications.
 
 **Function Schema Example:**
 
-```typescript
-{
-  name: "createEvent",
-  description: "Create a new calendar event",
-  parameters: {
-    type: "object",
-    properties: {
-      title: { type: "string", description: "Event title" },
-      start_time: { type: "string", description: "ISO 8601 datetime" },
-      end_time: { type: "string", description: "ISO 8601 datetime" },
-      attendees: {
-        type: "array",
-        items: { type: "string", format: "email" }
-      }
-    },
-    required: ["title", "start_time", "end_time"]
-  }
-}
-```
+
+| Trường | Kiểu dữ liệu | Mô tả |
+| :--- | :--- | :--- |
+| `name` | string | Tên của hàm (ví dụ: createEvent) |
+| `description` | string | Mô tả chức năng của hàm để AI hiểu |
+| `parameters` | object | Định nghĩa cấu trúc tham số (JSON Schema) |
+| `parameters.properties` | object | Chi tiết các tham số (title, start_time, ...) |
+| `parameters.required` | array | Danh sách các tham số bắt buộc |
 
 ### **4.2. Context Management**
 
@@ -3314,22 +3247,23 @@ Lưu trữ system notifications.
 
 ### **5.1. Component Hierarchy**
 
-```
-App Layout
-├── Navbar (Global)
-├── Sidebar (Dashboard only)
-└── Page Content
-    ├── Calendar View
-    │   ├── CalendarHeader
-    │   ├── DatePicker
-    │   └── EventList/Grid
-    ├── AI Chatbot
-    │   ├── ChatMessages
-    │   ├── InputBox
-    │   └── ActionResults
-    └── Booking Links
-        ├── LinkList
-        └── LinkEditor
+```mermaid
+mindmap
+  root((App Layout))
+    Navbar Global
+    Sidebar Dashboard only
+    Page Content
+      Calendar View
+        CalendarHeader
+        DatePicker
+        EventList Grid
+      AI Chatbot
+        ChatMessages
+        InputBox
+        ActionResults
+      Booking Links
+        LinkList
+        LinkEditor
 ```
 
 ### **5.2. State Management Strategy**
@@ -3357,22 +3291,18 @@ App Layout
 
 ### **5.3. Data Flow**
 
-```
-User Action → React Component
-    ↓
-Custom Hook (useEvents, useCreateEvent)
-    ↓
-TanStack Query (Query/Mutation)
-    ↓
-Service Layer (eventService.createEvent)
-    ↓
-Axios HTTP Client
-    ↓
-Backend API
-    ↓
-Database
-    ↓
-Response → Update Cache → Re-render UI
+```mermaid
+flowchart TD
+    UserAction[User Action] --> ReactComponent[React Component]
+    ReactComponent --> CustomHook[Custom Hook\nuseEvents, useCreateEvent]
+    CustomHook --> TanStackQuery[TanStack Query\nQuery/Mutation]
+    TanStackQuery --> ServiceLayer[Service Layer\neventService.createEvent]
+    ServiceLayer --> Axios[Axios HTTP Client]
+    Axios --> BackendAPI[Backend API]
+    BackendAPI --> Database[Database]
+    Database --> Response[Response]
+    Response --> UpdateCache[Update Cache]
+    UpdateCache --> ReRenderUI[Re-render UI]
 ```
 
 ## **6\. Thiết kế UI/UX**
@@ -3515,16 +3445,11 @@ Response → Update Cache → Re-render UI
 
 #### **6.3.1. Layout Structure**
 
-```
-┌─────────────────────────────────────────────┐
-│              Navbar (Fixed)                  │
-├────────┬────────────────────────────────────┤
-│        │                                     │
-│ Sidebar│         Main Content               │
-│ (Fixed)│         (Scrollable)               │
-│        │                                     │
-│        │                                     │
-└────────┴────────────────────────────────────┘
+```mermaid
+block-beta
+  columns 2
+  Navbar(("Navbar (Fixed)")):2
+  Sidebar(("Sidebar\n(Fixed)")) MainContent(("Main Content\n(Scrollable)"))
 ```
 
 **Sidebar Navigation:**
@@ -3670,34 +3595,34 @@ Response → Update Cache → Re-render UI
 
 #### **6.8.1. Implemented Components**
 
-✅ **Layout:**
+**Layout:**
 
 - Sidebar navigation
 - Navbar with search
 - Responsive container
 
-✅ **Calendar:**
+**Calendar:**
 
 - FullCalendar with views
 - Event cards
 - Event modal
 - Date/time pickers
 
-✅ **AI Chatbot:**
+**AI Chatbot:**
 
 - Chat interface
 - Message bubbles
 - Action results display
 - Time slots list
 
-✅ **Forms:**
+**Forms:**
 
 - Input fields
 - Selects with search
 - Checkboxes/radios
 - Date/time pickers
 
-✅ **Feedback:**
+**Feedback:**
 
 - Toast notifications
 - Loading states
@@ -3705,21 +3630,21 @@ Response → Update Cache → Re-render UI
 
 #### **6.8.2. Planned Components**
 
-📋 **Advanced Calendar:**
+**Advanced Calendar:**
 
 - Drag & drop events
 - Multi-day events
 - Resource scheduling
 - Print preview
 
-📋 **Team Features:**
+**Team Features:**
 
 - Shared calendars
 - Team availability view
 - Meeting polls
 - Round-robin scheduling
 
-📋 **Analytics Dashboard:**
+**Analytics Dashboard:**
 
 - Charts and graphs
 - Time tracking
@@ -3981,14 +3906,14 @@ Hệ thống authentication được xây dựng dựa trên kiến trúc modula
 
 **Kết quả triển khai:**
 
-- ✅ Đăng ký và đăng nhập với email/password
-- ✅ Google OAuth 2.0 authentication
-- ✅ JWT token-based sessions
-- ✅ Automatic token refresh
-- ✅ Cookie-based authentication
-- ✅ Protected route access control
-- ✅ Password reset functionality
-- ✅ Session management với Redis
+- Đăng ký và đăng nhập với email/password
+- Google OAuth 2.0 authentication
+- JWT token-based sessions
+- Automatic token refresh
+- Cookie-based authentication
+- Protected route access control
+- Password reset functionality
+- Session management với Redis
 
 ### **2.2. Event Management System**
 
@@ -4137,16 +4062,16 @@ Event Management là core feature của ứng dụng, cho phép users tạo, ch�
 
 **Kết quả triển khai:**
 
-- ✅ Complete CRUD operations với validation
-- ✅ Recurring events với RRULE support
-- ✅ 4 calendar view modes (Day/Week/Month/Year)
-- ✅ Full-text search across events
-- ✅ Timezone support cho global users
-- ✅ Attendee management với email notifications
-- ✅ Conference link integration
-- ✅ Reminder notifications
-- ✅ Drag & drop time selection
-- ✅ Mobile-responsive calendar interface
+- Complete CRUD operations với validation
+- Recurring events với RRULE support
+- 4 calendar view modes (Day/Week/Month/Year)
+- Full-text search across events
+- Timezone support cho global users
+- Attendee management với email notifications
+- Conference link integration
+- Reminder notifications
+- Drag & drop time selection
+- Mobile-responsive calendar interface
 
 ### **2.3. Google Calendar Integration**
 
@@ -4291,16 +4216,16 @@ Google Calendar integration cho phép users sync hai chiều giữa Calento và 
 
 **Kết quả triển khai:**
 
-- ✅ Complete OAuth 2.0 authorization flow
-- ✅ Bidirectional event synchronization
-- ✅ Real-time updates via webhooks
-- ✅ Automatic token refresh
-- ✅ Multi-calendar support
-- ✅ Conflict resolution strategies
-- ✅ Background sync processing
-- ✅ Sync history và audit log
-- ✅ Connection management UI
-- ✅ Error handling và recovery
+- Complete OAuth 2.0 authorization flow
+- Bidirectional event synchronization
+- Real-time updates via webhooks
+- Automatic token refresh
+- Multi-calendar support
+- Conflict resolution strategies
+- Background sync processing
+- Sync history và audit log
+- Connection management UI
+- Error handling và recovery
 
 ### **2.4. AI Chatbot Integration**
 
@@ -4466,16 +4391,16 @@ AI Chatbot được xây dựng với Google Gemini 1.5 Flash, sử dụng funct
 
 **Kết quả triển khai:**
 
-- ✅ Natural language understanding cho calendar operations
-- ✅ 8+ function calling capabilities
-- ✅ Context-aware conversations
-- ✅ Multi-turn dialogue support
-- ✅ Real-time message streaming
-- ✅ Rich action result display
-- ✅ Conversation history persistence
-- ✅ Error recovery mechanisms
-- ✅ Timezone và date intelligence
-- ✅ Mobile-responsive chat interface
+- Natural language understanding cho calendar operations
+- 8+ function calling capabilities
+- Context-aware conversations
+- Multi-turn dialogue support
+- Real-time message streaming
+- Rich action result display
+- Conversation history persistence
+- Error recovery mechanisms
+- Timezone và date intelligence
+- Mobile-responsive chat interface
 
 ### **2.5. Booking Links System**
 
@@ -4676,18 +4601,18 @@ Booking Links system cho phép users tạo public scheduling links (tương tự
 
 **Kết quả triển khai:**
 
-- ✅ Public booking links với custom slugs
-- ✅ Flexible availability configuration
-- ✅ Intelligent slot calculation algorithm
-- ✅ Real-time availability checking
-- ✅ Guest booking flow without authentication
-- ✅ Email notifications (confirmation, reminders)
-- ✅ ICS file generation
-- ✅ Reschedule và cancellation support
-- ✅ Google Meet integration
-- ✅ Calendar sync
-- ✅ Booking analytics
-- ✅ Mobile-responsive booking page
+- Public booking links với custom slugs
+- Flexible availability configuration
+- Intelligent slot calculation algorithm
+- Real-time availability checking
+- Guest booking flow without authentication
+- Email notifications (confirmation, reminders)
+- ICS file generation
+- Reschedule và cancellation support
+- Google Meet integration
+- Calendar sync
+- Booking analytics
+- Mobile-responsive booking page
 
 ## **3\. Deployment**
 
@@ -5108,71 +5033,71 @@ Sau 12 tuần làm việc (từ tháng 8 đến tháng 11 năm 2024), nhóm đã
 Nhóm đã xây dựng thành công backend API sử dụng **NestJS + PostgreSQL + Redis** với các tính năng:
 
 **1. Hệ thống xác thực và phân quyền:**
-- ✅ **Đăng nhập/Đăng ký**: Email + Password với mã hóa bcrypt
-- ✅ **Google OAuth 2.0**: Đăng nhập nhanh bằng tài khoản Google
-- ✅ **JWT Tokens**: Access token (1h) và Refresh token (7 ngày)
-- ✅ **Cookie-based Auth**: HTTP-only cookies cho bảo mật cao
-- ✅ **Password Reset**: Khôi phục mật khẩu qua email
+- **Đăng nhập/Đăng ký**: Email + Password với mã hóa bcrypt
+- **Google OAuth 2.0**: Đăng nhập nhanh bằng tài khoản Google
+- **JWT Tokens**: Access token (1h) và Refresh token (7 ngày)
+- **Cookie-based Auth**: HTTP-only cookies cho bảo mật cao
+- **Password Reset**: Khôi phục mật khẩu qua email
 
 **Ví dụ:** User đăng nhập bằng Google → Backend tạo JWT token → Frontend lưu token trong cookie → Tự động đăng nhập các lần sau.
 
 **2. Quản lý sự kiện (Event Management):**
-- ✅ **CRUD Operations**: Tạo, xem, sửa, xóa sự kiện
-- ✅ **Recurring Events**: Sự kiện lặp lại theo RRULE (Daily, Weekly, Monthly)
-- ✅ **Attendees**: Thêm người tham dự, track trạng thái (accepted/pending)
-- ✅ **Reminders**: Nhắc nhở qua email trước sự kiện
-- ✅ **Search & Filter**: Tìm kiếm theo tên, ngày, calendar
+- **CRUD Operations**: Tạo, xem, sửa, xóa sự kiện
+- **Recurring Events**: Sự kiện lặp lại theo RRULE (Daily, Weekly, Monthly)
+- **Attendees**: Thêm người tham dự, track trạng thái (accepted/pending)
+- **Reminders**: Nhắc nhở qua email trước sự kiện
+- **Search & Filter**: Tìm kiếm theo tên, ngày, calendar
 
 **Ví dụ:** User tạo "Họp team" lặp lại mỗi thứ 2 → System tự động tạo các occurrence → Gửi reminder 1 giờ trước.
 
 **3. Đồng bộ Google Calendar:**
-- ✅ **Two-way Sync**: Calento ↔ Google Calendar
-- ✅ **OAuth 2.0 Integration**: Kết nối an toàn với Google
-- ✅ **Webhook Notifications**: Nhận thông báo real-time khi có thay đổi
-- ✅ **Auto Refresh**: Tự động làm mới access tokens
+- **Two-way Sync**: Calento ↔ Google Calendar
+- **OAuth 2.0 Integration**: Kết nối an toàn với Google
+- **Webhook Notifications**: Nhận thông báo real-time khi có thay đổi
+- **Auto Refresh**: Tự động làm mới access tokens
 
 **Ví dụ:** User tạo event trên Calento → Tự động đồng bộ lên Google Calendar → User sửa trên Google → Webhook notify → Calento cập nhật.
 
 **4. AI Chatbot (Gemini AI):**
-- ✅ **Natural Language**: Hiểu tiếng Việt và tiếng Anh
-- ✅ **Function Calling**: AI thực hiện actions (tạo event, tìm lịch trống)
-- ✅ **Context Management**: Nhớ lịch sử hội thoại
-- ✅ **Smart Suggestions**: Đề xuất thời gian họp tối ưu
+- **Natural Language**: Hiểu tiếng Việt và tiếng Anh
+- **Function Calling**: AI thực hiện actions (tạo event, tìm lịch trống)
+- **Context Management**: Nhớ lịch sử hội thoại
+- **Smart Suggestions**: Đề xuất thời gian họp tối ưu
 
 **Ví dụ:** User gõ "Tạo họp ngày mai 2h" → AI parse thành structured data → Gọi API tạo event → Trả lời "Đã tạo họp lúc 14:00".
 
 **5. Booking Links (Lên lịch hẹn):**
-- ✅ **Public Links**: Tạo link công khai như `calento.space/book/username/30min-call`
-- ✅ **Available Slots**: Tự động tính khung giờ trống
-- ✅ **Guest Booking**: Khách đặt lịch không cần đăng nhập
-- ✅ **Email Confirmation**: Gửi email cho cả host và guest
-- ✅ **Buffer Time**: Thời gian đệm trước/sau cuộc hẹn
+- **Public Links**: Tạo link công khai như `calento.space/book/username/30min-call`
+- **Available Slots**: Tự động tính khung giờ trống
+- **Guest Booking**: Khách đặt lịch không cần đăng nhập
+- **Email Confirmation**: Gửi email cho cả host và guest
+- **Buffer Time**: Thời gian đệm trước/sau cuộc hẹn
 
 **Ví dụ:** Freelancer tạo link "30-minute-consultation" → Share link trên social → Client chọn slot → Tự động tạo event + gửi email.
 
 **6. Email Notifications:**
-- ✅ **Multi-Provider**: Hỗ trợ SMTP, SendGrid, AWS SES
-- ✅ **Template System**: Email templates với Handlebars
-- ✅ **Queue Processing**: Gửi email bất đồng bộ
-- ✅ **Delivery Tracking**: Theo dõi trạng thái gửi thành công/thất bại
+- **Multi-Provider**: Hỗ trợ SMTP, SendGrid, AWS SES
+- **Template System**: Email templates với Handlebars
+- **Queue Processing**: Gửi email bất đồng bộ
+- **Delivery Tracking**: Theo dõi trạng thái gửi thành công/thất bại
 
 **7. Background Jobs (BullMQ):**
-- ✅ **Job Queue**: Xử lý tác vụ nền (email, sync)
-- ✅ **Auto Retry**: Tự động thử lại khi thất bại
-- ✅ **Priority System**: Ưu tiên các job quan trọng
-- ✅ **Monitoring**: Dashboard theo dõi job status
+- **Job Queue**: Xử lý tác vụ nền (email, sync)
+- **Auto Retry**: Tự động thử lại khi thất bại
+- **Priority System**: Ưu tiên các job quan trọng
+- **Monitoring**: Dashboard theo dõi job status
 
 **8. RESTful API:**
-- ✅ **78+ Endpoints**: CRUD cho events, calendars, bookings, users
-- ✅ **Swagger Documentation**: API docs tự động tại `/api-docs`
-- ✅ **Versioning**: API v1 với prefix `/api/v1`
-- ✅ **Response Format**: Chuẩn hóa success/error responses
+- **78+ Endpoints**: CRUD cho events, calendars, bookings, users
+- **Swagger Documentation**: API docs tự động tại `/api-docs`
+- **Versioning**: API v1 với prefix `/api/v1`
+- **Response Format**: Chuẩn hóa success/error responses
 
 **9. Database:**
-- ✅ **15 Tables**: users, events, calendars, bookings, etc.
-- ✅ **Migrations**: SQL migrations để quản lý schema changes
-- ✅ **Indexing**: Tối ưu query performance
-- ✅ **JSONB Support**: Lưu dữ liệu linh hoạt (attendees, reminders)
+- **15 Tables**: users, events, calendars, bookings, etc.
+- **Migrations**: SQL migrations để quản lý schema changes
+- **Indexing**: Tối ưu query performance
+- **JSONB Support**: Lưu dữ liệu linh hoạt (attendees, reminders)
 
 **Thống kê Backend:**
 - **Lines of Code**: ~15,000 dòng TypeScript
@@ -5185,43 +5110,43 @@ Nhóm đã xây dựng thành công backend API sử dụng **NestJS + PostgreSQ
 Nhóm đã xây dựng giao diện web hiện đại sử dụng **Next.js 15 + React 18 + TailwindCSS**:
 
 **1. Giao diện người dùng (UI/UX):**
-- ✅ **Modern Design**: Giao diện sạch đẹp, professional
-- ✅ **Responsive**: Hoạt động tốt trên desktop, tablet, mobile
-- ✅ **Dark Mode**: Chế độ tối giảm mỏi mắt
-- ✅ **Loading States**: Skeleton screens, spinners
-- ✅ **Toast Notifications**: Thông báo success/error
+- **Modern Design**: Giao diện sạch đẹp, professional
+- **Responsive**: Hoạt động tốt trên desktop, tablet, mobile
+- **Dark Mode**: Chế độ tối giảm mỏi mắt
+- **Loading States**: Skeleton screens, spinners
+- **Toast Notifications**: Thông báo success/error
 
 **2. Calendar Views:**
-- ✅ **Custom Calendar**: Tự build không dùng thư viện
-- ✅ **4 Views**: Day, Week, Month, Year
-- ✅ **Drag & Drop**: Kéo thả events (planned)
-- ✅ **Color Coding**: Màu sắc theo calendar
-- ✅ **Mini Calendar**: Calendar nhỏ để navigation
+- **Custom Calendar**: Tự build không dùng thư viện
+- **4 Views**: Day, Week, Month, Year
+- **Drag & Drop**: Kéo thả events (planned)
+- **Color Coding**: Màu sắc theo calendar
+- **Mini Calendar**: Calendar nhỏ để navigation
 
 **3. AI Chat Interface:**
-- ✅ **Chat UI**: Giao diện chat đẹp như ChatGPT
-- ✅ **Message Bubbles**: User/AI messages rõ ràng
-- ✅ **Markdown Support**: Format text, lists, bold
-- ✅ **Action Cards**: Hiển thị kết quả function calls
-- ✅ **Real-time**: Messages xuất hiện ngay lập tức
+- **Chat UI**: Giao diện chat đẹp như ChatGPT
+- **Message Bubbles**: User/AI messages rõ ràng
+- **Markdown Support**: Format text, lists, bold
+- **Action Cards**: Hiển thị kết quả function calls
+- **Real-time**: Messages xuất hiện ngay lập tức
 
 **4. State Management:**
-- ✅ **TanStack Query**: Quản lý server state, caching
-- ✅ **Zustand**: Quản lý UI state (theme, settings)
-- ✅ **Optimistic Updates**: UI update trước khi API response
-- ✅ **Auto Refetch**: Tự động refresh data khi cần
+- **TanStack Query**: Quản lý server state, caching
+- **Zustand**: Quản lý UI state (theme, settings)
+- **Optimistic Updates**: UI update trước khi API response
+- **Auto Refetch**: Tự động refresh data khi cần
 
 **5. Form Handling:**
-- ✅ **React Hook Form**: Performance cao, ít re-renders
-- ✅ **Zod Validation**: Type-safe validation
-- ✅ **Error Messages**: Hiển thị lỗi rõ ràng
-- ✅ **Auto Save**: Tự động lưu nháp (planned)
+- **React Hook Form**: Performance cao, ít re-renders
+- **Zod Validation**: Type-safe validation
+- **Error Messages**: Hiển thị lỗi rõ ràng
+- **Auto Save**: Tự động lưu nháp (planned)
 
 **6. SEO & Performance:**
-- ✅ **Server-Side Rendering**: Trang public load nhanh
-- ✅ **Metadata**: Proper title, description cho SEO
-- ✅ **Image Optimization**: Next.js Image component
-- ✅ **Code Splitting**: Bundle size tối ưu
+- **Server-Side Rendering**: Trang public load nhanh
+- **Metadata**: Proper title, description cho SEO
+- **Image Optimization**: Next.js Image component
+- **Code Splitting**: Bundle size tối ưu
 
 **Thống kê Frontend:**
 - **Lines of Code**: ~20,000 dòng TypeScript/TSX
@@ -5234,34 +5159,34 @@ Nhóm đã xây dựng giao diện web hiện đại sử dụng **Next.js 15 + 
 Ứng dụng đã được deploy lên production environment:
 
 **1. Cloud Hosting:**
-- ✅ **Digital Ocean Droplet**: 2GB RAM, 1 CPU, 50GB SSD
-- ✅ **Domain**: `calento.space` (frontend) và `api.calento.space` (backend)
-- ✅ **SSL/TLS**: HTTPS với Cloudflare SSL certificates
-- ✅ **DNS**: Cloudflare DNS với CDN
+- **Digital Ocean Droplet**: 2GB RAM, 1 CPU, 50GB SSD
+- **Domain**: `calento.space` (frontend) và `api.calento.space` (backend)
+- **SSL/TLS**: HTTPS với Cloudflare SSL certificates
+- **DNS**: Cloudflare DNS với CDN
 
 **2. Containerization:**
-- ✅ **Docker**: Backend và Frontend trong Docker containers
-- ✅ **Docker Compose**: Orchestration cho multi-container app
-- ✅ **PostgreSQL Container**: Database trong Docker
-- ✅ **Redis Container**: Cache và queue backend
+- **Docker**: Backend và Frontend trong Docker containers
+- **Docker Compose**: Orchestration cho multi-container app
+- **PostgreSQL Container**: Database trong Docker
+- **Redis Container**: Cache và queue backend
 
 **3. Reverse Proxy:**
-- ✅ **Nginx**: Load balancer và reverse proxy
-- ✅ **SSL Termination**: HTTPS handling tại Nginx
-- ✅ **Static Files**: Serve static assets hiệu quả
+- **Nginx**: Load balancer và reverse proxy
+- **SSL Termination**: HTTPS handling tại Nginx
+- **Static Files**: Serve static assets hiệu quả
 
 **4. CI/CD Pipeline:**
-- ✅ **GitHub Actions**: Auto build, test, deploy khi push code
-- ✅ **Automated Testing**: Chạy tests trước khi deploy
-- ✅ **Zero Downtime**: Rolling deployment strategy
-- ✅ **Rollback**: Có thể rollback về version cũ
+- **GitHub Actions**: Auto build, test, deploy khi push code
+- **Automated Testing**: Chạy tests trước khi deploy
+- **Zero Downtime**: Rolling deployment strategy
+- **Rollback**: Có thể rollback về version cũ
 
 **5. Security & Monitoring:**
-- ✅ **Cloudflare WAF**: Web Application Firewall
-- ✅ **DDoS Protection**: Cloudflare DDoS protection
-- ✅ **Rate Limiting**: API rate limiting
-- ✅ **Logging**: Winston logger với log rotation
-- ✅ **Health Checks**: `/health` endpoint để monitor uptime
+- **Cloudflare WAF**: Web Application Firewall
+- **DDoS Protection**: Cloudflare DDoS protection
+- **Rate Limiting**: API rate limiting
+- **Logging**: Winston logger với log rotation
+- **Health Checks**: `/health` endpoint để monitor uptime
 
 **Production Stats:**
 - **Uptime**: 99.5%+ (target)
@@ -5280,17 +5205,17 @@ Qua 12 tuần thực hiện đồ án, nhóm đã học hỏi được rất nhi
 **Trước khi làm project:** Chỉ biết Node.js cơ bản, chưa từng làm API hoàn chỉnh.
 
 **Sau khi làm project:** 
-- ✅ **NestJS Framework**: Hiểu kiến trúc modular, dependency injection, decorators
+- **NestJS Framework**: Hiểu kiến trúc modular, dependency injection, decorators
   - *Ví dụ*: Tạo EventModule với Controller, Service, Repository
-- ✅ **RESTful API Design**: Biết cách thiết kế API chuẩn REST
+- **RESTful API Design**: Biết cách thiết kế API chuẩn REST
   - *Ví dụ*: GET /events, POST /events, PATCH /events/:id
-- ✅ **Database Design**: Thiết kế schema, relationships, indexes
+- **Database Design**: Thiết kế schema, relationships, indexes
   - *Ví dụ*: 15 tables với foreign keys, composite indexes
-- ✅ **Authentication**: Hiểu JWT, OAuth 2.0, cookie-based auth
+- **Authentication**: Hiểu JWT, OAuth 2.0, cookie-based auth
   - *Ví dụ*: Implement Google OAuth flow từ đầu đến cuối
-- ✅ **Background Jobs**: Xử lý async tasks với BullMQ
+- **Background Jobs**: Xử lý async tasks với BullMQ
   - *Ví dụ*: Queue email, retry khi fail
-- ✅ **Third-party Integration**: Tích hợp Google Calendar API, Gemini AI
+- **Third-party Integration**: Tích hợp Google Calendar API, Gemini AI
   - *Ví dụ*: OAuth flow, webhook setup, function calling
 
 **2. Frontend Development (Phát triển giao diện):**
@@ -5298,17 +5223,17 @@ Qua 12 tuần thực hiện đồ án, nhóm đã học hỏi được rất nhi
 **Trước khi làm project:** Chỉ biết React cơ bản, chưa làm app lớn.
 
 **Sau khi làm project:**
-- ✅ **Next.js 15**: Server-side rendering, App Router, routing
+- **Next.js 15**: Server-side rendering, App Router, routing
   - *Ví dụ*: Trang booking SEO-friendly với SSR
-- ✅ **State Management**: TanStack Query (server state), Zustand (UI state)
+- **State Management**: TanStack Query (server state), Zustand (UI state)
   - *Ví dụ*: Cache events, auto refetch, optimistic updates
-- ✅ **React Patterns**: Custom hooks, composition, render props
+- **React Patterns**: Custom hooks, composition, render props
   - *Ví dụ*: useEvents(), useCreateEvent() custom hooks
-- ✅ **Form Handling**: React Hook Form + Zod validation
+- **Form Handling**: React Hook Form + Zod validation
   - *Ví dụ*: Event form với validation realtime
-- ✅ **UI/UX**: Component design, responsive layout, loading states
+- **UI/UX**: Component design, responsive layout, loading states
   - *Ví dụ*: Calendar với 4 views, drag & drop (planned)
-- ✅ **Performance**: Code splitting, lazy loading, memoization
+- **Performance**: Code splitting, lazy loading, memoization
   - *Ví dụ*: Bundle size từ 500KB → 300KB
 
 **3. Database & SQL:**
@@ -5316,34 +5241,34 @@ Qua 12 tuần thực hiện đồ án, nhóm đã học hỏi được rất nhi
 **Trước:** Chỉ biết SQL cơ bản (SELECT, INSERT).
 
 **Sau:**
-- ✅ **Advanced Queries**: JOIN, subqueries, window functions
-- ✅ **Indexing**: Biết khi nào cần index, composite index
-- ✅ **JSONB**: Lưu dữ liệu semi-structured
-- ✅ **Migrations**: Version control cho database schema
-- ✅ **Performance**: Query optimization, EXPLAIN ANALYZE
+- **Advanced Queries**: JOIN, subqueries, window functions
+- **Indexing**: Biết khi nào cần index, composite index
+- **JSONB**: Lưu dữ liệu semi-structured
+- **Migrations**: Version control cho database schema
+- **Performance**: Query optimization, EXPLAIN ANALYZE
 
 **4. DevOps & Deployment:**
 
 **Trước:** Chỉ deploy trên Vercel, không biết Docker.
 
 **Sau:**
-- ✅ **Docker**: Dockerfile, docker-compose, multi-stage builds
+- **Docker**: Dockerfile, docker-compose, multi-stage builds
   - *Ví dụ*: 4 containers (frontend, backend, postgres, redis)
-- ✅ **CI/CD**: GitHub Actions, automated testing, deployment
+- **CI/CD**: GitHub Actions, automated testing, deployment
   - *Ví dụ*: Push code → auto test → auto deploy
-- ✅ **Nginx**: Reverse proxy, SSL termination, load balancing
-- ✅ **Cloud Hosting**: Digital Ocean Droplet setup, firewall, DNS
-- ✅ **Monitoring**: Logging, health checks, error tracking
+- **Nginx**: Reverse proxy, SSL termination, load balancing
+- **Cloud Hosting**: Digital Ocean Droplet setup, firewall, DNS
+- **Monitoring**: Logging, health checks, error tracking
 
 **5. Công nghệ AI:**
 
 **Trước:** Chưa từng dùng AI API.
 
 **Sau:**
-- ✅ **Gemini AI Integration**: Gọi API, function calling
-- ✅ **Prompt Engineering**: Viết prompts hiệu quả
-- ✅ **Context Management**: Truyền context cho AI
-- ✅ **Natural Language Processing**: Parse ngôn ngữ tự nhiên
+- **Gemini AI Integration**: Gọi API, function calling
+- **Prompt Engineering**: Viết prompts hiệu quả
+- **Context Management**: Truyền context cho AI
+- **Natural Language Processing**: Parse ngôn ngữ tự nhiên
 
 #### **1.2.2. Kỹ năng mềm (Soft Skills)**
 
@@ -5581,17 +5506,17 @@ Mặc dù đã hoàn thành các tính năng chính, hệ thống vẫn còn m�
 
 #### **Hạn chế 1: Tính năng còn thiếu**
 
-**❌ Chưa có Mobile App:**
+**Chưa có Mobile App:**
 - **Hiện tại**: Chỉ có web app responsive (hoạt động trên mobile browser)
 - **Hạn chế**: Không có push notifications, offline mode
 - **Lý do**: Giới hạn về thời gian và nguồn lực
 
-**❌ Chưa tích hợp Video Conferencing:**
+**Chưa tích hợp Video Conferencing:**
 - **Hiện tại**: Chỉ hỗ trợ Google Meet links (từ Google Calendar)
 - **Hạn chế**: Không có Zoom, Microsoft Teams integration
 - **Lý do**: API của Zoom/Teams phức tạp, cần thêm thời gian
 
-**❌ Chưa có Team Collaboration:**
+**Chưa có Team Collaboration:**
 - **Hiện tại**: Chỉ support individual users
 - **Hạn chế**: 
   - Không share calendars với team
@@ -5599,12 +5524,12 @@ Mặc dù đã hoàn thành các tính năng chính, hệ thống vẫn còn m�
   - Không có meeting polls
 - **Lý do**: Database schema cần redesign để support teams
 
-**❌ Chưa có Payment System:**
+**Chưa có Payment System:**
 - **Hiện tại**: Tất cả features đều free
 - **Hạn chế**: Không có premium tier, no revenue model
 - **Lý do**: Payment integration (Stripe) cần thêm thời gian implement
 
-**❌ Chỉ hỗ trợ 2 ngôn ngữ:**
+**Chỉ hỗ trợ 2 ngôn ngữ:**
 - **Hiện tại**: Tiếng Việt và tiếng Anh
 - **Hạn chế**: Chưa có i18n cho các ngôn ngữ khác
 - **Lý do**: Cần implement i18n system và translate content
@@ -5727,10 +5652,10 @@ Dựa trên kết quả đã đạt được và các hạn chế hiện tại, 
 - **React Native**: Build app cho cả iOS và Android (share code)
 - **Timeline**: 3 tháng
 - **Features**:
-  - ✅ Push notifications cho reminders
-  - ✅ Offline mode với local storage
-  - ✅ Quick add events từ notifications
-  - ✅ Widget cho home screen
+  - Push notifications cho reminders
+  - Offline mode với local storage
+  - Quick add events từ notifications
+  - Widget cho home screen
   
 **Ví dụ use case:**
 ```
@@ -5749,10 +5674,10 @@ User đang đi đường → Nhận reminder "Họp 15 phút nữa"
 **Kế hoạch:**
 - **Timeline**: 2 tháng
 - **Features**:
-  - ✅ **Shared Calendars**: Team members cùng view/edit một calendar
-  - ✅ **Team Scheduling**: Tìm thời gian trống của cả team
-  - ✅ **Meeting Polls**: Vote thời gian họp tốt nhất
-  - ✅ **Team Analytics**: Insights về meetings, productivity
+  - **Shared Calendars**: Team members cùng view/edit một calendar
+  - **Team Scheduling**: Tìm thời gian trống của cả team
+  - **Meeting Polls**: Vote thời gian họp tốt nhất
+  - **Team Analytics**: Insights về meetings, productivity
 
 **Ví dụ:**
 ```
@@ -5773,10 +5698,10 @@ Team lead muốn schedule họp với 5 người:
 **Kế hoạch:**
 - **Timeline**: 2-3 tháng
 - **Features**:
-  - ✅ **Meeting Summarization**: AI tóm tắt meetings
-  - ✅ **Auto Agenda**: AI tạo agenda từ meeting title/description
-  - ✅ **Action Items**: Extract tasks từ meeting notes
-  - ✅ **Smart Suggestions**: AI suggest optimal meeting times based on patterns
+  - **Meeting Summarization**: AI tóm tắt meetings
+  - **Auto Agenda**: AI tạo agenda từ meeting title/description
+  - **Action Items**: Extract tasks từ meeting notes
+  - **Smart Suggestions**: AI suggest optimal meeting times based on patterns
 
 **Ví dụ:**
 ```
@@ -6016,12 +5941,12 @@ Sau 12 tuần thực hiện (từ tháng 8 đến tháng 11/2024), đồ án **C
 
 Đồ án đã áp dụng thành công kiến thức học trong môn **Công nghệ Web và Ứng dụng (SE347):**
 
-- ✅ **Client-Server Architecture**: Hiểu rõ mô hình client-server, cách frontend-backend giao tiếp
-- ✅ **RESTful API Design**: Thiết kế và implement 78+ API endpoints chuẩn REST
-- ✅ **Database Design**: Thiết kế schema với 15 tables, relationships, indexes
-- ✅ **Authentication**: Implement JWT, OAuth 2.0, session management
-- ✅ **State Management**: Frontend state với React hooks, TanStack Query, Zustand
-- ✅ **Deployment**: Production deployment với Docker, CI/CD, monitoring
+- **Client-Server Architecture**: Hiểu rõ mô hình client-server, cách frontend-backend giao tiếp
+- **RESTful API Design**: Thiết kế và implement 78+ API endpoints chuẩn REST
+- **Database Design**: Thiết kế schema với 15 tables, relationships, indexes
+- **Authentication**: Implement JWT, OAuth 2.0, session management
+- **State Management**: Frontend state với React hooks, TanStack Query, Zustand
+- **Deployment**: Production deployment với Docker, CI/CD, monitoring
 
 **Ví dụ cụ thể:**
 ```
@@ -6036,17 +5961,17 @@ Kiến thức từ môn học → Áp dụng thực tế:
 
 Ngoài nội dung môn học, nhóm đã tích hợp thành công các công nghệ mới:
 
-- ✅ **AI Integration**: Google Gemini AI với function calling
+- **AI Integration**: Google Gemini AI với function calling
   - AI hiểu natural language (tiếng Việt/Anh)
   - Tự động tạo events, tìm kiếm, suggest times
   - Accuracy 90%+
   
-- ✅ **Third-party APIs**: 
+- **Third-party APIs**: 
   - Google Calendar API: Two-way sync, webhooks
   - OAuth 2.0 flow hoàn chỉnh
   - Auto refresh tokens
   
-- ✅ **Modern Frameworks**:
+- **Modern Frameworks**:
   - Next.js 15 (App Router, Server Components)
   - NestJS 10 (Modular architecture)
   - PostgreSQL + Redis (Database + Cache)
@@ -6056,11 +5981,11 @@ Ngoài nội dung môn học, nhóm đã tích hợp thành công các công ngh
 
 Calento không chỉ là project học tập mà là ứng dụng thực tế có thể sử dụng:
 
-- ✅ **Deployed**: Live tại `calento.space` với HTTPS
-- ✅ **Scalable**: Architecture hỗ trợ scale horizontal
-- ✅ **Secure**: Authentication, rate limiting, HTTPS
-- ✅ **Documented**: Swagger API docs, README files
-- ✅ **Tested**: Unit tests, integration tests
+- **Deployed**: Live tại `calento.space` với HTTPS
+- **Scalable**: Architecture hỗ trợ scale horizontal
+- **Secure**: Authentication, rate limiting, HTTPS
+- **Documented**: Swagger API docs, README files
+- **Tested**: Unit tests, integration tests
 
 **Số liệu thực tế:**
 ```
@@ -6146,10 +6071,10 @@ Với roadmap rõ ràng, Calento có thể:
 **3. Nền tảng cho tương lai:**
 
 Kiến thức và kinh nghiệm từ project này:
-- ✅ Portfolio project impressive cho CV
-- ✅ Thực tế hơn so với projects demo
-- ✅ Nền tảng vững cho career development
-- ✅ Có thể continue develop sau khi tốt nghiệp
+- Portfolio project impressive cho CV
+- Thực tế hơn so với projects demo
+- Nền tảng vững cho career development
+- Có thể continue develop sau khi tốt nghiệp
 
 ### **4.5. Lời cảm ơn**
 
@@ -6233,7 +6158,7 @@ Nhóm tin rằng với nền tảng đã xây dựng, Calento có tiềm năng p
 31. Stack Overflow. (2024). *Developer Community*. Retrieved from https://stackoverflow.com/
 32. GitHub. (2024). *Repository: Calento*. Retrieved from https://github.com/TDevUIT/Calento
 
----
+
 
 **PHỤ LỤC**
 
