@@ -8,11 +8,11 @@ Trong bối cảnh xã hội hiện đại, việc quản lý thời gian hiệu
 
 Hiện nay, thị trường đã có nhiều ứng dụng quản lý lịch như Google Calendar, Outlook Calendar, Apple Calendar. Tuy nhiên, các ứng dụng này vẫn tồn tại một số hạn chế:
 
-| Khía cạnh | Hạn chế |
-| :--- | :--- |
-| **Tính tự động hóa** | Người dùng phải tự nhập thông tin sự kiện một cách thủ công, không có khả năng đề xuất thời gian họp phù hợp tự động, thiếu tính năng phân tích và tối ưu hóa lịch trình |
-| **Trải nghiệm người dùng** | Giao diện phức tạp với nhiều bước thao tác, không hỗ trợ tương tác bằng ngôn ngữ tự nhiên, thiếu tính năng quản lý độ ưu tiên công việc trực quan |
-| **Tích hợp AI** | Chưa tận dụng được công nghệ Large Language Models (LLMs), không có trợ lý ảo hỗ trợ quản lý lịch thông minh, thiếu khả năng hiểu ngữ cảnh và đề xuất thông minh |
+| Khía cạnh                           | Hạn chế                                                                                                                                                                                                      |
+| :------------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Tính tự động hóa**       | Người dùng phải tự nhập thông tin sự kiện một cách thủ công, không có khả năng đề xuất thời gian họp phù hợp tự động, thiếu tính năng phân tích và tối ưu hóa lịch trình |
+| **Trải nghiệm người dùng** | Giao diện phức tạp với nhiều bước thao tác, không hỗ trợ tương tác bằng ngôn ngữ tự nhiên, thiếu tính năng quản lý độ ưu tiên công việc trực quan                               |
+| **Tích hợp AI**               | Chưa tận dụng được công nghệ Large Language Models (LLMs), không có trợ lý ảo hỗ trợ quản lý lịch thông minh, thiếu khả năng hiểu ngữ cảnh và đề xuất thông minh                 |
 
 ### **1.2. Giới thiệu về Calento**
 
@@ -22,13 +22,13 @@ Hiện nay, thị trường đã có nhiều ứng dụng quản lý lịch như
 
 **Các tính năng chính:**
 
-| Tính năng | Mô tả |
-| :--- | :--- |
-| **AI-Powered Scheduling** | Trợ lý ảo Gemini AI hiểu và xử lý ngôn ngữ tự nhiên tiếng Việt và tiếng Anh, tự động tạo sự kiện chỉ bằng cách gõ chat, phân tích lịch trống và đề xuất thời gian họp tối ưu, hỗ trợ function calling để thực hiện các hành động |
-| **Google Calendar Sync** | Kết nối và đồng bộ hai chiều với Google Calendar, sử dụng OAuth 2.0 để đảm bảo bảo mật, nhận thông báo real-time khi có thay đổi thông qua webhook |
-| **Priority Management** | Bảng Kanban trực quan với 4 cấp độ ưu tiên (Critical, High, Medium, Low), drag-and-drop để thay đổi độ ưu tiên, quản lý tập trung các loại công việc |
-| **Booking Links** | Tạo liên kết công khai để đặt lịch hẹn, tự động tìm các khung giờ trống, tùy chỉnh thời lượng cuộc hẹn và khoảng thời gian đệm, gửi email xác nhận tự động |
-| **Multi-channel Notifications** | Nhận thông báo qua email, tích hợp Slack để nhận thông báo trên workspace, hỗ trợ webhook cho các hệ thống bên ngoài |
+| Tính năng                           | Mô tả                                                                                                                                                                                                                                                                         |
+| :------------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **AI-Powered Scheduling**       | Trợ lý ảo Gemini AI hiểu và xử lý ngôn ngữ tự nhiên tiếng Việt và tiếng Anh, tự động tạo sự kiện chỉ bằng cách gõ chat, phân tích lịch trống và đề xuất thời gian họp tối ưu, hỗ trợ function calling để thực hiện các hành động |
+| **Google Calendar Sync**        | Kết nối và đồng bộ hai chiều với Google Calendar, sử dụng OAuth 2.0 để đảm bảo bảo mật, nhận thông báo real-time khi có thay đổi thông qua webhook                                                                                                      |
+| **Priority Management**         | Bảng Kanban trực quan với 4 cấp độ ưu tiên (Critical, High, Medium, Low), drag-and-drop để thay đổi độ ưu tiên, quản lý tập trung các loại công việc                                                                                                     |
+| **Booking Links**               | Tạo liên kết công khai để đặt lịch hẹn, tự động tìm các khung giờ trống, tùy chỉnh thời lượng cuộc hẹn và khoảng thời gian đệm, gửi email xác nhận tự động                                                                                   |
+| **Multi-channel Notifications** | Nhận thông báo qua email, tích hợp Slack để nhận thông báo trên workspace, hỗ trợ webhook cho các hệ thống bên ngoài                                                                                                                                          |
 
 ### **1.3. Mối liên hệ với môn học**
 
@@ -78,7 +78,7 @@ Dự án áp dụng các design patterns quan trọng trong web development. Rep
 
 Đề tài tạo cơ hội tìm hiểu các công nghệ tiên tiến ngoài nội dung cơ bản của môn học:
 
-Về công nghệ AI và Machine Learning, dự án tích hợp Google Gemini AI là Large Language Model (LLM), sử dụng Function Calling cho phép AI thực hiện các hành động cụ thể, áp dụng Prompt Engineering để thiết kế prompts giúp AI hiểu chính xác yêu cầu, và xử lý ngôn ngữ tự nhiên tiếng Việt và tiếng Anh.
+Về công nghệ AI, dự án tích hợp Google Gemini AI là Large Language Model (LLM), sử dụng Function Calling cho phép AI thực hiện các hành động cụ thể, áp dụng Prompt Engineering để thiết kế prompts giúp AI hiểu chính xác yêu cầu, và xử lý ngôn ngữ tự nhiên tiếng Việt và tiếng Anh.
 
 Về tích hợp dịch vụ bên thứ ba, hệ thống kết nối với Google Calendar API sử dụng OAuth 2.0 cho Calendar Events management, tích hợp Email Services thông qua SMTP và SendGrid API, và dự kiến tích hợp Slack cho webhook notifications trong tương lai.
 
@@ -91,11 +91,8 @@ Dự án **Calento** hướng đến các mục tiêu cụ thể sau:
 **Mục tiêu chính:**
 
 1. **Xây dựng ứng dụng web hoàn chỉnh với AI assistant**: Phát triển ứng dụng quản lý lịch đầy đủ chức năng, tích hợp AI chatbot hỗ trợ tương tác bằng ngôn ngữ tự nhiên, và đảm bảo giao diện thân thiện, responsive trên mọi thiết bị.
-
 2. **Áp dụng kiến thức môn học vào thực tế**: Triển khai kiến trúc Client-Server đầy đủ, xây dựng RESTful API theo chuẩn, implement authentication và authorization, thiết kế database tối ưu, và quản lý state cùng data flow hiệu quả.
-
 3. **Tìm hiểu và áp dụng các công nghệ mới**: Tích hợp AI API (Google Gemini) với function calling, triển khai webhook system để nhận real-time notifications, sử dụng queue system (BullMQ) cho background jobs, và áp dụng các best practices trong web development.
-
 4. **Đảm bảo chất lượng code**: Tuân thủ clean architecture principles, sử dụng TypeScript strict mode cho type safety, viết unit tests và integration tests, code review và maintain coding standards, cùng với tài liệu hóa code và API.
 
 **Mục tiêu phụ:**
@@ -123,8 +120,6 @@ Các mục tiêu phụ bao gồm học cách làm việc nhóm với Git và Git
 **7. Email Notifications:** Email xác nhận booking, email nhắc nhở sự kiện, welcome email cho user mới, và template system với Handlebars.
 
 **8. Background Job Processing:** Queue system với BullMQ và Redis, email sending jobs, calendar sync jobs, và auto-retry với exponential backoff.
-
-
 
 **Các tính năng KHÔNG triển khai (ngoài phạm vi):**
 
@@ -157,6 +152,7 @@ NestJS là một framework (khung phát triển) để xây dựng các ứng d�
 NestJS được chọn vì nhiều lý do. Thứ nhất, framework này dễ tổ chức code bằng cách chia ứng dụng thành các module nhỏ (auth, events, users...), mỗi module quản lý một chức năng riêng. Thứ hai, việc sử dụng TypeScript giúp kiểm tra lỗi ngay khi viết code và giảm bugs. Thứ ba, NestJS có sẵn các tính năng như xác thực, validation dữ liệu và logging. Cuối cùng, cú pháp giống Angular và có nhiều tài liệu học tập giúp dễ học.
 
 **Ví dụ cấu trúc module:**
+
 ```
 EventModule (quản lý sự kiện)
   ├── EventController (xử lý API requests)
@@ -165,6 +161,7 @@ EventModule (quản lý sự kiện)
 ```
 
 **Cách hoạt động:**
+
 1. Client gửi HTTP request đến server
 2. Controller nhận request và chuyển cho Service
 3. Service xử lý logic và gọi Repository
@@ -202,6 +199,7 @@ Trong Calento, Redis được sử dụng cho hai mục đích chính. Thứ nh�
 **Ví dụ cụ thể:**
 
 Khi user book một cuộc hẹn:
+
 1. Server tạo booking ngay lập tức → User thấy kết quả
 2. Server thêm job "gửi email" vào queue
 3. Worker (bộ xử lý) lấy job từ queue và gửi email
@@ -224,16 +222,13 @@ Next.js được chọn vì nhiều lý do. Thứ nhất, SEO tốt nhờ khả 
 **1. App Router (Định tuyến dựa trên file):**
 
 Cấu trúc thư mục tự động tạo routes:
-```
-app/
-  ├── page.tsx           → Trang chủ (/)
-  ├── login/
-  │   └── page.tsx      → Trang login (/login)
-  └── dashboard/
-      ├── page.tsx      → Dashboard (/dashboard)
-      └── calendar/
-          └── page.tsx  → Calendar (/dashboard/calendar)
-```
+
+| Đường dẫn file                  | Route tương ứng      | Mô tả                    |
+| :---------------------------------- | :---------------------- | :------------------------- |
+| `app/page.tsx`                    | `/`                   | Trang chủ của ứng dụng |
+| `app/login/page.tsx`              | `/login`              | Trang đăng nhập         |
+| `app/dashboard/page.tsx`          | `/dashboard`          | Trang dashboard chính     |
+| `app/dashboard/calendar/page.tsx` | `/dashboard/calendar` | Trang quản lý lịch      |
 
 **2. Server-Side Rendering (SSR):**
 
@@ -255,14 +250,15 @@ React là thư viện JavaScript để xây dựng giao diện người dùng b�
 
 **Component-based Architecture:**
 
-Ví dụ cấu trúc component trong Calento:
-```
-CalendarPage
-  ├── CalendarHeader (thanh tiêu đề, nút điều hướng)
-  ├── EventList (danh sách sự kiện)
-  │   └── EventCard (thẻ sự kiện đơn lẻ)
-  └── EventModal (form tạo/sửa sự kiện)
-```
+Cấu trúc component trong Calento được tổ chức theo hierarchy:
+
+| Component          | Vai trò                                            | Component con                         |
+| :----------------- | :-------------------------------------------------- | :------------------------------------ |
+| `CalendarPage`   | Component cha chứa toàn bộ trang lịch           | CalendarHeader, EventList, EventModal |
+| `CalendarHeader` | Thanh tiêu đề với nút điều hướng           | -                                     |
+| `EventList`      | Danh sách hiển thị các sự kiện                | EventCard                             |
+| `EventCard`      | Thẻ hiển thị thông tin một sự kiện đơn lẻ | -                                     |
+| `EventModal`     | Form modal để tạo hoặc chỉnh sửa sự kiện    | -                                     |
 
 **Lợi ích:**
 Component-based architecture mang lại nhiều lợi ích. Thứ nhất là tái sử dụng, viết một lần và dùng nhiều nơi. Thứ hai là dễ bảo trì vì mỗi component quản lý logic riêng. Thứ ba là hiệu suất cao vì React chỉ update phần UI thay đổi.
@@ -278,18 +274,16 @@ TanStack Query là thư viện giúp quản lý data từ API một cách thông
 Thông thường khi fetch API, phải quản lý:
 Thông thường khi fetch API, phải quản lý loading state (đang tải), error state (lỗi), cache data (lưu tạm), và refetch khi data cũ. TanStack Query làm tất cả tự động!
 
-**Ví dụ cụ thể:**
+**Cơ chế hoạt động của TanStack Query:**
 
-```typescript
-// Fetch danh sách events
-const { data, isLoading, error } = useEvents();
+Khi sử dụng hook `useEvents()` để fetch danh sách sự kiện, TanStack Query tự động thực hiện các bước:
 
-// TanStack Query tự động:
-// 1. Cache kết quả lần đầu
-// 2. Lần sau load từ cache → nhanh
-// 3. Refetch ở background để update data mới
-// 4. Nếu tạo event mới → tự động invalidate cache
-```
+| Bước | Hành động                        | Lợi ích                                        |
+| :----- | :---------------------------------- | :----------------------------------------------- |
+| 1      | Cache kết quả lần đầu tiên    | Lưu trữ dữ liệu để sử dụng lại          |
+| 2      | Load từ cache cho lần sau         | Tốc độ load nhanh, không cần chờ API       |
+| 3      | Refetch ở background               | Cập nhật dữ liệu mới mà không blocking UI |
+| 4      | Invalidate cache khi có thay đổi | Đảm bảo dữ liệu luôn đồng bộ            |
 
 **Lợi ích:**
 TanStack Query mang lại nhiều lợi ích. Thứ nhất là giảm request vì không gọi API trùng lặp. Thứ hai là UX tốt với tốc độ load nhanh từ cache. Thứ ba là automatic sync giúp data luôn được cập nhật. Cuối cùng là optimistic updates cho phép UI update ngay mà không chờ API.
@@ -310,23 +304,24 @@ State là dữ liệu của ứng dụng tại một thời điểm. Ví dụ nh
 Một số state cần truy cập từ nhiều component khác nhau:
 Một số state cần truy cập từ nhiều component khác nhau. Ví dụ, user info cần hiển thị ở Navbar (hiển thị avatar) và Sidebar (hiển thị tên). Calendar view cần hiển thị ở Header (hiển thị tháng/năm) và Main calendar.
 
-**Ví dụ trong Calento:**
+**Cấu trúc Calendar Settings Store trong Calento:**
 
-```typescript
-// Calendar Settings Store
-const useCalendarSettings = create((set) => ({
-  view: 'month',           // month, week, day
-  weekStartsOn: 'monday',
-  timeFormat: '24h',
-  
-  // Actions
-  setView: (view) => set({ view }),
-  setTimeFormat: (format) => set({ timeFormat: format })
-}));
+Zustand store quản lý các cài đặt hiển thị lịch:
 
-// Sử dụng trong component
-const { view, setView } = useCalendarSettings();
-```
+| State            | Giá trị mặc định | Mô tả                              |
+| :--------------- | :-------------------- | :----------------------------------- |
+| `view`         | 'month'               | Chế độ xem lịch (month/week/day) |
+| `weekStartsOn` | 'monday'              | Ngày bắt đầu tuần               |
+| `timeFormat`   | '24h'                 | Định dạng giờ (24h hoặc 12h)    |
+
+**Actions (Hành động):**
+
+| Action            | Tham số       | Chức năng                    |
+| :---------------- | :------------- | :----------------------------- |
+| `setView`       | view: string   | Thay đổi chế độ xem lịch |
+| `setTimeFormat` | format: string | Thay đổi định dạng giờ   |
+
+Các component có thể truy cập và cập nhật state này thông qua hook `useCalendarSettings()`.
 
 **Lợi ích:**
 Zustand mang lại nhiều lợi ích. Thứ nhất là đơn giản với ít code hơn Redux rất nhiều. Thứ hai là TypeScript type-safe giúp dễ refactor. Thứ ba là persistence cho phép lưu vào localStorage tự động. Cuối cùng là DevTools giúp debug dễ dàng.
@@ -354,6 +349,7 @@ Function Calling cho phép AI không chỉ trả lời text, mà còn **thực h
 **Ví dụ cụ thể:**
 
 **Kịch bản 1: Tạo sự kiện**
+
 ```
 User: "Tạo cuộc họp ngày mai lúc 2 giờ chiều"
 
@@ -369,6 +365,7 @@ User: "Tạo cuộc họp ngày mai lúc 2 giờ chiều"
 ```
 
 **Kịch bản 2: Kiểm tra lịch trống**
+
 ```
 User: "Tôi rảnh vào thứ 3 tuần sau không?"
 
@@ -429,16 +426,19 @@ Available Functions:
 Context là thông tin AI cần để trả lời chính xác:
 
 **1. Calendar Context:**
+
 - Ngày giờ hiện tại: `2024-11-09 18:30`
 - Timezone: `Asia/Ho_Chi_Minh`
 - Sự kiện sắp tới: Danh sách 5 events sắp diễn ra
 - User preferences: Giờ làm việc, ngôn ngữ ưa thích
 
 **2. Conversation History:**
+
 - Lưu 10 messages gần nhất
 - AI nhớ ngữ cảnh cuộc hội thoại
 
 **Ví dụ:**
+
 ```
 User: "Tạo cuộc họp với team"
 AI: "Cuộc họp khi nào?"
@@ -457,12 +457,14 @@ JWT (phát âm là "jot") là một chuẩn để tạo ra "token" (mã thông b
 **Tại sao cần JWT?**
 
 Khi user đăng nhập, server cần cách để "nhớ" user đã đăng nhập. Có 2 cách phổ biến:
+
 1. **Session-based**: Lưu thông tin trên server → Tốn bộ nhớ khi nhiều user
 2. **Token-based (JWT)**: Lưu token ở client → Server không cần lưu gì
 
 **Cấu trúc JWT:**
 
 JWT gồm 3 phần, phân cách bởi dấu chấm:
+
 ```
 Header.Payload.Signature
 
@@ -470,57 +472,59 @@ Ví dụ:
 eyJhbGc.eyJzdWI.SflKxwRJ
 ```
 
-**1. Header** (Phần đầu):
-```json
-{
-  "alg": "HS256",     // Thuật toán mã hóa
-  "typ": "JWT"        // Loại token
-}
-```
+**1. Header (Phần đầu):**
 
-**2. Payload** (Dữ liệu):
-```json
-{
-  "sub": "user-123",           // User ID
-  "email": "user@example.com",
-  "username": "john_doe",
-  "type": "access",            // Loại token
-  "iat": 1699545600,          // Issued at (thời điểm tạo)
-  "exp": 1699549200           // Expiration (hết hạn)
-}
-```
+| Trường | Giá trị | Mô tả                         |
+| :------- | :-------- | :------------------------------ |
+| `alg`  | "HS256"   | Thuật toán mã hóa sử dụng |
+| `typ`  | "JWT"     | Loại token                     |
+
+**2. Payload (Dữ liệu):**
+
+| Trường     | Giá trị ví dụ  | Mô tả                                              |
+| :----------- | :----------------- | :--------------------------------------------------- |
+| `sub`      | "user-123"         | User ID - định danh người dùng                  |
+| `email`    | "user@example.com" | Email của người dùng                             |
+| `username` | "john_doe"         | Tên đăng nhập                                    |
+| `type`     | "access"           | Loại token (access hoặc refresh)                   |
+| `iat`      | 1699545600         | Issued at - thời điểm tạo token (Unix timestamp) |
+| `exp`      | 1699549200         | Expiration - thời điểm hết hạn (Unix timestamp) |
 
 **3. Signature** (Chữ ký):
+
 - Mã hóa Header + Payload + Secret Key
 - Dùng để verify token không bị giả mạo
 
 **Quy trình xác thực:**
 
-**Đăng nhập:**
-```
-1. User gửi email + password
-2. Server verify → Tạo JWT token
-3. Server gửi token cho client
-4. Client lưu token (localStorage hoặc cookie)
-```
+**Quy trình đăng nhập:**
 
-**Gọi API:**
-```
-1. Client gửi request + JWT token trong header
-   Authorization: Bearer eyJhbGc...
-2. Server verify token
-3. Nếu valid → Xử lý request
-4. Nếu invalid/expired → Trả về 401 Unauthorized
-```
+| Bước | Hành động          | Chi tiết                                             |
+| :----- | :-------------------- | :---------------------------------------------------- |
+| 1      | User gửi thông tin  | Email và password được gửi đến server          |
+| 2      | Server xác thực     | Kiểm tra thông tin và tạo JWT token nếu hợp lệ |
+| 3      | Server trả về token | JWT token được gửi về cho client                 |
+| 4      | Client lưu token     | Token được lưu trong localStorage hoặc cookie    |
+
+**Quy trình gọi API:**
+
+| Bước | Hành động            | Chi tiết                                                     |
+| :----- | :---------------------- | :------------------------------------------------------------ |
+| 1      | Client gửi request     | Kèm JWT token trong header `Authorization: Bearer <token>` |
+| 2      | Server xác thực token | Kiểm tra tính hợp lệ và thời hạn của token            |
+| 3      | Token hợp lệ          | Server xử lý request và trả về dữ liệu                 |
+| 4      | Token không hợp lệ   | Server trả về lỗi 401 Unauthorized                         |
 
 **Token Types trong Calento:**
 
 **1. Access Token:**
+
 - Thời gian sống: 1 giờ
 - Dùng để gọi API
 - Hết hạn nhanh → Bảo mật cao
 
 **2. Refresh Token:**
+
 - Thời gian sống: 7 ngày
 - Dùng để lấy Access Token mới
 - Lưu trong HTTP-only cookie → An toàn hơn
@@ -534,57 +538,35 @@ OAuth 2.0 là một chuẩn cho phép ứng dụng truy cập dữ liệu của 
 **Tại sao cần OAuth?**
 
 Thay vì:
+
 - User nhập password Google vào app của bạn (nguy hiểm!)
 
 OAuth cho phép:
+
 - User đăng nhập trên trang Google
 - Google xác nhận và cấp quyền cho app
 - App nhận "access token" để truy cập data
 
 **Google OAuth Flow (Luồng xác thực):**
 
-**Bước 1: User click "Login with Google"**
-```
-App redirect user đến:
-https://accounts.google.com/oauth/authorize
-  ?client_id=xxx
-  &redirect_uri=https://calento.com/callback
-  &scope=email profile calendar
-  &response_type=code
-```
+**Quy trình Google OAuth Flow:**
 
-**Bước 2: User đăng nhập và cho phép**
-- User thấy trang: "Calento muốn truy cập email và calendar của bạn"
-- User click "Cho phép"
+| Bước      | Hành động                      | Chi tiết                                                                                                                                                        |
+| :---------- | :-------------------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **1** | User click "Login with Google"    | App redirect user đến trang xác thực Google với các tham số:`client_id`, `redirect_uri`, `scope` (email, profile, calendar), `response_type=code` |
+| **2** | User đăng nhập và cấp quyền | User thấy trang: "Calento muốn truy cập email và calendar của bạn" và click "Cho phép"                                                                   |
+| **3** | Google redirect về app           | Google chuyển hướng về `https://calento.com/callback` kèm theo authorization code                                                                         |
+| **4** | App đổi code lấy tokens        | App gửi POST request đến `https://oauth2.googleapis.com/token` với code, client_id, client_secret để nhận access_token và refresh_token                |
+| **5** | Sử dụng access_token            | App sử dụng access_token trong header `Authorization: Bearer <token>` để gọi Google Calendar API                                                          |
 
-**Bước 3: Google redirect về app với code**
-```
-https://calento.com/callback?code=abc123xyz
-```
+**Dữ liệu nhận được từ Google (Bước 4):**
 
-**Bước 4: App đổi code lấy tokens**
-```
-POST https://oauth2.googleapis.com/token
-{
-  "code": "abc123xyz",
-  "client_id": "xxx",
-  "client_secret": "yyy"
-}
-
-→ Response:
-{
-  "access_token": "ya29.a0AfH6SM...",
-  "refresh_token": "1//0gF5_xYz...",
-  "expires_in": 3600,
-  "scope": "email profile calendar"
-}
-```
-
-**Bước 5: Sử dụng access_token**
-```
-GET https://www.googleapis.com/calendar/v3/calendars/primary/events
-Authorization: Bearer ya29.a0AfH6SM...
-```
+| Trường          | Ví dụ                  | Mô tả                                         |
+| :---------------- | :----------------------- | :---------------------------------------------- |
+| `access_token`  | "ya29.a0AfH6SM..."       | Token để truy cập API, có thời hạn ngắn  |
+| `refresh_token` | "1//0gF5_xYz..."         | Token để lấy access_token mới khi hết hạn |
+| `expires_in`    | 3600                     | Thời gian sống của access_token (giây)      |
+| `scope`         | "email profile calendar" | Các quyền đã được cấp                   |
 
 **Lợi ích của OAuth 2.0:**
 
@@ -596,6 +578,7 @@ Authorization: Bearer ya29.a0AfH6SM...
 **Trong Calento:**
 
 OAuth được dùng cho 2 mục đích:
+
 1. **Đăng nhập**: Login with Google thay vì tạo account mới
 2. **Google Calendar Sync**: Truy cập Google Calendar để đồng bộ sự kiện
 
@@ -604,6 +587,7 @@ OAuth được dùng cho 2 mục đích:
 #### **4.5.1. REST là gì?**
 
 **REST** (REpresentational State Transfer) là một kiến trúc thiết kế API, trong đó:
+
 - Mỗi **resource** (tài nguyên) có một **URL** riêng
 - Dùng **HTTP methods** chuẩn để thao tác
 - Server **không lưu trạng thái** của client (stateless)
@@ -611,6 +595,7 @@ OAuth được dùng cho 2 mục đích:
 **Ví dụ dễ hiểu:**
 
 Tưởng tượng API như một thư viện:
+
 - **GET**: Đọc/mượn sách (không thay đổi gì)
 - **POST**: Thêm sách mới vào thư viện
 - **PUT/PATCH**: Sửa thông tin sách
@@ -618,17 +603,18 @@ Tưởng tượng API như một thư viện:
 
 #### **4.5.2. HTTP Methods trong Calento**
 
-| Method | Mục đích | Ví dụ | Kết quả |
-| :--- | :--- | :--- | :--- |
-| **GET** | Lấy dữ liệu | `GET /api/events`<br>`GET /api/events/123`<br>`GET /api/events?date=2024-11-09` | Lấy danh sách events<br>Lấy event có id = 123<br>Lấy events theo ngày |
-| **POST** | Tạo mới | `POST /api/events`<br>Body: `{"title": "Họp team", "start_time": "2024-11-10T14:00:00"}` | Tạo event mới, trả về event đã tạo |
-| **PATCH** | Cập nhật một phần | `PATCH /api/events/123`<br>Body: `{"title": "Họp team (Updated)"}` | Chỉ sửa title, giữ nguyên các field khác |
-| **PUT** | Thay thế toàn bộ | `PUT /api/events/123`<br>Body: `{"title": "New title", "start_time": "...", ...}` | Thay thế toàn bộ event với dữ liệu mới |
-| **DELETE** | Xóa | `DELETE /api/events/123` | Xóa event có id = 123 |
+| Method           | Mục đích           | Ví dụ                                                                                       | Kết quả                                                                           |
+| :--------------- | :-------------------- | :-------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------- |
+| **GET**    | Lấy dữ liệu        | `GET /api/events<br>``GET /api/events/123<br>``GET /api/events?date=2024-11-09`         | Lấy danh sách events`<br>`Lấy event có id = 123`<br>`Lấy events theo ngày |
+| **POST**   | Tạo mới             | `POST /api/events<br>`Body: `{"title": "Họp team", "start_time": "2024-11-10T14:00:00"}` | Tạo event mới, trả về event đã tạo                                           |
+| **PATCH**  | Cập nhật một phần | `PATCH /api/events/123<br>`Body: `{"title": "Họp team (Updated)"}`                       | Chỉ sửa title, giữ nguyên các field khác                                      |
+| **PUT**    | Thay thế toàn bộ   | `PUT /api/events/123<br>`Body: `{"title": "New title", "start_time": "...", ...}`         | Thay thế toàn bộ event với dữ liệu mới                                       |
+| **DELETE** | Xóa                  | `DELETE /api/events/123`                                                                    | Xóa event có id = 123                                                             |
 
 #### **4.5.3. URL Structure (Cấu trúc URL)**
 
 **Chuẩn REST:**
+
 ```
 /api/resource                 → Collection (nhiều items)
 /api/resource/:id             → Single item
@@ -636,6 +622,7 @@ Tưởng tượng API như một thư viện:
 ```
 
 **Ví dụ trong Calento:**
+
 ```
 /api/events                   → Tất cả events
 /api/events/123               → Event 123
@@ -647,30 +634,33 @@ Tưởng tượng API như một thư viện:
 
 #### **4.5.4. Response Format (Định dạng trả về)**
 
-| Trường | Kiểu dữ liệu | Mô tả |
-| :--- | :--- | :--- |
-| `success` | boolean | Trạng thái phản hồi (true/false) |
-| `data` | object | Dữ liệu chính trả về từ API |
-| `meta` | object | Thông tin bổ sung (timestamp, pagination) |
+| Trường    | Kiểu dữ liệu | Mô tả                                     |
+| :---------- | :-------------- | :------------------------------------------ |
+| `success` | boolean         | Trạng thái phản hồi (true/false)        |
+| `data`    | object          | Dữ liệu chính trả về từ API           |
+| `meta`    | object          | Thông tin bổ sung (timestamp, pagination) |
 
 **Error Response:**
-| Trường | Kiểu dữ liệu | Mô tả |
-| :--- | :--- | :--- |
-| `success` | boolean | Trạng thái thất bại (false) |
-| `error.code` | string | Mã lỗi định danh (ví dụ: VALIDATION_ERROR) |
-| `error.message` | string | Thông báo lỗi chi tiết cho người dùng |
-| `error.details` | array | Danh sách chi tiết các lỗi (nếu có) |
-| `meta.timestamp` | string | Thời điểm xảy ra lỗi |
+
+| Trường           | Kiểu dữ liệu | Mô tả                                          |
+| :----------------- | :-------------- | :----------------------------------------------- |
+| `success`        | boolean         | Trạng thái thất bại (false)                  |
+| `error.code`     | string          | Mã lỗi định danh (ví dụ: VALIDATION_ERROR) |
+| `error.message`  | string          | Thông báo lỗi chi tiết cho người dùng     |
+| `error.details`  | array           | Danh sách chi tiết các lỗi (nếu có)        |
+| `meta.timestamp` | string          | Thời điểm xảy ra lỗi                        |
 
 **Paginated Response:**
-| Trường | Kiểu dữ liệu | Mô tả |
-| :--- | :--- | :--- |
-| `success` | boolean | Trạng thái thành công (true) |
-| `data` | array | Danh sách các đối tượng dữ liệu |
-| `meta.page` | number | Số thứ tự trang hiện tại |
-| `meta.limit` | number | Số lượng mục trên mỗi trang |
-| `meta.total` | number | Tổng số lượng mục trong cơ sở dữ liệu |
-| `meta.totalPages` | number | Tổng số trang |}
+
+| Trường            | Kiểu dữ liệu | Mô tả                                        |
+| :------------------ | :-------------- | :--------------------------------------------- |
+| `success`         | boolean         | Trạng thái thành công (true)               |
+| `data`            | array           | Danh sách các đối tượng dữ liệu        |
+| `meta.page`       | number          | Số thứ tự trang hiện tại                  |
+| `meta.limit`      | number          | Số lượng mục trên mỗi trang              |
+| `meta.total`      | number          | Tổng số lượng mục trong cơ sở dữ liệu |
+| `meta.totalPages` | number          | Tổng số trang                                |
+
 ```
 
 #### **4.5.5. HTTP Status Codes**
@@ -696,23 +686,33 @@ Swagger (OpenAPI) là công cụ tự động tạo tài liệu API, giúp:
 - **Test**: Gọi thử API ngay trên browser
 - **Generate**: Tự động tạo code client
 
-**Ví dụ trong Calento:**
+**Ví dụ API endpoint trong Calento:**
 
-Truy cập: `http://localhost:8000/api-docs`
+Swagger documentation có thể truy cập tại: `https://api.calento.space/docs` (production) hoặc `http://localhost:8000/api-docs` (development)
 
-```
-GET /api/events
-Summary: Get list of events
-Parameters:
-  - page (query, number): Page number
-  - limit (query, number): Items per page
-  - start_date (query, string): Start date filter
-Responses:
-  200: Success
-    Schema: PaginatedEventsResponse
-  401: Unauthorized
-  500: Server Error
-```
+**Ví dụ endpoint `GET /api/events`:**
+
+| Thuộc tính | Giá trị |
+| :--- | :--- |
+| **Method** | GET |
+| **Path** | `/api/events` |
+| **Mô tả** | Lấy danh sách sự kiện với phân trang |
+
+**Parameters (Tham số):**
+
+| Tên | Vị trí | Kiểu | Bắt buộc | Mô tả |
+| :--- | :--- | :--- | :--- | :--- |
+| `page` | query | number | Không | Số thứ tự trang (mặc định: 1) |
+| `limit` | query | number | Không | Số lượng items mỗi trang (mặc định: 10) |
+| `start_date` | query | string | Không | Lọc sự kiện từ ngày (ISO 8601 format) |
+
+**Responses (Phản hồi):**
+
+| Status Code | Tên | Mô tả | Schema |
+| :--- | :--- | :--- | :--- |
+| 200 | Success | Trả về danh sách sự kiện thành công | PaginatedEventsResponse |
+| 401 | Unauthorized | Chưa đăng nhập hoặc token không hợp lệ | ErrorResponse |
+| 500 | Server Error | Lỗi server nội bộ | ErrorResponse |
 
 **Lợi ích:**
 - Tài liệu tự động, không cần viết thủ công
@@ -720,61 +720,297 @@ Responses:
 - Test API trực tiếp mà không cần Postman
 - Generate TypeScript types tự động
 
-### **2.6. Design Patterns**
+### **4.6. Design Patterns (Mẫu thiết kế)**
 
-#### **2.6.1. Repository Pattern**
+Design Patterns là các giải pháp tái sử dụng cho các vấn đề phổ biến trong thiết kế phần mềm. Trong Calento, nhóm áp dụng các patterns quan trọng để đảm bảo code dễ bảo trì và mở rộng.
 
-Tách biệt business logic khỏi data access logic.
+#### **4.6.1. Repository Pattern**
 
-**Lợi ích:**
+**Repository Pattern là gì?**
 
-- Single source of truth cho data access
-- Dễ testing (mock repositories)
-- Tái sử dụng queries
-- Thay đổi data source dễ dàng
+Repository Pattern là một design pattern tách biệt logic truy cập dữ liệu (data access logic) khỏi business logic. Repository hoạt động như một "trung gian" giữa business logic layer và data source (database).
 
-#### **2.6.2. Service Layer Pattern**
+**Tại sao cần Repository Pattern?**
 
-Business logic được tập trung trong service layer, controller chỉ handle HTTP concerns.
+Trong các ứng dụng truyền thống, việc business logic tương tác trực tiếp với cơ sở dữ liệu thường phát sinh nhiều hạn chế đáng kể. Điển hình là tình trạng lặp lại mã nguồn khi các truy vấn tương tự được thực hiện ở nhiều nơi, gây khó khăn cho quá trình kiểm thử do sự phụ thuộc chặt chẽ vào cơ sở dữ liệu thực tế. Ngoài ra, việc bảo trì và nâng cấp hệ thống cũng trở nên phức tạp vì các câu lệnh SQL phân tán, đồng thời vi phạm nguyên lý đơn nhiệm (Single Responsibility Principle) khi một thành phần phải đảm nhiệm cả xử lý nghiệp vụ lẫn truy xuất dữ liệu.
 
-**Kiến trúc:**
+**Kiến trúc trong Calento:**
+
+```mermaid
+flowchart TD
+    A[Controller<br/>Nhận HTTP requests] -->|Parse request,<br/>validate input| B[Service<br/>Business logic]
+    B -->|Orchestrate<br/>operations| C[Repository<br/>Data access logic]
+    C -->|Query,<br/>CRUD operations| D[Database<br/>PostgreSQL]
+  
+    style A fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    style B fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
+    style C fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    style D fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+```
 
 ```
-Controller → Service → Repository → Database
+
 ```
 
-#### **2.6.3. DTO (Data Transfer Objects)**
+```
 
-DTOs định nghĩa structure của data được truyền giữa layers.
+```
 
-**Validation:**
+**Các phương thức chính trong EventRepository:**
 
-- class-validator decorators
-- Automatic validation trong NestJS
-- Type safety với TypeScript
-- Transform và sanitize input
+| Phương thức      | Chức năng                          | Mô tả                                                                                                                      |
+| :------------------ | :----------------------------------- | :--------------------------------------------------------------------------------------------------------------------------- |
+| `findByUserId`    | Tìm tất cả events của user       | Truy vấn database để lấy danh sách sự kiện của một user cụ thể, sắp xếp theo thời gian bắt đầu              |
+| `findByDateRange` | Tìm events trong khoảng thời gian | Sử dụng query builder để lọc sự kiện theo user ID và khoảng thời gian cụ thể                                     |
+| `hasConflict`     | Kiểm tra trùng lịch               | Kiểm tra xem có sự kiện nào trùng với khoảng thời gian đã cho hay không, hỗ trợ loại trừ một event cụ thể |
 
-### **2.7. Real-time Communication**
+**Lợi ích của Repository Pattern:**
 
-#### **2.7.1. Webhooks**
+Repository Pattern mang lại nhiều lợi ích quan trọng. Thứ nhất, Single Source of Truth đảm bảo tất cả queries liên quan đến Event đều ở một nơi. Thứ hai, Reusability cho phép tái sử dụng queries ở nhiều services khác nhau. Thứ ba, Testability giúp dễ dàng mock repository trong unit tests. Thứ tư, Maintainability giúp dễ sửa query vì chỉ cần sửa ở một chỗ. Cuối cùng, Flexibility cho phép dễ dàng thay đổi database hoặc ORM mà không ảnh hưởng business logic.
 
-Webhooks là HTTP callbacks khi events xảy ra ở third-party service.
+#### **4.6.2. Service Layer Pattern**
 
-**Google Calendar Webhooks:**
+**Service Layer Pattern là gì?**
 
-- Subscribe to calendar changes
-- Receive push notifications
-- Auto-sync events
-- Channel expiration handling
+Service Layer Pattern tập trung toàn bộ business logic vào một layer riêng biệt (service layer), tách biệt khỏi presentation layer (controllers) và data access layer (repositories).
 
-#### **2.7.2. Background Jobs**
+**Nguyên tắc hoạt động:**
 
-Xử lý long-running tasks bất đồng bộ.
+Service Layer hoạt động theo nguyên tắc rõ ràng. Controller chỉ xử lý HTTP concerns như parse request, validate input, và format response. Service xử lý toàn bộ business logic như validate business rules, orchestrate operations, và gọi repositories. Repository chỉ xử lý data access như query database và map entities.
 
-**BullMQ Features:**
+**Quy trình xử lý trong EventService:**
 
-- Job queues với priority
-- Auto-retry with exponential backoff
-- Job scheduling
-- Monitoring dashboard
+EventService đóng vai trò trung tâm trong việc xử lý business logic liên quan đến sự kiện. Khi tạo một sự kiện mới, service thực hiện các bước sau:
 
+1. **Validate business rules**: Kiểm tra tính hợp lệ của dữ liệu đầu vào, đảm bảo thời gian kết thúc sau thời gian bắt đầu
+2. **Check conflicts**: Gọi repository để kiểm tra xem có sự kiện nào trùng lịch hay không
+3. **Create event**: Lưu sự kiện vào database thông qua repository
+4. **Sync to Google Calendar**: Đồng bộ sự kiện lên Google Calendar nếu user đã kết nối
+5. **Schedule reminder**: Thêm job gửi email nhắc nhở vào queue nếu có cấu hình
+
+Đối với chức năng tìm khung giờ trống (`findAvailableSlots`), service thực hiện:
+
+1. Lấy tất cả sự kiện trong ngày từ repository
+2. Định nghĩa giờ làm việc (mặc định 9h-17h)
+3. Duyệt qua từng khung giờ 30 phút, kiểm tra xem có trùng với sự kiện nào không
+4. Trả về danh sách các khung giờ trống phù hợp
+
+**Vai trò của Controller:**
+
+EventController chỉ đảm nhận các nhiệm vụ liên quan đến HTTP như nhận request, parse parameters, gọi service để xử lý logic, và format response trả về client. Controller không chứa business logic, đảm bảo nguyên tắc separation of concerns.
+
+**Lợi ích của Service Layer Pattern:**
+
+Service Layer Pattern mang lại nhiều lợi ích. Thứ nhất, Separation of Concerns giúp mỗi layer có trách nhiệm rõ ràng. Thứ hai, Reusability cho phép service có thể được gọi từ nhiều controllers hoặc background jobs. Thứ ba, Testability giúp dễ test business logic độc lập. Thứ tư, Transaction Management giúp dễ quản lý database transactions. Cuối cùng, Orchestration cho phép phối hợp nhiều operations phức tạp.
+
+#### **4.6.3. DTO (Data Transfer Objects)**
+
+**DTO là gì?**
+
+DTO (Data Transfer Object) là các class định nghĩa cấu trúc dữ liệu được truyền giữa các layers hoặc qua network. DTOs đóng vai trò như "hợp đồng" (contract) về format của data.
+
+**Tại sao cần DTO?**
+
+DTO giải quyết nhiều vấn đề quan trọng. Thứ nhất, Type Safety đảm bảo dữ liệu có đúng kiểu và cấu trúc. Thứ hai, Validation tự động kiểm tra dữ liệu hợp lệ trước khi xử lý. Thứ ba, Documentation giúp API documentation rõ ràng hơn. Thứ tư, Transformation cho phép chuyển đổi và sanitize input. Cuối cùng, Separation giúp tách biệt API schema khỏi database schema.
+
+**Cấu trúc DTOs trong Calento:**
+
+**CreateEventDto (Input DTO)** định nghĩa cấu trúc dữ liệu khi tạo sự kiện mới:
+
+| Trường        | Kiểu  | Validation                                           | Mô tả                                   |
+| :-------------- | :----- | :--------------------------------------------------- | :---------------------------------------- |
+| `title`       | string | Bắt buộc, 1-200 ký tự                            | Tiêu đề sự kiện                      |
+| `description` | string | Tùy chọn, tối đa 2000 ký tự                    | Mô tả chi tiết                         |
+| `startTime`   | string | Bắt buộc, ISO 8601 format                          | Thời gian bắt đầu                     |
+| `endTime`     | string | Bắt buộc, ISO 8601 format                          | Thời gian kết thúc                     |
+| `location`    | string | Tùy chọn                                           | Địa điểm                              |
+| `priority`    | enum   | Tùy chọn, giá trị: none/low/medium/high/critical | Độ ưu tiên                            |
+| `attendees`   | array  | Tùy chọn, mảng email addresses                    | Danh sách người tham dự               |
+| `recurrence`  | object | Tùy chọn                                           | Quy tắc lặp lại (daily/weekly/monthly) |
+
+**EventResponseDto (Output DTO)** định nghĩa cấu trúc dữ liệu trả về cho client, bao gồm các trường cơ bản từ database và các computed fields như `duration` (thời lượng tính bằng phút), `isUpcoming` (sự kiện sắp diễn ra), và `isPast` (sự kiện đã qua).
+
+**Validation Pipeline** được cấu hình toàn cục với các tính năng: tự động loại bỏ các properties không được định nghĩa trong DTO (whitelist), báo lỗi khi có extra properties, và tự động transform types.
+
+**Ví dụ validation errors:**
+
+Khi client gửi request với dữ liệu không hợp lệ đến endpoint `POST /api/events`, hệ thống validation sẽ tự động kiểm tra và trả về danh sách lỗi chi tiết:
+
+**Dữ liệu đầu vào không hợp lệ:**
+
+| Trường       | Giá trị gửi lên   | Vấn đề                                       |
+| :------------- | :-------------------- | :---------------------------------------------- |
+| `title`      | "" (chuỗi rỗng)     | Quá ngắn, yêu cầu tối thiểu 1 ký tự     |
+| `startTime`  | "invalid-date"        | Không đúng định dạng ISO 8601             |
+| `endTime`    | "2024-11-10T14:00:00" | Hợp lệ                                        |
+| `priority`   | "super-high"          | Không thuộc enum cho phép                    |
+| `extraField` | "value"               | Trường không được định nghĩa trong DTO |
+
+**Response lỗi trả về:**
+
+Hệ thống trả về response với `success: false` và danh sách chi tiết các lỗi:
+
+| Trường lỗi  | Thông báo lỗi                                             |
+| :------------- | :----------------------------------------------------------- |
+| `title`      | "title must be longer than or equal to 1 characters"         |
+| `startTime`  | "startTime must be a valid ISO 8601 date string"             |
+| `priority`   | "priority must be one of: none, low, medium, high, critical" |
+| `extraField` | "property extraField should not exist"                       |
+
+Cơ chế validation này đảm bảo dữ liệu đầu vào luôn hợp lệ trước khi được xử lý bởi business logic, giúp tăng tính bảo mật và ổn định của hệ thống.
+
+**Lợi ích của DTOs:**
+
+DTOs mang lại nhiều lợi ích quan trọng. Thứ nhất, Type Safety đảm bảo compile-time type checking với TypeScript. Thứ hai, Auto Validation tự động validate input mà không cần code thủ công. Thứ ba, Clear API Contract giúp frontend developers biết chính xác format cần gửi. Thứ tư, Security giúp ngăn chặn mass assignment vulnerabilities. Cuối cùng, Documentation tự động generate Swagger docs từ DTOs.
+
+### **4.7. Real-time Communication (Giao tiếp thời gian thực)**
+
+#### **4.7.1. Webhooks**
+
+**Webhook là gì?**
+
+Webhook là một cơ chế cho phép ứng dụng nhận thông báo tự động khi có sự kiện xảy ra ở một dịch vụ bên thứ ba. Thay vì phải liên tục "hỏi" (polling) dịch vụ bên thứ ba xem có thay đổi không, webhook cho phép dịch vụ đó "thông báo" (push) cho ứng dụng khi có thay đổi.
+
+**So sánh Polling vs Webhook:**
+
+**Polling (Cách truyền thống):**
+
+```
+App → "Có thay đổi không?" → Google Calendar
+      ← "Không" ←
+
+[30 giây sau]
+App → "Có thay đổi không?" → Google Calendar
+      ← "Không" ←
+
+[30 giây sau]
+App → "Có thay đổi không?" → Google Calendar
+      ← "Có! Event mới được tạo" ←
+```
+
+**Nhược điểm của Polling:**
+
+- Lãng phí tài nguyên (gọi API liên tục dù không có thay đổi)
+- Delay trong việc nhận thông báo (phụ thuộc vào polling interval)
+- Tốn quota API calls
+
+**Webhook (Cách hiện đại):**
+
+```
+App → "Hãy thông báo cho tôi khi có thay đổi" → Google Calendar
+      ← "OK, đã đăng ký" ←
+
+[Khi có thay đổi]
+Google Calendar → "Event mới được tạo!" → App
+```
+
+**Lợi ích của Webhook:**
+
+- Real-time: Nhận thông báo ngay lập tức
+- Tiết kiệm tài nguyên: Chỉ nhận khi có thay đổi
+- Hiệu quả: Không lãng phí API quota
+
+**Google Calendar Webhooks trong Calento:**
+
+**Quy trình triển khai Google Calendar Webhooks:**
+
+**Bước 1: Đăng ký webhook (Subscribe)**
+
+Hệ thống tạo một webhook channel với Google Calendar API, cung cấp URL endpoint để nhận thông báo. Channel có thời hạn 7 ngày và được lưu thông tin vào database để quản lý.
+
+**Bước 2: Nhận webhook notifications**
+
+Khi Google Calendar gửi thông báo về thay đổi, hệ thống:
+
+- Xác thực tính hợp lệ của webhook thông qua channel ID
+- Bỏ qua các sync notifications
+- Thêm sync job vào queue để xử lý bất đồng bộ
+
+**Bước 3: Xử lý đồng bộ trong background job**
+
+Background worker thực hiện các bước:
+
+1. Lấy danh sách events từ Google Calendar và database
+2. So sánh và xác định các thay đổi (thêm mới, cập nhật, xóa)
+3. Đồng bộ dữ liệu giữa hai nguồn
+
+**Bước 4: Quản lý channel expiration**
+
+Một cron job chạy hàng ngày để:
+
+- Tìm các channels sắp hết hạn (trong vòng 24 giờ)
+- Hủy channel cũ và tạo channel mới
+- Xử lý lỗi nếu quá trình renew thất bại
+
+**Lợi ích của Webhooks trong Calento:**
+
+Webhooks mang lại nhiều lợi ích cho Calento. Thứ nhất, Real-time Sync giúp events được đồng bộ ngay lập tức khi có thay đổi trên Google Calendar. Thứ hai, Resource Efficient giúp không cần polling liên tục, tiết kiệm API quota. Thứ ba, Better UX cho phép user thấy thay đổi ngay lập tức mà không cần refresh. Cuối cùng, Scalable giúp dễ dàng scale khi có nhiều users.
+
+#### **4.7.2. Background Jobs (Công việc chạy nền)**
+
+**Background Jobs là gì?**
+
+Background Jobs là các tác vụ được xử lý bất đồng bộ (asynchronously) trong nền, không làm chậm response time của API. Thay vì user phải chờ tác vụ hoàn thành, server trả về response ngay lập tức và xử lý tác vụ sau đó.
+
+**Tại sao cần Background Jobs?**
+
+Một số tác vụ mất nhiều thời gian và không nên làm user phải chờ. Ví dụ như gửi email có thể mất 2-5 giây, đồng bộ với Google Calendar có thể mất 10-30 giây, xử lý webhook notifications cần xử lý ngay nhưng không blocking, và generate reports có thể mất vài phút.
+
+**BullMQ - Queue System:**
+
+BullMQ là thư viện quản lý job queue mạnh mẽ, sử dụng Redis làm message broker.
+
+**Kiến trúc BullMQ Queue System:**
+
+```mermaid
+flowchart TD
+    A[API Server<br/>Add jobs to queue] -->|Enqueue jobs| B[Redis<br/>Job Queue In-memory]
+    B -->|Dequeue jobs| C[Workers<br/>Process jobs in background]
+  
+    style A fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    style B fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    style C fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
+```
+
+**Các loại Background Jobs trong Calento:**
+
+**1. Email Queue**
+
+Email Queue quản lý các tác vụ gửi email với các tính năng:
+
+| Loại Job                | Mục đích                     | Cấu hình                                                   |
+| :----------------------- | :------------------------------ | :----------------------------------------------------------- |
+| `booking-confirmation` | Gửi email xác nhận booking   | Retry 3 lần, exponential backoff (2s, 4s, 8s)               |
+| `event-reminder`       | Gửi email nhắc nhở sự kiện | Scheduled job, delay theo thời gian sự kiện, retry 2 lần |
+
+Worker xử lý email jobs thực hiện:
+
+- Gửi email thông qua EmailService
+- Cập nhật trạng thái đã gửi vào database
+- Throw error để BullMQ tự động retry nếu thất bại
+
+**2. Calendar Sync Queue**
+
+Sync Queue quản lý đồng bộ với Google Calendar:
+
+| Tính năng         | Mô tả                                                           |
+| :------------------ | :---------------------------------------------------------------- |
+| Priority Management | Hỗ trợ 10 mức độ ưu tiên (1 = cao nhất, 10 = thấp nhất) |
+| Concurrency         | Xử lý 5 jobs đồng thời để tối ưu hiệu suất             |
+| Progress Tracking   | Cập nhật tiến độ (10%, 50%, 100%) trong quá trình xử lý  |
+| Bulk Sync           | Hỗ trợ đồng bộ hàng loạt users với priority thấp         |
+
+**Monitoring Dashboard:**
+
+BullMQ tích hợp Bull Board - Web UI tại `/admin/queues` cung cấp:
+
+| Chức năng          | Mô tả                                                         |
+| :------------------- | :-------------------------------------------------------------- |
+| Job Statistics       | Hiển thị số lượng jobs: waiting, active, completed, failed |
+| Job Details          | Xem chi tiết data, progress, logs, stacktrace của từng job   |
+| Manual Control       | Retry failed jobs, clean old jobs, pause/resume queues          |
+| Real-time Monitoring | Theo dõi trạng thái jobs theo thời gian thực               |
+
+**Lợi ích của Background Jobs:**
+
+Background Jobs mang lại nhiều lợi ích quan trọng. Thứ nhất, Fast Response Time giúp API trả về ngay lập tức, không làm user chờ. Thứ hai, Reliability với auto-retry khi thất bại và exponential backoff. Thứ ba, Scalability cho phép dễ dàng scale workers độc lập với API servers. Thứ tư, Priority Management giúp xử lý urgent jobs trước. Thứ năm, Scheduled Jobs cho phép chạy jobs vào thời điểm cụ thể. Cuối cùng, Monitoring giúp dễ dàng theo dõi và debug jobs qua dashboard.
