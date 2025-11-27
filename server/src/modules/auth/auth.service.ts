@@ -41,7 +41,7 @@ export class AuthService {
     private readonly emailService: EmailService,
     private readonly calendarService: CalendarService,
     private readonly googleAuthService: GoogleAuthService,
-  ) {}
+  ) { }
 
   async register(registerDto: RegisterDto): Promise<AuthResponse> {
     try {
@@ -150,98 +150,9 @@ export class AuthService {
     }
   }
 
-  async forgetPassword(email: string) {
-    try {
-      const user = await this.userValidationService.findUserByEmail(email);
-      if (!user) {
-        this.logger.warn(
-          `Forget password attempt with non-existent email: ${email}`,
-        );
-        throw new InvalidCredentialsException();
-      }
 
-      const resetToken = randomBytes(32).toString('hex');
-      const identifier = resetToken.slice(
-        0,
-        SECURITY_CONSTANTS.TOKEN_LENGTHS.RESET_TOKEN_IDENTIFIER,
-      );
-      const secret = resetToken.slice(
-        SECURITY_CONSTANTS.TOKEN_LENGTHS.RESET_TOKEN_IDENTIFIER,
-      );
 
-      const hashedSecret = await this.passwordService.hashPassword(secret);
 
-      await this.authRepository.updateResetToken(
-        user.id,
-        identifier,
-        hashedSecret,
-        new Date(Date.now() + TIME_CONSTANTS.AUTH.PASSWORD_RESET_EXPIRY),
-      );
-
-      await this.emailService.sendPasswordResetEmail(
-        user.id,
-        user.email,
-        user.username,
-        identifier,
-        secret,
-      );
-      this.logger.log(`Password reset email sent to: ${user.email}`);
-
-      this.logger.log(`User forget password successfully: ${user.email}`);
-
-      return {
-        email: user.email,
-      };
-    } catch (error) {
-      if (error instanceof InvalidCredentialsException) {
-        throw error;
-      }
-
-      this.logger.error('Forget password failed:', error);
-      throw new AuthenticationFailedException(
-        this.messageService.get('auth.forget_password_failed'),
-      );
-    }
-  }
-
-  async resetPasswordLegacy(identifier: string, secret: string, password: string) {
-    try {
-      const user =
-        await this.userValidationService.findUserByResetToken(identifier);
-      if (!user) {
-        this.logger.warn(
-          `Reset password attempt with non-existent reset token: ${identifier}`,
-        );
-        throw new InvalidCredentialsException();
-      }
-
-      const hashedPassword = await this.passwordService.hashPassword(password);
-      const isPasswordValid = await this.passwordService.comparePassword(
-        secret,
-        user.reset_token_secret,
-      );
-      if (!isPasswordValid) {
-        this.logger.warn(
-          `Invalid password attempt for reset token: ${identifier}`,
-        );
-        throw new InvalidCredentialsException();
-      }
-      await this.authRepository.updatePassword(user.id, hashedPassword);
-      this.logger.log(`User reset password successfully: ${user.email}`);
-      return {
-        email: user.email,
-      };
-    } catch (error) {
-      if (error instanceof InvalidCredentialsException) {
-        throw error;
-      }
-
-      this.logger.error('Reset password failed:', error);
-      throw new AuthenticationFailedException(
-        this.messageService.get('auth.reset_password_failed'),
-      );
-    }
-  }
 
   async resetPassword(token: string, newPassword: string): Promise<void> {
     try {
@@ -295,7 +206,7 @@ export class AuthService {
       }
 
       const user = await this.userValidationService.findUserById(payload.sub);
-      
+
       if (!user) {
         this.logger.warn(`User not found for token: ${payload.sub}`);
         return null;
@@ -429,7 +340,7 @@ export class AuthService {
     try {
       const oauth2Client = this.googleAuthService.getOAuth2Client();
       const { tokens } = await oauth2Client.getToken(code);
-      
+
       if (!tokens.access_token) {
         throw new AuthenticationFailedException('No access token received from Google');
       }
@@ -443,7 +354,7 @@ export class AuthService {
       }
 
       let user = await this.authRepository.findByEmail(googleUser.email);
-      
+
       if (!user) {
         const hashedPassword = await this.passwordService.hashPassword(
           randomBytes(32).toString('hex')
@@ -465,7 +376,7 @@ export class AuthService {
         await this.createDefaultCalendar(user);
       }
 
-      const expiresAt = tokens.expiry_date 
+      const expiresAt = tokens.expiry_date
         ? new Date(tokens.expiry_date)
         : new Date(Date.now() + TIME_CONSTANTS.GOOGLE.TOKEN_DEFAULT_EXPIRY);
 
@@ -491,11 +402,11 @@ export class AuthService {
 
     } catch (error) {
       this.logger.error('Google login failed:', error);
-      
+
       if (error instanceof AuthenticationFailedException) {
         throw error;
       }
-      
+
       throw new AuthenticationFailedException('Google login failed');
     }
   }

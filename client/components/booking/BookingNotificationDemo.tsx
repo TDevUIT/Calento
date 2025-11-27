@@ -10,7 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/radix-dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import { useBookingNotifications } from "@/hook/booking/use-booking-notifications";
 import { BookingNotificationContainer } from "./BookingNotification";
 
@@ -33,7 +33,7 @@ export function BookingNotificationDemo() {
           <Button variant="outline" size="icon" className="relative">
             <Bell className="h-4 w-4" />
             {unreadCount > 0 && (
-              <Badge 
+              <Badge
                 className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs bg-red-500 text-white"
               >
                 {unreadCount > 9 ? '9+' : unreadCount}
@@ -51,7 +51,7 @@ export function BookingNotificationDemo() {
             )}
           </div>
           <DropdownMenuSeparator />
-          
+
           {notifications.length === 0 ? (
             <div className="p-4 text-center text-muted-foreground">
               <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
@@ -66,16 +66,15 @@ export function BookingNotificationDemo() {
                   onClick={() => markAsRead(notification.id)}
                 >
                   <div className="flex items-start gap-3 w-full">
-                    <div className={`p-1 rounded ${
-                      notification.type === 'new_booking' ? 'bg-green-100 text-green-600' :
-                      notification.type === 'booking_cancelled' ? 'bg-red-100 text-red-600' :
-                      notification.type === 'booking_rescheduled' ? 'bg-blue-100 text-blue-600' :
-                      'bg-orange-100 text-orange-600'
-                    }`}>
+                    <div className={`p-1 rounded ${notification.type === 'new_booking' ? 'bg-green-100 text-green-600' :
+                        notification.type === 'booking_cancelled' ? 'bg-red-100 text-red-600' :
+                          notification.type === 'booking_rescheduled' ? 'bg-blue-100 text-blue-600' :
+                            'bg-orange-100 text-orange-600'
+                      }`}>
                       {notification.type === 'new_booking' ? <Calendar className="h-3 w-3" /> :
-                       notification.type === 'booking_cancelled' ? <X className="h-3 w-3" /> :
-                       notification.type === 'booking_rescheduled' ? <Clock className="h-3 w-3" /> :
-                       <AlertCircle className="h-3 w-3" />}
+                        notification.type === 'booking_cancelled' ? <X className="h-3 w-3" /> :
+                          notification.type === 'booking_rescheduled' ? <Clock className="h-3 w-3" /> :
+                            <AlertCircle className="h-3 w-3" />}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{notification.title}</p>
@@ -92,7 +91,7 @@ export function BookingNotificationDemo() {
               ))}
             </div>
           )}
-          
+
           {notifications.length > 0 && (
             <>
               <DropdownMenuSeparator />

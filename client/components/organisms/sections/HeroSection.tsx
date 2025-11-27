@@ -4,8 +4,9 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { FEATURES } from "@/config/app.config";
 import { AUTH_ROUTES } from "@/constants/routes";
-import Marquee from "react-fast-marquee";
 import DashboardPreview from "./DashboardPreview";
+import { LogoTicker } from "@/components/molecules/LogoTicker";
+import { StatsOverview } from "@/components/molecules/StatsOverview";
 
 export const HeroSection = () => {
   return (
@@ -152,7 +153,7 @@ export const HeroSection = () => {
         className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8"
       >
         <div className="absolute -inset-x-10 sm:-inset-x-20 -inset-y-10 -z-10 bg-blue-500/10 blur-3xl dark:bg-blue-500/20" />
-        
+
         <div className="overflow-hidden rounded-lg md:rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
           <div className="flex items-center gap-1.5 md:gap-2 border-b border-slate-200 bg-slate-50 px-3 md:px-4 py-2 md:py-3 dark:border-slate-800 dark:bg-slate-900/50">
             <div className="flex gap-1">
@@ -164,7 +165,7 @@ export const HeroSection = () => {
               app.calento.space/dashboard/calendar
             </div>
           </div>
-          
+
           <div className="relative aspect-[16/10] md:aspect-[16/10] bg-slate-50 dark:bg-slate-950 min-h-[300px] md:min-h-[400px]">
             <DashboardPreview />
           </div>
@@ -206,109 +207,9 @@ export const HeroSection = () => {
         </div>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 1.1, ease: [0.22, 1, 0.36, 1] }}
-        className="relative py-16 overflow-hidden"
-      >
-          <Marquee
-            gradient={false}
-            speed={35}
-            pauseOnHover={true}
-            className="py-8 overflow-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-          >
-            {[
-              { name: "CNN", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/cnn.svg" },
-              { name: "IKEA", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/ikea.svg" },
-              { name: "NVIDIA", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/nvidia.svg" },
-              { name: "Nintendo", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/nintendo.svg" },
-              { name: "Ubisoft", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/ubisoft.svg" },
-              { name: "Harvard", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/harvard.svg" },
-              { name: "NBA", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/nba.svg" },
-              { name: "CoinMarketCap", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/coinmarketcap.svg" },
-              { name: "MailOnline", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/mailonline.svg" },
-              { name: "Roblox", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/roblox.svg" },
-              { name: "Urban Dictionary", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/urban.svg" },
-              { name: "Rotten Tomatoes", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/rotten-tomatoes.svg" },
-              { name: "OLX", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/olx.svg" },
-              { name: "Der Spiegel", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/der-spiegel.svg" },
-              { name: "Upwork", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/upwork.svg" },
-              { name: "GOV.GR", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/govgr.svg" },
-              { name: "Tawk.to", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/tawk.to.png" },
-              { name: "Foot Locker", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/foot-locker.svg" },
-              { name: "EuroVision", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/euro-vision.svg" }
-            ]
-              .map((company, index) => (
-              <div
-                key={`${company.name}-${index}`}
-                className="mx-8 group cursor-pointer"
-              >
-                <div className="flex h-20 w-32 items-center justify-center transition-all duration-300">
-                  <Image 
-                    src={company.logo} 
-                    alt={`${company.name} logo`}
-                    width={260}
-                    height={260}
-                    className="h-32 w-32 object-contain transition-all duration-300"
-                  />
-                </div>
-              </div>
-            ))}
-            
-            {/* {[
-              { name: 'Google', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/google/google-original.svg' },
-              { name: 'Microsoft', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/azure/azure-original.svg' },
-              { name: 'Slack', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/slack/slack-original.svg' },
-              { name: 'Notion', logo: 'https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png' },
-              { name: 'Figma', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/figma/figma-original.svg' },
-              { name: 'GitHub', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg' },
-              { name: 'Stripe', logo: 'https://images.ctfassets.net/fzn2n1nzq965/HTTOloNPhisV9P4hlMPNA/cacf1bb88b9fc492dfad34378d844280/Stripe_icon_-_square.svg' },
-              { name: 'Vercel', logo: 'https://assets.vercel.com/image/upload/v1662130559/nextjs/Icon_dark_background.png' }
-            ].map((company, index) => (
-              <div
-                key={`${company.name}-duplicate-${index}`}
-                className="mx-8 group cursor-pointer"
-              >
-                <div className="flex h-20 w-32 items-center justify-center transition-all duration-300">
-                  <Image 
-                    src={company.logo} 
-                    alt={`${company.name} logo`}
-                    width={40}
-                    height={40}
-                    className="h-8 w-8 object-contain transition-all duration-300"
-                  />
-                </div>
-              </div>
-            ))} */}
-          </Marquee>
-      </motion.div>
+      <LogoTicker />
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 1.2, ease: [0.22, 1, 0.36, 1] }}
-        className="mt-16 mx-auto max-w-7xl px-6 md:px-8"
-      >
-        <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
-          <div className="text-center">
-            <div className="text-3xl font-bold text-slate-900 dark:text-white">40K+</div>
-            <div className="text-sm text-slate-600 dark:text-slate-400 mt-1">Organizations</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-slate-900 dark:text-white">2M+</div>
-            <div className="text-sm text-slate-600 dark:text-slate-400 mt-1">Users worldwide</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-slate-900 dark:text-white">500M+</div>
-            <div className="text-sm text-slate-600 dark:text-slate-400 mt-1">Meetings scheduled</div>
-          </div>
-          <div className="text-center">
-            <div className="text-3xl font-bold text-slate-900 dark:text-white">99.9%</div>
-            <div className="text-sm text-slate-600 dark:text-slate-400 mt-1">Uptime</div>
-          </div>
-        </div>
-      </motion.div>
+      <StatsOverview />
     </section>
   );
 };

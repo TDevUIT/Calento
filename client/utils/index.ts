@@ -2,7 +2,6 @@
 export * from './error.utils';
 export * from './retry.utils';
 export * from './logger.utils';
-export * from './cn';
 
 // Calendar utilities
 export * from './calendar-utils';
