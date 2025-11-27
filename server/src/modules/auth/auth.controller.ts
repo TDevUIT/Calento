@@ -47,7 +47,7 @@ export class AuthController {
     private readonly messageService: MessageService,
     private readonly googleAuthService: GoogleAuthService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   @Public()
   @Post('register')
@@ -104,24 +104,7 @@ export class AuthController {
     );
   }
 
-  @Post('forget-password')
-  @ApiOperation({
-    summary: 'Forget password',
-    description: 'Send password reset email to user',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'User successfully forget password',
-  })
-  async forgetPassword(
-    @Body() loginDto: { email: string },
-  ): Promise<SuccessResponseDto<{ email: string }>> {
-    const result = await this.authService.forgetPassword(loginDto.email);
-    return new SuccessResponseDto(
-      this.messageService.get('auth.forget_password_success'),
-      result,
-    );
-  }
+
 
   @Post('logout')
   @UseGuards(JwtAuthGuard)
@@ -238,7 +221,7 @@ export class AuthController {
   ): Promise<SuccessResponseDto<{ authenticated: boolean; user?: any }>> {
     try {
       const token = this.cookieAuthService.extractTokenFromCookies(request);
-      
+
       if (!token) {
         return new SuccessResponseDto(
           this.messageService.get('auth.not_authenticated'),
@@ -247,7 +230,7 @@ export class AuthController {
       }
 
       const user = await this.authService.validateAccessToken(token);
-      
+
       if (!user) {
         return new SuccessResponseDto(
           this.messageService.get('auth.not_authenticated'),
@@ -326,7 +309,7 @@ export class AuthController {
     const callbackPath = '/auth/callback/google';
 
     const params = new URLSearchParams();
-    
+
     if (error) {
       params.append('error', error);
     } else if (!code) {
@@ -339,9 +322,9 @@ export class AuthController {
     }
 
     const redirectUrl = `${frontendUrl}${callbackPath}?${params.toString()}`;
-    
+
     this.logger.log(`Redirecting to frontend: ${redirectUrl}`);
-    
+
     return res.redirect(redirectUrl);
   }
 
@@ -364,9 +347,9 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ): Promise<SuccessResponseDto<AuthResponse>> {
     const result = await this.authService.loginWithGoogle(body.code);
-    
+
     this.cookieAuthService.setAuthCookies(response, result.tokens);
-    
+
     return new SuccessResponseDto(
       this.messageService.get('auth.google_login_success'),
       result,
@@ -390,7 +373,7 @@ export class AuthController {
     @Body() dto: PasswordResetRequestDto,
   ): Promise<SuccessResponseDto<null>> {
     await this.authService.requestPasswordReset(dto.email);
-    
+
     return new SuccessResponseDto(
       'If an account exists with this email, a password reset link has been sent',
       null,
@@ -414,7 +397,7 @@ export class AuthController {
     @Body() dto: PasswordResetDto,
   ): Promise<SuccessResponseDto<null>> {
     await this.authService.resetPassword(dto.token, dto.new_password);
-    
+
     return new SuccessResponseDto(
       this.messageService.get('auth.password_reset_success'),
       null,

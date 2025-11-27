@@ -9,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/radix-dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import { BookingLink } from "@/interface/booking.interface";
 import { generateBookingLinkUrl } from "@/utils/booking.utils";
 import { formatDuration } from "@/utils/formatters";
@@ -22,12 +22,12 @@ interface BookingLinkCardProps {
   onViewBookings?: (bookingLink: BookingLink) => void;
 }
 
-export function BookingLinkCard({ 
-  bookingLink, 
-  onEdit, 
-  onViewBookings 
+export function BookingLinkCard({
+  bookingLink,
+  onEdit,
+  onViewBookings
 }: BookingLinkCardProps) {
-  
+
   const toggleMutation = useToggleBookingLink();
   const deleteMutation = useDeleteBookingLink();
 
@@ -65,7 +65,7 @@ export function BookingLinkCard({
               </p>
             )}
           </div>
-          
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0">
@@ -95,7 +95,7 @@ export function BookingLinkCard({
                 )}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 onClick={handleDelete}
                 className="text-red-600 focus:text-red-600"
               >
@@ -106,7 +106,7 @@ export function BookingLinkCard({
           </DropdownMenu>
         </div>
       </CardHeader>
-      
+
       <CardContent className="pt-0 space-y-3">
         {/* Stats */}
         <div className="flex items-center gap-4 text-sm text-gray-600">
@@ -127,7 +127,7 @@ export function BookingLinkCard({
               {generateBookingLinkUrl(bookingLink.slug).replace(/^https?:\/\//, '')}
             </div>
           </div>
-          <Button 
+          <Button
             variant="ghost"
             size="sm"
             onClick={handleCopyLink}
