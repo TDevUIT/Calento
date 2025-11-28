@@ -77,20 +77,6 @@ export const TeamMembersList = ({ teamId, isOwner }: TeamMembersListProps) => {
 
   const members = membersData?.data || [];
 
-  // DEBUG: Log current user and members
-  console.log('🔍 TeamMembersList Debug:', {
-    currentUserId: currentUser?.id,
-    currentUserEmail: currentUser?.email,
-    members: members.map(m => ({
-      id: m.id,
-      user_id: m.user_id,
-      email: m.user?.email,
-      status: m.status,
-      role: m.role,
-      shouldShowButtons: m.status === 'pending' && m.role !== 'owner' && currentUser?.id === m.user_id
-    }))
-  });
-
   const handleRemoveMember = async (memberId: string) => {
     if (confirm('Are you sure you want to remove this member?')) {
       await removeMember.mutateAsync({ teamId, memberId });
@@ -188,28 +174,28 @@ export const TeamMembersList = ({ teamId, isOwner }: TeamMembersListProps) => {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  {member.status === 'pending' && 
-                   member.role !== 'owner' && 
-                   currentUser?.id === member.user_id && (
-                    <>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleAcceptInvitation(member.id)}
-                      >
-                        <Check className="h-4 w-4 mr-1" />
-                        Accept
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleDeclineInvitation(member.id)}
-                      >
-                        <X className="h-4 w-4 mr-1" />
-                        Decline
-                      </Button>
-                    </>
-                  )}
+                  {member.status === 'pending' &&
+                    member.role !== 'owner' &&
+                    currentUser?.id === member.user_id && (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleAcceptInvitation(member.id)}
+                        >
+                          <Check className="h-4 w-4 mr-1" />
+                          Accept
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleDeclineInvitation(member.id)}
+                        >
+                          <X className="h-4 w-4 mr-1" />
+                          Decline
+                        </Button>
+                      </>
+                    )}
 
                   {isOwner && member.role !== 'owner' && (
                     <DropdownMenu>
