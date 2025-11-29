@@ -238,6 +238,16 @@ export class CreateEventDto {
   @MaxLength(255)
   location?: string;
 
+  @ApiPropertyOptional({
+    description: 'Event timezone (e.g., "Asia/Ho_Chi_Minh")',
+    example: 'Asia/Ho_Chi_Minh',
+    maxLength: 100,
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  timezone?: string;
+
   @ApiProperty({
     description: 'Whether the event is an all-day event',
     example: false,
@@ -362,6 +372,16 @@ export class PartialUpdateEventDto {
   @IsOptional()
   @MaxLength(255)
   location?: string;
+
+  @ApiPropertyOptional({
+    description: 'Event timezone',
+    example: 'Asia/Ho_Chi_Minh',
+    maxLength: 100,
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  timezone?: string;
 
   @ApiPropertyOptional({
     description: 'Whether the event is an all-day event',
@@ -497,6 +517,16 @@ export class UpdateEventDto {
   @IsOptional()
   @MaxLength(255)
   location?: string;
+
+  @ApiPropertyOptional({
+    description: 'Event timezone',
+    example: 'Asia/Ho_Chi_Minh',
+    maxLength: 100,
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(100)
+  timezone?: string;
 
   @ApiProperty({
     description: 'Whether the event is an all-day event',

@@ -77,7 +77,7 @@ export class EventRepository extends BaseRepository<Event> {
     if (value === null || value === undefined) {
       return null;
     }
-    
+
     if (typeof value === 'string') {
       try {
         const parsed = JSON.parse(value);
@@ -88,7 +88,7 @@ export class EventRepository extends BaseRepository<Event> {
         return value;
       }
     }
-    
+
     this.logger.debug(`Returning object/array as-is:`, value);
     return value;
   }
@@ -97,11 +97,11 @@ export class EventRepository extends BaseRepository<Event> {
     if (value === null || value === undefined) {
       return defaultValue;
     }
-    
+
     if (typeof value === 'object') {
       return value;
     }
-    
+
     if (typeof value === 'string') {
       try {
         return JSON.parse(value);
@@ -110,7 +110,7 @@ export class EventRepository extends BaseRepository<Event> {
         return defaultValue;
       }
     }
-    
+
     return defaultValue;
   }
 
@@ -121,7 +121,7 @@ export class EventRepository extends BaseRepository<Event> {
     for (const field of jsonFields) {
       if (processedData[field] !== undefined) {
         const value = processedData[field];
-        
+
         if (value === null || value === undefined) {
           processedData[field] = null;
         } else if (typeof value === 'string') {
@@ -155,7 +155,7 @@ export class EventRepository extends BaseRepository<Event> {
     for (const field of jsonFields) {
       if (processedData[field] !== undefined) {
         const value = processedData[field];
-        
+
         if (value === null || value === undefined) {
           processedData[field] = null;
         } else if (typeof value === 'string') {
@@ -211,7 +211,7 @@ export class EventRepository extends BaseRepository<Event> {
       }
       if (isNaN(end_time.getTime())) {
         this.logger.error(`Invalid end_time for event ${event.id}: ${event.end_time}`);
-        end_time = new Date(start_time.getTime() + 3600000); 
+        end_time = new Date(start_time.getTime() + 3600000);
       }
     } catch (error) {
       this.logger.error(`Error parsing dates for event ${event.id}:`, error);
@@ -256,7 +256,7 @@ export class EventRepository extends BaseRepository<Event> {
 
       for (const attendee of attendees) {
         const isOrganizer = attendee.email.toLowerCase() === organizerEmail.toLowerCase();
-        
+
         await this.databaseService.query(
           `INSERT INTO event_attendees 
            (event_id, email, name, response_status, is_organizer, is_optional, comment)
@@ -320,9 +320,9 @@ export class EventRepository extends BaseRepository<Event> {
         email: creator_email || undefined,
         avatar: creator_avatar || undefined,
       };
-      
+
       this.logger.debug('normalizeEventDataWithCreator - Attaching creator:', creatorInfo);
-      
+
       return {
         ...normalizedEvent,
         creator: creatorInfo,
@@ -363,6 +363,7 @@ export class EventRepository extends BaseRepository<Event> {
       start_time: new Date(eventDto.start_time),
       end_time: new Date(eventDto.end_time),
       location: eventDto.location,
+      timezone: eventDto.timezone,
       is_all_day: eventDto.is_all_day || false,
       color: eventDto.color || '#3b82f6',
       recurrence_rule: eventDto.recurrence_rule,
@@ -384,13 +385,13 @@ export class EventRepository extends BaseRepository<Event> {
 
     try {
       const event = await this.createWithJsonHandling(eventData);
-      
+
       const userResult = await this.databaseService.query(
         'SELECT email FROM users WHERE id = $1',
         [userId],
       );
       const organizerEmail = userResult.rows[0]?.email;
-      
+
       if (eventDto.attendees && eventDto.attendees.length > 0 && organizerEmail) {
         await this.syncAttendeesToDatabase(
           event.id,
@@ -398,7 +399,7 @@ export class EventRepository extends BaseRepository<Event> {
           organizerEmail,
         );
       }
-      
+
       const eventWithCreator = await this.findById(event.id);
       return eventWithCreator || this.normalizeEventData(event);
     } catch (error) {
@@ -565,8 +566,8 @@ export class EventRepository extends BaseRepository<Event> {
   ): Promise<Event> {
     await this.userValidationService.validateUserExists(userId);
 
-    const actualId = eventId.includes('_occurrence_') 
-      ? eventId.split('_occurrence_')[0] 
+    const actualId = eventId.includes('_occurrence_')
+      ? eventId.split('_occurrence_')[0]
       : eventId;
 
     const existingEvent = await this.getEventById(actualId, userId);
@@ -593,6 +594,7 @@ export class EventRepository extends BaseRepository<Event> {
       start_time: new Date(eventDto.start_time),
       end_time: new Date(eventDto.end_time),
       location: eventDto.location,
+      timezone: eventDto.timezone,
       is_all_day: eventDto.is_all_day ?? false,
       color: eventDto.color,
       recurrence_rule: eventDto.recurrence_rule,
@@ -610,13 +612,13 @@ export class EventRepository extends BaseRepository<Event> {
           this.messageService.get('calendar.event_not_found'),
         );
       }
-      
+
       const userResult = await this.databaseService.query(
         'SELECT email FROM users WHERE id = $1',
         [userId],
       );
       const organizerEmail = userResult.rows[0]?.email;
-      
+
       if (eventDto.attendees && organizerEmail) {
         await this.syncAttendeesToDatabase(
           actualId,
@@ -624,7 +626,7 @@ export class EventRepository extends BaseRepository<Event> {
           organizerEmail,
         );
       }
-      
+
       const eventWithCreator = await this.findById(actualId);
       return eventWithCreator || this.normalizeEventData(updatedEvent);
     } catch (error) {
@@ -642,8 +644,8 @@ export class EventRepository extends BaseRepository<Event> {
   ): Promise<Event> {
     await this.userValidationService.validateUserExists(userId);
 
-    const actualId = eventId.includes('_occurrence_') 
-      ? eventId.split('_occurrence_')[0] 
+    const actualId = eventId.includes('_occurrence_')
+      ? eventId.split('_occurrence_')[0]
       : eventId;
 
     const existingEvent = await this.getEventById(actualId, userId);
@@ -666,13 +668,14 @@ export class EventRepository extends BaseRepository<Event> {
     }
 
     const eventData: Partial<Event> = {};
-    
+
     if (eventDto.calendar_id !== undefined) eventData.calendar_id = eventDto.calendar_id;
     if (eventDto.title !== undefined) eventData.title = eventDto.title;
     if (eventDto.description !== undefined) eventData.description = eventDto.description;
     if (eventDto.start_time !== undefined) eventData.start_time = new Date(eventDto.start_time);
     if (eventDto.end_time !== undefined) eventData.end_time = new Date(eventDto.end_time);
     if (eventDto.location !== undefined) eventData.location = eventDto.location;
+    if (eventDto.timezone !== undefined) eventData.timezone = eventDto.timezone;
     if (eventDto.is_all_day !== undefined) eventData.is_all_day = eventDto.is_all_day;
     if (eventDto.color !== undefined) eventData.color = eventDto.color;
     if (eventDto.recurrence_rule !== undefined) eventData.recurrence_rule = eventDto.recurrence_rule;
@@ -689,14 +692,14 @@ export class EventRepository extends BaseRepository<Event> {
           this.messageService.get('calendar.event_not_found'),
         );
       }
-      
+
       if (eventDto.attendees !== undefined) {
         const userResult = await this.databaseService.query(
           'SELECT email FROM users WHERE id = $1',
           [userId],
         );
         const organizerEmail = userResult.rows[0]?.email;
-        
+
         if (organizerEmail) {
           await this.syncAttendeesToDatabase(
             actualId,
@@ -705,7 +708,7 @@ export class EventRepository extends BaseRepository<Event> {
           );
         }
       }
-      
+
       const eventWithCreator = await this.findById(actualId);
       return eventWithCreator || this.normalizeEventData(updatedEvent);
     } catch (error) {
@@ -719,8 +722,8 @@ export class EventRepository extends BaseRepository<Event> {
   async deleteEvent(eventId: string, userId: string): Promise<boolean> {
     await this.userValidationService.validateUserExists(userId);
 
-    const actualId = eventId.includes('_occurrence_') 
-      ? eventId.split('_occurrence_')[0] 
+    const actualId = eventId.includes('_occurrence_')
+      ? eventId.split('_occurrence_')[0]
       : eventId;
 
     const existingEvent = await this.getEventById(actualId, userId);
@@ -834,7 +837,7 @@ export class EventRepository extends BaseRepository<Event> {
         userId,
         endDate,
       ]);
-      
+
       this.logger.debug('findRecurringEventsForExpansion - Raw query results:', {
         count: result.rows.length,
         sample: result.rows[0] ? {
@@ -845,7 +848,7 @@ export class EventRepository extends BaseRepository<Event> {
           creator_name: result.rows[0].creator_name,
         } : null,
       });
-      
+
       return result.rows.map(row => this.normalizeEventDataWithCreator(row));
     } catch (error) {
       this.logger.error(

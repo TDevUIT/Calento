@@ -32,6 +32,7 @@ export class CreateEventTool extends BaseTool {
         end_time: args.end_time,
         description: args.description,
         location: args.location,
+        timezone: args.timezone,
         attendees: args.attendees?.map((email: string) => ({
           email,
           response_status: 'needsAction',

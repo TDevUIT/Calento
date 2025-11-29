@@ -5,10 +5,10 @@ import { GoogleEventInput } from '../../google/types/google-calendar.types';
 export class EventMappers {
   static googleEventToDto(googleEvent: any, calendarId: string): CreateEventDto {
     const isAllDay = !!googleEvent.start.date && !googleEvent.start.dateTime;
-    
+
     let startTime: string;
     let endTime: string;
-    
+
     if (isAllDay) {
       startTime = googleEvent.start.date;
       endTime = googleEvent.end.date;
@@ -16,7 +16,7 @@ export class EventMappers {
       startTime = googleEvent.start.dateTime || googleEvent.start.date || new Date().toISOString();
       endTime = googleEvent.end.dateTime || googleEvent.end.date || new Date().toISOString();
     }
-    
+
     return {
       calendar_id: calendarId,
       title: googleEvent.summary || 'Untitled Event',
@@ -24,6 +24,7 @@ export class EventMappers {
       start_time: startTime,
       end_time: endTime,
       location: googleEvent.location ?? undefined,
+      timezone: googleEvent.start?.timeZone ?? googleEvent.end?.timeZone ?? undefined,
       is_all_day: isAllDay,
       recurrence_rule: googleEvent.recurrence?.[0] ?? undefined,
     };
@@ -50,7 +51,7 @@ export class EventMappers {
     }
 
     const isAllDay = 'is_all_day' in event ? event.is_all_day : false;
-    
+
     const googleEvent: GoogleEventInput = {
       summary: title,
       description: enhancedDescription,

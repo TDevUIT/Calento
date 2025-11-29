@@ -12,10 +12,11 @@ export const FUNCTION_DESCRIPTIONS = {
       type: OBJECT_TYPE,
       properties: {
         title: { type: STRING_TYPE, description: 'Event title' },
-        start_time: { type: STRING_TYPE, description: 'Start time (ISO 8601 format: YYYY-MM-DDTHH:mm:ss)' },
-        end_time: { type: STRING_TYPE, description: 'End time (ISO 8601 format)' },
+        start_time: { type: STRING_TYPE, description: 'Start time (ISO 8601 format with timezone offset, e.g., YYYY-MM-DDTHH:mm:ss+07:00)' },
+        end_time: { type: STRING_TYPE, description: 'End time (ISO 8601 format with timezone offset, e.g., YYYY-MM-DDTHH:mm:ss+07:00)' },
         description: { type: STRING_TYPE, description: 'Detailed event description (optional)' },
         location: { type: STRING_TYPE, description: 'Location (optional)' },
+        timezone: { type: STRING_TYPE, description: 'Timezone (e.g., "Asia/Ho_Chi_Minh")' },
         attendees: { type: ARRAY_TYPE, items: { type: STRING_TYPE }, description: 'List of attendee emails (optional)' },
       },
       required: ['title', 'start_time', 'end_time'],
@@ -60,7 +61,7 @@ export const FUNCTION_DESCRIPTIONS = {
       type: OBJECT_TYPE,
       properties: {
         event_id: { type: STRING_TYPE, description: 'ID of the event to update' },
-        updates: { type: OBJECT_TYPE, description: 'Fields to update (title, start_time, end_time, description, location)' },
+        updates: { type: OBJECT_TYPE, description: 'Fields to update (title, start_time, end_time, description, location, timezone)' },
       },
       required: ['event_id', 'updates'],
     },
@@ -136,13 +137,13 @@ export const FUNCTION_DESCRIPTIONS = {
   },
 };
 
-export const getFunctionsByCategory = (category: 'calendar' | 'task' | 'analysis' | 'all') => 
-  category === 'all' 
+export const getFunctionsByCategory = (category: 'calendar' | 'task' | 'analysis' | 'all') =>
+  category === 'all'
     ? Object.values(FUNCTION_DESCRIPTIONS)
     : Object.values(FUNCTION_DESCRIPTIONS).filter((func) => func.category === category);
 
-export const getFunctionByName = (name: string) => 
+export const getFunctionByName = (name: string) =>
   Object.values(FUNCTION_DESCRIPTIONS).find((func) => func.name === name);
 
-export const getAllFunctionNames = () => 
+export const getAllFunctionNames = () =>
   Object.values(FUNCTION_DESCRIPTIONS).map((func) => func.name);

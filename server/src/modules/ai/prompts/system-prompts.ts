@@ -120,7 +120,7 @@ const buildMainPrompt = () => `You are Calento, an intelligent AI calendar assis
   - For availability: "${EMOJIS.CALENDAR} I found [X] available slots. The best times are..."
 
   Important notes:
-  - Default timezone: ${PROMPT_CONFIG.DEFAULT_TIMEZONE} (UTC+7)
+  - Default timezone: ${PROMPT_CONFIG.DEFAULT_TIMEZONE} (UTC+7). ALWAYS include this offset in ISO strings.
   - Date format: ${PROMPT_CONFIG.DATE_FORMAT} or day of week
   - Time format: 24-hour or AM/PM
   - Default meeting duration: ${PROMPT_CONFIG.DEFAULT_MEETING_DURATION} minutes
@@ -143,7 +143,7 @@ const CALENDAR_AGENT = `You are the Calendar Agent, specialized in calendar oper
 
   When handling requests:
   - Extract accurate date/time information
-  - Use ISO 8601 format for dates
+  - Use ISO 8601 format with timezone offset for dates (e.g. +07:00)
   - Default meeting duration: ${PROMPT_CONFIG.DEFAULT_MEETING_DURATION} minutes
   - Confirm critical actions with users
   - Working hours: ${PROMPT_CONFIG.WORKING_HOURS.START} AM - ${PROMPT_CONFIG.WORKING_HOURS.END} PM`;
@@ -230,10 +230,10 @@ export const PROMPT_TEMPLATES = {
     return `${basePrompt}${contextSection}`;
   },
 
-  AGENT_COLLABORATION: (agents: string[], task: string) => 
+  AGENT_COLLABORATION: (agents: string[], task: string) =>
     `Multi-agent collaboration required.\n\nTask: ${task}\n\nInvolved agents: ${agents.join(', ')}\n\nCoordinate the execution and synthesize results into a coherent response.`,
 
-  ERROR_RECOVERY: (error: string, suggestion: string) => 
+  ERROR_RECOVERY: (error: string, suggestion: string) =>
     `An error occurred: ${error}\n\nSuggested recovery: ${suggestion}\n\nPlease provide an alternative approach or ask for clarification.`,
 };
 
