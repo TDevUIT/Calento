@@ -138,10 +138,10 @@ const Calendar = ({
     }
     return _defaultMode || 'day';
   });
-  
+
   const [date, setDate] = useState(defaultDate);
   const [events, setEvents] = useState<CalendarEvent[]>(defaultEvents);
-  
+
   const today = useMemo(() => new Date(), []);
 
   const changeView = (newView: View) => {
@@ -225,30 +225,30 @@ const HourEvents = ({
 }) => {
   const { onEventClick } = useCalendar();
   const [hoveredEventId, setHoveredEventId] = useState<string | null>(null);
-  
+
   const hourEvents = events.filter((event) => isSameHour(event.start, hour));
-  
+
   const eventLayouts = calculateEventLayouts(hourEvents);
-  
+
   // Count stacked events for badge
   const stackedEvents = eventLayouts.filter(l => l.isStacked);
   const hasStackedEvents = stackedEvents.length > 0;
-  
+
   return (
     <div className="h-20 border-t last:border-b relative group hover:bg-accent/5 transition-colors">
       {eventLayouts.map((layout) => {
         const { event } = layout;
         const hoursDifference = differenceInMinutes(event.end, event.start) / 60;
         const startPosition = event.start.getMinutes() / 60;
-        
+
         const layoutStyles = getEventLayoutStyles(layout);
-        
+
         const eventColor = event.color || '#3b82f6';
         const { titleClass, timeClass } = getEventTextClasses(eventColor);
-        
+
         const isHovered = hoveredEventId === event.id;
         const showStackBadge = layout.isStacked && layout.stackIndex === 0 && layout.totalStacked;
-        
+
         return (
           <EventOrTaskCard
             key={event.id}
@@ -258,7 +258,7 @@ const HourEvents = ({
             side="right"
             align="start"
             onEdit={() => onEventClick?.(event)}
-            onDelete={() => {}}
+            onDelete={() => { }}
           >
             <div
               className={cn(
@@ -277,7 +277,6 @@ const HourEvents = ({
                 borderStyle: event.type === 'task' ? 'dashed' : 'solid',
                 ...layoutStyles,
                 padding: layout.totalColumns > 2 ? '4px 6px' : '8px 10px',
-                // Opacity effect for stacked events
                 opacity: layout.isStacked && !isHovered ? 0.95 : 1,
               }}
               onClick={() => onEventClick?.(event)}
@@ -287,20 +286,17 @@ const HourEvents = ({
               <div className={`font-bold truncate leading-tight ${event.type === 'task' ? 'text-gray-900' : titleClass}`}>
                 {fixEmojiText(event.title)}
               </div>
-              {/* Only show time if there's enough space */}
               {layout.width > 30 && (
                 <div className={`text-[10px] mt-0.5 font-medium leading-tight ${event.type === 'task' ? 'text-gray-600' : timeClass}`}>
                   {format(event.start, 'HH:mm')} - {format(event.end, 'HH:mm')}
                 </div>
               )}
-              {/* Show abbreviated time for narrow columns */}
               {layout.width <= 30 && (
                 <div className={`text-[9px] mt-0.5 font-medium leading-tight ${event.type === 'task' ? 'text-gray-600' : timeClass}`}>
                   {format(event.start, 'HH:mm')}
                 </div>
               )}
-              
-              {/* Stacked Badge - Show "+N more" */}
+
               {showStackBadge && (
                 <div className="absolute -top-1 -right-1 bg-primary text-primary-foreground rounded-full px-1.5 py-0.5 text-[9px] font-bold shadow-md ring-2 ring-white z-10">
                   +{layout.totalStacked}
@@ -310,8 +306,7 @@ const HourEvents = ({
           </EventOrTaskCard>
         );
       })}
-      
-      {/* Stacked Events Indicator */}
+
       {hasStackedEvents && (
         <div className="absolute bottom-1 right-1 text-[9px] text-muted-foreground bg-white/80 backdrop-blur-sm px-1.5 py-0.5 rounded-full border border-border shadow-sm">
           {eventLayouts.length} events
@@ -343,7 +338,7 @@ const CalendarDayView = () => {
 const CalendarWeekView = () => {
   const { view, date, locale, events } = useCalendar();
   const { weekStartsOn, highlightWeekends } = useCalendarSettings();
-  
+
   const weekStartsOnDay = weekStartsOn === 'sunday' ? 0 : weekStartsOn === 'monday' ? 1 : 6;
   const weekendIndices = getWeekendIndices(weekStartsOnDay);
 
@@ -432,7 +427,7 @@ const CalendarWeekView = () => {
 const CalendarMonthView = () => {
   const { date, view, events, locale, onEventClick } = useCalendar();
   const { weekStartsOn, highlightWeekends } = useCalendarSettings();
-  
+
   const weekStartsOnDay = weekStartsOn === 'sunday' ? 0 : weekStartsOn === 'monday' ? 1 : 6;
   const weekendIndices = getWeekendIndices(weekStartsOnDay);
 
@@ -449,8 +444,8 @@ const CalendarMonthView = () => {
             key={day}
             className={cn(
               'py-3 text-center text-xs font-semibold uppercase tracking-wider',
-              highlightWeekends && weekendIndices.includes(i) 
-                ? 'text-muted-foreground/70 bg-accent/5 weekend' 
+              highlightWeekends && weekendIndices.includes(i)
+                ? 'text-muted-foreground/70 bg-accent/5 weekend'
                 : 'text-muted-foreground'
             )}
           >
@@ -463,7 +458,7 @@ const CalendarMonthView = () => {
           const currentEvents = events.filter((event) =>
             isSameDay(event.start, _date)
           );
-          
+
           const dayIndex = index % 7;
           const isWeekend = highlightWeekends && weekendIndices.includes(dayIndex);
 
@@ -499,7 +494,7 @@ const CalendarMonthView = () => {
                 {currentEvents.slice(0, 3).map((event, eventIndex) => {
                   const eventColor = event.color || '#3b82f6';
                   const { titleClass, timeClass } = getEventTextClasses(eventColor);
-                  
+
                   return (
                     <EventOrTaskCard
                       key={event.id}
@@ -509,7 +504,7 @@ const CalendarMonthView = () => {
                       side="right"
                       align="start"
                       onEdit={() => onEventClick?.(event)}
-                      onDelete={() => {}}
+                      onDelete={() => { }}
                     >
                       <div
                         className="px-2 py-1.5 rounded-md text-xs flex items-center gap-2 transition-all cursor-pointer hover:shadow-md relative border"
@@ -526,7 +521,7 @@ const CalendarMonthView = () => {
                         <span className={`flex-1 truncate font-bold ${event.type === 'task' ? 'text-gray-900' : titleClass}`}>
                           {fixEmojiText(event.title)}
                         </span>
-                        <time 
+                        <time
                           className={`tabular-nums text-[10px] font-semibold ${event.type === 'task' ? 'text-gray-600' : timeClass}`}
                           suppressHydrationWarning
                         >
@@ -553,7 +548,7 @@ const CalendarMonthView = () => {
 const CalendarYearView = () => {
   const { view, date, today, locale } = useCalendar();
   const { weekStartsOn } = useCalendarSettings();
-  
+
   const weekStartsOnDay = weekStartsOn === 'sunday' ? 0 : weekStartsOn === 'monday' ? 1 : 6;
 
   const months = useMemo(() => {
@@ -603,8 +598,8 @@ const CalendarYearView = () => {
                     className={cn(
                       'aspect-square grid place-content-center size-full tabular-nums rounded-md hover:bg-accent transition-all cursor-pointer',
                       isSameDay(today, _date) &&
-                        getMonth(_date) === i &&
-                        'bg-primary text-primary-foreground font-semibold shadow-sm ring-2 ring-primary/20'
+                      getMonth(_date) === i &&
+                      'bg-primary text-primary-foreground font-semibold shadow-sm ring-2 ring-primary/20'
                     )}
                   >
                     {format(_date, 'd')}
@@ -762,7 +757,7 @@ const TimeTable = () => {
     const actualHour = hour === 24 ? 0 : hour;
     const date = new Date();
     date.setHours(actualHour, 0, 0, 0);
-    
+
     if (timeFormat === '12h') {
       return format(date, 'h a');
     }
@@ -783,7 +778,7 @@ const TimeTable = () => {
           >
             {isCurrentHour && (
               <div
-                className="absolute z-[1100] left-full translate-x-3 w-dvw h-[2px] bg-primary shadow-lg animate-pulse"
+                className="absolute z-[1001] left-full translate-x-3 w-dvw h-[2px] bg-primary shadow-lg animate-pulse"
                 style={{
                   top: `${(now.getMinutes() / 60) * 100}%`,
                 }}

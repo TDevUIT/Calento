@@ -29,6 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <meta charSet="UTF-8" />
         <JsonLd data={[organizationSchema, websiteSchema, softwareApplicationSchema]} />
       </head>
       <body className={`${inter.variable} antialiased bg-[#F7F8FC]`} suppressHydrationWarning>
