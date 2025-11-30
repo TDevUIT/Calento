@@ -19,7 +19,7 @@ export class AIConversationService {
     private readonly conversationRepo: AIConversationRepository,
     private readonly actionRepo: AIActionRepository,
     private readonly eventService: EventService,
-  ) {}
+  ) { }
 
   async chat(
     message: string,
@@ -60,7 +60,7 @@ export class AIConversationService {
         conversation.messages,
         conversation.context
       );
-      
+
       if (!aiResponse || (!aiResponse.text && !aiResponse.functionCalls)) {
         throw new Error(ERROR_MESSAGES.EMPTY_AI_RESPONSE);
       }
@@ -126,6 +126,117 @@ export class AIConversationService {
       actions,
       timestamp: new Date(),
     };
+  }
+
+  async * chatStream(
+    message: string,
+    userId: string,
+    conversationId?: string,
+    context?: Record<string, any>
+  ) {
+    this.logger.log(`Processing chat stream for user: ${userId}`);
+
+    let conversation = conversationId
+      ? await this.conversationRepo.findById(conversationId)
+      : null;
+
+    if (conversationId && !conversation) {
+      throw new ConversationNotFoundException(conversationId);
+    }
+
+    if (!conversation) {
+      const calendarContext = await this.buildCalendarContext(userId);
+      conversation = await this.conversationRepo.create(userId, {
+        ...context,
+        ...calendarContext,
+      });
+    }
+
+    const userMessage: AIMessage = {
+      role: 'user',
+      content: message,
+      timestamp: new Date(),
+    };
+
+    await this.conversationRepo.addMessage(conversation.id, userMessage);
+
+    let fullResponseText = '';
+    const actions: any[] = [];
+
+    try {
+      const stream = this.geminiService.chatStream(
+        message,
+        conversation.messages,
+        conversation.context
+      );
+
+      for await (const chunk of stream) {
+        if (chunk.text) {
+          fullResponseText += chunk.text;
+          yield { type: 'text', content: chunk.text };
+        }
+
+        if (chunk.functionCall) {
+          const action = await this.actionRepo.create(
+            conversation.id,
+            chunk.functionCall.name,
+            chunk.functionCall.arguments
+          );
+
+          yield {
+            type: 'action_start',
+            action: {
+              id: action.id,
+              type: chunk.functionCall.name,
+              parameters: chunk.functionCall.arguments
+            }
+          };
+
+          const result = await this.functionCallingService.executeFunctionCall(
+            chunk.functionCall,
+            userId
+          );
+
+          await this.actionRepo.updateStatus(
+            action.id,
+            result.success ? 'completed' : 'failed',
+            result.result,
+            result.error
+          );
+
+          const actionResult = {
+            type: chunk.functionCall.name,
+            status: result.success ? 'completed' : 'failed',
+            result: result.result,
+            error: result.error,
+          };
+
+          actions.push(actionResult);
+
+          yield {
+            type: 'action_result',
+            action: actionResult
+          };
+        }
+      }
+
+      const assistantMessage: AIMessage = {
+        role: 'assistant',
+        content: this.buildResponseWithActions(fullResponseText, actions),
+        timestamp: new Date(),
+      };
+
+      await this.conversationRepo.addMessage(conversation.id, assistantMessage);
+
+      yield {
+        type: 'done',
+        conversation_id: conversation.id
+      };
+
+    } catch (error) {
+      this.logger.error('AI chat stream failed:', error);
+      yield { type: 'error', error: error.message };
+    }
   }
 
 

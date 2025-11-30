@@ -75,6 +75,13 @@ export interface StreamChatRequest {
   context?: Record<string, any>;
 }
 
+export type StreamMessage =
+  | { type: 'text'; content: string }
+  | { type: 'action_start'; action: string }
+  | { type: 'action_result'; action: ActionPerformed }
+  | { type: 'done' }
+  | { type: 'error'; error: string };
+
 export interface FunctionExecutionRequest {
   function_name: string;
   parameters: Record<string, any>;

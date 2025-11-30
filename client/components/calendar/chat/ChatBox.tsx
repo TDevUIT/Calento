@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { aiService } from '@/service/ai.service';
 import {
   Send,
   Sparkles,
@@ -20,13 +21,14 @@ import { useAIChat } from '@/hook/ai/use-ai-chat';
 import { useConversation, useConversations, useDeleteConversation } from '@/hook/ai/use-conversations';
 import { useConversationState } from '@/hook/ai/use-conversation-state';
 import { ConversationList } from './ConversationList';
-import { AIMessage, FunctionCall, ActionPerformed } from '@/interface/ai.interface';
+import { AIMessage, FunctionCall, ActionPerformed, StreamMessage } from '@/interface/ai.interface';
 import { MessageContent } from './MessageContent';
 import { ActionConfirmationDialog } from './ActionConfirmationDialog';
 import { TimeSlotsList } from './TimeSlotsList';
 import { EventsList } from './EventsList';
 import { EmptyState } from './EmptyState';
 import { toast } from 'sonner';
+import { StreamText } from '@/components/ui/stream-text';
 import { THINKING_ANIMATION } from '@/constants/timing.constants';
 
 interface ChatBoxProps {
@@ -39,6 +41,7 @@ interface ChatBoxProps {
 interface ChatMessage extends AIMessage {
   functionCalls?: FunctionCall[];
   actions?: ActionPerformed[];
+  isStreaming?: boolean;
 }
 
 
@@ -118,45 +121,83 @@ export function ChatBox({ onClose, conversationId: externalConversationId, onCon
     setInput('');
     setIsProcessing(true);
 
-    const cleanHistory = messages.map(msg => ({
-      role: msg.role,
-      content: msg.content || '',
-    }));
-
     const now = new Date();
 
+    // Create placeholder assistant message
+    const assistantMessageId = Date.now().toString();
+    const initialAssistantMessage: ChatMessage = {
+      role: 'assistant',
+      content: '',
+      isStreaming: true,
+      actions: [],
+    };
+    setMessages((prev) => [...prev, initialAssistantMessage]);
+
     try {
-      const response = await chatMutation.mutateAsync({
-        message: input.trim(),
-        conversation_id: displayConversationId,
-        history: cleanHistory,
-        context: {
-          current_date: now.toISOString(),
-          current_date_formatted: now.toLocaleDateString('en-US', {
-            weekday: 'long',
-            month: 'long',
-            day: 'numeric',
-            year: 'numeric',
-          }),
-          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      await aiService.chatStream(
+        {
+          message: userMessage.content,
+          conversation_id: displayConversationId,
+          context: {
+            current_date: now.toISOString(),
+            current_date_formatted: now.toLocaleDateString('en-US', {
+              weekday: 'long',
+              month: 'long',
+              day: 'numeric',
+              year: 'numeric',
+            }),
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          },
         },
-      });
+        (event: StreamMessage) => {
+          setMessages((prev) => {
+            const newMessages = [...prev];
+            const lastMsgIndex = newMessages.length - 1;
+            const lastMsg = newMessages[lastMsgIndex];
 
-      if (response.data.conversation_id && !displayConversationId) {
-        setConversation(response.data.conversation_id);
-        onConversationCreated?.(response.data.conversation_id);
-      }
-
-      const assistantMessage: ChatMessage = {
-        role: 'assistant',
-        content: response.data.response,
-        functionCalls: response.data.function_calls,
-        actions: response.data.actions,
-      };
-      setMessages((prev) => [...prev, assistantMessage]);
-
-
-      setIsProcessing(false);
+            if (lastMsg.role === 'assistant') {
+              if (event.type === 'text') {
+                newMessages[lastMsgIndex] = {
+                  ...lastMsg,
+                  content: lastMsg.content + event.content,
+                };
+              } else if (event.type === 'action_start') {
+                // Add action placeholder or update status
+                // For now, we might not show anything until result, or show a loading state
+              } else if (event.type === 'action_result') {
+                const currentActions = lastMsg.actions || [];
+                newMessages[lastMsgIndex] = {
+                  ...lastMsg,
+                  actions: [...currentActions, event.action],
+                };
+              }
+            }
+            return newMessages;
+          });
+        },
+        () => {
+          setIsProcessing(false);
+          setMessages((prev) => {
+            const newMessages = [...prev];
+            const lastMsgIndex = newMessages.length - 1;
+            if (newMessages[lastMsgIndex].role === 'assistant') {
+              newMessages[lastMsgIndex] = {
+                ...newMessages[lastMsgIndex],
+                isStreaming: false,
+              };
+            }
+            return newMessages;
+          });
+        },
+        (error) => {
+          setIsProcessing(false);
+          const errorMessage: ChatMessage = {
+            role: 'assistant',
+            content: `❌ Sorry, I encountered an error: ${error?.message || 'Unknown error'}`,
+          };
+          setMessages((prev) => [...prev, errorMessage]);
+        }
+      );
     } catch (err) {
       setIsProcessing(false);
       const error = err as Error;

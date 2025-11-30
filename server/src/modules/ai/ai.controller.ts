@@ -8,7 +8,9 @@ import {
   UseGuards,
   Req,
   Logger,
+  Sse,
 } from '@nestjs/common';
+import { Observable } from 'rxjs';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AIConversationService } from './services/ai-conversation.service';
 import { ChatRequestDto, ChatResponseDto, ConfirmActionDto } from './dto/ai-chat.dto';
@@ -20,8 +22,8 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 @UseGuards(JwtAuthGuard)
 export class AIController {
   private readonly logger = new Logger(AIController.name);
-  
-  constructor(private readonly conversationService: AIConversationService) {}
+
+  constructor(private readonly conversationService: AIConversationService) { }
 
   private getUserId = (req: any): string => req.user?.id || req.user?.sub;
 
@@ -38,32 +40,32 @@ export class AIController {
   }
 
   @Post('chat')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Chat with AI assistant',
     description: 'Send a message to the AI assistant for calendar management tasks'
   })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'AI response with optional function calls',
-    type: ChatResponseDto 
+    type: ChatResponseDto
   })
   async chat(
     @Body() dto: ChatRequestDto,
     @Req() req: any,
   ): Promise<ChatResponseDto> {
     const userId = this.getUserId(req);
-    
+
     try {
       this.logger.log(`AI Chat request from user: ${userId}`);
       this.logger.log(`Message: "${dto.message.substring(0, 50)}..."`);
-      
+
       const result = await this.conversationService.chat(
         dto.message,
         userId,
         dto.conversation_id,
         dto.context
       );
-      
+
       this.logger.log(`AI Chat completed successfully`);
       return result;
     } catch (error) {
@@ -71,14 +73,46 @@ export class AIController {
       throw error;
     }
   }
+  @Sse('chat/stream')
+  @ApiOperation({
+    summary: 'Stream chat with AI assistant',
+    description: 'Stream AI response using Server-Sent Events'
+  })
+  chatStream(
+    @Body() dto: ChatRequestDto,
+    @Req() req: any,
+  ): Observable<any> {
+    const userId = this.getUserId(req);
+    this.logger.log(`AI Chat Stream request from user: ${userId}`);
+
+    return new Observable((subscriber) => {
+      const stream = this.conversationService.chatStream(
+        dto.message,
+        userId,
+        dto.conversation_id,
+        dto.context
+      );
+
+      (async () => {
+        try {
+          for await (const event of stream) {
+            subscriber.next({ data: event });
+          }
+          subscriber.complete();
+        } catch (error) {
+          subscriber.error(error);
+        }
+      })();
+    });
+  }
 
   @Get('conversations')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Get user conversations',
     description: 'Retrieve conversation history for the current user'
   })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'List of conversations',
     type: [Object]
   })
@@ -88,12 +122,12 @@ export class AIController {
   }
 
   @Get('conversations/:id')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Get conversation details',
     description: 'Retrieve a specific conversation with all messages and actions'
   })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Conversation details'
   })
   async getConversation(
@@ -105,12 +139,12 @@ export class AIController {
   }
 
   @Delete('conversations/:id')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Delete conversation',
     description: 'Delete a conversation and all its messages'
   })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Conversation deleted successfully'
   })
   async deleteConversation(
@@ -119,19 +153,19 @@ export class AIController {
   ) {
     const userId = this.getUserId(req);
     await this.conversationService.deleteConversation(conversationId, userId);
-    return { 
-      success: true, 
-      message: 'Conversation deleted successfully' 
+    return {
+      success: true,
+      message: 'Conversation deleted successfully'
     };
   }
 
   @Post('actions/confirm')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Confirm pending action',
     description: 'User confirms or rejects a pending action that requires confirmation'
   })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Action confirmed and executed',
     type: ChatResponseDto
   })
@@ -140,9 +174,9 @@ export class AIController {
     @Req() req: any
   ): Promise<ChatResponseDto> {
     const userId = this.getUserId(req);
-    
+
     this.logger.log(`Action confirmation: ${dto.action_id} - ${dto.confirmed ? 'Approved' : 'Rejected'}`);
-    
+
     return this.conversationService.confirmAction(
       dto.action_id,
       userId,

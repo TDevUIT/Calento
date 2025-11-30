@@ -16,11 +16,11 @@ export class GeminiService {
 
   constructor(private configService: ConfigService) {
     const apiKey = this.configService.get<string>('GEMINI_API_KEY');
-    
+
     if (!apiKey) {
       throw new Error('GEMINI_API_KEY not found in environment variables');
     }
-    
+
     this.apiKey = apiKey;
 
     this.genAI = new GoogleGenerativeAI(this.apiKey);
@@ -74,7 +74,7 @@ export class GeminiService {
       }
 
       const contents = this.convertHistoryToContents(history);
-      
+
       let systemMessage = '';
       if (context) {
         systemMessage = this.buildContextMessage(context);
@@ -87,14 +87,14 @@ export class GeminiService {
 
       const prompt = systemMessage ? `${systemMessage}\n\nUser: ${message}` : message;
       this.logger.debug(`Sending prompt to Gemini (length: ${prompt.length})`);
-      
+
       const result = await chat.sendMessage(prompt);
       const response = result.response;
 
       this.logger.debug(`Received response from Gemini`);
 
       const functionCalls = response.functionCalls();
-      
+
       if (functionCalls && functionCalls.length > 0) {
         this.logger.log(`AI requested ${functionCalls.length} function calls: ${functionCalls.map(fc => fc.name).join(', ')}`);
         return {
@@ -117,17 +117,70 @@ export class GeminiService {
     }
   }
 
+  async * chatStream(
+    message: string,
+    history: AIMessage[] = [],
+    context?: Record<string, any>
+  ): AsyncGenerator<{ text?: string; functionCall?: AIFunctionCall }> {
+    try {
+      this.logger.log(`Processing chat stream: "${message.substring(0, 50)}..."`);
+
+      if (!this.apiKey) {
+        throw new GeminiAPIException(
+          ERROR_MESSAGES.API_KEY_NOT_CONFIGURED,
+          'Please set GEMINI_API_KEY environment variable'
+        );
+      }
+
+      const contents = this.convertHistoryToContents(history);
+
+      let systemMessage = '';
+      if (context) {
+        systemMessage = this.buildContextMessage(context);
+      }
+
+      const chat = this.model.startChat({
+        history: contents,
+      });
+
+      const prompt = systemMessage ? `${systemMessage}\n\nUser: ${message}` : message;
+
+      const result = await chat.sendMessageStream(prompt);
+
+      for await (const chunk of result.stream) {
+        const chunkText = chunk.text();
+        if (chunkText) {
+          yield { text: chunkText };
+        }
+
+        const functionCalls = chunk.functionCalls();
+        if (functionCalls && functionCalls.length > 0) {
+          for (const call of functionCalls) {
+            yield {
+              functionCall: {
+                name: call.name,
+                arguments: call.args,
+              }
+            };
+          }
+        }
+      }
+    } catch (error) {
+      this.handleApiError(error);
+    }
+  }
+
 
   private convertHistoryToContents(history: AIMessage[]): Content[] {
     return history.map((msg, index) => {
       const role = msg.role === 'assistant' ? 'model' : 'user';
-      
+
       let content = msg.content;
-      
+
       if (index > 0 && role === 'user') {
         content = `[Follow-up message ${index}] ${msg.content}`;
       }
-      
+
       return {
         role,
         parts: [{ text: content }],
@@ -184,21 +237,21 @@ export class GeminiService {
       status: error.status,
       statusText: error.statusText,
     });
-    
+
     if (error.message?.includes('API_KEY_INVALID')) {
       throw new GeminiAPIException(
         'Invalid Gemini API key',
         'Please check your GEMINI_API_KEY environment variable'
       );
     }
-    
+
     if (error.message?.includes('PERMISSION_DENIED')) {
       throw new GeminiAPIException(
         'Gemini API access denied',
         'Please verify your API key has proper permissions'
       );
     }
-    
+
     throw new GeminiAPIException(
       'Failed to process chat message',
       error.message
