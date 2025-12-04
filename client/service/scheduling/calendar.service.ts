@@ -1,12 +1,12 @@
-﻿import { api, getErrorMessage } from '../config/axios';
+import { api, getErrorMessage } from '../../config/axios';
 import {
   CreateCalendarRequest,
   UpdateCalendarRequest,
   CalendarQueryParams,
   PaginatedCalendarsResponse,
   CalendarResponse,
-} from '../interface/calendar.interface';
-import { API_ROUTES } from '../constants/routes';
+} from '../../interface/calendar.interface';
+import { API_ROUTES } from '../../constants/routes';
 
 export const getCalendars = async (params?: CalendarQueryParams): Promise<PaginatedCalendarsResponse> => {
   try {
@@ -124,3 +124,4 @@ export const calendarService = {
 };
 
 export default calendarService;
+

@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { addDays } from "date-fns";
 import { EVENT_QUERY_KEYS } from "@/hook/event/query-keys";
-import { getEventsByDateRange } from "@/service/event.service";
+import { getEventsByDateRange } from "@/service";
 import type { Event } from "@/interface/event.interface";
 import { DEFAULT_EVENT_COLOR } from "@/constants/theme.constants";
 import { CACHE_CONFIG } from "@/constants/api.constants";

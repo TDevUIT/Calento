@@ -1,7 +1,7 @@
-﻿'use client';
+'use client';
 
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
-import { blogService } from '@/service/blog.service';
+import { blogService } from '@/service';
 import {
   BlogPostListItem,
   BlogPostWithRelations,

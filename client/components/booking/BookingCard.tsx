@@ -12,7 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Booking } from "@/service/booking.service";
+import { Booking } from "@/service";
 import { cn } from "@/lib/utils";
 
 interface BookingCardProps {

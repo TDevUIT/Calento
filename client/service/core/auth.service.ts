@@ -1,4 +1,4 @@
-import { api, getErrorMessage } from '../config/axios';
+import { api, getErrorMessage } from '../../config/axios';
 import {
   AuthResponse,
   LoginRequest,
@@ -6,8 +6,8 @@ import {
   User,
   AuthTokens,
   ApiSuccessResponse,
-} from '../interface/auth.interface';
-import { API_ROUTES } from '../constants/routes';
+} from '../../interface/auth.interface';
+import { API_ROUTES } from '../../constants/routes';
 import { logger } from '@/utils/logger';
 
 export const register = async (userData: RegisterRequest): Promise<AuthResponse> => {
@@ -131,3 +131,4 @@ export const authService = {
 };
 
 export default authService;
+

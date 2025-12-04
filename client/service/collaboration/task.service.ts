@@ -1,4 +1,4 @@
-﻿import { api, getErrorMessage } from '../config/axios';
+import { api, getErrorMessage } from '../../config/axios';
 import {
   CreateTaskRequest,
   UpdateTaskRequest,
@@ -8,8 +8,8 @@ import {
   TaskStatisticsResponse,
   TaskStatus,
   Task,
-} from '../interface/task.interface';
-import { API_ROUTES } from '../constants/routes';
+} from '../../interface/task.interface';
+import { API_ROUTES } from '../../constants/routes';
 
 export const getTasks = async (params?: TaskQueryParams): Promise<PaginatedTasksResponse> => {
   try {
@@ -232,3 +232,4 @@ export const taskService = {
 };
 
 export default taskService;
+

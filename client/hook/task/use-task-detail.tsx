@@ -1,7 +1,7 @@
-﻿'use client';
+'use client';
 
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
-import { taskService } from '@/service/task.service';
+import { taskService } from '@/service';
 import { TaskResponse } from '@/interface/task.interface';
 import { TASK_QUERY_KEYS } from './query-keys';
 

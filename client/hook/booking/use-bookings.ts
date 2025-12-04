@@ -1,4 +1,4 @@
-﻿import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { 
   getBookings as getBookingsApi,
@@ -17,7 +17,7 @@ import {
   CreateBookingDto,
   BookingTimeSlot,
   BookingAvailabilityQuery
-} from '@/service/booking.service';
+} from '@/service';
 
 export const BOOKING_QUERY_KEYS = {
   all: ['bookings'] as const,

@@ -1,7 +1,7 @@
-﻿'use client';
+'use client';
 
 import { useQuery, useMutation, useQueryClient, UseQueryResult, UseMutationResult } from '@tanstack/react-query';
-import { getUserPriorities, updatePriority, bulkUpdatePriorities, deletePriority, resetPriorities } from '@/service/priority.service';
+import { getUserPriorities, updatePriority, bulkUpdatePriorities, deletePriority, resetPriorities } from '@/service';
 import type { UserPriority, UpdatePriorityRequest, BulkUpdatePriorityRequest, ItemType } from '@/interface/priority.interface';
 import { toast } from 'sonner';
 

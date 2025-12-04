@@ -1,6 +1,6 @@
-﻿import { useMemo } from 'react';
+import { useMemo } from 'react';
 import { Calendar, Check } from 'lucide-react';
-import { BookingLink } from '@/service/booking.service';
+import { BookingLink } from '@/service';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -57,7 +57,7 @@ export const TimeSelectionStep = ({
           <div>
             <div className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Videoconference</div>
             <div className="flex items-center gap-2 text-gray-900 dark:text-gray-100">
-              <span>ðŸŸ©</span>
+              <span>🟩</span>
               <span>Google Meet</span>
             </div>
           </div>

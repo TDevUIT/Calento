@@ -1,7 +1,7 @@
-﻿'use client';
+'use client';
 
 import { useMutation, UseMutationResult } from '@tanstack/react-query';
-import { aiService } from '@/service/ai.service';
+import { aiService } from '@/service';
 import { FunctionExecutionRequest, FunctionExecutionResponse } from '@/interface/ai.interface';
 import { toast } from 'sonner';
 

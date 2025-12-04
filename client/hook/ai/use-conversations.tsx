@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient, UseQueryResult, UseMutationResult } from '@tanstack/react-query';
-import { aiService } from '@/service/ai.service';
+import { aiService } from '@/service';
 import {
   ConversationsListResponse,
   ConversationResponse,

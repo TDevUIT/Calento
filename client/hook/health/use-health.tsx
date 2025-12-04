@@ -1,7 +1,7 @@
-﻿'use client';
+'use client';
 
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
-import { healthService } from '@/service/health.service';
+import { healthService } from '@/service';
 import { HealthStatus, HealthOkResponse } from '@/interface/health.interface';
 import { HEALTH_QUERY_KEYS } from './query-keys';
 

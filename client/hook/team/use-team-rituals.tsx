@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient, UseQueryResult, UseMutationResult } from '@tanstack/react-query';
-import { teamService } from '@/service/team.service';
+import { teamService } from '@/service';
 import { 
   TeamRitualsResponse, 
   TeamRitualResponse,

@@ -1,7 +1,7 @@
-﻿'use client';
+'use client';
 
 import { useMutation, useQueryClient, UseMutationResult } from '@tanstack/react-query';
-import { contactService } from '@/service/contact.service';
+import { contactService } from '@/service';
 import { CreateContactRequest, ContactResponse } from '@/interface/contact.interface';
 import { CONTACT_QUERY_KEYS } from './query-keys';
 import { toast } from 'sonner';

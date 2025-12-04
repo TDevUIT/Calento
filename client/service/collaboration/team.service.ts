@@ -1,4 +1,4 @@
-import { api, getErrorMessage } from '../config/axios';
+import { api, getErrorMessage } from '../../config/axios';
 import {
   CreateTeamRequest,
   UpdateTeamRequest,
@@ -16,7 +16,7 @@ import {
   TeamRitualsResponse,
   AvailabilityHeatmapResponse,
   OptimalTimesResponse,
-} from '../interface/team.interface';
+} from '../../interface/team.interface';
 
 const BASE_URL = '/teams';
 
@@ -319,3 +319,4 @@ export const teamService = {
 };
 
 export default teamService;
+

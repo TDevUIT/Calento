@@ -1,11 +1,11 @@
-﻿import { api, getErrorMessage } from '../config/axios';
-import { API_ROUTES } from '../constants/routes';
+import { api, getErrorMessage } from '../../config/axios';
+import { API_ROUTES } from '../../constants/routes';
 import type {
   ItemType,
   UserPriority,
   UpdatePriorityRequest,
   BulkUpdatePriorityRequest,
-} from '../interface/priority.interface';
+} from '../../interface/priority.interface';
 
 export type { ItemType, UserPriority, UpdatePriorityRequest, BulkUpdatePriorityRequest };
 
@@ -85,3 +85,14 @@ export const resetPriorities = async (): Promise<void> => {
     throw new Error(getErrorMessage(error));
   }
 };
+
+export const priorityService = {
+  getUserPriorities,
+  updatePriority,
+  bulkUpdatePriorities,
+  deletePriority,
+  resetPriorities,
+};
+
+export default priorityService;
+

@@ -1,4 +1,4 @@
-﻿import { api, getErrorMessage } from '../config/axios';
+import { api, getErrorMessage } from '../../config/axios';
 import {
   CreateEventRequest,
   UpdateEventRequest,
@@ -7,8 +7,8 @@ import {
   RecurringEventsQueryParams,
   PaginatedEventsResponse,
   EventResponse,
-} from '../interface/event.interface';
-import { API_ROUTES } from '../constants/routes';
+} from '../../interface/event.interface';
+import { API_ROUTES } from '../../constants/routes';
 
 
 export const getEvents = async (params?: EventQueryParams): Promise<PaginatedEventsResponse> => {
@@ -155,7 +155,7 @@ export const getEventsByDateRange = async (
   params?: Omit<EventQueryParams, 'start_date' | 'end_date'>
 ): Promise<PaginatedEventsResponse> => {
   try {
-    console.log('ðŸŒ [getEventsByDateRange] Calling API:', {
+    console.log('🌐 [getEventsByDateRange] Calling API:', {
       endpoint: API_ROUTES.EVENTS,
       params: {
         ...params,
@@ -176,11 +176,11 @@ export const getEventsByDateRange = async (
       }
     );
 
-    console.log('ðŸ“¡ [getEventsByDateRange] API Response:', response.data);
+    console.log('📡 [getEventsByDateRange] API Response:', response.data);
 
     return response.data;
   } catch (error) {
-    console.error('âŒ [getEventsByDateRange] API Error:', error);
+    console.error('❌ [getEventsByDateRange] API Error:', error);
     throw new Error(getErrorMessage(error));
   }
 };
@@ -222,3 +222,4 @@ export const eventService = {
 };
 
 export default eventService;
+

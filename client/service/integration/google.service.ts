@@ -1,4 +1,4 @@
-﻿import { api, getErrorMessage } from '../config/axios';
+import { api, getErrorMessage } from '../../config/axios';
 import { 
   GoogleAuthUrl, 
   GoogleConnectionStatus, 
@@ -8,8 +8,8 @@ import {
   GoogleOAuthCallbackParams,
   CreateGoogleMeetRequest,
   GoogleMeetResponse,
-} from '../interface/google.interface';
-import { API_ROUTES } from '../constants/routes';
+} from '../../interface/google.interface';
+import { API_ROUTES } from '../../constants/routes';
 
 export const getAuthUrl = async (): Promise<GoogleAuthUrl> => {
   try {
@@ -192,7 +192,7 @@ export const loginWithGoogle = async (): Promise<void> => {
     window.location.href = auth_url;
     
   } catch (error) {
-    console.error('[loginWithGoogle] âŒ Error:', error);
+    console.error('[loginWithGoogle] ❌ Error:', error);
     throw new Error(getErrorMessage(error));
   }
 };
@@ -226,3 +226,4 @@ export const googleService = {
 };
 
 export default googleService;
+

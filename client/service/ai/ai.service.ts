@@ -1,4 +1,4 @@
-import { api, getErrorMessage } from '../config/axios';
+import { api, getErrorMessage } from '../../config/axios';
 import {
   ChatRequest,
   ChatResponse,
@@ -9,9 +9,10 @@ import {
   ConversationsListResponse,
   DeleteConversationResponse,
   StreamMessage,
-} from '../interface/ai.interface';
-import { API_ROUTES } from '../constants/routes';
-import { logger } from '../utils/logger.utils';
+} from '../../interface/ai.interface';
+import { API_ROUTES } from '../../constants/routes';
+import { logger } from '../../utils/logger.utils';
+
 
 export const chat = async (data: ChatRequest): Promise<ChatResponse> => {
   try {
@@ -244,3 +245,4 @@ export const aiService = {
 };
 
 export default aiService;
+

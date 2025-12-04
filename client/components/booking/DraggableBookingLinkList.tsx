@@ -1,8 +1,8 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { DraggableBookingLinkCard } from "./DraggableBookingLinkCard";
-import { BookingLink } from "@/service/booking.service";
+import { BookingLink } from "@/service";
 import { toast } from "sonner";
 
 interface DraggableBookingLinkListProps {

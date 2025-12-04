@@ -1,7 +1,7 @@
-﻿'use client';
+'use client';
 
 import { useMutation, useQueryClient, UseMutationResult } from '@tanstack/react-query';
-import { blogService } from '@/service/blog.service';
+import { blogService } from '@/service';
 import {
   BlogPost,
   CreateBlogPostRequest,

@@ -1,7 +1,7 @@
-﻿'use client';
+'use client';
 
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
-import { calendarService } from '@/service/calendar.service';
+import { calendarService } from '@/service';
 import { PaginatedCalendarsResponse, CalendarQueryParams } from '@/interface/calendar.interface';
 import { CALENDAR_QUERY_KEYS } from './query-keys';
 import { useDebounce } from '@/hook/use-debounce';

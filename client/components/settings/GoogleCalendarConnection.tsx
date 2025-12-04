@@ -25,10 +25,11 @@ export function GoogleCalendarConnection() {
   const handleConnect = async () => {
     try {
       setIsConnecting(true);
-      
+
       // Dynamic import to avoid SSR issues
-      const googleService = await import('@/service/google.service');
-      const { auth_url } = await googleService.default.getAuthUrl();
+      const { getAuthUrl } = await import('@/service');
+      const { auth_url } = await getAuthUrl();
+
 
       // Open popup for OAuth
       const width = 600;
@@ -47,10 +48,10 @@ export function GoogleCalendarConnection() {
         if (popup?.closed) {
           clearInterval(checkPopup);
           setIsConnecting(false);
-          
+
           // Refresh connection status
           queryClient.invalidateQueries({ queryKey: ['google', 'status'] });
-          
+
           toast.success('Google Calendar Connected!', {
             description: 'Your calendar is now syncing with Calento',
           });
@@ -91,9 +92,9 @@ export function GoogleCalendarConnection() {
   const handleSync = async () => {
     try {
       setIsSyncing(true);
-      
-      const googleService = await import('@/service/google.service');
-      
+
+      const googleService = await import('@/service');
+
       // Trigger manual sync
       const response = await fetch('/api/google/events/sync/pull', {
         method: 'POST',
@@ -107,14 +108,14 @@ export function GoogleCalendarConnection() {
       }
 
       const result = await response.json();
-      
+
       toast.success('Sync Completed!', {
         description: `Synced ${result.data?.synced || 0} events from Google Calendar`,
       });
 
       // Refresh events
       queryClient.invalidateQueries({ queryKey: ['events'] });
-      
+
     } catch (error) {
       console.error('Sync error:', error);
       toast.error('Sync Failed', {

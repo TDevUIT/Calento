@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { cloudinaryService, type CloudinaryUploadResponse } from '@/service/cloudinary.service';
+import { cloudinaryService, type CloudinaryUploadResponse } from '@/service';
 import { toast } from 'sonner';
 
 export const useAvatarUpload = () => {

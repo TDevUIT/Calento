@@ -1,8 +1,8 @@
-﻿import { create } from 'zustand';
+import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { User, LoginRequest, RegisterRequest } from '../interface/auth.interface';
-import { login, register, logout, refreshToken, getCurrentUser, checkAuthStatus } from '../service/auth.service';
+import { login, register, logout, refreshToken, getCurrentUser, checkAuthStatus } from '../service';
 
 interface AuthState {
   user: User | null;

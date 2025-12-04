@@ -1,4 +1,4 @@
-﻿import { useMutation, useQuery, type UseMutationResult, type UseQueryResult } from '@tanstack/react-query';
+import { useMutation, useQuery, type UseMutationResult, type UseQueryResult } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { 
   respondToInvitation, 
@@ -6,7 +6,7 @@ import {
   type InvitationResponse,
   type InvitationDetails,
   type RespondToInvitationRequest
-} from '@/service/invitation.service';
+} from '@/service';
 
 interface RespondInvitationVariables {
   token: string;
@@ -39,7 +39,7 @@ export function useRespondToInvitation(): UseMutationResult<
       let description = 'The organizer will be notified';
       
       if (variables.action === 'accept' && variables.addToCalento && result.eventAddedToCalendar) {
-        description = 'âœ¨ Event has been added to your Calento calendar';
+        description = '✨ Event has been added to your Calento calendar';
       }
 
       toast.success(`You have ${actionText} the invitation`, {

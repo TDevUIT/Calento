@@ -85,3 +85,4 @@ export const availabilityService = {
     return response.data.data;
   },
 };
+

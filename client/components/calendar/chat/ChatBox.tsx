@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { aiService } from '@/service/ai.service';
+import { aiService } from '@/service';
 import {
   Send,
   Sparkles,

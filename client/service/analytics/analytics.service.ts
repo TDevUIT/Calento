@@ -1,4 +1,4 @@
-﻿import { api, getErrorMessage } from '../config/axios';
+import { api, getErrorMessage } from '../../config/axios';
 import {
   AnalyticsQueryParams,
   TimeDistributionQueryParams,
@@ -12,7 +12,7 @@ import {
   AnalyticsOverview,
   DetailedAnalytics,
   AnalyticsResponse,
-} from '../interface/analytics.interface';
+} from '../../interface/analytics.interface';
 
 export const getAnalyticsOverview = async (
   params: AnalyticsQueryParams
@@ -162,3 +162,4 @@ export const analyticsService = {
 };
 
 export default analyticsService;
+

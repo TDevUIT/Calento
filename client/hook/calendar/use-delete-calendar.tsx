@@ -1,7 +1,7 @@
-﻿'use client';
+'use client';
 
 import { useMutation, useQueryClient, UseMutationResult } from '@tanstack/react-query';
-import { calendarService } from '@/service/calendar.service';
+import { calendarService } from '@/service';
 import { toast } from 'sonner';
 import { CALENDAR_QUERY_KEYS } from './query-keys';
 

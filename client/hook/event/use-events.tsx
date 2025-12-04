@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
-import { eventService } from '@/service/event.service';
+import { eventService } from '@/service';
 import { PaginatedEventsResponse, EventQueryParams } from '@/interface/event.interface';
 import { EVENT_QUERY_KEYS } from './query-keys';
 

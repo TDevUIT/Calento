@@ -46,3 +46,4 @@ export const cloudinaryService = {
     return data.data.url;
   },
 };
+

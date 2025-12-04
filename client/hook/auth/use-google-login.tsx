@@ -1,10 +1,10 @@
-﻿'use client';
+'use client';
 
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
-import { googleService } from '@/service/google.service';
+import { googleService } from '@/service';
 import { useAuthStore } from '@/store/auth.store';
 import { 
   ERROR_TOAST_DURATION,
@@ -31,7 +31,7 @@ export const useGoogleLogin = (): UseGoogleLoginReturn => {
     onError: (error: Error) => {
       const errorMessage = error.message || 'Failed to start Google login';
       setError(errorMessage);
-      toast.error('âŒ Google Login Failed', {
+      toast.error('❌ Google Login Failed', {
         description: errorMessage,
         duration: ERROR_TOAST_DURATION,
       });

@@ -1,8 +1,8 @@
-﻿import { api, getErrorMessage } from '../config/axios';
-import { CreateContactRequest, ContactResponse } from '../interface/contact.interface';
-import { API_ROUTES } from '../constants/routes';
+import { api, getErrorMessage } from '../../config/axios';
+import { CreateContactRequest, ContactResponse } from '../../interface/contact.interface';
+import { API_ROUTES } from '../../constants/routes';
 
-export type { CreateContactRequest, ContactResponse } from '../interface/contact.interface';
+export type { CreateContactRequest, ContactResponse } from '../../interface/contact.interface';
 
 export const submitContact = async (data: CreateContactRequest): Promise<ContactResponse> => {
   try {
@@ -19,3 +19,4 @@ export const submitContact = async (data: CreateContactRequest): Promise<Contact
 export const contactService = {
   submitContact,
 };
+

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
@@ -31,7 +31,7 @@ import { X, Loader2, Palette, Check } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCreateBookingLink, useUpdateBookingLink } from "@/hook/booking";
-import { BookingLink } from "@/service/booking.service";
+import { BookingLink } from "@/service";
 import { COLOR_OPTIONS } from "@/components/calendar/forms/form-constants";
 import { useRecentColors } from "@/hook/use-recent-colors";
 

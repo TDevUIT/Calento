@@ -10,7 +10,7 @@ import {
   UniqueIdentifier,
 } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
-import { BookingLink } from "@/service/booking.service";
+import { BookingLink } from "@/service";
 import type { Task } from "@/interface/task.interface";
 import { useBulkUpdatePriorities, usePriorities } from "./priority/use-priorities";
 import type { ItemType, PriorityLevel } from "@/interface/priority.interface";

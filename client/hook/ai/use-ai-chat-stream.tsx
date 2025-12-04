@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { aiService } from '@/service/ai.service';
-import { StreamChatRequest } from '@/interface/ai.interface';
+import { aiService } from '@/service';
+import { StreamChatRequest, StreamMessage } from '@/interface/ai.interface';
 import { toast } from 'sonner';
 
 interface UseAIChatStreamReturn {
@@ -31,8 +31,16 @@ export const useAIChatStream = (): UseAIChatStreamReturn => {
 
     await aiService.chatStream(
       data,
-      (chunk: string) => {
-        setStreamedContent((prev) => prev + chunk);
+      (chunk: StreamMessage) => {
+        // Only append content from 'text' type messages
+        if (chunk.type === 'text') {
+          setStreamedContent((prev) => prev + chunk.content);
+        }
+        // You can handle other message types here if needed:
+        // - 'action_start': Show action starting
+        // - 'action_result': Show action completed
+        // - 'error': Handle error in stream
+        // - 'done': Stream complete
       },
       () => {
         setIsStreaming(false);

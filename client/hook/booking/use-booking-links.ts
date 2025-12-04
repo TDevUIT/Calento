@@ -1,4 +1,4 @@
-﻿import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { 
   getBookingLinks as getBookingLinksApi,
@@ -11,7 +11,7 @@ import {
   BookingLink, 
   CreateBookingLinkDto, 
   UpdateBookingLinkDto 
-} from '@/service/booking.service';
+} from '@/service';
 
 export const BOOKING_LINK_QUERY_KEYS = {
   all: ['booking-links'] as const,

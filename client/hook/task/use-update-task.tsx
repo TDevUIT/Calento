@@ -1,7 +1,7 @@
-﻿'use client';
+'use client';
 
 import { useMutation, useQueryClient, UseMutationResult } from '@tanstack/react-query';
-import { taskService } from '@/service/task.service';
+import { taskService } from '@/service';
 import { UpdateTaskRequest, TaskResponse } from '@/interface/task.interface';
 import { TASK_QUERY_KEYS } from './query-keys';
 import { toast } from 'sonner';

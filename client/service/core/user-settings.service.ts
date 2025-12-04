@@ -1,6 +1,6 @@
-import { api, getErrorMessage } from '../config/axios';
-import { ApiSuccessResponse } from '../interface/auth.interface';
-import { UserSettings } from '../store/user-settings.store';
+import { api, getErrorMessage } from '../../config/axios';
+import { ApiSuccessResponse } from '../../interface/auth.interface';
+import { UserSettings } from '../../store/user-settings.store';
 
 interface UpdateUserSettingsRequest {
   settings: Partial<UserSettings>;
@@ -68,3 +68,4 @@ export const userSettingsService = {
 };
 
 export default userSettingsService;
+

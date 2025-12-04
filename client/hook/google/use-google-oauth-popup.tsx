@@ -1,8 +1,8 @@
-﻿'use client';
+'use client';
 
 import { useCallback, useState } from 'react';
 import { GoogleOAuthCallbackParams } from '../../interface/google.interface';
-import { googleService } from '../../service/google.service';
+import { googleService } from '../../service';
 import { useGoogleAuth } from './use-google-auth';
 
 export const useGoogleOAuthPopup = () => {

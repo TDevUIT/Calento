@@ -1,8 +1,8 @@
-﻿"use client";
+"use client";
 
 import { useMemo } from "react";
 import { Clock, CheckCircle2, XCircle, CheckCheck } from "lucide-react";
-import { Booking } from "@/service/booking.service";
+import { Booking } from "@/service";
 import { BookingCard } from "./BookingCard";
 
 interface BookingKanbanBoardProps {

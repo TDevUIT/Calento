@@ -1,9 +1,9 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { GripVertical } from "lucide-react";
 import { BookingLinkCard } from "./BookingLinkCard";
-import { BookingLink } from "@/service/booking.service";
+import { BookingLink } from "@/service";
 
 interface DraggableBookingLinkCardProps {
   bookingLink: BookingLink;

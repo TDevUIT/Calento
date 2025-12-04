@@ -1,4 +1,4 @@
-import { api, getErrorMessage } from '../config/axios';
+import { api, getErrorMessage } from '../../config/axios';
 import {
   BlogPost,
   BlogPostWithRelations,
@@ -9,15 +9,15 @@ import {
   UpdateBlogPostRequest,
   BlogPostQueryParams,
   PaginatedBlogResponse,
-} from '../interface/blog.interface';
-import { API_ROUTES } from '../constants/routes';
+} from '../../interface/blog.interface';
+import { API_ROUTES } from '../../constants/routes';
 
 export type {
   BlogPost,
   BlogPostWithRelations,
   CreateBlogPostRequest,
   UpdateBlogPostRequest,
-} from '../interface/blog.interface';
+} from '../../interface/blog.interface';
 
 export const getBlogPosts = async (
   params?: BlogPostQueryParams
@@ -293,3 +293,4 @@ export const blogService = {
   publishPost,
   unpublishPost,
 };
+

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Loader2, CheckCircle, XCircle, Calendar, Sparkles } from 'lucide-react';
-import { authService } from '@/service/auth.service';
+import { authService } from '@/service';
 import { useAuthStore } from '@/store/auth.store';
 import { toast } from 'sonner';
 
@@ -47,11 +47,12 @@ export default function GoogleCallbackPage() {
         try {
           setStep('connecting-calendar');
           setMessage('Setting up Google Calendar...');
-          const googleService = await import('@/service/google.service');
-          const connectionStatus = await googleService.default.getConnectionStatus();
+          const { getConnectionStatus, getAuthUrl } = await import('@/service');
+          const connectionStatus = await getConnectionStatus();
 
           if (!connectionStatus.connected) {
-            const { auth_url } = await googleService.default.getAuthUrl();
+            const { auth_url } = await getAuthUrl();
+
             const popup = window.open(auth_url, 'google-calendar-connect', 'width=600,height=700,left=200,top=100');
 
             const checkPopup = setInterval(() => {
@@ -98,7 +99,7 @@ export default function GoogleCallbackPage() {
   const renderIcon = () => {
     if (status === 'success') return <CheckCircle className="w-16 h-16 text-green-500 animate-in zoom-in duration-300" />;
     if (status === 'error') return <XCircle className="w-16 h-16 text-red-500 animate-in zoom-in duration-300" />;
-    
+
     if (step === 'connecting-calendar') {
       return (
         <div className="relative">
@@ -107,7 +108,7 @@ export default function GoogleCallbackPage() {
         </div>
       );
     }
-    
+
     return <Loader2 className="w-16 h-16 animate-spin text-blue-500" />;
   };
 
@@ -147,10 +148,9 @@ export default function GoogleCallbackPage() {
       <div className="flex items-center justify-center gap-2 mb-6">
         {steps.map((s, index) => (
           <div key={s.key} className="flex items-center">
-            <div className={`w-2 h-2 rounded-full transition-all duration-300 ${
-              step === s.key ? 'bg-blue-500 w-8' : 
-              steps.findIndex(x => x.key === step) > index ? 'bg-green-500' : 'bg-gray-300'
-            }`} />
+            <div className={`w-2 h-2 rounded-full transition-all duration-300 ${step === s.key ? 'bg-blue-500 w-8' :
+                steps.findIndex(x => x.key === step) > index ? 'bg-green-500' : 'bg-gray-300'
+              }`} />
             {index < steps.length - 1 && <div className="w-8 h-0.5 bg-gray-200 dark:bg-gray-700" />}
           </div>
         ))}

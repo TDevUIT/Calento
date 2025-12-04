@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { userSettingsService } from '@/service/user-settings.service';
+import { userSettingsService } from '@/service';
 import { useUserSettingsStore, UserSettings } from '@/store/user-settings.store';
 
 const QUERY_KEY = 'userSettings';

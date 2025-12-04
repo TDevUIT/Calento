@@ -1,5 +1,5 @@
-﻿import { api, getErrorMessage } from '../config/axios';
-import { API_ROUTES } from '../constants/routes';
+import { api, getErrorMessage } from '../../config/axios';
+import { API_ROUTES } from '../../constants/routes';
 import {
   BookingLink,
   CreateBookingLinkDto,
@@ -11,7 +11,7 @@ import {
   BookingLinkResponse,
   BookingLinksResponse,
 
-} from '../interface/booking.interface';
+} from '../../interface/booking.interface';
 
 export type {
   BookingLink,
@@ -23,7 +23,7 @@ export type {
   BookingAvailabilityQuery,
   BookingLinkStats,
   BookingStats,
-} from '../interface/booking.interface';
+} from '../../interface/booking.interface';
 
 
 export const getBookingLinks = async (): Promise<BookingLink[]> => {
@@ -373,4 +373,5 @@ export const getBookingStats = async (): Promise<{
     throw new Error(getErrorMessage(error));
   }
 };
+
 

@@ -1,5 +1,5 @@
-﻿import { api, getErrorMessage } from '../config/axios';
-import { API_ROUTES } from '../constants/routes';
+import { api, getErrorMessage } from '../../config/axios';
+import { API_ROUTES } from '../../constants/routes';
 import {
   InvitationResponse,
   InvitationDetails,
@@ -11,7 +11,7 @@ import {
   SendInvitationsApiResponse,
   SendRemindersApiResponse,
   RespondToInvitationApiResponse,
-} from '../interface/invitation.interface';
+} from '../../interface/invitation.interface';
 
 export type {
   InvitationResponse,
@@ -22,7 +22,7 @@ export type {
   RespondToInvitationRequest,
   GoogleCalendarEvent,
   InvitationAction,
-} from '../interface/invitation.interface';
+} from '../../interface/invitation.interface';
 
 export const sendInvitations = async (
   eventId: string,
@@ -85,4 +85,6 @@ export const respondToInvitation = async (
   }
 };
 
-export { generateGoogleCalendarLink } from '../utils/invitation.utils';
+export { generateGoogleCalendarLink } from '../../utils/invitation.utils';
+
+

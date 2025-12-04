@@ -1,11 +1,11 @@
-﻿"use client";
+"use client";
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { CreateBookingLinkDialog } from "@/components/booking/CreateBookingLinkDialog";
 import { useBookingLinks } from "@/hook/booking";
 import { useAuthStore } from "@/store/auth.store";
-import { BookingLink } from "@/service/booking.service";
+import { BookingLink } from "@/service";
 import {
   SchedulingLinkCard,
   BusinessBanner,

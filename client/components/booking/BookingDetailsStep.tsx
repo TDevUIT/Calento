@@ -1,5 +1,5 @@
-﻿import { ArrowLeft, Check, Calendar, Clock, User, Mail, Phone, MessageSquare } from 'lucide-react';
-import { BookingLink } from '@/service/booking.service';
+import { ArrowLeft, Check, Calendar, Clock, User, Mail, Phone, MessageSquare } from 'lucide-react';
+import { BookingLink } from '@/service';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -191,7 +191,7 @@ export const BookingDetailsStep = ({
                   <Button type="submit" disabled={isPending} className="flex-1" size="lg">
                     {isPending ? (
                       <>
-                        <span className="animate-spin mr-2">â³</span>
+                        <span className="animate-spin mr-2">⏳</span>
                         Booking...
                       </>
                     ) : (

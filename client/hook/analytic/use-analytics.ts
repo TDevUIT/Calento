@@ -1,4 +1,4 @@
-﻿import { useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import {
   getAnalyticsOverview,
   getDetailedAnalytics,
@@ -8,7 +8,7 @@ import {
   getTimeDistribution,
   getAttendeeAnalytics,
   getBookingAnalytics,
-} from '@/service/analytics.service';
+} from '@/service';
 import {
   AnalyticsQueryParams,
   TimeDistributionQueryParams,

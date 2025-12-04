@@ -1,8 +1,8 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { googleService } from '../../service/google.service';
+import { googleService } from '../../service';
 import { useGoogleAuth } from './use-google-auth';
 import { PROTECTED_ROUTES } from '@/constants/routes';
 
