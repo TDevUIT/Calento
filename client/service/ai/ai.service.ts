@@ -9,7 +9,7 @@ import {
   ConversationsListResponse,
   DeleteConversationResponse,
   StreamMessage,
-} from '../../interface/ai.interface';
+} from '../../interface';
 import { API_ROUTES } from '../../constants/routes';
 import { logger } from '../../utils/logger.utils';
 

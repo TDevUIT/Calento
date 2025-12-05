@@ -2,7 +2,7 @@
 
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { calendarService } from '@/service';
-import { CalendarResponse } from '@/interface/calendar.interface';
+import { CalendarResponse } from '@/interface';
 import { CALENDAR_QUERY_KEYS } from './query-keys';
 
 

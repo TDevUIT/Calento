@@ -8,7 +8,7 @@ import {
   TaskStatisticsResponse,
   TaskStatus,
   Task,
-} from '../../interface/task.interface';
+} from '../../interface';
 import { API_ROUTES } from '../../constants/routes';
 
 export const getTasks = async (params?: TaskQueryParams): Promise<PaginatedTasksResponse> => {

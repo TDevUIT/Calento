@@ -32,7 +32,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCreateTask } from "@/hook/task";
-import { TaskPriority, TaskStatus } from "@/interface/task.interface";
+import { TaskPriority, TaskStatus } from "@/interface";
 
 const taskSchema = z.object({
   title: z.string().min(1, "Title is required").max(200),

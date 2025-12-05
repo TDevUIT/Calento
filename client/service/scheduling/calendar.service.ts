@@ -5,7 +5,7 @@ import {
   CalendarQueryParams,
   PaginatedCalendarsResponse,
   CalendarResponse,
-} from '../../interface/calendar.interface';
+} from '../../interface';
 import { API_ROUTES } from '../../constants/routes';
 
 export const getCalendars = async (params?: CalendarQueryParams): Promise<PaginatedCalendarsResponse> => {

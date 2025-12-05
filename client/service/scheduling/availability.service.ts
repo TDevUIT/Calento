@@ -9,7 +9,7 @@ import type {
   AvailabilityCheck,
   AvailableSlots,
   WeeklySchedule,
-} from '@/interface/availability.interface';
+} from '@/interface';
 
 const BASE_URL = '/availability';
 

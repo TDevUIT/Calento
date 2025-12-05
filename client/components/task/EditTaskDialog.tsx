@@ -31,7 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { usePartialUpdateTask } from "@/hook/task";
-import { Task, TaskPriority, TaskStatus } from "@/interface/task.interface";
+import { Task, TaskPriority, TaskStatus } from "@/interface";
 
 const taskSchema = z.object({
   title: z.string().min(1, "Title is required").max(200),

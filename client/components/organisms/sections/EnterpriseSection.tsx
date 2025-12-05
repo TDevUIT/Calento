@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { ENTERPRISE_FEATURES_DATA } from '@/constants/landing.constants';
-import type { EnterpriseFeature } from '@/interface/landing.interface';
+import type { EnterpriseFeature } from '@/interface';
 
 export const EnterpriseSection: React.FC = () => {
   return (

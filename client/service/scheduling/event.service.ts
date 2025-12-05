@@ -7,7 +7,7 @@ import {
   RecurringEventsQueryParams,
   PaginatedEventsResponse,
   EventResponse,
-} from '../../interface/event.interface';
+} from '../../interface';
 import { API_ROUTES } from '../../constants/routes';
 
 

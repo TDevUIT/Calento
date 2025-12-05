@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { GuestItem } from './GuestItem';
 import type { EventFormData } from '../event-form.schema';
-import type { EventAttendee } from '@/interface/event.interface';
+import type { EventAttendee } from '@/interface';
 
 interface GuestsFieldProps {
   form: UseFormReturn<EventFormData>;

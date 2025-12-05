@@ -11,7 +11,7 @@ import {
   SendInvitationsApiResponse,
   SendRemindersApiResponse,
   RespondToInvitationApiResponse,
-} from '../../interface/invitation.interface';
+} from '../../interface';
 
 export type {
   InvitationResponse,
@@ -22,7 +22,7 @@ export type {
   RespondToInvitationRequest,
   GoogleCalendarEvent,
   InvitationAction,
-} from '../../interface/invitation.interface';
+} from '../../interface';
 
 export const sendInvitations = async (
   eventId: string,

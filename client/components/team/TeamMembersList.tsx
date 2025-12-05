@@ -21,7 +21,7 @@ import {
   useAcceptInvitation,
   useDeclineInvitation,
 } from '@/hook/team';
-import { TeamMember } from '@/interface/team.interface';
+import { TeamMember } from '@/interface';
 import { Skeleton } from '@/components/ui/skeleton';
 import { InviteMemberDialog } from './InviteMemberDialog';
 import { useCurrentUser } from '@/hook/auth';

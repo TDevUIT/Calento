@@ -9,7 +9,7 @@ import {
   UpdateBlogPostRequest,
   BlogPostQueryParams,
   PaginatedBlogResponse,
-} from '../../interface/blog.interface';
+} from '../../interface';
 import { API_ROUTES } from '../../constants/routes';
 
 export type {
@@ -17,7 +17,7 @@ export type {
   BlogPostWithRelations,
   CreateBlogPostRequest,
   UpdateBlogPostRequest,
-} from '../../interface/blog.interface';
+} from '../../interface';
 
 export const getBlogPosts = async (
   params?: BlogPostQueryParams

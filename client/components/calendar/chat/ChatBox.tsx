@@ -21,7 +21,7 @@ import { useAIChat } from '@/hook/ai/use-ai-chat';
 import { useConversation, useConversations, useDeleteConversation } from '@/hook/ai/use-conversations';
 import { useConversationState } from '@/hook/ai/use-conversation-state';
 import { ConversationList } from './ConversationList';
-import { AIMessage, FunctionCall, ActionPerformed, StreamMessage } from '@/interface/ai.interface';
+import { AIMessage, FunctionCall, ActionPerformed, StreamMessage } from '@/interface';
 import { MessageContent } from './MessageContent';
 import { ActionConfirmationDialog } from './ActionConfirmationDialog';
 import { TimeSlotsList } from './TimeSlotsList';

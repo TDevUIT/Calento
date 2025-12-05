@@ -12,7 +12,7 @@ import {
   AnalyticsOverview,
   DetailedAnalytics,
   AnalyticsResponse,
-} from '../../interface/analytics.interface';
+} from '../../interface';
 
 export const getAnalyticsOverview = async (
   params: AnalyticsQueryParams

@@ -2,7 +2,7 @@
 
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { taskService } from '@/service';
-import { TaskStatisticsResponse } from '@/interface/task.interface';
+import { TaskStatisticsResponse } from '@/interface';
 import { TASK_QUERY_KEYS } from './query-keys';
 
 export const useTaskStatistics = (): UseQueryResult<TaskStatisticsResponse, Error> => {

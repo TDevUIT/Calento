@@ -2,7 +2,7 @@
 
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { eventService } from '@/service';
-import { PaginatedEventsResponse, EventQueryParams } from '@/interface/event.interface';
+import { PaginatedEventsResponse, EventQueryParams } from '@/interface';
 import { EVENT_QUERY_KEYS } from './query-keys';
 
 export const useEvents = (params?: EventQueryParams): UseQueryResult<PaginatedEventsResponse, Error> => {

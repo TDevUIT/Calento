@@ -1,5 +1,5 @@
 import { api, getErrorMessage } from '../../config/axios';
-import { ApiSuccessResponse } from '../../interface/auth.interface';
+import { ApiSuccessResponse } from '../../interface';
 import { UserSettings } from '../../store/user-settings.store';
 
 interface UpdateUserSettingsRequest {

@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useTeamRituals, useDeleteRitual } from '@/hook/team';
-import { TeamRitual } from '@/interface/team.interface';
+import { TeamRitual } from '@/interface';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CreateRitualDialog } from './CreateRitualDialog';
 

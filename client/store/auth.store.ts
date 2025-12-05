@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import { User, LoginRequest, RegisterRequest } from '../interface/auth.interface';
+import { User, LoginRequest, RegisterRequest } from '../interface';
 import { login, register, logout, refreshToken, getCurrentUser, checkAuthStatus } from '../service';
 
 interface AuthState {

@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import { format, parseISO } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Event } from '@/interface/event.interface';
+import { Event } from '@/interface';
 
 interface UserCalendarSectionProps {
   invitationStartTime: string;

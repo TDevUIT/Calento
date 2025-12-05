@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useCalendars } from '@/hook/calendar';
 import { useApiData } from '@/hook/use-api-data';
-import { Calendar } from '@/interface/calendar.interface';
+import { Calendar } from '@/interface';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

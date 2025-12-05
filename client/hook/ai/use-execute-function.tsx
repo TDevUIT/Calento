@@ -2,7 +2,7 @@
 
 import { useMutation, UseMutationResult } from '@tanstack/react-query';
 import { aiService } from '@/service';
-import { FunctionExecutionRequest, FunctionExecutionResponse } from '@/interface/ai.interface';
+import { FunctionExecutionRequest, FunctionExecutionResponse } from '@/interface';
 import { toast } from 'sonner';
 
 export const useExecuteFunction = (): UseMutationResult<FunctionExecutionResponse, Error, FunctionExecutionRequest> => {

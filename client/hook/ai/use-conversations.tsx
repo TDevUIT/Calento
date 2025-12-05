@@ -6,7 +6,7 @@ import {
   ConversationsListResponse,
   ConversationResponse,
   DeleteConversationResponse,
-} from '@/interface/ai.interface';
+} from '@/interface';
 import { AI_QUERY_KEYS } from './query-keys';
 import { toast } from 'sonner';
 

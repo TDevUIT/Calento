@@ -7,7 +7,7 @@ import {
   TeamMemberResponse,
   InviteMemberRequest,
   UpdateMemberRoleRequest 
-} from '@/interface/team.interface';
+} from '@/interface';
 import { TEAM_QUERY_KEYS } from './query-keys';
 import { toast } from 'sonner';
 

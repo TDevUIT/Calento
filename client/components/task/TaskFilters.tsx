@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { TaskPriority, TaskStatus } from "@/interface/task.interface";
+import { TaskPriority, TaskStatus } from "@/interface";
 
 interface TaskFiltersProps {
   selectedStatuses: TaskStatus[];

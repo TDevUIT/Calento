@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient, UseMutationResult } from '@tanstack/react-query';
 import { contactService } from '@/service';
-import { CreateContactRequest, ContactResponse } from '@/interface/contact.interface';
+import { CreateContactRequest, ContactResponse } from '@/interface';
 import { CONTACT_QUERY_KEYS } from './query-keys';
 import { toast } from 'sonner';
 

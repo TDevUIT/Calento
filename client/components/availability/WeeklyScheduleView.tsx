@@ -3,8 +3,8 @@
 import { useMemo } from "react";
 import { Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { WeeklySchedule } from "@/interface/availability.interface";
-import { DAY_NAMES_SHORT } from "@/interface/availability.interface";
+import type { WeeklySchedule } from "@/interface";
+import { DAY_NAMES_SHORT } from "@/interface";
 
 interface WeeklyScheduleViewProps {
   schedule: WeeklySchedule;

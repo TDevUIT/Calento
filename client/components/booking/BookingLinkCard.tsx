@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { BookingLink } from "@/interface/booking.interface";
+import { BookingLink } from "@/interface";
 import { generateBookingLinkUrl } from "@/utils/booking.utils";
 import { formatDuration } from "@/utils/formatters";
 import { useToggleBookingLink, useDeleteBookingLink } from "@/hook/booking";

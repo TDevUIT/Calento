@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { availabilityService } from '@/service';
-import type { CheckAvailabilityDto } from '@/interface/availability.interface';
+import type { CheckAvailabilityDto } from '@/interface';
 import { AVAILABILITY_QUERY_KEYS } from './query-keys';
 
 export const useCheckAvailability = (

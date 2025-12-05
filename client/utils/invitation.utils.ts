@@ -12,7 +12,7 @@ import type {
   InvitationStatus, 
   InvitationAction,
   InvitationDetails 
-} from '../interface/invitation.interface';
+} from '../interface';
 
 /**
  * Generate Google Calendar link for an event

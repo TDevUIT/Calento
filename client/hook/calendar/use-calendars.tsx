@@ -2,7 +2,7 @@
 
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { calendarService } from '@/service';
-import { PaginatedCalendarsResponse, CalendarQueryParams } from '@/interface/calendar.interface';
+import { PaginatedCalendarsResponse, CalendarQueryParams } from '@/interface';
 import { CALENDAR_QUERY_KEYS } from './query-keys';
 
 export const useCalendars = (params?: CalendarQueryParams): UseQueryResult<PaginatedCalendarsResponse, Error> => {

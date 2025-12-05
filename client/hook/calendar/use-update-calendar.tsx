@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient, UseMutationResult } from '@tanstack/react-query';
 import { calendarService } from '@/service';
-import { UpdateCalendarRequest, CalendarResponse } from '@/interface/calendar.interface';
+import { UpdateCalendarRequest, CalendarResponse } from '@/interface';
 import { CALENDAR_QUERY_KEYS } from './query-keys';
 
 interface UpdateCalendarParams {

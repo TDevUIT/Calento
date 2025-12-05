@@ -11,7 +11,7 @@ import {
   BookingLinkResponse,
   BookingLinksResponse,
 
-} from '../../interface/booking.interface';
+} from '../../interface';
 
 export type {
   BookingLink,
@@ -23,7 +23,7 @@ export type {
   BookingAvailabilityQuery,
   BookingLinkStats,
   BookingStats,
-} from '../../interface/booking.interface';
+} from '../../interface';
 
 
 export const getBookingLinks = async (): Promise<BookingLink[]> => {

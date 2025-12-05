@@ -20,8 +20,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useUpdateAvailability } from "@/hook";
-import type { Availability } from "@/interface/availability.interface";
-import { DayOfWeek, DAY_NAMES } from "@/interface/availability.interface";
+import type { Availability } from "@/interface";
+import { DayOfWeek, DAY_NAMES } from "@/interface";
 
 interface EditAvailabilityDialogProps {
   availability: Availability | null;

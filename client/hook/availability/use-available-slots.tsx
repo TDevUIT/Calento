@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { availabilityService } from '@/service';
-import type { GetAvailableSlotsDto } from '@/interface/availability.interface';
+import type { GetAvailableSlotsDto } from '@/interface';
 import { AVAILABILITY_QUERY_KEYS } from './query-keys';
 
 export const useAvailabilitySlots = (

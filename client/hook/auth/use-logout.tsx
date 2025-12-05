@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
-import { UseLogoutReturn } from '../../interface/auth.interface';
+import { UseLogoutReturn } from '../../interface';
 import { authService } from '../../service';
 import { QUERY_KEYS, MUTATION_KEYS } from '../../config/key.query';
 

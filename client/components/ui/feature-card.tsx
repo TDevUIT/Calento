@@ -1,5 +1,5 @@
 ﻿import { cn } from '@/lib/utils';
-import { CardProps } from '@/interface/components.interface';
+import { CardProps } from '@/interface';
 
 export function FeatureCard({
   title,

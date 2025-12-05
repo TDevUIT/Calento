@@ -2,7 +2,7 @@
 
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { healthService } from '@/service';
-import { HealthStatus, HealthOkResponse } from '@/interface/health.interface';
+import { HealthStatus, HealthOkResponse } from '@/interface';
 import { HEALTH_QUERY_KEYS } from './query-keys';
 
 export const useHealthStatus = (

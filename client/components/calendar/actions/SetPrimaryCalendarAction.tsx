@@ -3,7 +3,7 @@
 import { toast } from 'sonner';
 import { Star } from 'lucide-react';
 import { useUpdateCalendar } from '@/hook/calendar';
-import { Calendar } from '@/interface/calendar.interface';
+import { Calendar } from '@/interface';
 
 interface SetPrimaryCalendarActionProps {
   calendar: Calendar;

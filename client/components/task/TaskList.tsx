@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useState } from "react";
-import { Task } from "@/interface/task.interface";
+import { Task } from "@/interface";
 import { TaskItem } from "./TaskItem";
 import { EditTaskDialog } from "./EditTaskDialog";
 

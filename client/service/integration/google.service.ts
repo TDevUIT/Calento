@@ -8,7 +8,7 @@ import {
   GoogleOAuthCallbackParams,
   CreateGoogleMeetRequest,
   GoogleMeetResponse,
-} from '../../interface/google.interface';
+} from '../../interface';
 import { API_ROUTES } from '../../constants/routes';
 
 export const getAuthUrl = async (): Promise<GoogleAuthUrl> => {

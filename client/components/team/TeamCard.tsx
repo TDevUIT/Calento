@@ -3,7 +3,7 @@
 import { Users, Calendar, Crown } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Team } from '@/interface/team.interface';
+import { Team } from '@/interface';
 
 interface TeamCardProps {
   team: Team;

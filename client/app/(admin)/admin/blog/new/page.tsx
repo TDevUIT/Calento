@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCreateBlogPost } from '@/hook/blog';
-import { BlogPostStatus } from '@/interface/blog.interface';
+import { BlogPostStatus } from '@/interface';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

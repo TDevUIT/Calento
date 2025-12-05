@@ -2,7 +2,7 @@
 
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { taskService } from '@/service';
-import { PaginatedTasksResponse, TaskQueryParams } from '@/interface/task.interface';
+import { PaginatedTasksResponse, TaskQueryParams } from '@/interface';
 import { TASK_QUERY_KEYS } from './query-keys';
 
 export const useTasks = (params?: TaskQueryParams): UseQueryResult<PaginatedTasksResponse, Error> => {

@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react';
 import { useAuthStore } from '../../store/auth.store';
-import { LoginRequest, RegisterRequest } from '../../interface/auth.interface';
+import { LoginRequest, RegisterRequest } from '../../interface';
 
 export const useAuth = () => {
   const store = useAuthStore();

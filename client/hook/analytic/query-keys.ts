@@ -2,7 +2,7 @@
   AnalyticsQueryParams, 
   TimeDistributionQueryParams,
   CategoryAnalyticsQueryParams 
-} from '@/interface/analytics.interface';
+} from '@/interface';
 
 export const ANALYTICS_QUERY_KEYS = {
   all: ['analytics'] as const,

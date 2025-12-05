@@ -7,7 +7,7 @@ import {
   UpdateEventRequest, 
   PartialUpdateEventRequest, 
   EventResponse, 
-} from '@/interface/event.interface';
+} from '@/interface';
 import { EVENT_QUERY_KEYS } from './query-keys';
 import { toast } from 'sonner';
 

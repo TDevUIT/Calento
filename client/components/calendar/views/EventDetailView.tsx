@@ -20,7 +20,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { ConferenceInfo } from '../shared/ConferenceInfo';
 import { AttendeesList } from '../shared/AttendeesList';
-import type { Event } from '@/interface/event.interface';
+import type { Event } from '@/interface';
 import { EVENT_COLORS, VISIBILITY_ICONS, DAY_NAMES } from '@/constants/event.constants';
 
 interface EventDetailViewProps {

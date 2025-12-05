@@ -21,7 +21,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import type { Event } from '@/interface/event.interface';
+import type { Event } from '@/interface';
 
 interface EventQuickPreviewProps {
   event: Event;

@@ -3,8 +3,8 @@
 import React from 'react';
 import { EventHoverCard } from './EventHoverCard';
 import { TaskHoverCard } from './TaskHoverCard';
-import type { Event } from '@/interface/event.interface';
-import type { Task } from '@/interface/task.interface';
+import type { Event } from '@/interface';
+import type { Task } from '@/interface';
 import type { CalendarEvent } from '../views/FullCalendar';
 
 interface EventOrTaskCardProps {

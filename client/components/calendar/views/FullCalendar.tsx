@@ -36,8 +36,8 @@ import {
 } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { EventOrTaskCard } from '../shared/EventOrTaskCard';
-import type { Event } from '@/interface/event.interface';
-import type { Task } from '@/interface/task.interface';
+import type { Event } from '@/interface';
+import type { Task } from '@/interface';
 import { calculateEventLayouts, getEventLayoutStyles, getEventTextClasses } from '@/utils/event-display';
 import { getStoredCalendarView, saveCalendarView } from '@/utils/calendar-storage';
 import { useCalendarSettings } from '../shared/CalendarSettingsProvider';

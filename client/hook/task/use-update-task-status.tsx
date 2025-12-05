@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient, UseMutationResult } from '@tanstack/react-query';
 import { taskService } from '@/service';
-import { TaskResponse, TaskStatus } from '@/interface/task.interface';
+import { TaskResponse, TaskStatus } from '@/interface';
 import { toast } from 'sonner';
 import { TASK_QUERY_KEYS } from './query-keys';
 

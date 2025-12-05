@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Calendar, Loader2, Edit2, Globe, Lock, Eye, EyeOff, Repeat } from 'lucide-react';
 import { useEvents } from '@/hook/event/use-events';
 import { EditEventDialog } from '../dialogs/EditEventDialog';
-import { Event, ExpandedEvent } from '@/interface/event.interface';
+import { Event, ExpandedEvent } from '@/interface';
 import { format } from 'date-fns';
 
 interface VisibilitySectionConfig {

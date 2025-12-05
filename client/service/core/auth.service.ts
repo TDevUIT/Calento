@@ -6,7 +6,7 @@ import {
   User,
   AuthTokens,
   ApiSuccessResponse,
-} from '../../interface/auth.interface';
+} from '../../interface';
 import { API_ROUTES } from '../../constants/routes';
 import { logger } from '@/utils/logger';
 

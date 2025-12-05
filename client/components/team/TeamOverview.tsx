@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Team } from '@/interface/team.interface';
+import { Team } from '@/interface';
 import { Users, Clock, Shield } from 'lucide-react';
 
 interface TeamOverviewProps {

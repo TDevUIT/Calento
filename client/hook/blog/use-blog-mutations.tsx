@@ -6,7 +6,7 @@ import {
   BlogPost,
   CreateBlogPostRequest,
   UpdateBlogPostRequest,
-} from '@/interface/blog.interface';
+} from '@/interface';
 import { BLOG_QUERY_KEYS } from './query-keys';
 import { toast } from 'sonner';
 

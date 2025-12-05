@@ -22,7 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useCreateAvailability } from "@/hook";
-import { DayOfWeek, DAY_NAMES } from "@/interface/availability.interface";
+import { DayOfWeek, DAY_NAMES } from "@/interface";
 
 export const AddAvailabilityDialog = () => {
   const [open, setOpen] = useState(false);

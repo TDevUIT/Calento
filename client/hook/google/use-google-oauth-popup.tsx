@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { GoogleOAuthCallbackParams } from '../../interface/google.interface';
+import { GoogleOAuthCallbackParams } from '../../interface';
 import { googleService } from '../../service';
 import { useGoogleAuth } from './use-google-auth';
 

@@ -10,7 +10,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import type { Task } from '@/interface/task.interface';
+import type { Task } from '@/interface';
 
 interface TaskQuickPreviewProps {
   task: Task;

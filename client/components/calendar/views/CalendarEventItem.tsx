@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import { EventHoverCard } from '../shared/EventHoverCard';
-import type { Event } from '@/interface/event.interface';
+import type { Event } from '@/interface';
 import { CalendarEvent } from './FullCalendar';
 
 interface CalendarEventItemProps {

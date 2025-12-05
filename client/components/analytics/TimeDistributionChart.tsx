@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { TimeDistribution } from '@/interface/analytics.interface';
+import { TimeDistribution } from '@/interface';
 
 interface TimeDistributionChartProps {
   data: TimeDistribution[];

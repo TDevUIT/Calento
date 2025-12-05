@@ -5,7 +5,7 @@ import type {
   CreateAvailabilityDto,
   UpdateAvailabilityDto,
   BulkCreateAvailabilityDto,
-} from '@/interface/availability.interface';
+} from '@/interface';
 import { AVAILABILITY_QUERY_KEYS } from './query-keys';
 
 export const useCreateAvailability = () => {

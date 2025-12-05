@@ -16,7 +16,7 @@ import {
   TeamRitualsResponse,
   AvailabilityHeatmapResponse,
   OptimalTimesResponse,
-} from '../../interface/team.interface';
+} from '../../interface';
 
 const BASE_URL = '/teams';
 

@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { EventAnalytics } from '@/interface/analytics.interface';
+import { EventAnalytics } from '@/interface';
 import { Calendar, TrendingUp, Clock, Repeat } from 'lucide-react';
 
 interface EventAnalyticsSummaryProps {

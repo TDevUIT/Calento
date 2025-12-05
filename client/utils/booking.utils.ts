@@ -6,7 +6,7 @@ import {
   BOOKING_LINK_COLORS,
   DURATION_OPTIONS,
 } from '../constants/booking.constants';
-import type { BookingLink, Booking } from '../interface/booking.interface';
+import type { BookingLink, Booking } from '../interface';
 import { formatDuration } from './formatters';
 
 

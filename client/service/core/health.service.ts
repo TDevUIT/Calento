@@ -1,8 +1,8 @@
 import { api, getErrorMessage } from '../../config/axios';
-import { HealthStatus, HealthOkResponse } from '../../interface/health.interface';
+import { HealthStatus, HealthOkResponse } from '../../interface';
 import { API_ROUTES } from '../../constants/routes';
 
-export type { HealthStatus, HealthOkResponse } from '../../interface/health.interface';
+export type { HealthStatus, HealthOkResponse } from '../../interface';
 
 export const getHealthStatus = async (): Promise<HealthStatus> => {
   try {

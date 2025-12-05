@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { eventFormSchema, type EventFormData } from './event-form.schema';
-import type { Event } from '@/interface/event.interface';
+import type { Event } from '@/interface';
 import { TimeRangeField } from './fields/TimeRangeField';
 import { AllDayField } from './fields/AllDayField';
 import { DescriptionField } from './fields/DescriptionField';

@@ -1,5 +1,5 @@
 ﻿import { AxiosError } from 'axios';
-import { ErrorResponse, ServerErrorResponse } from '../interface/api-response.interface';
+import { ErrorResponse, ServerErrorResponse } from '../interface';
 
 export const getErrorMessage = (error: unknown): string => {
   if (error instanceof AxiosError) {

@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Event } from '@/interface/event.interface';
+import { Event } from '@/interface';
 interface EventPreviewProps {
   event: Event;
 }

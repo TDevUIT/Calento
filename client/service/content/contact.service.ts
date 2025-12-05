@@ -1,8 +1,8 @@
 import { api, getErrorMessage } from '../../config/axios';
-import { CreateContactRequest, ContactResponse } from '../../interface/contact.interface';
+import { CreateContactRequest, ContactResponse } from '../../interface';
 import { API_ROUTES } from '../../constants/routes';
 
-export type { CreateContactRequest, ContactResponse } from '../../interface/contact.interface';
+export type { CreateContactRequest, ContactResponse } from '../../interface';
 
 export const submitContact = async (data: CreateContactRequest): Promise<ContactResponse> => {
   try {

@@ -45,7 +45,7 @@ import { useCreateEvent } from '@/hook/event';
 import { useCalendars } from '@/hook/calendar';
 import { useApiData } from '@/hook/use-api-data';
 import { toast } from 'sonner';
-import type { Calendar as CalendarType } from '@/interface/calendar.interface';
+import type { Calendar as CalendarType } from '@/interface';
 
 const eventSchema = z.object({
   calendar_id: z.string().min(1, 'Calendar is required'),

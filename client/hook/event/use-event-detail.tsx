@@ -2,7 +2,7 @@
 
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { eventService } from '@/service';
-import { EventResponse } from '@/interface/event.interface';
+import { EventResponse } from '@/interface';
 import { EVENT_QUERY_KEYS } from './query-keys';
 
 /**

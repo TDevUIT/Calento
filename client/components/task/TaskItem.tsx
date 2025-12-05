@@ -10,7 +10,7 @@ import {
   Trash2,
   RotateCcw,
 } from "lucide-react";
-import { Task, TaskStatus, TaskPriority } from "@/interface/task.interface";
+import { Task, TaskStatus, TaskPriority } from "@/interface";
 import { useUpdateTaskStatus, useDeleteTask, useRestoreTask } from "@/hook/task";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";

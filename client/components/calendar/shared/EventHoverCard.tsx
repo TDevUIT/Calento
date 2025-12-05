@@ -6,7 +6,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from '@/components/ui/hover-card';
-import type { Event } from '@/interface/event.interface';
+import type { Event } from '@/interface';
 import { EventDetailView } from '../views';
 import { EventQuickPreview } from '.';
 

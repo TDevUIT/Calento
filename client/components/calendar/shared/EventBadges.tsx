@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import { Video, Users, Bell, Repeat, Eye, EyeOff, Lock } from 'lucide-react';
-import type { Event } from '@/interface/event.interface';
+import type { Event } from '@/interface';
 
 interface EventBadgesProps {
   event: Event;

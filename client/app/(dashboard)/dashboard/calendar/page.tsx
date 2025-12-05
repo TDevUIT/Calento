@@ -21,8 +21,8 @@ import { DateDisplay, HeaderActions, ViewSelector, QuickActions, MonthProgress }
 import { useEvents, useRecurringEvents } from '@/hook/event';
 import { useTasks } from '@/hook/task';
 import { useApiData } from '@/hook/use-api-data';
-import type { Event } from '@/interface/event.interface';
-import type { Task } from '@/interface/task.interface';
+import type { Event } from '@/interface';
+import type { Task } from '@/interface';
 import { useQueryClient } from '@tanstack/react-query';
 import { EVENT_QUERY_KEYS } from '@/hook/event/query-keys';
 import { getColorHex } from '@/utils/colors';

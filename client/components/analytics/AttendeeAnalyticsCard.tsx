@@ -1,7 +1,7 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { AttendeeAnalytics } from '@/interface/analytics.interface';
+import { AttendeeAnalytics } from '@/interface';
 import { Users } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 

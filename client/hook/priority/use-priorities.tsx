@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient, UseQueryResult, UseMutationResult } from '@tanstack/react-query';
 import { getUserPriorities, updatePriority, bulkUpdatePriorities, deletePriority, resetPriorities } from '@/service';
-import type { UserPriority, UpdatePriorityRequest, BulkUpdatePriorityRequest, ItemType } from '@/interface/priority.interface';
+import type { UserPriority, UpdatePriorityRequest, BulkUpdatePriorityRequest, ItemType } from '@/interface';
 import { toast } from 'sonner';
 
 export const PRIORITY_QUERY_KEYS = {

@@ -5,7 +5,7 @@ import type {
   UserPriority,
   UpdatePriorityRequest,
   BulkUpdatePriorityRequest,
-} from '../../interface/priority.interface';
+} from '../../interface';
 
 export type { ItemType, UserPriority, UpdatePriorityRequest, BulkUpdatePriorityRequest };
 

@@ -22,7 +22,7 @@ import {
   useDeleteAllAvailabilities,
   useBulkCreateAvailability,
 } from "@/hook";
-import type { Availability } from "@/interface/availability.interface";
+import type { Availability } from "@/interface";
 import { AvailabilityRuleCard } from "./AvailabilityRuleCard";
 import { AddAvailabilityDialog } from "./AddAvailabilityDialog";
 import { EditAvailabilityDialog } from "./EditAvailabilityDialog";

@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
-import { UseGoogleCalendarsReturn } from '../../interface/google.interface';
+import { UseGoogleCalendarsReturn } from '../../interface';
 import { googleService } from '../../service';
 import { QUERY_KEYS, MUTATION_KEYS, QUERY_OPTIONS } from '../../config/key.query';
 import { useGoogleAuth } from './use-google-auth';

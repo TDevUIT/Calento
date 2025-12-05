@@ -9,7 +9,7 @@ import {
   RelatedBlogPost,
   BlogPostQueryParams,
   PaginatedBlogResponse,
-} from '@/interface/blog.interface';
+} from '@/interface';
 import { BLOG_QUERY_KEYS } from './query-keys';
 
 export const useBlogPosts = (

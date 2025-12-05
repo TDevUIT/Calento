@@ -2,7 +2,7 @@
 
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { teamService } from '@/service';
-import { TeamResponse } from '@/interface/team.interface';
+import { TeamResponse } from '@/interface';
 import { TEAM_QUERY_KEYS } from './query-keys';
 
 export const useTeamDetail = (teamId: string): UseQueryResult<TeamResponse, Error> => {

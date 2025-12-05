@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import { GoogleConnectionStatus, GoogleCalendar } from '../interface/google.interface';
+import { GoogleConnectionStatus, GoogleCalendar } from '../interface';
 import { 
   getAuthUrl, 
   getConnectionStatus, 

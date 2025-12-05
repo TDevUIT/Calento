@@ -22,7 +22,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateTask } from "@/hook/task";
-import { TaskPriority, TaskStatus } from "@/interface/task.interface";
+import { TaskPriority, TaskStatus } from "@/interface";
 
 const taskSchema = z.object({
   title: z.string().min(1, "Task title is required").max(200),

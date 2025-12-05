@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { BookingAnalytics } from '@/interface/analytics.interface';
+import { BookingAnalytics } from '@/interface';
 import { CheckCircle, XCircle, Clock, TrendingUp } from 'lucide-react';
 
 interface BookingAnalyticsCardProps {

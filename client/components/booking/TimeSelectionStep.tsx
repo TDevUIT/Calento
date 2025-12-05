@@ -4,7 +4,7 @@ import { BookingLink } from '@/service';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { BookingTimeSlot } from '@/interface/booking.interface';
+import { BookingTimeSlot } from '@/interface';
 import { format, addDays, parseISO, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay } from 'date-fns';
 
 interface TimeSelectionStepProps {

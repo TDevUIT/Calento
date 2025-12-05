@@ -13,7 +13,7 @@ import {
   AnalyticsQueryParams,
   TimeDistributionQueryParams,
   CategoryAnalyticsQueryParams,
-} from '@/interface/analytics.interface';
+} from '@/interface';
 import { ANALYTICS_QUERY_KEYS } from './query-keys';
 
 export const useAnalyticsOverview = (params: AnalyticsQueryParams) => {

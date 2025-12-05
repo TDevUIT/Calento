@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { CategoryAnalytics } from '@/interface/analytics.interface';
+import { CategoryAnalytics } from '@/interface';
 
 interface CategoryAnalyticsChartProps {
   data: CategoryAnalytics[];

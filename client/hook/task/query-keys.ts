@@ -1,4 +1,4 @@
-﻿import { TaskQueryParams } from '@/interface/task.interface';
+﻿import { TaskQueryParams } from '@/interface';
 
 export const TASK_QUERY_KEYS = {
   all: ['tasks'] as const,

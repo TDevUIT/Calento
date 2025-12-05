@@ -3,7 +3,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 import { AxiosError } from 'axios';
-import { UseRegisterReturn, RegisterRequest } from '../../interface/auth.interface';
+import { UseRegisterReturn, RegisterRequest } from '../../interface';
 import { authService } from '../../service';
 import { QUERY_KEYS, MUTATION_KEYS } from '../../config/key.query';
 import { getErrorDetails } from '../../utils/error.utils';

@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { aiService } from '@/service';
-import { StreamChatRequest, StreamMessage } from '@/interface/ai.interface';
+import { StreamChatRequest, StreamMessage } from '@/interface';
 import { toast } from 'sonner';
 
 interface UseAIChatStreamReturn {

@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { EventDetailView } from '../views/EventDetailView';
-import type { Event } from '@/interface/event.interface';
+import type { Event } from '@/interface';
 
 interface ViewEventDialogProps {
   open: boolean;

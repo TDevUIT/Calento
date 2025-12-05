@@ -1,6 +1,6 @@
 'use client';
 
-import { EventAttendee } from '@/interface/event.interface';
+import { EventAttendee } from '@/interface';
 import { User, Check, X, Clock, HelpCircle, Star } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';

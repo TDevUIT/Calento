@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useBlogPosts, useDeleteBlogPost, 
   // usePublishPost, useUnpublishPost 
 } from '@/hook/blog';
-import { BlogPostListItem, BlogPostStatus } from '@/interface/blog.interface';
+import { BlogPostListItem, BlogPostStatus } from '@/interface';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

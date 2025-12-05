@@ -1,4 +1,4 @@
-﻿import { BlogPostQueryParams } from '@/interface/blog.interface';
+﻿import { BlogPostQueryParams } from '@/interface';
 
 export const BLOG_QUERY_KEYS = {
   all: ['blog'] as const,

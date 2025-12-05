@@ -6,7 +6,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from '@/components/ui/hover-card';
-import type { Task } from '@/interface/task.interface';
+import type { Task } from '@/interface';
 import { TaskQuickPreview } from './TaskQuickPreview';
 
 interface TaskHoverCardProps {

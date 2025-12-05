@@ -1,6 +1,6 @@
 'use client';
 
-import { ConferenceData } from '@/interface/event.interface';
+import { ConferenceData } from '@/interface';
 import { Video, Copy, Phone, Lock, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

@@ -2,7 +2,7 @@
 
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { eventService } from '@/service';
-import { PaginatedEventsResponse, EventQueryParams } from '@/interface/event.interface';
+import { PaginatedEventsResponse, EventQueryParams } from '@/interface';
 import { useDebounce } from '../use-debounce';
 import { EVENT_QUERY_KEYS } from './query-keys';
 

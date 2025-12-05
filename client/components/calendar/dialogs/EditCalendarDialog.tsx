@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import { useUpdateCalendar } from '@/hook/calendar';
-import { Calendar } from '@/interface/calendar.interface';
+import { Calendar } from '@/interface';
 import {
   Dialog,
   DialogContent,

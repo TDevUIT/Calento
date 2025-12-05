@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useTasks } from "@/hook/task";
-import { TaskPriority, TaskStatus } from "@/interface/task.interface";
+import { TaskPriority, TaskStatus } from "@/interface";
 import {
   CreateTaskDialog,
   TaskList,

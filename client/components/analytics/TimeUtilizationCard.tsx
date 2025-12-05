@@ -1,7 +1,7 @@
 ﻿'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { TimeUtilization } from '@/interface/analytics.interface';
+import { TimeUtilization } from '@/interface';
 import { Clock } from 'lucide-react';
 
 interface TimeUtilizationCardProps {
