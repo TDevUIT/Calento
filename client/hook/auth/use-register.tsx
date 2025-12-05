@@ -6,7 +6,7 @@ import { AxiosError } from 'axios';
 import { UseRegisterReturn, RegisterRequest } from '../../interface';
 import { authService } from '../../service';
 import { QUERY_KEYS, MUTATION_KEYS } from '../../config/key.query';
-import { getErrorDetails } from '../../utils/error.utils';
+import { getErrorDetails } from '../../utils';
 import { AUTH_ERROR_MESSAGES } from '../../constants/auth.constants';
 
 export const useRegister = (): UseRegisterReturn => {

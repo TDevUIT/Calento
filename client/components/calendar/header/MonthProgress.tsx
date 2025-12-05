@@ -4,7 +4,7 @@ import { differenceInMinutes, isSameMonth } from 'date-fns';
 import { useCalendar } from '../views/FullCalendar';
 import { Clock, Calendar } from 'lucide-react';
 import { useMemo } from 'react';
-import { EVENT_COLOR_OPTIONS } from '@/utils/colors';
+import { EVENT_COLOR_OPTIONS } from '@/utils';
 
 interface ColorStats {
   color: string;

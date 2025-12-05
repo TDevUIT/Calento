@@ -11,8 +11,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { BookingLink } from "@/interface";
-import { generateBookingLinkUrl } from "@/utils/booking.utils";
-import { formatDuration } from "@/utils/formatters";
+import { generateBookingLinkUrl } from "@/utils";
+import { formatDuration } from "@/utils";
 import { useToggleBookingLink, useDeleteBookingLink } from "@/hook/booking";
 import { toast } from "sonner";
 

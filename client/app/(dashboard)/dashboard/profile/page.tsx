@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useProfile } from '@/hook/auth/use-profile';
-import { getUserInitials, getUserFullName } from '@/utils/user.utils';
+import { getUserInitials, getUserFullName } from '@/utils';
 import {
   Card,
   CardContent,

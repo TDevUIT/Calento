@@ -15,7 +15,7 @@ import {
   SUCCESS_TOAST_DURATION
 } from '@/constants/auth.constants'
 import { PROTECTED_ROUTES } from '@/constants/routes'
-import { getLoginErrorNotification } from '@/utils/auth-error.utils'
+import { getLoginErrorNotification } from '@/utils'
 
 const LoginForm: React.FC<LoginFormProps> = ({ 
   className, 

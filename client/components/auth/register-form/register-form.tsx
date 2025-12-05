@@ -23,7 +23,7 @@ import {
   ReviewStep,
 } from './components'
 import { useRegister } from '@/hook/auth/use-register'
-import { getRegisterErrorNotification, VALIDATION_ERRORS } from '@/utils/auth-error.utils'
+import { getRegisterErrorNotification, VALIDATION_ERRORS } from '@/utils'
 
 const RegisterForm: React.FC<RegisterFormProps> = ({ 
   className, 

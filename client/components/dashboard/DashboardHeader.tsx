@@ -18,7 +18,7 @@ import GlobalSearchDialog from "./GlobalSearchDialog";
 import { useEvents } from "@/hook/event";
 import { useTasks } from "@/hook/task";
 import { useBookingLinks } from "@/hook/booking";
-import { logger } from "@/utils/logger";
+import { logger } from "@/utils";
 import { toast } from "sonner";
 
 interface DashboardHeaderProps {

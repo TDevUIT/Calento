@@ -5,31 +5,13 @@ import {
   BOOKING_STATUS_COLORS,
   BOOKING_LINK_COLORS,
   DURATION_OPTIONS,
-} from '../constants/booking.constants';
-import type { BookingLink, Booking } from '../interface';
-import { formatDuration } from './formatters';
+} from '../../constants/booking.constants';
+import type { BookingLink, Booking } from '../../interface';
+import { formatDuration } from '../formatting/formatters';
 
+// Re-export formatters for backward compatibility
+export { formatTimeSlot, formatDateDisplay } from '../formatting/formatters';
 
-export function formatTimeSlot(dateTimeString: string): string {
-  const date = parseISO(dateTimeString);
-  return format(date, 'h:mm a');
-}
-
-
-export function formatDateDisplay(dateString: string): string {
-  const date = parseISO(dateString + 'T00:00:00');
-  const today = startOfDay(new Date());
-  const tomorrow = addDays(today, 1);
-  const selectedDateObj = parseISO(dateString + 'T00:00:00');
-  
-  if (selectedDateObj.getTime() === today.getTime()) {
-    return "Today";
-  } else if (selectedDateObj.getTime() === tomorrow.getTime()) {
-    return "Tomorrow";
-  } else {
-    return format(selectedDateObj, 'MMM d, yyyy');
-  }
-}
 
 
 export function getBookingStatusLabel(status: string): string {
@@ -98,19 +80,19 @@ export function validateBookingLinkSlug(slug: string): {
   if (!slug) {
     return { isValid: false, error: 'Slug is required' };
   }
-  
+
   if (slug.length < 3) {
     return { isValid: false, error: 'Slug must be at least 3 characters' };
   }
-  
+
   if (slug.length > 100) {
     return { isValid: false, error: 'Slug must be less than 100 characters' };
   }
-  
+
   if (!/^[a-z0-9-]+$/.test(slug)) {
     return { isValid: false, error: 'Slug can only contain lowercase letters, numbers, and hyphens' };
   }
-  
+
   return { isValid: true };
 }
 
@@ -125,7 +107,7 @@ export function generateSlugFromTitle(title: string): string {
 
 
 export function getDurationLabel(minutes: number): string {
-  const option = DURATION_OPTIONS.find(opt => opt.value === minutes);
+  const option = DURATION_OPTIONS.find((opt: { value: number; label: string }) => opt.value === minutes);
   return option?.label || formatDuration(minutes);
 }
 
@@ -147,11 +129,11 @@ export function isPastBooking(booking: Booking): boolean {
 export function getBookingTimeRange(booking: Booking): string {
   const startTime = parseISO(booking.start_time);
   const endTime = parseISO(booking.end_time);
-  
+
   const startFormatted = format(startTime, 'h:mm a');
   const endFormatted = format(endTime, 'h:mm a');
   const dateFormatted = format(startTime, 'MMM d, yyyy');
-  
+
   return `${dateFormatted} • ${startFormatted} - ${endFormatted}`;
 }
 
@@ -162,16 +144,16 @@ export function calculateBookingLinkStats(bookings: Booking[]) {
   const cancelled = bookings.filter(b => b.status === BOOKING_STATUS.CANCELLED).length;
   const completed = bookings.filter(b => b.status === BOOKING_STATUS.COMPLETED).length;
   const pending = bookings.filter(b => b.status === BOOKING_STATUS.PENDING).length;
-  
+
   const now = new Date();
   const thisWeekStart = startOfDay(addDays(now, -now.getDay()));
   const thisWeekEnd = addDays(thisWeekStart, 7);
-  
+
   const thisWeek = bookings.filter(b => {
     const bookingDate = parseISO(b.created_at);
     return bookingDate >= thisWeekStart && bookingDate < thisWeekEnd;
   }).length;
-  
+
   return {
     total,
     confirmed,

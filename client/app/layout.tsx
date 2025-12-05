@@ -7,7 +7,7 @@ import { AuthProvider } from "@/components/providers";
 import { QueryProvider } from "@/provider/query-provider";
 import { DEFAULT_METADATA } from "@/config/metadata.config";
 import JsonLd from "@/components/seo/JsonLd";
-import { organizationSchema, websiteSchema, softwareApplicationSchema } from "@/utils/seo-schema";
+import { organizationSchema, websiteSchema, softwareApplicationSchema } from "@/utils";
 
 const inter = Inter({
   variable: "--font-inter",

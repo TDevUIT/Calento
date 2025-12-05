@@ -1,7 +1,7 @@
 'use client';
 
 import { useCalendarSettings } from './CalendarSettingsProvider';
-import { formatTimeWithSettings, formatDateWithSettings } from '@/utils/calendar-format';
+import { formatTimeWithSettings, formatDateWithSettings } from '@/utils';
 import { 
   MapPin, 
   Video,

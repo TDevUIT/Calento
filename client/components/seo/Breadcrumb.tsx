@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { ChevronRight, Home } from 'lucide-react';
 import JsonLd from './JsonLd';
-import { generateBreadcrumbSchema } from '@/utils/seo-schema';
+import { generateBreadcrumbSchema } from '@/utils';
 
 interface BreadcrumbItem {
   name: string;

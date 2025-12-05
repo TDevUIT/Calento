@@ -1,29 +1,29 @@
 ﻿import { AxiosError } from 'axios';
-import { ErrorResponse, ServerErrorResponse } from '../interface';
+import { ErrorResponse, ServerErrorResponse } from '../../interface';
 
 export const getErrorMessage = (error: unknown): string => {
   if (error instanceof AxiosError) {
     if (error.response?.data) {
       const errorData = error.response.data as ServerErrorResponse | ErrorResponse;
-      
+
       if ('status' in errorData && 'message' in errorData && 'errors' in errorData) {
         return errorData.message || 'An unexpected error occurred';
       }
-      
+
       if ('message' in errorData) {
         return errorData.message || 'An unexpected error occurred';
       }
     }
-    
+
     if (error.message) {
       return error.message;
     }
   }
-  
+
   if (error instanceof Error) {
     return error.message;
   }
-  
+
   return 'An unknown error occurred';
 };
 

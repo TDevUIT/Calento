@@ -1,4 +1,4 @@
-import { logger } from './logger.utils';
+import { logger } from '../core/logger.utils';
 
 const CALENDAR_VIEW_KEY = 'tempra_calendar_view';
 

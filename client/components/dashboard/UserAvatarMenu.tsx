@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/tooltip";
 import { User, Settings, CreditCard, LogOut, Loader2 } from "lucide-react";
 import { useAuthStore } from "@/store/auth.store";
-import { getUserInitials, getUserFullName } from "@/utils/user.utils";
+import { getUserInitials, getUserFullName } from "@/utils";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { AUTH_ROUTES, PROTECTED_ROUTES } from "@/constants/routes";

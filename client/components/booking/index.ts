@@ -17,7 +17,7 @@ export { BookingHeader } from './BookingHeader';
 export { TimeSelectionStep } from './TimeSelectionStep';
 export { BookingDetailsStep } from './BookingDetailsStep';
 export { useBookingForm } from '@/hook/booking/useBookingForm';
-export { formatDuration, formatTimeSlot, formatDateDisplay } from '@/utils/formatters';
+export { formatDuration, formatTimeSlot, formatDateDisplay } from '@/utils';
 
 export type { 
   BookingLink, 

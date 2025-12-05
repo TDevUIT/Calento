@@ -1,5 +1,5 @@
 ﻿import { AxiosError, InternalAxiosRequestConfig } from 'axios';
-import { HTTP_CONFIG, HTTP_STATUS } from '../config/http.config';
+import { HTTP_CONFIG, HTTP_STATUS } from '../../config/http.config';
 
 export interface RetryConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
@@ -8,23 +8,23 @@ export interface RetryConfig extends InternalAxiosRequestConfig {
 
 export const shouldRetryRequest = (error: AxiosError, config?: RetryConfig): boolean => {
   if (!config) return false;
-  
+
   const status = error.response?.status;
-  
+
   if (status === HTTP_STATUS.UNAUTHORIZED && !config._retry) {
     return true;
   }
-  
+
   if (status === HTTP_STATUS.TOO_MANY_REQUESTS) {
     const retryCount = config._retryCount || 0;
     return retryCount < HTTP_CONFIG.MAX_RETRIES.RATE_LIMIT;
   }
-  
+
   if (!error.response && !config._retry) {
     const retryCount = config._retryCount || 0;
     return retryCount < HTTP_CONFIG.MAX_RETRIES.NETWORK;
   }
-  
+
   return false;
 };
 

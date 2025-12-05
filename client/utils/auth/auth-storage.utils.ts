@@ -1,4 +1,4 @@
-import { logger } from './logger.utils';
+import { logger } from '../core/logger.utils';
 
 export const clearAuthStorage = () => {
   try {
@@ -23,7 +23,7 @@ export const getStoredAuthData = () => {
 export const debugAuthStorage = () => {
   const data = getStoredAuthData();
   logger.info('Current auth storage:', data);
-  
+
   if (data?.state?.user) {
     logger.info('User data structure:', {
       hasData: !!data.state.user.data,
@@ -31,6 +31,6 @@ export const debugAuthStorage = () => {
       user: data.state.user,
     });
   }
-  
+
   return data;
 };

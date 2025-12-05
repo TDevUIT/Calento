@@ -8,7 +8,7 @@ import {
   ApiSuccessResponse,
 } from '../../interface';
 import { API_ROUTES } from '../../constants/routes';
-import { logger } from '@/utils/logger';
+import { logger } from '@/utils';
 
 export const register = async (userData: RegisterRequest): Promise<AuthResponse> => {
   try {

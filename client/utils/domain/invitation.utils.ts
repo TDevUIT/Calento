@@ -6,13 +6,13 @@ import {
   INVITATION_ACTION_LABELS,
   INVITATION_ACTION_COLORS,
   GOOGLE_CALENDAR_BASE_URL,
-} from '../constants/invitation.constants';
-import type { 
-  GoogleCalendarEvent, 
-  InvitationStatus, 
+} from '../../constants/invitation.constants';
+import type {
+  GoogleCalendarEvent,
+  InvitationStatus,
   InvitationAction,
-  InvitationDetails 
-} from '../interface';
+  InvitationDetails
+} from '../../interface';
 
 /**
  * Generate Google Calendar link for an event
@@ -72,11 +72,11 @@ export function getInvitationActionColor(action: InvitationAction): string {
 export function formatEventTimeRange(startTime: string, endTime: string): string {
   const start = parseISO(startTime);
   const end = parseISO(endTime);
-  
+
   const startFormatted = format(start, 'h:mm a');
   const endFormatted = format(end, 'h:mm a');
   const dateFormatted = format(start, 'EEEE, MMM d, yyyy');
-  
+
   return `${dateFormatted} • ${startFormatted} - ${endFormatted}`;
 }
 
@@ -108,7 +108,7 @@ export function validateEmailAddresses(emails: string[]): {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const valid: string[] = [];
   const invalid: string[] = [];
-  
+
   emails.forEach(email => {
     const trimmedEmail = email.trim();
     if (emailRegex.test(trimmedEmail)) {
@@ -117,7 +117,7 @@ export function validateEmailAddresses(emails: string[]): {
       invalid.push(trimmedEmail);
     }
   });
-  
+
   return { valid, invalid };
 }
 
@@ -137,7 +137,7 @@ export function parseEmailList(emailString: string): string[] {
 export function generateInvitationSummary(invitation: InvitationDetails): string {
   const timeRange = formatEventTimeRange(invitation.start_time, invitation.end_time);
   const location = invitation.location ? ` at ${invitation.location}` : '';
-  
+
   return `${invitation.title} - ${timeRange}${location}`;
 }
 
@@ -167,7 +167,7 @@ export function calculateInvitationStats(invitations: { response_status: string 
   const declined = invitations.filter(inv => inv.response_status === INVITATION_STATUS.DECLINED).length;
   const tentative = invitations.filter(inv => inv.response_status === INVITATION_STATUS.TENTATIVE).length;
   const pending = invitations.filter(inv => inv.response_status === INVITATION_STATUS.PENDING).length;
-  
+
   return {
     total,
     accepted,
@@ -225,7 +225,7 @@ export function downloadICSFile(event: GoogleCalendarEvent & { uid?: string }, f
   const blob = createICSBlob(event);
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
-  
+
   link.href = url;
   link.download = filename || `${event.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.ics`;
   document.body.appendChild(link);

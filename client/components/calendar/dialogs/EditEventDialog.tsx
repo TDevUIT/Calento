@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { useEventById } from '@/hook/event/use-event-by-id';
 import { EventFormModal } from '@/components/calendar/forms/EventFormModal';
 import { Loader2, AlertCircle } from 'lucide-react';
-import { getOriginalEventId } from '@/utils/recurring-events.utils';
+import { getOriginalEventId } from '@/utils';
 
 interface EditEventDialogProps {
   open: boolean;

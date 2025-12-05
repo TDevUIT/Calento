@@ -2,7 +2,7 @@
 
 import { Clock, MapPin, Users, Video, Bell, Repeat, ExternalLink, User } from 'lucide-react';
 import { useCalendarSettings } from '../shared/CalendarSettingsProvider';
-import { formatTimeWithSettings, formatDateWithSettings } from '@/utils/calendar-format';
+import { formatTimeWithSettings, formatDateWithSettings } from '@/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';

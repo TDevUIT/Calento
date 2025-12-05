@@ -11,7 +11,7 @@ import {
   StreamMessage,
 } from '../../interface';
 import { API_ROUTES } from '../../constants/routes';
-import { logger } from '../../utils/logger.utils';
+import { simpleLogger as logger } from '../../utils';
 
 
 export const chat = async (data: ChatRequest): Promise<ChatResponse> => {

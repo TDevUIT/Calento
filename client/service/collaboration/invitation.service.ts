@@ -85,6 +85,6 @@ export const respondToInvitation = async (
   }
 };
 
-export { generateGoogleCalendarLink } from '../../utils/invitation.utils';
+export { generateGoogleCalendarLink } from '../../utils';
 
 

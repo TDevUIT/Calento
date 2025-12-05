@@ -1,4 +1,4 @@
-﻿import { EVENT_COLOR_OPTIONS } from '@/utils/colors';
+﻿import { EVENT_COLOR_OPTIONS } from '@/utils';
 
 export const COLOR_OPTIONS = EVENT_COLOR_OPTIONS.map(color => ({
   value: color.hex, // Store hex value

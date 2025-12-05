@@ -38,8 +38,8 @@ import { useHotkeys } from 'react-hotkeys-hook';
 import { EventOrTaskCard } from '../shared/EventOrTaskCard';
 import type { Event } from '@/interface';
 import type { Task } from '@/interface';
-import { calculateEventLayouts, getEventLayoutStyles, getEventTextClasses } from '@/utils/event-display';
-import { getStoredCalendarView, saveCalendarView } from '@/utils/calendar-storage';
+import { calculateEventLayouts, getEventLayoutStyles, getEventTextClasses } from '@/utils';
+import { getStoredCalendarView, saveCalendarView } from '@/utils';
 import { useCalendarSettings } from '../shared/CalendarSettingsProvider';
 
 // Helper function to fix emoji encoding issues

@@ -52,4 +52,4 @@ export {
   formatHour,
   isWeekend,
   getWeekNumber,
-} from '@/utils/calendar-utils';
+} from '@/utils';

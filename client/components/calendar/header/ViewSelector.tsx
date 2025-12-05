@@ -3,7 +3,7 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CalendarDays, CalendarRange, Calendar as CalendarIcon } from 'lucide-react';
 import { useCalendar } from '../views/FullCalendar';
-import { saveCalendarView } from '@/utils/calendar-storage';
+import { saveCalendarView } from '@/utils';
 
 export function ViewSelector() {
   const { view, setView, onChangeView } = useCalendar();
