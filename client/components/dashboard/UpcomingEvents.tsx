@@ -12,7 +12,7 @@ import {
 import { Clock, Calendar, MapPin, Users, ChevronRight, RefreshCw } from "lucide-react";
 import { format, isToday, isTomorrow } from "date-fns";
 import { vi } from "date-fns/locale";
-import { useUpcomingEvents } from "@/hook/use-upcoming-events";
+import { useUpcomingEvents } from "@/hook";
 
 interface UpcomingEventsProps {
   maxEvents?: number;
@@ -20,7 +20,7 @@ interface UpcomingEventsProps {
 
 export function UpcomingEvents({ maxEvents = 5 }: UpcomingEventsProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const { events: upcomingEvents, isLoading, isError, error, refetch } = useUpcomingEvents({ 
+  const { events: upcomingEvents, isLoading, isError, error, refetch } = useUpcomingEvents({
     maxEvents,
     enabled: true
   });
@@ -28,7 +28,7 @@ export function UpcomingEvents({ maxEvents = 5 }: UpcomingEventsProps) {
   const getTimeDisplay = (startTime: string, endTime: string) => {
     const start = new Date(startTime);
     const end = new Date(endTime);
-    
+
     if (isToday(start)) {
       return `Today ${format(start, 'HH:mm')} - ${format(end, 'HH:mm')}`;
     } else if (isTomorrow(start)) {
@@ -42,7 +42,7 @@ export function UpcomingEvents({ maxEvents = 5 }: UpcomingEventsProps) {
     const now = new Date();
     const eventTime = new Date(startTime);
     const diffInMinutes = Math.floor((eventTime.getTime() - now.getTime()) / (1000 * 60));
-    
+
     if (diffInMinutes < 60) {
       return `${diffInMinutes} minutes`;
     } else if (diffInMinutes < 24 * 60) {
@@ -85,10 +85,10 @@ export function UpcomingEvents({ maxEvents = 5 }: UpcomingEventsProps) {
           <ChevronRight className="h-3 w-3" />
         </Button>
       </PopoverTrigger>
-      
-      <PopoverContent 
-        className="w-80 sm:w-96 p-0 !z-[10000]" 
-        align="start" 
+
+      <PopoverContent
+        className="w-80 sm:w-96 p-0 !z-[10000]"
+        align="start"
         sideOffset={8}
         style={{ zIndex: 10000 }}
         avoidCollisions={true}
@@ -108,7 +108,7 @@ export function UpcomingEvents({ maxEvents = 5 }: UpcomingEventsProps) {
             <RefreshCw className="h-3 w-3" />
           </Button>
         </div>
-        
+
         <div className="max-h-96 overflow-y-auto">
           {isLoading ? (
             <div className="p-6 text-center text-muted-foreground">
@@ -128,9 +128,9 @@ export function UpcomingEvents({ maxEvents = 5 }: UpcomingEventsProps) {
           ) : upcomingEvents.length > 0 ? (
             <div className="p-2 space-y-2">
               {upcomingEvents.map((event) => (
-                <Card 
-                  key={event.id} 
-                  className="border-l-4 hover:bg-accent/50 transition-colors cursor-pointer hover:shadow-sm" 
+                <Card
+                  key={event.id}
+                  className="border-l-4 hover:bg-accent/50 transition-colors cursor-pointer hover:shadow-sm"
                   style={{ borderLeftColor: event.color || '#3b82f6' }}
                   onClick={() => {
                     window.location.href = `/dashboard/calendar?event=${event.id}`;
@@ -146,20 +146,20 @@ export function UpcomingEvents({ maxEvents = 5 }: UpcomingEventsProps) {
                           {getTimeUntilEvent(event.start_time)}
                         </Badge>
                       </div>
-                      
+
                       <div className="space-y-1 text-xs text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
                           <span>{getTimeDisplay(event.start_time, event.end_time)}</span>
                         </div>
-                        
+
                         {event.location && (
                           <div className="flex items-center gap-1">
                             <MapPin className="h-3 w-3" />
                             <span className="truncate">{event.location}</span>
                           </div>
                         )}
-                        
+
                         <div className="flex items-center justify-between">
                           {event.attendees && (
                             <div className="flex items-center gap-1">
@@ -167,7 +167,7 @@ export function UpcomingEvents({ maxEvents = 5 }: UpcomingEventsProps) {
                               <span>{event.attendees} attendees</span>
                             </div>
                           )}
-                          
+
                           {event.creator?.name && (
                             <span className="text-xs">
                               by {event.creator.name}
@@ -187,12 +187,12 @@ export function UpcomingEvents({ maxEvents = 5 }: UpcomingEventsProps) {
             </div>
           )}
         </div>
-        
+
         {upcomingEvents.length > 0 && (
           <div className="p-3 border-t">
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               className="w-full justify-center text-xs"
               onClick={() => {
                 setIsOpen(false);

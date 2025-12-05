@@ -5,7 +5,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { MoreHorizontal, Copy, Clock, ExternalLink, Circle, CheckSquare, Edit, Trash2, Link as LinkIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { type PriorityItem } from "@/hook/usePriorityBoard";
+import { type PriorityItem } from "@/hook/priority/usePriorityBoard";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,7 +22,7 @@ interface DraggableItemProps {
 
 export const DraggableItem = ({ item }: DraggableItemProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  
+
   const {
     attributes,
     listeners,
@@ -39,15 +39,15 @@ export const DraggableItem = ({ item }: DraggableItemProps) => {
   };
 
   const isTask = item.category === "Tasks";
-  
+
   const priorityBorderColors: Record<string, string> = {
     critical: "border-l-red-500",
     high: "border-l-orange-500",
     medium: "border-l-blue-500",
     low: "border-l-gray-400",
   };
-  
-  const borderColor = isTask 
+
+  const borderColor = isTask
     ? priorityBorderColors[item.priority] || "border-l-gray-300"
     : "border-l-blue-500";
 
@@ -129,8 +129,8 @@ export const DraggableItem = ({ item }: DraggableItemProps) => {
             <div className="flex items-center gap-1 mt-1 text-xs text-gray-600">
               <Clock className="h-3 w-3 flex-shrink-0" />
               <span className="truncate">
-                {isTask 
-                  ? item.metadata?.dueDate 
+                {isTask
+                  ? item.metadata?.dueDate
                     ? `Due ${format(new Date(item.metadata.dueDate), "MMM d")}`
                     : `Priority: ${item.priority}`
                   : "Next: Mon 10:00am"}
@@ -138,7 +138,7 @@ export const DraggableItem = ({ item }: DraggableItemProps) => {
             </div>
           </div>
 
-          <div 
+          <div
             className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
             onPointerDown={(e) => {
               e.stopPropagation();
@@ -151,14 +151,14 @@ export const DraggableItem = ({ item }: DraggableItemProps) => {
           >
             {!isTask && (
               <>
-                <button 
+                <button
                   onClick={handleCopyLink}
                   title="Copy link"
                   className="p-1 hover:bg-gray-100 rounded flex-shrink-0 transition-colors"
                 >
                   <Copy className="h-3.5 w-3.5 text-gray-400 hover:text-gray-600" />
                 </button>
-                <button 
+                <button
                   onClick={handleOpenLink}
                   title="Open in new tab"
                   className="p-1 hover:bg-gray-100 rounded flex-shrink-0 transition-colors"
@@ -171,10 +171,10 @@ export const DraggableItem = ({ item }: DraggableItemProps) => {
                 </div>
               </>
             )}
-            
+
             <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
               <DropdownMenuTrigger asChild>
-                <button 
+                <button
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();

@@ -43,7 +43,7 @@ import { Switch } from '@/components/ui/switch';
 import { Calendar, Clock, MapPin, Users, Bell, Repeat, Video, Loader2, Palette } from 'lucide-react';
 import { useCreateEvent } from '@/hook/event';
 import { useCalendars } from '@/hook/calendar';
-import { useApiData } from '@/hook/use-api-data';
+import { useApiData } from '@/hook';
 import { toast } from 'sonner';
 import type { Calendar as CalendarType } from '@/interface';
 
@@ -73,7 +73,7 @@ export function EventDialog({ open, onOpenChange, defaultDate, defaultTime }: Ev
   const [isAllDay, setIsAllDay] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string>('blue');
   const { mutate: createEvent, isPending } = useCreateEvent();
-  
+
   const calendarsQuery = useCalendars({ page: 1, limit: 50 });
   const { items: calendars = [] } = useApiData<CalendarType>(calendarsQuery);
 
@@ -183,9 +183,9 @@ export function EventDialog({ open, onOpenChange, defaultDate, defaultTime }: Ev
                 value={form.watch('calendar_id') || undefined}
                 onValueChange={(value) => {
                   console.log('Calendar selected:', value);
-                  form.setValue('calendar_id', value, { 
+                  form.setValue('calendar_id', value, {
                     shouldValidate: true,
-                    shouldDirty: true 
+                    shouldDirty: true
                   });
                 }}
               >
@@ -413,7 +413,7 @@ export function EventDialog({ open, onOpenChange, defaultDate, defaultTime }: Ev
                     orange: 'bg-orange-500 hover:bg-orange-600',
                     red: 'bg-red-500 hover:bg-red-600',
                   };
-                  
+
                   return (
                     <button
                       key={color}
@@ -422,11 +422,10 @@ export function EventDialog({ open, onOpenChange, defaultDate, defaultTime }: Ev
                         setSelectedColor(color);
                         form.setValue('color', color as 'blue' | 'green' | 'pink' | 'purple' | 'orange' | 'red');
                       }}
-                      className={`h-8 w-8 rounded-full border-2 transition-all ${
-                        selectedColor === color
+                      className={`h-8 w-8 rounded-full border-2 transition-all ${selectedColor === color
                           ? 'border-primary ring-2 ring-primary/30'
                           : 'border-transparent hover:border-gray-300'
-                      } ${colorClasses[color as keyof typeof colorClasses]}`}
+                        } ${colorClasses[color as keyof typeof colorClasses]}`}
                       aria-label={`Select ${color}`}
                       title={color.charAt(0).toUpperCase() + color.slice(1)}
                     />
@@ -438,15 +437,15 @@ export function EventDialog({ open, onOpenChange, defaultDate, defaultTime }: Ev
         </form>
 
         <DialogFooter>
-          <Button 
-            type="button" 
-            variant="outline" 
+          <Button
+            type="button"
+            variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isPending}
           >
             Cancel
           </Button>
-          <Button 
+          <Button
             type="submit"
             onClick={form.handleSubmit(onSubmit)}
             disabled={isPending || calendars.length === 0}

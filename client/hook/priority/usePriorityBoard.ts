@@ -12,7 +12,7 @@ import {
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { BookingLink } from "@/service";
 import type { Task } from "@/interface";
-import { useBulkUpdatePriorities, usePriorities } from "./priority/use-priorities";
+import { useBulkUpdatePriorities, usePriorities } from "./use-priorities";
 import type { ItemType, PriorityLevel } from "@/interface";
 
 export interface PriorityItem {
@@ -55,14 +55,14 @@ export const usePriorityBoard = (bookingLinks?: BookingLink[], tasks?: Task[]) =
 
   useEffect(() => {
     const allItems: PriorityItem[] = [];
-    
+
     const getPriorityForItem = (itemId: string, itemType: string, defaultPriority: string): string => {
       const saved = savedPriorities.find(
         p => p.item_id === itemId && p.item_type === itemType
       );
       return saved ? saved.priority : defaultPriority;
     };
-    
+
     if (bookingLinks) {
       const mappedLinks: PriorityItem[] = bookingLinks.map((link) => ({
         id: `link-${link.id}`,
@@ -72,7 +72,7 @@ export const usePriorityBoard = (bookingLinks?: BookingLink[], tasks?: Task[]) =
       }));
       allItems.push(...mappedLinks);
     }
-    
+
     if (tasks) {
       const mappedTasks: PriorityItem[] = tasks
         .filter(task => !task.is_deleted)
@@ -89,7 +89,7 @@ export const usePriorityBoard = (bookingLinks?: BookingLink[], tasks?: Task[]) =
         }));
       allItems.push(...mappedTasks);
     }
-    
+
     setItems(allItems);
   }, [bookingLinks, tasks, savedPriorities]);
 
@@ -160,14 +160,14 @@ export const usePriorityBoard = (bookingLinks?: BookingLink[], tasks?: Task[]) =
   const getItemsByPriorityAndCategory = (priority: string) => {
     const priorityItems = items.filter(item => item.priority === priority);
     const grouped: Record<string, PriorityItem[]> = {};
-    
+
     priorityItems.forEach(item => {
       if (!grouped[item.category]) {
         grouped[item.category] = [];
       }
       grouped[item.category].push(item);
     });
-    
+
     return grouped;
   };
 

@@ -33,7 +33,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCreateBookingLink, useUpdateBookingLink } from "@/hook/booking";
 import { BookingLink } from "@/service";
 import { COLOR_OPTIONS } from "@/components/calendar/forms/form-constants";
-import { useRecentColors } from "@/hook/use-recent-colors";
+import { useRecentColors } from "@/hook";
 
 const bookingLinkSchema = z.object({
   title: z.string().min(1, "Title is required").max(255, "Title too long"),
@@ -79,10 +79,10 @@ const colorNameToHex: Record<string, string> = {
   pink: "#ec4899",
 };
 
-export function CreateBookingLinkDialog({ 
-  open, 
-  onOpenChange, 
-  bookingLink 
+export function CreateBookingLinkDialog({
+  open,
+  onOpenChange,
+  bookingLink
 }: CreateBookingLinkDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -92,10 +92,10 @@ export function CreateBookingLinkDialog({
     setMounted(true);
     return () => setMounted(false);
   }, []);
-  
+
   const createMutation = useCreateBookingLink();
   const updateMutation = useUpdateBookingLink();
-  
+
   const isEditing = !!bookingLink;
 
   const form = useForm<BookingLinkFormData>({
@@ -159,7 +159,7 @@ export function CreateBookingLinkDialog({
         form.reset();
       }, 300);
     } catch {
-      
+
     } finally {
       setIsSubmitting(false);
     }
@@ -189,7 +189,7 @@ export function CreateBookingLinkDialog({
 
   const modalContent = (
     <div className="fixed inset-0 flex items-center justify-center" style={{ zIndex: 10000 }}>
-      <div 
+      <div
         className="absolute inset-0 bg-black/50 animate-in fade-in duration-200"
         onClick={handleClose}
       />
@@ -221,7 +221,7 @@ export function CreateBookingLinkDialog({
                   />
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button 
+                  <Button
                     type="submit"
                     size="default"
                     disabled={isSubmitting || createMutation.isPending || updateMutation.isPending}
@@ -263,7 +263,7 @@ export function CreateBookingLinkDialog({
                                   <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-sm">
                                     tempra.com/book/
                                   </span>
-                                  <Input 
+                                  <Input
                                     placeholder="30min-meeting"
                                     className="rounded-l-none"
                                     {...field}
@@ -286,7 +286,7 @@ export function CreateBookingLinkDialog({
                             <FormItem>
                               <FormLabel>Description</FormLabel>
                               <FormControl>
-                                <Textarea 
+                                <Textarea
                                   placeholder="Brief description of this meeting type..."
                                   className="resize-none"
                                   rows={3}
@@ -305,8 +305,8 @@ export function CreateBookingLinkDialog({
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>Duration *</FormLabel>
-                                <Select 
-                                  value={field.value?.toString()} 
+                                <Select
+                                  value={field.value?.toString()}
                                   onValueChange={(value) => field.onChange(parseInt(value))}
                                 >
                                   <FormControl>
@@ -334,7 +334,7 @@ export function CreateBookingLinkDialog({
                               <FormItem>
                                 <FormLabel>Buffer Time</FormLabel>
                                 <FormControl>
-                                  <Input 
+                                  <Input
                                     type="number"
                                     placeholder="0"
                                     min="0"
@@ -356,7 +356,7 @@ export function CreateBookingLinkDialog({
                               <FormItem>
                                 <FormLabel>Advance Notice</FormLabel>
                                 <FormControl>
-                                  <Input 
+                                  <Input
                                     type="number"
                                     placeholder="24"
                                     min="0"
@@ -378,7 +378,7 @@ export function CreateBookingLinkDialog({
                               <FormItem>
                                 <FormLabel>Booking Window</FormLabel>
                                 <FormControl>
-                                  <Input 
+                                  <Input
                                     type="number"
                                     placeholder="60"
                                     min="1"
@@ -400,7 +400,7 @@ export function CreateBookingLinkDialog({
                               <FormItem>
                                 <FormLabel>Max Bookings/Day</FormLabel>
                                 <FormControl>
-                                  <Input 
+                                  <Input
                                     type="number"
                                     placeholder="No limit"
                                     min="1"
@@ -512,15 +512,14 @@ function BookingColorField({ form }: BookingColorFieldProps) {
                 {recentColors.map((colorHex, index) => {
                   const isSelected = field.value === colorHex;
                   const colorOption = COLOR_OPTIONS.find(c => c.hex === colorHex);
-                  
+
                   return (
                     <button
                       key={`${colorHex}-${index}`}
                       type="button"
                       onClick={() => handleColorSelect(colorHex)}
-                      className={`relative h-7 w-7 rounded-full transition-all hover:scale-110 flex-shrink-0 ${
-                        isSelected ? 'ring-2 ring-offset-2 ring-offset-background ring-primary' : 'opacity-70 hover:opacity-100'
-                      }`}
+                      className={`relative h-7 w-7 rounded-full transition-all hover:scale-110 flex-shrink-0 ${isSelected ? 'ring-2 ring-offset-2 ring-offset-background ring-primary' : 'opacity-70 hover:opacity-100'
+                        }`}
                       style={{ backgroundColor: colorHex }}
                       title={colorOption?.label || colorHex}
                     >
@@ -565,9 +564,8 @@ function BookingColorField({ form }: BookingColorFieldProps) {
                                   key={color.value}
                                   type="button"
                                   onClick={() => handleColorSelect(color.hex)}
-                                  className={`relative h-8 w-8 rounded-full transition-all hover:scale-110 ${
-                                    isSelected ? 'ring-2 ring-offset-2 ring-offset-background ring-primary' : 'opacity-70 hover:opacity-100'
-                                  }`}
+                                  className={`relative h-8 w-8 rounded-full transition-all hover:scale-110 ${isSelected ? 'ring-2 ring-offset-2 ring-offset-background ring-primary' : 'opacity-70 hover:opacity-100'
+                                    }`}
                                   style={{ backgroundColor: color.hex }}
                                   title={color.label}
                                 >
@@ -584,7 +582,7 @@ function BookingColorField({ form }: BookingColorFieldProps) {
                       <TabsContent value="custom" className="p-4 m-0">
                         <div className="space-y-3">
                           <p className="text-xs text-muted-foreground">Enter hex code or use picker</p>
-                          
+
                           <Input
                             type="text"
                             placeholder="#3b82f6"
@@ -604,7 +602,7 @@ function BookingColorField({ form }: BookingColorFieldProps) {
                             className="font-mono text-sm"
                             maxLength={7}
                           />
-                          
+
                           <div className="flex items-center gap-2">
                             <input
                               type="color"

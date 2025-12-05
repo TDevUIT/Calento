@@ -2,8 +2,9 @@
 export { useEventDetail } from './use-event-detail';
 export { useRecurringEvents } from './use-recurring-events';
 export { useSearchEvents } from './use-search-events';
+export * from './use-upcoming-events';
 
-export { 
+export {
   useCreateEvent,           // Create with optimistic updates
   useUpdateEvent,           // PATCH with optimistic updates  
   useReplaceEvent,          // PUT with optimistic updates

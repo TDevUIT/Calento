@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import type { PriorityItem } from "@/hook/usePriorityBoard";
+import type { PriorityItem } from "@/hook/priority/usePriorityBoard";
 
 interface SearchDialogProps {
   open: boolean;

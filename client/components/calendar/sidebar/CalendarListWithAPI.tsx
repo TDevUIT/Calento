@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useCalendars } from '@/hook/calendar';
-import { useApiData } from '@/hook/use-api-data';
+import { useApiData } from '@/hook';
 import { Calendar } from '@/interface';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
@@ -17,29 +17,29 @@ interface CalendarListWithAPIProps {
   visibleCalendarIds?: Set<string>;
   onVisibleCalendarIdsChange?: (ids: Set<string>) => void;
 }
-export function CalendarListWithAPI({ 
+export function CalendarListWithAPI({
   visibleCalendarIds: externalVisibleIds,
-  onVisibleCalendarIdsChange: onExternalIdsChange 
+  onVisibleCalendarIdsChange: onExternalIdsChange
 }: CalendarListWithAPIProps) {
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy] = useState('created_at');
   const [sortOrder] = useState<'ASC' | 'DESC'>('DESC');
-  
-  const queryResult = useCalendars({ 
-    page, 
-    limit, 
-    search: searchQuery || undefined, 
+
+  const queryResult = useCalendars({
+    page,
+    limit,
+    search: searchQuery || undefined,
     sortBy,
-    sortOrder 
+    sortOrder
   });
   const { items: calendars, meta, isLoading, error } = useApiData<Calendar>(queryResult);
-  
+
   const [localVisibleIds, setLocalVisibleIds] = useState<Set<string>>(new Set());
   const visibleCalendarIds = externalVisibleIds || localVisibleIds;
   const setVisibleCalendarIds = onExternalIdsChange || setLocalVisibleIds;
-  
+
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedCalendar, setSelectedCalendar] = useState<Calendar | null>(null);
@@ -69,7 +69,7 @@ export function CalendarListWithAPI({
   };
   const handleSearch = (value: string) => {
     setSearchQuery(value);
-    setPage(1); 
+    setPage(1);
   };
 
   const handleEditCalendar = (calendar: Calendar) => {
