@@ -13,10 +13,21 @@ CREATE TABLE IF NOT EXISTS contacts (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_contacts_email ON contacts(email);
-CREATE INDEX idx_contacts_status ON contacts(status);
-CREATE INDEX idx_contacts_created_at ON contacts(created_at DESC);
-CREATE INDEX idx_contacts_inquiry_type ON contacts(inquiry_type);
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_contacts_email') THEN
+    CREATE INDEX idx_contacts_email ON contacts(email);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_contacts_status') THEN
+    CREATE INDEX idx_contacts_status ON contacts(status);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_contacts_created_at') THEN
+    CREATE INDEX idx_contacts_created_at ON contacts(created_at DESC);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_contacts_inquiry_type') THEN
+    CREATE INDEX idx_contacts_inquiry_type ON contacts(inquiry_type);
+  END IF;
+END $$;
 
 CREATE OR REPLACE FUNCTION update_contacts_updated_at()
 RETURNS TRIGGER AS $$
@@ -26,6 +37,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_update_contacts_updated_at ON contacts;
 CREATE TRIGGER trigger_update_contacts_updated_at
   BEFORE UPDATE ON contacts
   FOR EACH ROW

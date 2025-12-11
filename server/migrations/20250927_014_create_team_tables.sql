@@ -60,32 +60,60 @@ CREATE TABLE IF NOT EXISTS team_meeting_rotations (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_teams_owner ON teams(owner_id);
-CREATE INDEX idx_teams_active ON teams(is_active);
-CREATE INDEX idx_team_members_team ON team_members(team_id);
-CREATE INDEX idx_team_members_user ON team_members(user_id);
-CREATE INDEX idx_team_members_status ON team_members(status);
-CREATE INDEX idx_team_rituals_team ON team_rituals(team_id);
-CREATE INDEX idx_team_rituals_active ON team_rituals(is_active);
-CREATE INDEX idx_team_availability_team_date ON team_availability(team_id, date);
-CREATE INDEX idx_team_availability_user ON team_availability(user_id);
-CREATE INDEX idx_team_meeting_rotations_ritual ON team_meeting_rotations(ritual_id);
+-- Create indexes if they don't exist
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_teams_owner') THEN
+    CREATE INDEX idx_teams_owner ON teams(owner_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_teams_active') THEN
+    CREATE INDEX idx_teams_active ON teams(is_active);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_team_members_team') THEN
+    CREATE INDEX idx_team_members_team ON team_members(team_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_team_members_user') THEN
+    CREATE INDEX idx_team_members_user ON team_members(user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_team_members_status') THEN
+    CREATE INDEX idx_team_members_status ON team_members(status);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_team_rituals_team') THEN
+    CREATE INDEX idx_team_rituals_team ON team_rituals(team_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_team_rituals_active') THEN
+    CREATE INDEX idx_team_rituals_active ON team_rituals(is_active);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_team_availability_team_date') THEN
+    CREATE INDEX idx_team_availability_team_date ON team_availability(team_id, date);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_team_availability_user') THEN
+    CREATE INDEX idx_team_availability_user ON team_availability(user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_team_meeting_rotations_ritual') THEN
+    CREATE INDEX idx_team_meeting_rotations_ritual ON team_meeting_rotations(ritual_id);
+  END IF;
+END $$;
 
+DROP TRIGGER IF EXISTS update_teams_updated_at ON teams;
 CREATE TRIGGER update_teams_updated_at
   BEFORE UPDATE ON teams
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_team_members_updated_at ON team_members;
 CREATE TRIGGER update_team_members_updated_at
   BEFORE UPDATE ON team_members
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_team_rituals_updated_at ON team_rituals;
 CREATE TRIGGER update_team_rituals_updated_at
   BEFORE UPDATE ON team_rituals
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_team_availability_updated_at ON team_availability;
 CREATE TRIGGER update_team_availability_updated_at
   BEFORE UPDATE ON team_availability
   FOR EACH ROW

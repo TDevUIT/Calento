@@ -22,11 +22,24 @@ CREATE TABLE IF NOT EXISTS ai_actions (
 );
 
 -- Indexes for performance
-CREATE INDEX idx_ai_conversations_user_id ON ai_conversations(user_id);
-CREATE INDEX idx_ai_conversations_created_at ON ai_conversations(created_at DESC);
-CREATE INDEX idx_ai_actions_conversation_id ON ai_actions(conversation_id);
-CREATE INDEX idx_ai_actions_status ON ai_actions(status);
-CREATE INDEX idx_ai_actions_created_at ON ai_actions(created_at DESC);
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_ai_conversations_user_id') THEN
+    CREATE INDEX idx_ai_conversations_user_id ON ai_conversations(user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_ai_conversations_created_at') THEN
+    CREATE INDEX idx_ai_conversations_created_at ON ai_conversations(created_at DESC);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_ai_actions_conversation_id') THEN
+    CREATE INDEX idx_ai_actions_conversation_id ON ai_actions(conversation_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_ai_actions_status') THEN
+    CREATE INDEX idx_ai_actions_status ON ai_actions(status);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_ai_actions_created_at') THEN
+    CREATE INDEX idx_ai_actions_created_at ON ai_actions(created_at DESC);
+  END IF;
+END $$;
 
 -- Trigger to update updated_at
 CREATE OR REPLACE FUNCTION update_ai_conversations_updated_at()

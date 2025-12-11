@@ -16,10 +16,21 @@ CREATE TABLE IF NOT EXISTS user_priorities (
 );
 
 -- Create indexes for better query performance
-CREATE INDEX idx_user_priorities_user_id ON user_priorities(user_id);
-CREATE INDEX idx_user_priorities_priority ON user_priorities(priority);
-CREATE INDEX idx_user_priorities_item_type ON user_priorities(item_type);
-CREATE INDEX idx_user_priorities_user_priority ON user_priorities(user_id, priority);
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_user_priorities_user_id') THEN
+    CREATE INDEX idx_user_priorities_user_id ON user_priorities(user_id);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_user_priorities_priority') THEN
+    CREATE INDEX idx_user_priorities_priority ON user_priorities(priority);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_user_priorities_item_type') THEN
+    CREATE INDEX idx_user_priorities_item_type ON user_priorities(item_type);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_user_priorities_user_priority') THEN
+    CREATE INDEX idx_user_priorities_user_priority ON user_priorities(user_id, priority);
+  END IF;
+END $$;
 
 -- Create trigger to update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_user_priorities_updated_at()
