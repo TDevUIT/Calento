@@ -15,8 +15,9 @@ export interface Migration {
 export class MigrationService {
   private readonly logger = new Logger(MigrationService.name);
   private readonly migrationsPath = path.join(__dirname, '../../migrations');
+  private readonly schemaFile = 'schema.sql';
 
-  constructor(private readonly databaseService: DatabaseService) {}
+  constructor(private readonly databaseService: DatabaseService) { }
 
   async initializeMigrationsTable(): Promise<void> {
     const createTableQuery = `
@@ -51,6 +52,48 @@ export class MigrationService {
     }
   }
 
+  /**
+   * Check if this is a fresh database (no migrations executed yet)
+   */
+  async isFreshDatabase(): Promise<boolean> {
+    const executedMigrations = await this.getExecutedMigrations();
+    return executedMigrations.length === 0;
+  }
+
+  /**
+   * Run the consolidated schema.sql file for fresh database setup
+   */
+  async runSchemaFile(): Promise<void> {
+    const schemaPath = path.join(this.migrationsPath, this.schemaFile);
+
+    if (!fs.existsSync(schemaPath)) {
+      this.logger.warn(`⚠️ Schema file not found: ${schemaPath}`);
+      return;
+    }
+
+    const schemaContent = fs.readFileSync(schemaPath, 'utf-8');
+
+    try {
+      await this.databaseService.transaction(async (client) => {
+        await client.query(schemaContent);
+
+        // Record schema.sql as executed migration
+        await client.query(
+          'INSERT INTO migrations (id, name) VALUES ($1, $2)',
+          [this.schemaFile.replace('.sql', ''), this.schemaFile],
+        );
+      });
+
+      this.logger.log(`✅ Executed schema file: ${this.schemaFile}`);
+    } catch (error) {
+      this.logger.error(
+        `❌ Failed to execute schema file:`,
+        error.message,
+      );
+      throw error;
+    }
+  }
+
   loadMigrationFiles(): Migration[] {
     if (!fs.existsSync(this.migrationsPath)) {
       fs.mkdirSync(this.migrationsPath, { recursive: true });
@@ -63,6 +106,8 @@ export class MigrationService {
     const files = fs
       .readdirSync(this.migrationsPath)
       .filter((file) => file.endsWith('.sql'))
+      // Exclude schema.sql from individual migration files
+      .filter((file) => file !== this.schemaFile)
       .sort();
 
     const migrations: Migration[] = [];
@@ -126,6 +171,21 @@ export class MigrationService {
   async runMigrations(): Promise<void> {
     await this.initializeMigrationsTable();
 
+    const isFresh = await this.isFreshDatabase();
+
+    // For fresh database, run the consolidated schema.sql
+    if (isFresh) {
+      const schemaPath = path.join(this.migrationsPath, this.schemaFile);
+
+      if (fs.existsSync(schemaPath)) {
+        this.logger.log('🆕 Fresh database detected, running schema.sql...');
+        await this.runSchemaFile();
+        this.logger.log('🎉 Database schema initialized successfully');
+        return;
+      }
+    }
+
+    // For existing database or if no schema.sql, run individual migrations
     const executedMigrations = await this.getExecutedMigrations();
     const allMigrations = this.loadMigrationFiles();
 
@@ -175,6 +235,14 @@ export class MigrationService {
     }
 
     const lastMigrationId = executedMigrations[executedMigrations.length - 1];
+
+    // Cannot rollback schema.sql
+    if (lastMigrationId === 'schema') {
+      this.logger.warn('⚠️ Cannot rollback schema.sql - this is the base schema');
+      this.logger.warn('To reset database, drop and recreate the database instead');
+      return;
+    }
+
     const allMigrations = this.loadMigrationFiles();
     const migration = allMigrations.find((m) => m.id === lastMigrationId);
 
@@ -213,18 +281,46 @@ export class MigrationService {
     const filename = `${timestamp}_${name.toLowerCase().replace(/\s+/g, '_')}.sql`;
     const filePath = path.join(this.migrationsPath, filename);
 
-    const template = `-- UP
-    -- Add your migration SQL here
+    const template = `-- UP Migration: ${name}
+-- ============================================
+-- Date: ${new Date().toISOString().split('T')[0]}
+-- Description: Add description here
+
+-- Add your migration SQL here
 
 
-    -- DOWN
-    -- Add your rollback SQL here
+-- DOWN Migration: ${name}
+-- ============================================
 
-    `;
+-- Add your rollback SQL here (commented out by default)
+-- DROP TABLE IF EXISTS ...
+-- ALTER TABLE ... DROP COLUMN ...
+
+`;
 
     fs.writeFileSync(filePath, template);
     this.logger.log(`📝 Generated migration file: ${filename}`);
 
     return filePath;
+  }
+
+  /**
+   * Get migration status summary
+   */
+  async getMigrationStatus(): Promise<{
+    executed: string[];
+    pending: string[];
+    hasSchema: boolean;
+  }> {
+    const executed = await this.getExecutedMigrations();
+    const allMigrations = this.loadMigrationFiles();
+    const pending = allMigrations
+      .filter((m) => !executed.includes(m.id))
+      .map((m) => m.id);
+
+    const schemaPath = path.join(this.migrationsPath, this.schemaFile);
+    const hasSchema = fs.existsSync(schemaPath);
+
+    return { executed, pending, hasSchema };
   }
 }
