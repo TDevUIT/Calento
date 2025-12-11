@@ -86,13 +86,8 @@ export const updateEvent = async (
   }
 };
 
-
-export const updateEventPut = async (
-  id: string,
-  data: UpdateEventRequest
-): Promise<EventResponse> => {
-  return replaceEvent(id, data);
-};
+// updateEventPut is an alias for replaceEvent
+export const updateEventPut = replaceEvent;
 
 
 export const updateEventWithMethod = async (
@@ -103,15 +98,15 @@ export const updateEventWithMethod = async (
   try {
     const response = method === 'PUT'
       ? await api.put<EventResponse>(
-          API_ROUTES.EVENT_UPDATE(id),
-          data,
-          { withCredentials: true }
-        )
+        API_ROUTES.EVENT_UPDATE(id),
+        data,
+        { withCredentials: true }
+      )
       : await api.patch<EventResponse>(
-          API_ROUTES.EVENT_UPDATE(id),
-          data,
-          { withCredentials: true }
-        );
+        API_ROUTES.EVENT_UPDATE(id),
+        data,
+        { withCredentials: true }
+      );
     return response.data;
   } catch (error) {
     throw new Error(getErrorMessage(error));
@@ -155,15 +150,6 @@ export const getEventsByDateRange = async (
   params?: Omit<EventQueryParams, 'start_date' | 'end_date'>
 ): Promise<PaginatedEventsResponse> => {
   try {
-    console.log('🌐 [getEventsByDateRange] Calling API:', {
-      endpoint: API_ROUTES.EVENTS,
-      params: {
-        ...params,
-        start_date: startDate,
-        end_date: endDate,
-      },
-    });
-
     const response = await api.get<PaginatedEventsResponse>(
       API_ROUTES.EVENTS,
       {
@@ -176,11 +162,8 @@ export const getEventsByDateRange = async (
       }
     );
 
-    console.log('📡 [getEventsByDateRange] API Response:', response.data);
-
     return response.data;
   } catch (error) {
-    console.error('❌ [getEventsByDateRange] API Error:', error);
     throw new Error(getErrorMessage(error));
   }
 };

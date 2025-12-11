@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { randomBytes } from 'crypto';
 import { BookingLinkRepository } from './repositories/booking-link.repository';
 import { BookingRepository } from './repositories/booking.repository';
 import { MessageService } from '../../common/message/message.service';
@@ -39,7 +40,7 @@ export class BookingService {
     private readonly bookingRepository: BookingRepository,
     private readonly availabilityService: AvailabilityService,
     private readonly messageService: MessageService,
-  ) {}
+  ) { }
 
   async createBookingLink(
     userId: string,
@@ -357,9 +358,12 @@ export class BookingService {
     endTime: Date,
     excludeBookingId?: string,
   ): Promise<void> {
+    // Ensure both times are in UTC for accurate comparison
     const now = new Date();
+    const nowUtc = new Date(now.toISOString());
+    const startTimeUtc = new Date(startTime.toISOString());
 
-    if (startTime < now) {
+    if (startTimeUtc < nowUtc) {
       const message = this.messageService.get('booking.past_date');
       throw new BookingPastDateException(message);
     }
@@ -367,7 +371,7 @@ export class BookingService {
     const advanceNoticeMs =
       bookingLink.advance_notice_hours *
       TIME_CONSTANTS.BOOKING.ADVANCE_NOTICE_MULTIPLIER;
-    if (startTime.getTime() - now.getTime() < advanceNoticeMs) {
+    if (startTimeUtc.getTime() - nowUtc.getTime() < advanceNoticeMs) {
       const message = this.messageService.get(
         'booking.advance_notice',
         undefined,
@@ -381,7 +385,7 @@ export class BookingService {
     const bookingWindowMs =
       bookingLink.booking_window_days *
       TIME_CONSTANTS.BOOKING.BOOKING_WINDOW_MULTIPLIER;
-    if (startTime.getTime() - now.getTime() > bookingWindowMs) {
+    if (startTimeUtc.getTime() - nowUtc.getTime() > bookingWindowMs) {
       const message = this.messageService.get(
         'booking.outside_window',
         undefined,
@@ -444,10 +448,8 @@ export class BookingService {
   }
 
   private generateConfirmationToken(): string {
-    return (
-      Math.random().toString(36).substring(2, 15) +
-      Math.random().toString(36).substring(2, 15)
-    );
+    // Use cryptographically secure random bytes for token generation
+    return randomBytes(32).toString('hex');
   }
 
   async getBookingsByLink(linkId: string, userId: string): Promise<Booking[]> {

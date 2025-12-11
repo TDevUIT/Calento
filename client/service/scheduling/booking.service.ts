@@ -10,7 +10,8 @@ import {
   BookingAvailabilityQuery,
   BookingLinkResponse,
   BookingLinksResponse,
-
+  BookingLinkStats,
+  BookingStats,
 } from '../../interface';
 
 export type {
@@ -73,7 +74,7 @@ export const createBookingLink = async (data: CreateBookingLinkDto): Promise<Boo
 export const updateBookingLink = async (id: string, data: UpdateBookingLinkDto): Promise<BookingLink> => {
   try {
     const response = await api.patch<{ success: boolean; data: BookingLink }>(
-      `/booking-links/${id}`,
+      API_ROUTES.BOOKING_LINK_DETAIL(id),
       data,
       { withCredentials: true }
     );
@@ -89,7 +90,7 @@ export const updateBookingLink = async (id: string, data: UpdateBookingLinkDto):
 export const deleteBookingLink = async (id: string): Promise<void> => {
   try {
     await api.delete(
-      `/booking-links/${id}`,
+      API_ROUTES.BOOKING_LINK_DETAIL(id),
       { withCredentials: true }
     );
   } catch (error) {
@@ -103,7 +104,7 @@ export const deleteBookingLink = async (id: string): Promise<void> => {
 export const toggleBookingLink = async (id: string): Promise<BookingLink> => {
   try {
     const response = await api.patch<{ success: boolean; data: BookingLink }>(
-      `/booking-links/${id}/toggle`,
+      API_ROUTES.BOOKING_LINK_TOGGLE(id),
       {},
       { withCredentials: true }
     );
@@ -124,13 +125,15 @@ export const getBookingLinkStats = async (id: string): Promise<{
   this_month_bookings: number;
 }> => {
   try {
-    const response = await api.get<{ success: boolean; data: {
-      total_bookings: number;
-      confirmed_bookings: number;
-      cancelled_bookings: number;
-      this_week_bookings: number;
-      this_month_bookings: number;
-    } }>(
+    const response = await api.get<{
+      success: boolean; data: {
+        total_bookings: number;
+        confirmed_bookings: number;
+        cancelled_bookings: number;
+        this_week_bookings: number;
+        this_month_bookings: number;
+      }
+    }>(
       `/booking-links/${id}/stats`,
       { withCredentials: true }
     );
@@ -156,7 +159,7 @@ export const getPublicBookingLink = async (slug: string): Promise<BookingLink> =
  * Get available time slots for booking link
  */
 export const getAvailableSlots = async (
-  slug: string, 
+  slug: string,
   params: BookingAvailabilityQuery
 ): Promise<BookingTimeSlot[]> => {
   try {
@@ -203,8 +206,8 @@ export const cancelPublicBooking = async (token: string, reason?: string): Promi
  * Reschedule booking with token
  */
 export const reschedulePublicBooking = async (
-  token: string, 
-  new_start_time: string, 
+  token: string,
+  new_start_time: string,
   timezone: string
 ): Promise<Booking> => {
   try {
@@ -239,12 +242,14 @@ export const getBookings = async (params?: {
   };
 }> => {
   try {
-    const response = await api.get<{ success: boolean; data: Booking[]; meta?: {
-      page?: number;
-      limit?: number;
-      total: number;
-      totalPages?: number;
-    } }>(
+    const response = await api.get<{
+      success: boolean; data: Booking[]; meta?: {
+        page?: number;
+        limit?: number;
+        total: number;
+        totalPages?: number;
+      }
+    }>(
       '/bookings/me',
       { params, withCredentials: true }
     );
@@ -311,8 +316,8 @@ export const cancelBooking = async (id: string, reason?: string): Promise<void> 
  * Reschedule booking (by owner)
  */
 export const rescheduleBooking = async (
-  id: string, 
-  new_start_time: string, 
+  id: string,
+  new_start_time: string,
   timezone: string
 ): Promise<Booking> => {
   try {
@@ -356,15 +361,17 @@ export const getBookingStats = async (): Promise<{
   upcoming_bookings: number;
 }> => {
   try {
-    const response = await api.get<{ success: boolean; data: {
-      total_bookings: number;
-      confirmed_bookings: number;
-      cancelled_bookings: number;
-      completed_bookings: number;
-      this_week_bookings: number;
-      this_month_bookings: number;
-      upcoming_bookings: number;
-    } }>(
+    const response = await api.get<{
+      success: boolean; data: {
+        total_bookings: number;
+        confirmed_bookings: number;
+        cancelled_bookings: number;
+        completed_bookings: number;
+        this_week_bookings: number;
+        this_month_bookings: number;
+        upcoming_bookings: number;
+      }
+    }>(
       '/bookings/stats',
       { withCredentials: true }
     );

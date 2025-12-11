@@ -55,7 +55,7 @@ export class EventController {
   constructor(
     private readonly eventService: EventService,
     private readonly messageService: MessageService,
-  ) {}
+  ) { }
 
   @Get()
   @ApiOperation({
@@ -320,7 +320,14 @@ export class EventController {
     @CurrentUserId() userId: string,
   ): Promise<SuccessResponseDto> {
     const existingEvent = await this.eventService.getEventById(eventId, userId);
-    const googleEventId = existingEvent?.google_event_id;
+
+    if (!existingEvent) {
+      throw new NotFoundException(
+        this.messageService.get('calendar.event_not_found'),
+      );
+    }
+
+    const googleEventId = existingEvent.google_event_id;
 
     const event = await this.eventService.replaceEvent(
       eventId,
@@ -381,7 +388,14 @@ export class EventController {
     @CurrentUserId() userId: string,
   ): Promise<SuccessResponseDto> {
     const existingEvent = await this.eventService.getEventById(eventId, userId);
-    const googleEventId = existingEvent?.google_event_id;
+
+    if (!existingEvent) {
+      throw new NotFoundException(
+        this.messageService.get('calendar.event_not_found'),
+      );
+    }
+
+    const googleEventId = existingEvent.google_event_id;
 
     const event = await this.eventService.updateEvent(
       eventId,
@@ -428,7 +442,14 @@ export class EventController {
     @CurrentUserId() userId: string,
   ): Promise<SuccessResponseDto> {
     const existingEvent = await this.eventService.getEventById(eventId, userId);
-    const googleEventId = existingEvent?.google_event_id;
+
+    if (!existingEvent) {
+      throw new NotFoundException(
+        this.messageService.get('calendar.event_not_found'),
+      );
+    }
+
+    const googleEventId = existingEvent.google_event_id;
 
     const deleted = await this.eventService.deleteEvent(
       eventId,
