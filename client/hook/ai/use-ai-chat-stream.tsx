@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 interface UseAIChatStreamReturn {
   isStreaming: boolean;
   streamedContent: string;
+  conversationId: string | null;
   startStream: (data: StreamChatRequest) => Promise<void>;
   stopStream: () => void;
   resetContent: () => void;
@@ -16,9 +17,11 @@ interface UseAIChatStreamReturn {
 export const useAIChatStream = (): UseAIChatStreamReturn => {
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamedContent, setStreamedContent] = useState('');
+  const [conversationId, setConversationId] = useState<string | null>(null);
 
   const resetContent = useCallback(() => {
     setStreamedContent('');
+    setConversationId(null);
   }, []);
 
   const stopStream = useCallback(() => {
@@ -32,15 +35,21 @@ export const useAIChatStream = (): UseAIChatStreamReturn => {
     await aiService.chatStream(
       data,
       (chunk: StreamMessage) => {
-        // Only append content from 'text' type messages
-        if (chunk.type === 'text') {
-          setStreamedContent((prev) => prev + chunk.content);
+        // Handle different message types
+        switch (chunk.type) {
+          case 'text':
+            setStreamedContent((prev) => prev + chunk.content);
+            break;
+          case 'done':
+            if (chunk.conversation_id) {
+              setConversationId(chunk.conversation_id);
+            }
+            break;
+          // You can handle other message types here if needed:
+          // - 'action_start': Show action starting
+          // - 'action_result': Show action completed
+          // - 'error': Handle error in stream
         }
-        // You can handle other message types here if needed:
-        // - 'action_start': Show action starting
-        // - 'action_result': Show action completed
-        // - 'error': Handle error in stream
-        // - 'done': Stream complete
       },
       () => {
         setIsStreaming(false);
@@ -57,6 +66,7 @@ export const useAIChatStream = (): UseAIChatStreamReturn => {
   return {
     isStreaming,
     streamedContent,
+    conversationId,
     startStream,
     stopStream,
     resetContent,

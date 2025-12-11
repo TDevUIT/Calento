@@ -62,7 +62,7 @@ export const EventsList = ({ events, message }: EventsListProps) => {
     const startDate = new Date(start);
     const endDate = new Date(end);
     const minutes = Math.floor((endDate.getTime() - startDate.getTime()) / (1000 * 60));
-    
+
     if (minutes < 60) {
       return `${minutes} min`;
     }
@@ -73,7 +73,7 @@ export const EventsList = ({ events, message }: EventsListProps) => {
 
   const groupEventsByDate = (events: Event[]) => {
     const groups: Record<string, Event[]> = {};
-    
+
     events.forEach(event => {
       const date = new Date(event.start_time).toLocaleDateString('en-US');
       if (!groups[date]) {
@@ -85,7 +85,7 @@ export const EventsList = ({ events, message }: EventsListProps) => {
     return Object.entries(groups).map(([date, dateEvents]) => ({
       date,
       dateFormatted: formatDate(dateEvents[0].start_time),
-      events: dateEvents.sort((a, b) => 
+      events: dateEvents.sort((a, b) =>
         new Date(a.start_time).getTime() - new Date(b.start_time).getTime()
       ),
     }));
@@ -95,7 +95,6 @@ export const EventsList = ({ events, message }: EventsListProps) => {
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden w-full">
-      {/* Header */}
       <div className="bg-gradient-to-r from-blue-50 to-purple-50 px-4 py-3.5 border-b border-gray-200">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -115,11 +114,9 @@ export const EventsList = ({ events, message }: EventsListProps) => {
         </div>
       </div>
 
-      {/* Events List */}
       <div className="max-h-[500px] overflow-y-auto">
         {groupedEvents.map((group, groupIdx) => (
           <div key={group.date} className={groupIdx > 0 ? 'border-t border-gray-100' : ''}>
-            {/* Date Header */}
             <div className="sticky top-0 bg-gray-50 px-4 py-2.5 border-b border-gray-100 z-10">
               <div className="flex items-center gap-2">
                 <div className="h-2.5 w-2.5 rounded-full bg-blue-600" />
@@ -130,7 +127,6 @@ export const EventsList = ({ events, message }: EventsListProps) => {
               </div>
             </div>
 
-            {/* Events for this date */}
             <div className="p-3 space-y-2">
               {group.events.map((event) => (
                 <div
@@ -138,7 +134,6 @@ export const EventsList = ({ events, message }: EventsListProps) => {
                   className="bg-gray-50 hover:bg-blue-50 rounded-lg p-4 transition-colors cursor-pointer border-2 border-transparent hover:border-blue-200"
                 >
                   <div className="flex items-start gap-3">
-                    {/* Time indicator */}
                     <div className="flex-shrink-0 text-center min-w-[60px]">
                       <p className="text-sm font-semibold text-gray-900">
                         {formatTime(event.start_time)}
@@ -148,12 +143,11 @@ export const EventsList = ({ events, message }: EventsListProps) => {
                       </p>
                     </div>
 
-                    {/* Event details */}
                     <div className="flex-1 min-w-0">
                       <h5 className="text-base font-semibold text-gray-900 mb-1.5">
                         {event.title}
                       </h5>
-                      
+
                       <div className="space-y-1">
                         {event.description && (
                           <div className="flex items-start gap-2">
@@ -163,7 +157,7 @@ export const EventsList = ({ events, message }: EventsListProps) => {
                             </p>
                           </div>
                         )}
-                        
+
                         {event.location && (
                           <div className="flex items-center gap-2">
                             <MapPin className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" />

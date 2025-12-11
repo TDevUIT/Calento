@@ -11,12 +11,12 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Calendar, 
-  Clock, 
-  Users, 
-  MapPin, 
-  CheckCircle2, 
+import {
+  Calendar,
+  Clock,
+  Users,
+  MapPin,
+  CheckCircle2,
   XCircle,
   AlertCircle,
   Sparkles
@@ -67,13 +67,11 @@ export const ActionConfirmationDialog = ({
 
     return (
       <div className="space-y-4 mt-4">
-        {/* AI Analysis Header */}
         <div className="flex items-center gap-2 text-sm font-semibold text-gray-900">
           <Sparkles className="h-4 w-4 text-purple-600" />
           <span>AI Analysis</span>
         </div>
 
-        {/* Match Score */}
         {match_score !== undefined && (
           <div className="bg-gray-50 rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
@@ -82,20 +80,18 @@ export const ActionConfirmationDialog = ({
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div
-                className={`h-2 rounded-full transition-all ${
-                  match_score >= 90
-                    ? 'bg-green-500'
-                    : match_score >= 70
+                className={`h-2 rounded-full transition-all ${match_score >= 90
+                  ? 'bg-green-500'
+                  : match_score >= 70
                     ? 'bg-blue-500'
                     : 'bg-yellow-500'
-                }`}
+                  }`}
                 style={{ width: `${match_score}%` }}
               />
             </div>
           </div>
         )}
 
-        {/* Availability Info */}
         {availability && (
           <div className="border border-gray-200 rounded-lg p-4 space-y-3">
             <div className="flex items-center gap-2">
@@ -121,7 +117,6 @@ export const ActionConfirmationDialog = ({
           </div>
         )}
 
-        {/* Members Availability */}
         {members && members.length > 0 && (
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
@@ -147,7 +142,6 @@ export const ActionConfirmationDialog = ({
           </div>
         )}
 
-        {/* Conflicts */}
         {conflicts && conflicts.length > 0 && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 space-y-2">
             <div className="flex items-center gap-2">
@@ -186,7 +180,7 @@ export const ActionConfirmationDialog = ({
             {parameters.description && (
               <p className="text-sm text-gray-600 mb-3">{parameters.description}</p>
             )}
-            
+
             <div className="space-y-2">
               {parameters.start_time && (
                 <div className="flex items-center gap-2 text-sm text-gray-700">
@@ -210,14 +204,14 @@ export const ActionConfirmationDialog = ({
                   </span>
                 </div>
               )}
-              
+
               {parameters.attendees && parameters.attendees.length > 0 && (
                 <div className="flex items-center gap-2 text-sm text-gray-700">
                   <Users className="h-4 w-4 text-gray-500" />
                   <span>{parameters.attendees.length} member{parameters.attendees.length > 1 ? 's' : ''} • 100% available</span>
                 </div>
               )}
-              
+
               {parameters.location && (
                 <div className="flex items-center gap-2 text-sm text-gray-700">
                   <MapPin className="h-4 w-4 text-gray-500" />

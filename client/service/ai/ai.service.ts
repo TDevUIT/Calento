@@ -111,6 +111,7 @@ const processSSELine = (
           onMessage({ type: 'action_result', action: eventData.action });
           break;
         case 'done':
+          onMessage({ type: 'done', conversation_id: eventData.conversation_id });
           onComplete();
           break;
         case 'error':
@@ -155,21 +156,39 @@ export const chatStream = async (
     const decoder = new TextDecoder();
     let buffer = '';
 
+    // Helper function to process a single line with a small delay for UI updates
+    const processLineWithDelay = (line: string): Promise<void> => {
+      return new Promise((resolve) => {
+        processSSELine(line, onMessage, onComplete, onError);
+        // Use setTimeout to allow React to process the state update before continuing
+        setTimeout(resolve, 0);
+      });
+    };
+
     while (true) {
       const { done, value } = await reader.read();
 
       if (done) {
         logger.info('Reader done');
+        // Process any remaining buffer
+        if (buffer.trim()) {
+          await processLineWithDelay(buffer);
+        }
         onComplete();
         break;
       }
 
       buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
+
+      // Split by double newline (SSE format) or single newline
+      const lines = buffer.split(/\n\n|\n/);
       buffer = lines.pop() || '';
 
+      // Process each line sequentially to allow UI updates
       for (const line of lines) {
-        processSSELine(line, onMessage, onComplete, onError);
+        if (line.trim()) {
+          await processLineWithDelay(line);
+        }
       }
     }
   } catch (error) {

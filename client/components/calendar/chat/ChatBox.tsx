@@ -28,8 +28,6 @@ import { TimeSlotsList } from './TimeSlotsList';
 import { EventsList } from './EventsList';
 import { EmptyState } from './EmptyState';
 import { toast } from 'sonner';
-import { StreamText } from '@/components/ui/stream-text';
-import { THINKING_ANIMATION } from '@/constants/timing.constants';
 
 interface ChatBoxProps {
   onClose?: () => void;
@@ -123,8 +121,6 @@ export function ChatBox({ onClose, conversationId: externalConversationId, onCon
 
     const now = new Date();
 
-    // Create placeholder assistant message
-    const assistantMessageId = Date.now().toString();
     const initialAssistantMessage: ChatMessage = {
       role: 'assistant',
       content: '',
@@ -162,8 +158,6 @@ export function ChatBox({ onClose, conversationId: externalConversationId, onCon
                   content: lastMsg.content + event.content,
                 };
               } else if (event.type === 'action_start') {
-                // Add action placeholder or update status
-                // For now, we might not show anything until result, or show a loading state
               } else if (event.type === 'action_result') {
                 const currentActions = lastMsg.actions || [];
                 newMessages[lastMsgIndex] = {
@@ -278,7 +272,7 @@ export function ChatBox({ onClose, conversationId: externalConversationId, onCon
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <Button
+            {/* <Button
               variant="ghost"
               size="sm"
               className="h-8 gap-1.5"
@@ -286,7 +280,7 @@ export function ChatBox({ onClose, conversationId: externalConversationId, onCon
             >
               {showHistory ? <PanelLeftClose className="h-4 w-4" /> : <History className="h-4 w-4" />}
               <span className="text-xs">{showHistory ? 'Hide' : 'History'}</span>
-            </Button>
+            </Button> */}
             {messages.length > 0 && (
               <Button
                 variant="ghost"
@@ -298,9 +292,9 @@ export function ChatBox({ onClose, conversationId: externalConversationId, onCon
                 <span className="text-xs">New</span>
               </Button>
             )}
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            {/* <Button variant="ghost" size="icon" className="h-8 w-8">
               <Settings className="h-4 w-4 text-gray-500" />
-            </Button>
+            </Button> */}
             {onClose && (
               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose}>
                 <X className="h-4 w-4 text-gray-500" />
@@ -311,8 +305,8 @@ export function ChatBox({ onClose, conversationId: externalConversationId, onCon
       )}
 
       <div className="flex flex-1 overflow-hidden">
-        {showHistory && (
-          <div className="w-72 flex-shrink-0 border-r bg-gray-50">
+        {/* {showHistory && (
+          <div className="w-full flex-shrink-0 border-r bg-gray-50">
             <ConversationList
               conversations={conversations}
               activeConversationId={displayConversationId}
@@ -321,7 +315,7 @@ export function ChatBox({ onClose, conversationId: externalConversationId, onCon
               onNewConversation={handleNewConversation}
             />
           </div>
-        )}
+        )} */}
 
         <div className="flex flex-col flex-1 overflow-hidden">
           <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-white">
@@ -358,11 +352,14 @@ export function ChatBox({ onClose, conversationId: externalConversationId, onCon
                     <div className="space-y-3">
                       {message.content && (
                         <div className="flex items-start gap-3 max-w-[85%]">
-                          <div className="h-8 w-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0 mt-1">
+                          {/* <div className="h-8 w-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0 mt-1">
                             <Sparkles className="h-4 w-4 text-gray-600" />
-                          </div>
+                          </div> */}
                           <div className="flex-1 bg-gray-50 rounded-lg p-4">
                             <MessageContent content={message.content} />
+                            {message.isStreaming && (
+                              <span className="inline-block w-2 h-4 bg-blue-600 ml-0.5 animate-pulse" />
+                            )}
                           </div>
                         </div>
                       )}
@@ -483,7 +480,7 @@ export function ChatBox({ onClose, conversationId: externalConversationId, onCon
               ))
             )}
 
-            {isProcessing && (
+            {isProcessing && messages.length > 0 && messages[messages.length - 1].role === 'assistant' && !messages[messages.length - 1].content && (
               <div className="flex items-start gap-3 max-w-[85%] animate-in fade-in slide-in-from-bottom-2 duration-300">
                 <div className="h-8 w-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0 mt-1">
                   <Sparkles className="h-4 w-4 text-gray-600" />
@@ -491,7 +488,7 @@ export function ChatBox({ onClose, conversationId: externalConversationId, onCon
                 <div className="flex-1 bg-gray-50 rounded-lg p-4">
                   <div className="flex items-center gap-2">
                     <Loader2 className="h-4 w-4 text-blue-600 animate-spin" />
-                    <p className="text-sm font-medium text-gray-900">Responding...</p>
+                    <p className="text-sm font-medium text-gray-900">Thinking...</p>
                   </div>
                 </div>
               </div>

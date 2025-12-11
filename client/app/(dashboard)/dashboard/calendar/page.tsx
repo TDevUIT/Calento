@@ -358,9 +358,9 @@ function CalendarWrapper({
                 </div>
               </div>
 
-              <div className="mb-4">
+              {/* <div className="mb-4">
                 <MonthProgress />
-              </div>
+              </div> */}
             </div>
 
             <div className="flex-1 overflow-hidden px-4 md:px-6">

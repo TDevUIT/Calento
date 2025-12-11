@@ -79,7 +79,7 @@ export type StreamMessage =
   | { type: 'text'; content: string }
   | { type: 'action_start'; action: string }
   | { type: 'action_result'; action: ActionPerformed }
-  | { type: 'done' }
+  | { type: 'done'; conversation_id?: string }
   | { type: 'error'; error: string };
 
 export interface FunctionExecutionRequest {

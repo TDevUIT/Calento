@@ -7,10 +7,10 @@ import {
   Param,
   UseGuards,
   Req,
+  Res,
   Logger,
-  Sse,
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
+import type { Response } from 'express';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AIConversationService } from './services/ai-conversation.service';
 import { ChatRequestDto, ChatResponseDto, ConfirmActionDto } from './dto/ai-chat.dto';
@@ -73,19 +73,27 @@ export class AIController {
       throw error;
     }
   }
-  @Sse('chat/stream')
+  @Post('chat/stream')
   @ApiOperation({
     summary: 'Stream chat with AI assistant',
     description: 'Stream AI response using Server-Sent Events'
   })
-  chatStream(
+  async chatStream(
     @Body() dto: ChatRequestDto,
     @Req() req: any,
-  ): Observable<any> {
+    @Res() res: Response,
+  ): Promise<void> {
     const userId = this.getUserId(req);
     this.logger.log(`AI Chat Stream request from user: ${userId}`);
 
-    return new Observable((subscriber) => {
+    // Set SSE headers
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    res.flushHeaders();
+
+    try {
       const stream = this.conversationService.chatStream(
         dto.message,
         userId,
@@ -93,17 +101,17 @@ export class AIController {
         dto.context
       );
 
-      (async () => {
-        try {
-          for await (const event of stream) {
-            subscriber.next({ data: event });
-          }
-          subscriber.complete();
-        } catch (error) {
-          subscriber.error(error);
-        }
-      })();
-    });
+      for await (const event of stream) {
+        res.write(`data: ${JSON.stringify(event)}\n\n`);
+      }
+
+      res.write(`data: ${JSON.stringify({ type: 'done' })}\n\n`);
+      res.end();
+    } catch (error) {
+      this.logger.error(`Stream error: ${error.message}`);
+      res.write(`data: ${JSON.stringify({ type: 'error', error: error.message })}\n\n`);
+      res.end();
+    }
   }
 
   @Get('conversations')
