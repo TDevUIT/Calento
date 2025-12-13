@@ -1,4 +1,5 @@
 ﻿import { Controller, Get } from '@nestjs/common';
+import * as v8 from 'v8';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { DatabaseService } from '../../database/database.service';
 import { Public } from '../../common/decorators/public.decorator';
@@ -6,7 +7,7 @@ import { Public } from '../../common/decorators/public.decorator';
 @ApiTags('Health')
 @Controller('health')
 export class HealthController {
-  constructor(private readonly databaseService: DatabaseService) {}
+  constructor(private readonly databaseService: DatabaseService) { }
   @Public()
   @Get()
   @ApiOperation({
@@ -33,7 +34,9 @@ export class HealthController {
           rss: 45678592,
           heapTotal: 20971520,
           heapUsed: 18874368,
+
           external: 1089024,
+          heapLimit: 4294967296,
         },
         version: 'v18.17.0',
       },
@@ -51,7 +54,10 @@ export class HealthController {
         connected: dbHealth,
         stats: dbStats,
       },
-      memory: process.memoryUsage(),
+      memory: {
+        ...process.memoryUsage(),
+        heapLimit: v8.getHeapStatistics().heap_size_limit,
+      },
       version: process.version,
     };
   }
