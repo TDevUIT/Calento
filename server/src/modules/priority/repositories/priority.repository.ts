@@ -19,9 +19,6 @@ export class PriorityRepository extends BaseRepository<UserPriority> {
     return ['id', 'priority', 'position', 'created_at', 'updated_at'];
   }
 
-  /**
-   * Get all priorities for a user
-   */
   async findByUserId(userId: string): Promise<UserPriority[]> {
     const query = `
       SELECT * FROM ${this.tableName}
@@ -38,9 +35,7 @@ export class PriorityRepository extends BaseRepository<UserPriority> {
     }
   }
 
-  /**
-   * Get priority for a specific item
-   */
+
   async findByUserIdAndItem(
     userId: string, 
     itemId: string, 
@@ -60,9 +55,7 @@ export class PriorityRepository extends BaseRepository<UserPriority> {
     }
   }
 
-  /**
-   * Upsert (insert or update) priority for an item
-   */
+
   async upsertPriority(
     userId: string,
     payload: PriorityUpdatePayload
@@ -95,9 +88,6 @@ export class PriorityRepository extends BaseRepository<UserPriority> {
     }
   }
 
-  /**
-   * Bulk upsert priorities
-   */
   async bulkUpsertPriorities(
     userId: string,
     updates: PriorityUpdatePayload[]
@@ -122,9 +112,6 @@ export class PriorityRepository extends BaseRepository<UserPriority> {
     }
   }
 
-  /**
-   * Delete priority for an item
-   */
   async deletePriority(
     userId: string,
     itemId: string,
@@ -148,9 +135,6 @@ export class PriorityRepository extends BaseRepository<UserPriority> {
     }
   }
 
-  /**
-   * Get priorities by priority level
-   */
   async findByUserIdAndPriority(
     userId: string,
     priority: string
@@ -170,9 +154,6 @@ export class PriorityRepository extends BaseRepository<UserPriority> {
     }
   }
 
-  /**
-   * Get priorities by item type
-   */
   async findByUserIdAndItemType(
     userId: string,
     itemType: string

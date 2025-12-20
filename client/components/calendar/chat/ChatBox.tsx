@@ -1,5 +1,4 @@
 'use client';
-
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,18 +8,16 @@ import {
   Sparkles,
   Calendar,
   Clock,
-  Settings,
   CheckCircle2,
   X,
   Loader2,
   Plus,
-  History,
-  PanelLeftClose,
+  Bot,
+  User,
 } from 'lucide-react';
 import { useAIChat } from '@/hook/ai/use-ai-chat';
 import { useConversation, useConversations, useDeleteConversation } from '@/hook/ai/use-conversations';
 import { useConversationState } from '@/hook/ai/use-conversation-state';
-import { ConversationList } from './ConversationList';
 import { AIMessage, FunctionCall, ActionPerformed, StreamMessage } from '@/interface';
 import { MessageContent } from './MessageContent';
 import { ActionConfirmationDialog } from './ActionConfirmationDialog';
@@ -34,6 +31,7 @@ interface ChatBoxProps {
   conversationId?: string;
   onConversationCreated?: (conversationId: string) => void;
   hideHeader?: boolean;
+  variant?: 'panel' | 'popup';
 }
 
 interface ChatMessage extends AIMessage {
@@ -51,10 +49,17 @@ interface PendingActionType {
   parameters: Record<string, string | number | boolean>;
 }
 
-export function ChatBox({ onClose, conversationId: externalConversationId, onConversationCreated, hideHeader = false }: ChatBoxProps) {
+export function ChatBox({
+  onClose,
+  conversationId: externalConversationId,
+  onConversationCreated,
+  hideHeader = false,
+  variant = 'panel',
+}: ChatBoxProps) {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [minimized, setMinimized] = useState(false);
 
   const { activeConversationId, setConversation, clearConversation } = useConversationState();
   const displayConversationId = externalConversationId || activeConversationId;
@@ -213,7 +218,7 @@ export function ChatBox({ onClose, conversationId: externalConversationId, onCon
 
       const confirmMessage: ChatMessage = {
         role: 'assistant',
-        content: 'âœ… Meeting has been scheduled and invites sent to all participants.',
+        content: 'Meeting has been scheduled and invites sent to all participants.',
       };
       setMessages((prev) => [...prev, confirmMessage]);
     } catch {
@@ -250,7 +255,11 @@ export function ChatBox({ onClose, conversationId: externalConversationId, onCon
   };
 
   return (
-    <div className={`flex flex-col bg-white ${hideHeader ? '' : 'border-l shadow-xl'} h-full overflow-hidden`}>
+    <div
+      className={`flex flex-col bg-white ${
+        hideHeader ? '' : variant === 'panel' ? 'border-l' : ''
+      } ${variant === 'popup' ? 'h-full' : 'h-full overflow-hidden'}`}
+    >
       <ActionConfirmationDialog
         open={showConfirmDialog}
         action={pendingAction}
@@ -259,52 +268,35 @@ export function ChatBox({ onClose, conversationId: externalConversationId, onCon
       />
 
       {!hideHeader && (
-        <div className="flex items-center justify-between p-4 border-b flex-shrink-0 bg-white z-10">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg bg-gray-100 flex items-center justify-center">
-              <Sparkles className="h-4 w-4 text-gray-700" />
-            </div>
+        <div className="flex items-center justify-between px-6 py-1 flex-shrink-0 bg-white z-10 border-b">
+          <div className="flex items-center gap-3">
             <div className="flex flex-col">
-              <h2 className="text-base font-semibold text-gray-900">Calento Assistant</h2>
-              {displayConversationId && (
-                <p className="text-xs text-gray-500">Conversation active</p>
-              )}
+              <h2 className="text-lg font-medium text-gray-900">Assistant</h2>
             </div>
           </div>
-          <div className="flex items-center gap-1">
-            {/* <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 gap-1.5"
-              onClick={() => setShowHistory(!showHistory)}
-            >
-              {showHistory ? <PanelLeftClose className="h-4 w-4" /> : <History className="h-4 w-4" />}
-              <span className="text-xs">{showHistory ? 'Hide' : 'History'}</span>
-            </Button> */}
+          <div className="flex items-center gap-2">
             {messages.length > 0 && (
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 gap-1.5"
+                className="h-9 gap-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                 onClick={handleNewConversation}
               >
-                <Plus className="h-3.5 w-3.5" />
-                <span className="text-xs">New</span>
+                <Plus className="h-4 w-4" />
+                <span className="text-sm">New</span>
               </Button>
             )}
-            {/* <Button variant="ghost" size="icon" className="h-8 w-8">
-              <Settings className="h-4 w-4 text-gray-500" />
-            </Button> */}
             {onClose && (
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose}>
-                <X className="h-4 w-4 text-gray-500" />
+              <Button variant="ghost" size="icon" className="h-9 w-9 text-gray-600 hover:text-gray-900 hover:bg-gray-100" onClick={onClose}>
+                <X className="h-4 w-4" />
               </Button>
             )}
           </div>
         </div>
       )}
 
-      <div className="flex flex-1 overflow-hidden">
+      {!minimized && (
+        <div className="flex flex-1 overflow-hidden">
         {/* {showHistory && (
           <div className="w-full flex-shrink-0 border-r bg-gray-50">
             <ConversationList
@@ -318,7 +310,7 @@ export function ChatBox({ onClose, conversationId: externalConversationId, onCon
         )} */}
 
         <div className="flex flex-col flex-1 overflow-hidden">
-          <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-white">
+          <div className="flex-1 overflow-y-auto px-6 py-8 space-y-8">
             {isLoading ? (
               <div className="space-y-4">
                 {[1, 2, 3].map((i) => (
@@ -339,26 +331,23 @@ export function ChatBox({ onClose, conversationId: externalConversationId, onCon
               <EmptyState onSuggestionClick={(text) => setInput(text)} />
             ) : (
               messages.map((message, index) => (
-                <div key={index} className="animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <div key={index} className="animate-in fade-in duration-200">
                   {message.role === 'user' ? (
                     <div className="flex justify-end">
-                      <div className="bg-blue-600 text-white rounded-lg px-4 py-2.5 max-w-[75%]">
-                        <p className="text-sm leading-relaxed">
+                      <div className="bg-gray-900 text-white rounded-lg px-4 py-3 max-w-[80%]">
+                        <p className="text-[15px] leading-relaxed">
                           {message.content}
                         </p>
                       </div>
                     </div>
                   ) : (
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                       {message.content && (
                         <div className="flex items-start gap-3 max-w-[85%]">
-                          {/* <div className="h-8 w-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0 mt-1">
-                            <Sparkles className="h-4 w-4 text-gray-600" />
-                          </div> */}
-                          <div className="flex-1 bg-gray-50 rounded-lg p-4">
+                          <div className="flex-1 bg-gray-50 rounded-lg px-4 py-3 border border-gray-200">
                             <MessageContent content={message.content} />
                             {message.isStreaming && (
-                              <span className="inline-block w-2 h-4 bg-blue-600 ml-0.5 animate-pulse" />
+                              <span className="inline-block w-1.5 h-4 bg-gray-900 ml-1 animate-pulse" />
                             )}
                           </div>
                         </div>
@@ -388,20 +377,18 @@ export function ChatBox({ onClose, conversationId: externalConversationId, onCon
 
                               {action.type === 'createEvent' && action.result && (
                                 <div className="bg-white border border-gray-200 rounded-lg p-4 space-y-3">
-                                  <div className="flex items-center gap-2 text-blue-600">
-                                    <CheckCircle2 className="h-4 w-4" />
-                                    <h4 className="text-sm font-semibold">Event Created</h4>
+                                  <div className="flex items-center gap-2">
+                                    <CheckCircle2 className="h-4 w-4 text-gray-900" />
+                                    <h4 className="text-sm font-medium text-gray-900">Event Created</h4>
                                   </div>
                                   <div className="flex items-start gap-3">
-                                    <div className="h-10 w-10 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
-                                      <Calendar className="h-5 w-5 text-blue-600" />
-                                    </div>
+                                    <Calendar className="h-5 w-5 text-gray-600 mt-0.5" />
                                     <div className="flex-1">
-                                      <h5 className="text-sm font-semibold text-gray-900 mb-1">
+                                      <h5 className="text-[15px] font-medium text-gray-900 mb-1">
                                         {action.result.title}
                                       </h5>
-                                      <div className="flex items-center gap-2 text-xs text-gray-600">
-                                        <Clock className="h-3.5 w-3.5" />
+                                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                                        <Clock className="h-4 w-4" />
                                         <span>
                                           {new Date(action.result.start_time).toLocaleString('en-US', {
                                             weekday: 'short',
@@ -419,32 +406,25 @@ export function ChatBox({ onClose, conversationId: externalConversationId, onCon
 
                               {action.type === 'createTask' && action.result && (
                                 <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                                  <div className="bg-blue-50 px-4 py-3 border-b border-blue-100">
+                                  <div className="px-4 py-3 border-b border-gray-200">
                                     <div className="flex items-center gap-2">
-                                      <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center">
-                                        <CheckCircle2 className="h-4 w-4 text-white" />
-                                      </div>
-                                      <div>
-                                        <h4 className="text-sm font-semibold text-gray-900">Task Created</h4>
-                                        <p className="text-xs text-gray-600">Added to your task list</p>
-                                      </div>
+                                      <CheckCircle2 className="h-4 w-4 text-gray-900" />
+                                      <h4 className="text-sm font-medium text-gray-900">Task Created</h4>
                                     </div>
                                   </div>
                                   <div className="p-4 space-y-3">
                                     <div>
-                                      <h5 className="text-sm font-semibold text-gray-900 mb-1">{action.result.title}</h5>
+                                      <h5 className="text-[15px] font-medium text-gray-900 mb-1">{action.result.title}</h5>
                                       {action.result.description && (
                                         <p className="text-sm text-gray-600">{action.result.description}</p>
                                       )}
                                     </div>
-                                    <div className="flex items-center gap-4 pt-2 border-t border-gray-100">
+                                    <div className="flex items-center gap-6 pt-3 border-t border-gray-200">
                                       {action.result.due_date && (
                                         <div className="flex items-center gap-2">
-                                          <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center">
-                                            <Calendar className="h-4 w-4 text-blue-600" />
-                                          </div>
+                                          <Calendar className="h-4 w-4 text-gray-600" />
                                           <div>
-                                            <p className="text-xs text-gray-500">Due Date</p>
+                                            <p className="text-xs text-gray-500">Due</p>
                                             <p className="text-sm font-medium text-gray-900">
                                               {new Date(action.result.due_date).toLocaleDateString('en-US', {
                                                 month: 'short',
@@ -457,9 +437,7 @@ export function ChatBox({ onClose, conversationId: externalConversationId, onCon
                                       )}
                                       {action.result.estimated_duration && (
                                         <div className="flex items-center gap-2">
-                                          <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center">
-                                            <Clock className="h-4 w-4 text-blue-600" />
-                                          </div>
+                                          <Clock className="h-4 w-4 text-gray-600" />
                                           <div>
                                             <p className="text-xs text-gray-500">Duration</p>
                                             <p className="text-sm font-medium text-gray-900">{action.result.estimated_duration} min</p>
@@ -481,14 +459,11 @@ export function ChatBox({ onClose, conversationId: externalConversationId, onCon
             )}
 
             {isProcessing && messages.length > 0 && messages[messages.length - 1].role === 'assistant' && !messages[messages.length - 1].content && (
-              <div className="flex items-start gap-3 max-w-[85%] animate-in fade-in slide-in-from-bottom-2 duration-300">
-                <div className="h-8 w-8 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0 mt-1">
-                  <Sparkles className="h-4 w-4 text-gray-600" />
-                </div>
-                <div className="flex-1 bg-gray-50 rounded-lg p-4">
+              <div className="flex items-start gap-3 max-w-[85%] animate-in fade-in duration-200">
+                <div className="flex-1 bg-gray-50 rounded-lg px-4 py-3 border border-gray-200">
                   <div className="flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 text-blue-600 animate-spin" />
-                    <p className="text-sm font-medium text-gray-900">Thinking...</p>
+                    <Loader2 className="h-4 w-4 text-gray-900 animate-spin" />
+                    <p className="text-sm text-gray-600">Thinking...</p>
                   </div>
                 </div>
               </div>
@@ -497,34 +472,7 @@ export function ChatBox({ onClose, conversationId: externalConversationId, onCon
             <div ref={messagesEndRef} />
           </div>
 
-          <div className="border-t border-gray-200 p-4 bg-white flex-shrink-0">
-            <p className="text-xs text-gray-500 mb-3">Try asking me to:</p>
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                onClick={() => setInput('Find time for a team meeting')}
-                className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-gray-200"
-              >
-                <Clock className="h-4 w-4" />
-                <span>Find time for a team meeting</span>
-              </button>
-              <button
-                onClick={() => setInput('Check my availability')}
-                className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-gray-200"
-              >
-                <Calendar className="h-4 w-4" />
-                <span>Check my availability</span>
-              </button>
-              <button
-                onClick={() => setInput('Create a task')}
-                className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-gray-200"
-              >
-                <CheckCircle2 className="h-4 w-4" />
-                <span>Create a task</span>
-              </button>
-            </div>
-          </div>
-
-          <div className="border-t border-gray-200 p-4 bg-white flex-shrink-0">
+          <div className="px-6 py-5 bg-white border-t flex-shrink-0">
             <div className="flex gap-2">
               <div className="flex-1 relative">
                 <Input
@@ -533,44 +481,27 @@ export function ChatBox({ onClose, conversationId: externalConversationId, onCon
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && !(chatMutation.isPending || isProcessing) && handleSend()}
                   placeholder="Ask about your schedule..."
-                  className="pr-24 border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                  className="pr-12 h-12 rounded-lg border-gray-300 focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
                   disabled={chatMutation.isPending || isProcessing}
                 />
-                <div className="absolute right-12 top-1/2 -translate-y-1/2">
-                  <kbd className="px-1.5 py-0.5 text-xs font-mono bg-gray-50 text-gray-500 border border-gray-200 rounded">
-                    Ctrl+L
-                  </kbd>
-                </div>
                 <Button
                   size="icon"
-                  variant="ghost"
-                  className="h-7 w-7 absolute right-2 top-1/2 -translate-y-1/2"
+                  className="h-9 w-9 absolute right-1.5 top-1/2 -translate-y-1/2 rounded-md bg-gray-900 hover:bg-gray-800"
                   onClick={handleSend}
                   disabled={!input.trim() || chatMutation.isPending || isProcessing}
                 >
                   {(chatMutation.isPending || isProcessing) ? (
-                    <Loader2 className="h-4 w-4 text-blue-600 animate-spin" />
+                    <Loader2 className="h-4 w-4 text-white animate-spin" />
                   ) : (
-                    <Send className="h-4 w-4 text-blue-600" />
+                    <Send className="h-4 w-4 text-white" />
                   )}
                 </Button>
               </div>
             </div>
-
-            <div className="flex items-center gap-3 mt-3 text-xs text-gray-500">
-              <div className="flex items-center gap-1.5">
-                <Sparkles className="h-3.5 w-3.5 text-blue-600" />
-                <span>Powered by Gemini</span>
-              </div>
-              <div className="h-3 w-px bg-gray-300" />
-              <div className="flex items-center gap-1.5">
-                <Calendar className="h-3.5 w-3.5" />
-                <span>Calendar Intelligence</span>
-              </div>
-            </div>
           </div>
         </div>
-      </div>
+        </div>
+      )}
     </div>
   );
 }

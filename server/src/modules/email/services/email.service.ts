@@ -37,7 +37,7 @@ export class EmailService {
       secure: this.configService.get<string>('SMTP_SECURE', 'false') === 'true',
       auth: {
         user: this.configService.get<string>('SMTP_USER', ''),
-        pass: this.configService.get<string>('SMTP_PASSWORD', ''),
+        pass: (this.configService.get<string>('SMTP_PASSWORD', '') || '').replace(/\s+/g, ''),
       },
       from: this.configService.get<string>(
         'SMTP_FROM',
@@ -50,7 +50,7 @@ export class EmailService {
     const transporterConfig = {
       host: this.emailConfig.host,
       port: this.emailConfig.port,
-      secure: process.env.SMTP_SECURE === 'true',
+      secure: this.emailConfig.secure,
       auth: this.emailConfig.auth,
       tls: {
         rejectUnauthorized: false,
@@ -423,9 +423,6 @@ export class EmailService {
     return result.rows[0] || null;
   }
 
-  /**
-   * Send team invitation email
-   */
   async sendTeamInvitationEmail(
     userId: string,
     inviteeEmail: string,
@@ -440,8 +437,8 @@ export class EmailService {
   ): Promise<SendEmailResult> {
     try {
       const baseUrl = this.configService.get<string>(
-        'APP_URL',
-        'http://localhost:3000',
+        'FRONTEND_URL',
+        'https://calento.space',
       );
       const acceptUrl = `${baseUrl}/dashboard/teams/${teamId}`;
 

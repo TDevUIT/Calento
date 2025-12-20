@@ -38,8 +38,8 @@ const TeamsPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-gray-50">
-      <div className="bg-white border-b">
+    <div className="flex flex-col h-full">
+      <div className="">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <div className="flex items-center justify-between mb-6">
             <div>
@@ -66,7 +66,6 @@ const TeamsPage = () => {
         </div>
       </div>
 
-      {/* Content */}
       <div className="flex-1 overflow-auto">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
