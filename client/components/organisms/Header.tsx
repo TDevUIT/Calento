@@ -1,6 +1,4 @@
-﻿
-
-'use client';
+﻿'use client';
 
 import { Logo } from '@/components/ui/logo';
 import { NAVIGATION_LINKS, EXTERNAL_LINKS } from '@/config/app.config';

@@ -3,31 +3,38 @@
 import React from 'react';
 import Link from 'next/link';
 import { AUTH_ROUTES } from '@/constants/routes';
-import {
-  BarChart,
-  Bar,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts';
-import { ArrowRight } from 'lucide-react';
-
-const weeklyData = [
-  { day: 'Mon', hours: 6.5, tasks: 12 },
-  { day: 'Tue', hours: 7.2, tasks: 15 },
-  { day: 'Wed', hours: 5.8, tasks: 10 },
-  { day: 'Thu', hours: 8.1, tasks: 18 },
-  { day: 'Fri', hours: 7.5, tasks: 14 },
-];
+import { ArrowRight, CheckCircle2, Timer, Sparkles } from 'lucide-react';
 
 const stats = [
   { label: 'Focus time', value: '7.2h', subtext: 'daily avg' },
   { label: 'Tasks done', value: '69', subtext: 'this week' },
   { label: 'Efficiency', value: '94%', subtext: '+5% vs last' },
+];
+
+const weeklyHighlights = [
+  { day: 'Mon', label: 'Deep work blocks', value: '3', percent: 64 },
+  { day: 'Tue', label: 'Meetings optimized', value: '5', percent: 78 },
+  { day: 'Wed', label: 'Context switches', value: 'Low', percent: 52 },
+  { day: 'Thu', label: 'Focus streak', value: '2h', percent: 92 },
+  { day: 'Fri', label: 'Tasks completed', value: '14', percent: 81 },
+];
+
+const recommendations = [
+  {
+    icon: Timer,
+    title: 'Protect focus time',
+    description: 'Auto-block 2× 90-minute deep-work sessions each day.',
+  },
+  {
+    icon: Sparkles,
+    title: 'Smarter scheduling',
+    description: 'Group meetings into 1–2 windows to reduce context switching.',
+  },
+  {
+    icon: CheckCircle2,
+    title: 'Finish more tasks',
+    description: 'Turn tasks into time blocks and get reminders before deadlines.',
+  },
 ];
 
 export const ProductivitySection: React.FC = () => {
@@ -56,55 +63,73 @@ export const ProductivitySection: React.FC = () => {
         <div className="grid lg:grid-cols-2 gap-6 mb-10">
           <div className="border border-cod-gray-200 dark:border-cod-gray-700 rounded-lg p-6 bg-white dark:bg-cod-gray-900 transition-all duration-300 hover:border-blue-500/50">
             <h3 className="text-sm font-medium text-cod-gray-900 dark:text-cod-gray-100 mb-4 transition-colors duration-300">Weekly overview</h3>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={weeklyData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
-                <XAxis dataKey="day" stroke="#9ca3af" tick={{ fontSize: 12 }} />
-                <YAxis stroke="#9ca3af" tick={{ fontSize: 12 }} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: '#fff',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                  }}
-                />
-                <Bar dataKey="hours" fill="#2563eb" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            <div className="space-y-3" role="list" aria-label="Weekly highlights">
+              {weeklyHighlights.map((item) => (
+                <div key={item.day} className="grid grid-cols-[40px_1fr_auto] items-center gap-3" role="listitem">
+                  <div className="text-xs font-semibold text-cod-gray-700 dark:text-cod-gray-300">
+                    {item.day}
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="text-xs text-cod-gray-600 dark:text-cod-gray-400">
+                        {item.label}
+                      </div>
+                      <div className="text-xs font-medium text-cod-gray-900 dark:text-cod-gray-100">
+                        {item.value}
+                      </div>
+                    </div>
+                    <div className="mt-1 h-2 w-full rounded-full bg-cod-gray-100 dark:bg-cod-gray-800 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-blue-600"
+                        style={{ width: `${item.percent}%` }}
+                        aria-hidden="true"
+                      />
+                    </div>
+                  </div>
+                  <div className="text-[11px] tabular-nums text-cod-gray-500 dark:text-cod-gray-400">
+                    {item.percent}%
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="border border-cod-gray-200 dark:border-cod-gray-700 rounded-lg p-6 bg-white dark:bg-cod-gray-900 transition-all duration-300 hover:border-blue-500/50">
             <h3 className="text-sm font-medium text-cod-gray-900 dark:text-cod-gray-100 mb-4 transition-colors duration-300">Focus time trend</h3>
-            <ResponsiveContainer width="100%" height={200}>
-              <AreaChart data={weeklyData}>
-                <defs>
-                  <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#2563eb" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
-                <XAxis dataKey="day" stroke="#9ca3af" tick={{ fontSize: 12 }} />
-                <YAxis stroke="#9ca3af" tick={{ fontSize: 12 }} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: '#fff',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                  }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="hours"
-                  stroke="#2563eb"
-                  strokeWidth={2}
-                  fillOpacity={1}
-                  fill="url(#colorGradient)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            <div className="space-y-4">
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="rounded-md border border-cod-gray-200 dark:border-cod-gray-700 bg-cod-gray-50 dark:bg-cod-gray-950 px-4 py-3">
+                  <div className="text-xs text-cod-gray-500 dark:text-cod-gray-400">Best day</div>
+                  <div className="mt-1 font-semibold text-cod-gray-900 dark:text-cod-gray-100">Thursday</div>
+                </div>
+                <div className="rounded-md border border-cod-gray-200 dark:border-cod-gray-700 bg-cod-gray-50 dark:bg-cod-gray-950 px-4 py-3">
+                  <div className="text-xs text-cod-gray-500 dark:text-cod-gray-400">Consistency</div>
+                  <div className="mt-1 font-semibold text-cod-gray-900 dark:text-cod-gray-100">High</div>
+                </div>
+                <div className="rounded-md border border-cod-gray-200 dark:border-cod-gray-700 bg-cod-gray-50 dark:bg-cod-gray-950 px-4 py-3">
+                  <div className="text-xs text-cod-gray-500 dark:text-cod-gray-400">Suggested change</div>
+                  <div className="mt-1 font-semibold text-cod-gray-900 dark:text-cod-gray-100">+30m/day</div>
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-cod-gray-200 dark:border-cod-gray-700 bg-white dark:bg-cod-gray-950 p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <div className="text-xs font-medium text-cod-gray-900 dark:text-cod-gray-100">Recommended next steps</div>
+                  <div className="text-[11px] text-cod-gray-500 dark:text-cod-gray-400">Personalized insights</div>
+                </div>
+                <div className="grid gap-3">
+                  {recommendations.map((rec) => (
+                    <div key={rec.title} className="flex items-start gap-3 rounded-md border border-cod-gray-200 dark:border-cod-gray-800 px-3 py-3">
+                      <rec.icon aria-hidden="true" className="mt-0.5 h-4 w-4 text-blue-600" />
+                      <div>
+                        <div className="text-sm font-semibold text-cod-gray-900 dark:text-cod-gray-100">{rec.title}</div>
+                        <div className="text-xs text-cod-gray-600 dark:text-cod-gray-400">{rec.description}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div className="flex items-center justify-between p-6 border border-cod-gray-200 dark:border-cod-gray-700 bg-cod-gray-50 dark:bg-cod-gray-900 rounded-lg transition-all duration-300">

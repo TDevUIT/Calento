@@ -16,16 +16,14 @@ export const LogoTicker = () => {
                 gradient={false}
                 speed={35}
                 pauseOnHover={true}
-                className="py-8 overflow-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+                className="overflow-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
             >
                 {[
-                    { name: "CNN", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/cnn.svg" },
                     { name: "IKEA", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/ikea.svg" },
                     { name: "NVIDIA", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/nvidia.svg" },
                     { name: "Nintendo", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/nintendo.svg" },
                     { name: "Ubisoft", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/ubisoft.svg" },
                     { name: "Harvard", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/harvard.svg" },
-                    { name: "NBA", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/nba.svg" },
                     { name: "CoinMarketCap", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/coinmarketcap.svg" },
                     { name: "MailOnline", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/mailonline.svg" },
                     { name: "Roblox", logo: "https://www.jsdelivr.com/assets/3d8df350294cfee12bb96c1a6267b505c51a78e9/img/landing/new/external-websites/roblox.svg" },

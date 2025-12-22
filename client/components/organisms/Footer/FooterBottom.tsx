@@ -1,5 +1,6 @@
 ﻿import Link from "next/link";
 import { FOOTER_BOTTOM } from '@/constants/footer.constants';
+import { Mail } from 'lucide-react';
 
 export const FooterBottom: React.FC = () => {
     return (
@@ -23,7 +24,7 @@ export const FooterBottom: React.FC = () => {
                             </Link>
                         ))}
                         <div className="flex items-center gap-1">
-                            <span className="text-cod-gray-600 dark:text-cod-gray-400" aria-hidden="true">ðŸ“§</span>
+                            <Mail aria-hidden="true" className="h-4 w-4 text-cod-gray-600 dark:text-cod-gray-400" />
                             <a 
                                 href={`mailto:${FOOTER_BOTTOM.email}`}
                                 className="text-cod-gray-600 dark:text-cod-gray-400 text-sm hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
