@@ -3,7 +3,6 @@ import type { NextRequest } from 'next/server';
 import { API_BASE_URL, API_PREFIX } from '@/constants/api.constants';
 
 const isDev = process.env.NODE_ENV === 'development';
-// Middleware logging - keep minimal for performance
 const log = (...args: unknown[]) => isDev && console.log('[Middleware]', ...args);
 
 async function verifyAuthFromCookies(request: NextRequest): Promise<boolean> {
@@ -70,47 +69,47 @@ async function verifyAuthFromAPI(request: NextRequest): Promise<boolean> {
 }
 
 export async function middleware(request: NextRequest) {
-  const { pathname, searchParams } = request.nextUrl;
+//   const { pathname, searchParams } = request.nextUrl;
   
-  log('[Middleware] Running for pathname:', pathname);
+//   log('[Middleware] Running for pathname:', pathname);
   
-  if (pathname.startsWith('/api/')) {
-    return NextResponse.next();
-  }
+//   if (pathname.startsWith('/api/')) {
+//     return NextResponse.next();
+//   }
 
-  const protectedPrefixes = ['/dashboard', '/calendar', '/events', '/profile', '/settings'];
+//   const protectedPrefixes = ['/dashboard', '/calendar', '/events', '/profile', '/settings'];
   
-  const guestOnlyRoutes = ['/login', '/register', '/forgot-password'];
+//   const guestOnlyRoutes = ['/login', '/register', '/forgot-password'];
   
-  let isAuthenticated = await verifyAuthFromCookies(request);
+//   let isAuthenticated = await verifyAuthFromCookies(request);
   
-  if (!isAuthenticated) {
-    log('[Middleware] Cookie auth failed, trying API verification...');
-    isAuthenticated = await verifyAuthFromAPI(request);
-  }
+//   if (!isAuthenticated) {
+//     log('[Middleware] Cookie auth failed, trying API verification...');
+//     isAuthenticated = await verifyAuthFromAPI(request);
+//   }
   
-  const requiresAuth = protectedPrefixes.some(
-    (prefix) => pathname === prefix || pathname.startsWith(prefix + '/')
-  );
+//   const requiresAuth = protectedPrefixes.some(
+//     (prefix) => pathname === prefix || pathname.startsWith(prefix + '/')
+//   );
   
-  if (requiresAuth && !isAuthenticated) {
-    log('[Middleware] Access denied - redirecting to login');
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('returnUrl', pathname);
-    return NextResponse.redirect(loginUrl);
-  }
+//   if (requiresAuth && !isAuthenticated) {
+//     log('[Middleware] Access denied - redirecting to login');
+//     const loginUrl = new URL('/login', request.url);
+//     loginUrl.searchParams.set('returnUrl', pathname);
+//     return NextResponse.redirect(loginUrl);
+//   }
   
-  if (guestOnlyRoutes.includes(pathname) && isAuthenticated) {
-    log('[Middleware] Authenticated user accessing guest route - redirecting');
-    const returnUrl = searchParams.get('returnUrl');
-    const redirectTo = returnUrl && protectedPrefixes.some(prefix => 
-      returnUrl === prefix || returnUrl.startsWith(prefix + '/')
-    ) ? returnUrl : '/dashboard';
+//   if (guestOnlyRoutes.includes(pathname) && isAuthenticated) {
+//     log('[Middleware] Authenticated user accessing guest route - redirecting');
+//     const returnUrl = searchParams.get('returnUrl');
+//     const redirectTo = returnUrl && protectedPrefixes.some(prefix => 
+//       returnUrl === prefix || returnUrl.startsWith(prefix + '/')
+//     ) ? returnUrl : '/dashboard';
     
-    return NextResponse.redirect(new URL(redirectTo, request.url));
-  }
+//     return NextResponse.redirect(new URL(redirectTo, request.url));
+//   }
 
-  log('[Middleware] Access granted for:', pathname);
+//   log('[Middleware] Access granted for:', pathname);
   return NextResponse.next();
 }
 
