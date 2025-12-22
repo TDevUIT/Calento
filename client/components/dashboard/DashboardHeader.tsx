@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Bell, Sparkles, Plus, Calendar } from "lucide-react";
+import { Search, Bell } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import {
   Tooltip,
@@ -12,8 +12,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { UserAvatarMenu } from "./UserAvatarMenu";
-import { UpcomingEvents } from "./UpcomingEvents";
-import { CreateTaskDropdown } from "@/components/task/CreateTaskDropdown";
 import GlobalSearchDialog from "./GlobalSearchDialog";
 import { useEvents } from "@/hook/event";
 import { useTasks } from "@/hook/task";
@@ -26,7 +24,6 @@ interface DashboardHeaderProps {
 }
 
 export function DashboardHeader({ notificationCount = 3 }: DashboardHeaderProps) {
-  const [openTaskDialog, setOpenTaskDialog] = useState(false);
   const [openSearchDialog, setOpenSearchDialog] = useState(false);
   
   const { data: eventsData } = useEvents({ page: 1, limit: 50 });
@@ -48,20 +45,11 @@ export function DashboardHeader({ notificationCount = 3 }: DashboardHeaderProps)
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
   
-  const handleNewTask = () => {
-    setOpenTaskDialog(true);
-  };
-
   const handleSearch = () => {
     setOpenSearchDialog(true);
   };
 
-  const handleCalendarView = () => {
-    window.location.href = '/dashboard/calendar';
-  };
-
   const handleNotifications = () => {
-    // Notifications panel - future feature
     logger.info('Notifications feature coming soon', {
       component: 'DashboardHeader',
       action: 'OPEN_NOTIFICATIONS'
@@ -69,27 +57,11 @@ export function DashboardHeader({ notificationCount = 3 }: DashboardHeaderProps)
     toast.info('Notifications feature coming soon!');
   };
 
-  const handleUpgrade = () => {
-    window.location.href = '/pricing';
-  };
-
   return (
-    <header className="flex h-14 items-center gap-3 border-b px-4 bg-white flex-shrink-0 z-50">
+    <header className="flex h-14 items-center border-b gap-3 px-4 bg-white flex-shrink-0 z-50">
       <SidebarTrigger className="-ml-1" />
       
       <div className="flex flex-1 items-center gap-3">
-        
-        <UpcomingEvents />
-
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="h-9 w-9"
-          onClick={handleCalendarView}
-        >
-          <Calendar className="h-4 w-4" />
-        </Button>
-
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -108,19 +80,8 @@ export function DashboardHeader({ notificationCount = 3 }: DashboardHeaderProps)
           </Tooltip>
         </TooltipProvider>
 
-        <span className="flex-1" />
-        <CreateTaskDropdown 
-          open={openTaskDialog} 
-          onOpenChange={setOpenTaskDialog} 
-        >
-          <button 
-            className="h-9 gap-2 flex items-center hover:bg-gray-100 hover:rounded-xl p-2" 
-            onClick={handleNewTask}
-          >
-            <Plus className="h-4 w-4" />
-            <span>New Task</span>
-          </button>
-        </CreateTaskDropdown>
+        <div id="dashboard-header-calendar-slot" className="flex flex-1 items-center min-w-0" />
+
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -145,15 +106,6 @@ export function DashboardHeader({ notificationCount = 3 }: DashboardHeaderProps)
         </TooltipProvider>
 
         <UserAvatarMenu />
-
-        <Button 
-          size="sm" 
-          className="h-9 bg-persian-blue-600 hover:bg-persian-blue-700 gap-2"
-          onClick={handleUpgrade}
-        >
-          <Sparkles className="h-4 w-4" />
-          <span>Upgrade</span>
-        </Button>
       </div>
       
       <GlobalSearchDialog

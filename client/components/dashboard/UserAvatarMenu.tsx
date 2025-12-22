@@ -54,11 +54,11 @@ export function UserAvatarMenu(props?: UserAvatarMenuProps) {
   };
 
   const handleProfileClick = () => {
-    router.push(PROTECTED_ROUTES.PROFILE);
+    router.push(PROTECTED_ROUTES.DASHBOARD_PROFILE);
   };
 
   const handleSettingsClick = () => {
-    router.push(PROTECTED_ROUTES.SETTINGS);
+    router.push(PROTECTED_ROUTES.DASHBOARD_SETTINGS);
   };
 
   const handleBillingClick = () => {

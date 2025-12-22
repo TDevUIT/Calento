@@ -2,7 +2,6 @@
 import SidebarDashboard from "@/components/dashboard/Sidebar";
 import { DashboardProviders } from "@/components/dashboard/DashboardProviders";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
-import { ChatButton } from "@/components/dashboard/ChatButton";
 import { DashboardSidebarProvider } from "@/components/dashboard/DashboardSidebarProvider";
 
 export default function DashboardLayout({
@@ -20,7 +19,6 @@ export default function DashboardLayout({
             {children}
           </main>
         </SidebarInset>
-        <ChatButton />
       </DashboardSidebarProvider>
     </DashboardProviders>
   );

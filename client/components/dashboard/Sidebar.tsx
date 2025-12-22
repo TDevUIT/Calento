@@ -43,10 +43,20 @@ const calendarScheduleItems = [
     href: PROTECTED_ROUTES.DASHBOARD_CALENDAR,
     icon: CalendarDays,
   },
+    {
+    title: "Priorities",
+    href: PROTECTED_ROUTES.DASHBOARD_PRIORITIES,
+    icon: CalendarClock,
+  },
   {
     title: "Tasks",
     href: PROTECTED_ROUTES.DASHBOARD_TASKS,
     icon: CheckSquare,
+  },
+    {
+    title: "Scheduling",
+    href: PROTECTED_ROUTES.DASHBOARD_SCHEDULING,
+    icon: Video,
   },
   {
     title: "Availability",
@@ -57,16 +67,6 @@ const calendarScheduleItems = [
     title: "Teams",
     href: PROTECTED_ROUTES.DASHBOARD_TEAMS,
     icon: Users,
-  },
-  {
-    title: "Priorities",
-    href: PROTECTED_ROUTES.DASHBOARD_PRIORITIES,
-    icon: CalendarClock,
-  },
-  {
-    title: "Scheduling",
-    href: PROTECTED_ROUTES.DASHBOARD_SCHEDULING,
-    icon: Video,
   },
   {
     title: "Analytics",
