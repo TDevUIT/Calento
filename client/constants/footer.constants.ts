@@ -71,7 +71,7 @@ export const SOCIAL_PLATFORMS: Omit<SocialPlatform, 'icon'>[] = [
   },
   {
     name: "LinkedIn", 
-    href: "https://linkedin.com/company/calento-ai",
+    href: "https://www.linkedin.com/in/vanthaita/",
     color: "hover:bg-[#0A66C2] hover:text-white"
   },
   {
@@ -86,7 +86,7 @@ export const SOCIAL_PLATFORMS: Omit<SocialPlatform, 'icon'>[] = [
   },
   {
     name: "Facebook",
-    href: "https://facebook.com/calento.space",
+    href: "https://www.facebook.com/thai.ta.184236",
     color: "hover:bg-[#1877F2] hover:text-white"
   }
 ];

@@ -24,8 +24,8 @@ export const organizationSchema = {
   },
   sameAs: [
     'https://twitter.com/calento',
-    'https://linkedin.com/company/calento',
-    'https://facebook.com/calento',
+    'https://www.linkedin.com/in/vanthaita/',
+    'https://www.facebook.com/thai.ta.184236',
   ],
 };
 

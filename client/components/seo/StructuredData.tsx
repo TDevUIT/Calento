@@ -14,8 +14,9 @@ const organizationData = {
   description: 'AI-powered calendar assistant for smart scheduling and time management',
   sameAs: [
     'https://twitter.com/calento',
-    'https://linkedin.com/company/calento',
+    'https://www.linkedin.com/in/vanthaita/',
     'https://github.com/calento',
+    'https://www.facebook.com/thai.ta.184236',
   ],
   contactPoint: {
     '@type': 'ContactPoint',
