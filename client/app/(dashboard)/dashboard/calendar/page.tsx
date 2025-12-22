@@ -1,45 +1,25 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Loader2 } from 'lucide-react';
 import { startOfMonth, endOfMonth } from 'date-fns';
-import { enUS, type Locale } from 'date-fns/locale';
-import {
-  Calendar,
-  CalendarDayView,
-  CalendarMonthView,
-  CalendarNextTrigger,
-  CalendarPrevTrigger,
-  CalendarTodayTrigger,
-  CalendarWeekView,
-  CalendarYearView,
-  useCalendar,
-  type CalendarEvent,
-} from '@/components/calendar/views';
-import { KeyboardShortcuts } from '@/components/calendar/KeyboardShortcuts';
-import { DateDisplay, HeaderActions, ViewSelector, QuickActions, MonthProgress } from '@/components/calendar/header';
+import { enUS } from 'date-fns/locale';
+import type { CalendarEvent } from '@/components/calendar/views';
 import { useEvents, useRecurringEvents } from '@/hook/event';
 import { useTasks } from '@/hook/task';
 import { useApiData } from '@/hook';
 import type { Event } from '@/interface';
 import type { Task } from '@/interface';
-import { useQueryClient } from '@tanstack/react-query';
-import { EVENT_QUERY_KEYS } from '@/hook/event/query-keys';
 import { getColorHex } from '@/utils';
 import { useKeyboardShortcuts } from './useKeyboardShortcuts';
 import { getWeekStartDay } from '@/utils';
-import { getCalendarStyles } from '@/utils';
-import { CalendarSidebar } from '@/components/calendar/sidebar/CalendarSidebar';
-import { CreateEventDialog, EditEventDialog } from '@/components/calendar/dialogs';
-import { EditTaskDialog } from '@/components/task/EditTaskDialog';
-import { CalendarSettingsDialog } from '@/components/calendar/settings/CalendarSettingsDialog';
-import { CalendarSettingsProvider } from '@/components/calendar/shared/CalendarSettingsProvider';
 import { useControllerStore } from '@/store/controller.store';
 import { useCalendarSettingsStore } from '@/store/calendar-settings.store';
 import { COLORS } from '@/constants/theme.constants';
+import { DashboardCalendarWrapper } from '@/components/calendar/views/DashboardCalendarWrapper';
+import { ChatBox } from '@/components/calendar/chat';
 
 export default function Page() {
-  const queryClient = useQueryClient();
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
@@ -192,240 +172,49 @@ export default function Page() {
   };
 
   return (
-    <CalendarWrapper
-      currentMonth={currentMonth}
-      setCurrentMonth={setCurrentMonth}
-      filteredEvents={filteredEvents}
-      handleEventClick={handleEventClick}
-      expandedCalendarSidebar={expandedCalendarSidebar}
-      toggleCalendarSidebar={toggleCalendarSidebar}
-      selectedDate={selectedDate}
-      setSelectedDate={setSelectedDate}
-      openEventDialog={openEventDialog}
-      setOpenEventDialog={setOpenEventDialog}
-      showShortcuts={showShortcuts}
-      setShowShortcuts={setShowShortcuts}
-      showSettings={showSettings}
-      setShowSettings={setShowSettings}
-      selectedEventId={selectedEventId}
-      setSelectedEventId={setSelectedEventId}
-      showEditDialog={showEditDialog}
-      setShowEditDialog={setShowEditDialog}
-      selectedTask={selectedTask}
-      setSelectedTask={setSelectedTask}
-      showTaskDialog={showTaskDialog}
-      setShowTaskDialog={setShowTaskDialog}
-      visibleCalendarIds={visibleCalendarIds}
-      setVisibleCalendarIds={setVisibleCalendarIds}
-      defaultView={defaultView}
-      enableKeyboardShortcuts={enableKeyboardShortcuts}
-      calendarLocale={calendarLocale}
-      timeFormat={timeFormat}
-      dateFormat={dateFormat}
-      showWeekNumbers={showWeekNumbers}
-      highlightWeekends={highlightWeekends}
-      compactMode={compactMode}
-    />
-  );
-}
-
-function CalendarWrapper({
-  currentMonth,
-  setCurrentMonth,
-  filteredEvents,
-  handleEventClick,
-  expandedCalendarSidebar,
-  toggleCalendarSidebar,
-  selectedDate,
-  setSelectedDate,
-  openEventDialog,
-  setOpenEventDialog,
-  showShortcuts,
-  setShowShortcuts,
-  showSettings,
-  setShowSettings,
-  selectedEventId,
-  setSelectedEventId,
-  showEditDialog,
-  setShowEditDialog,
-  selectedTask,
-  setSelectedTask,
-  showTaskDialog,
-  setShowTaskDialog,
-  visibleCalendarIds,
-  setVisibleCalendarIds,
-  defaultView,
-  enableKeyboardShortcuts,
-  calendarLocale,
-  highlightWeekends,
-  compactMode,
-}: {
-  currentMonth: Date;
-  setCurrentMonth: (date: Date) => void;
-  filteredEvents: CalendarEvent[];
-  handleEventClick: (event: CalendarEvent) => void;
-  expandedCalendarSidebar: boolean;
-  toggleCalendarSidebar: () => void;
-  selectedDate: Date;
-  setSelectedDate: (date: Date) => void;
-  openEventDialog: boolean;
-  setOpenEventDialog: (open: boolean) => void;
-  showShortcuts: boolean;
-  setShowShortcuts: (show: boolean) => void;
-  showSettings: boolean;
-  setShowSettings: (show: boolean) => void;
-  selectedEventId: string | null;
-  setSelectedEventId: (id: string | null) => void;
-  showEditDialog: boolean;
-  setShowEditDialog: (show: boolean) => void;
-  selectedTask: Task | null;
-  setSelectedTask: (task: Task | null) => void;
-  showTaskDialog: boolean;
-  setShowTaskDialog: (show: boolean) => void;
-  visibleCalendarIds: Set<string>;
-  setVisibleCalendarIds: (ids: Set<string>) => void;
-  defaultView: 'day' | 'week' | 'month' | 'year';
-  enableKeyboardShortcuts: boolean;
-  calendarLocale: Locale;
-  timeFormat: '12h' | '24h';
-  dateFormat: 'DD/MM/YYYY' | 'MM/DD/YYYY' | 'YYYY-MM-DD';
-  showWeekNumbers: boolean;
-  highlightWeekends: boolean;
-  compactMode: boolean;
-}) {
-
-  const calendarStyles = getCalendarStyles(compactMode, highlightWeekends);
-
-  const CalendarDateSync = ({ onDateChange }: { onDateChange: (date: Date) => void }) => {
-    const { date } = useCalendar();
-
-    useEffect(() => {
-      onDateChange(date);
-    }, [date, onDateChange]);
-
-    return null;
-  };
-
-  return (
-    <CalendarSettingsProvider>
-      <Calendar
-        events={filteredEvents}
-        onEventClick={handleEventClick}
-        defaultDate={currentMonth}
-        view={defaultView}
-        enableHotkeys={enableKeyboardShortcuts}
-        locale={calendarLocale}
-      >
-        <CalendarDateSync onDateChange={setCurrentMonth} />
-
-        <div className={`bg-[#F7F8FC] flex -mx-2 ${calendarStyles.container}`}>
-          <div className="flex-1 flex flex-col min-h-screen">
-            <div className="px-4 md:px-6">
-              <div className="flex flex-wrap items-center gap-3 mb-4 pt-2">
-                <div className="flex items-center gap-3">
-                  <DateDisplay />
-
-                  <div className="flex items-center gap-2">
-                    <CalendarPrevTrigger className="hover:bg-accent hover:scale-105 transition-all">
-                      <ChevronLeft size={18} />
-                      <span className="sr-only">Previous</span>
-                    </CalendarPrevTrigger>
-
-                    <CalendarTodayTrigger className="font-medium hover:scale-105 transition-all">
-                      Today
-                    </CalendarTodayTrigger>
-
-                    <CalendarNextTrigger className="hover:bg-accent hover:scale-105 transition-all">
-                      <ChevronRight size={18} />
-                      <span className="sr-only">Next</span>
-                    </CalendarNextTrigger>
-                  </div>
-                </div>
-
-                <span className="flex-1" />
-
-                <div className="flex items-center gap-3">
-                  <ViewSelector />
-                  <div className="h-6 w-px bg-border" />
-                  <QuickActions onCreateEvent={() => setOpenEventDialog(true)} />
-                  <div className="h-6 w-px bg-border" />
-                  <HeaderActions
-                    showSidebar={expandedCalendarSidebar}
-                    onToggleSidebar={toggleCalendarSidebar}
-                    onOpenSettings={() => setShowSettings(true)}
-                    onOpenShortcuts={() => setShowShortcuts(true)}
-                  />
-                </div>
-              </div>
-
-              {/* <div className="mb-4">
-                <MonthProgress />
-              </div> */}
-            </div>
-
-            <div className="flex-1 overflow-hidden px-4 md:px-6">
-              <CalendarDayView />
-              <CalendarWeekView />
-              <CalendarMonthView />
-              <CalendarYearView />
-            </div>
-          </div>
+    <>
+      <div className='flex flex-row h-[calc(100vh-3.5rem)] -ml-2 -mb-10 overflow-hidden'>
+        <div className='flex-1 min-w-0 overflow-hidden'>
+          <DashboardCalendarWrapper
+            currentMonth={currentMonth}
+            setCurrentMonth={setCurrentMonth}
+            filteredEvents={filteredEvents}
+            handleEventClick={handleEventClick}
+            expandedCalendarSidebar={expandedCalendarSidebar}
+            toggleCalendarSidebar={toggleCalendarSidebar}
+            selectedDate={selectedDate}
+            setSelectedDate={setSelectedDate}
+            openEventDialog={openEventDialog}
+            setOpenEventDialog={setOpenEventDialog}
+            showShortcuts={showShortcuts}
+            setShowShortcuts={setShowShortcuts}
+            showSettings={showSettings}
+            setShowSettings={setShowSettings}
+            selectedEventId={selectedEventId}
+            setSelectedEventId={setSelectedEventId}
+            showEditDialog={showEditDialog}
+            setShowEditDialog={setShowEditDialog}
+            selectedTask={selectedTask}
+            setSelectedTask={setSelectedTask}
+            showTaskDialog={showTaskDialog}
+            setShowTaskDialog={setShowTaskDialog}
+            visibleCalendarIds={visibleCalendarIds}
+            setVisibleCalendarIds={setVisibleCalendarIds}
+            defaultView={defaultView}
+            enableKeyboardShortcuts={enableKeyboardShortcuts}
+            calendarLocale={calendarLocale}
+            timeFormat={timeFormat}
+            dateFormat={dateFormat}
+            showWeekNumbers={showWeekNumbers}
+            highlightWeekends={highlightWeekends}
+            compactMode={compactMode}
+          />
         </div>
-
-        {expandedCalendarSidebar && (
-          <div
-            className="fixed right-0 top-14 w-[460px] animate-in slide-in-from-right duration-300"
-            style={{ height: 'calc(100vh - 3.5rem)', zIndex: 2500 }}
-          >
-            <CalendarSidebar
-              selectedDate={selectedDate}
-              onDateSelect={setSelectedDate}
-              onCreateEvent={() => setOpenEventDialog(true)}
-              onClose={toggleCalendarSidebar}
-              visibleCalendarIds={visibleCalendarIds}
-              onVisibleCalendarIdsChange={setVisibleCalendarIds}
-            />
-          </div>
-        )}
-
-        <CreateEventDialog
-          open={openEventDialog}
-          onOpenChange={setOpenEventDialog}
-          defaultStartTime={selectedDate}
-        />
-
-        <KeyboardShortcuts
-          open={showShortcuts}
-          onOpenChange={setShowShortcuts}
-        />
-
-        <CalendarSettingsDialog
-          open={showSettings}
-          onOpenChange={setShowSettings}
-        />
-
-        {selectedEventId && (
-          <EditEventDialog
-            open={showEditDialog}
-            onOpenChange={(open) => {
-              setShowEditDialog(open);
-              if (!open) setSelectedEventId(null);
-            }}
-            eventId={selectedEventId}
-          />
-        )}
-
-        {selectedTask && (
-          <EditTaskDialog
-            task={selectedTask}
-            open={showTaskDialog}
-            onClose={() => {
-              setShowTaskDialog(false);
-              setSelectedTask(null);
-            }}
-          />
-        )}
-      </Calendar>
-    </CalendarSettingsProvider>
+        <div className='shrink-0 h-full overflow-hidden w-[28rem] max-w-[28rem] bg-white border-l'>
+          <ChatBox variant="panel" />
+        </div>
+      </div>
+    
+    </>
   );
 }

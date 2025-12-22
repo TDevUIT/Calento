@@ -4,16 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { aiService } from '@/service';
 import {
-  Send,
-  Sparkles,
   Calendar,
   Clock,
   CheckCircle2,
   X,
   Loader2,
   Plus,
-  Bot,
-  User,
+  Mic,
+  ArrowUp,
 } from 'lucide-react';
 import { useAIChat } from '@/hook/ai/use-ai-chat';
 import { useConversation, useConversations, useDeleteConversation } from '@/hook/ai/use-conversations';
@@ -257,7 +255,7 @@ export function ChatBox({
   return (
     <div
       className={`flex flex-col bg-white ${
-        hideHeader ? '' : variant === 'panel' ? 'border-l' : ''
+        hideHeader ? '' : ''
       } ${variant === 'popup' ? 'h-full' : 'h-full overflow-hidden'}`}
     >
       <ActionConfirmationDialog
@@ -268,10 +266,10 @@ export function ChatBox({
       />
 
       {!hideHeader && (
-        <div className="flex items-center justify-between px-6 py-1 flex-shrink-0 bg-white z-10 border-b">
+        <div className="flex items-center justify-between px-4 py-2 flex-shrink-0 bg-white z-10 border-b">
           <div className="flex items-center gap-3">
             <div className="flex flex-col">
-              <h2 className="text-lg font-medium text-gray-900">Assistant</h2>
+              <h2 className="text-lg font-medium text-gray-900">Calento Assistant</h2>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -310,7 +308,11 @@ export function ChatBox({
         )} */}
 
         <div className="flex flex-col flex-1 overflow-hidden">
-          <div className="flex-1 overflow-y-auto px-6 py-8 space-y-8">
+          <div
+            className={`flex-1 px-4 py-4 space-y-5 ${
+              messages.length === 0 && !isLoading ? 'overflow-hidden' : 'overflow-y-auto scrollbar-thin'
+            }`}
+          >
             {isLoading ? (
               <div className="space-y-4">
                 {[1, 2, 3].map((i) => (
@@ -334,7 +336,7 @@ export function ChatBox({
                 <div key={index} className="animate-in fade-in duration-200">
                   {message.role === 'user' ? (
                     <div className="flex justify-end">
-                      <div className="bg-gray-900 text-white rounded-lg px-4 py-3 max-w-[80%]">
+                      <div className="bg-gray-800 text-white rounded-lg px-3 py-2.5 max-w-[85%]">
                         <p className="text-[15px] leading-relaxed">
                           {message.content}
                         </p>
@@ -344,7 +346,7 @@ export function ChatBox({
                     <div className="space-y-4">
                       {message.content && (
                         <div className="flex items-start gap-3 max-w-[85%]">
-                          <div className="flex-1 bg-gray-50 rounded-lg px-4 py-3 border border-gray-200">
+                          <div className="flex-1 bg-gray-50 rounded-lg px-3 py-2.5 border border-gray-200">
                             <MessageContent content={message.content} />
                             {message.isStreaming && (
                               <span className="inline-block w-1.5 h-4 bg-gray-900 ml-1 animate-pulse" />
@@ -472,31 +474,57 @@ export function ChatBox({
             <div ref={messagesEndRef} />
           </div>
 
-          <div className="px-6 py-5 bg-white border-t flex-shrink-0">
-            <div className="flex gap-2">
-              <div className="flex-1 relative">
-                <Input
-                  ref={inputRef}
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && !(chatMutation.isPending || isProcessing) && handleSend()}
-                  placeholder="Ask about your schedule..."
-                  className="pr-12 h-12 rounded-lg border-gray-300 focus:border-gray-900 focus:ring-1 focus:ring-gray-900"
-                  disabled={chatMutation.isPending || isProcessing}
-                />
-                <Button
-                  size="icon"
-                  className="h-9 w-9 absolute right-1.5 top-1/2 -translate-y-1/2 rounded-md bg-gray-900 hover:bg-gray-800"
-                  onClick={handleSend}
-                  disabled={!input.trim() || chatMutation.isPending || isProcessing}
-                >
-                  {(chatMutation.isPending || isProcessing) ? (
-                    <Loader2 className="h-4 w-4 text-white animate-spin" />
-                  ) : (
-                    <Send className="h-4 w-4 text-white" />
-                  )}
-                </Button>
-              </div>
+          <div className="bg-white border-t flex-shrink-0">
+            <div className="flex items-center h-14">
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                className="h-14 w-12 rounded-none border-r border-border"
+                onClick={() => {
+                  handleNewConversation();
+                  requestAnimationFrame(() => inputRef.current?.focus());
+                }}
+                aria-label="Actions"
+              >
+                <Plus className="h-4 w-4 text-gray-700" />
+              </Button>
+
+              <Input
+                ref={inputRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && !(chatMutation.isPending || isProcessing) && handleSend()}
+                placeholder="Ask about your schedule..."
+                className="flex-1 h-14 rounded-none border-0 px-3 focus-visible:ring-0 focus-visible:ring-offset-0"
+                disabled={chatMutation.isPending || isProcessing}
+              />
+
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                className="h-14 w-12 rounded-none border-l border-border"
+                onClick={() => {}}
+                aria-label="Voice"
+              >
+                <Mic className="h-4 w-4 text-gray-700" />
+              </Button>
+
+              <Button
+                type="button"
+                size="icon"
+                className="h-14 w-12 rounded-none border-l border-border bg-gray-900 hover:bg-gray-800"
+                onClick={handleSend}
+                disabled={!input.trim() || chatMutation.isPending || isProcessing}
+                aria-label="Send"
+              >
+                {(chatMutation.isPending || isProcessing) ? (
+                  <Loader2 className="h-4 w-4 text-white animate-spin" />
+                ) : (
+                  <ArrowUp className="h-4 w-4 text-white" />
+                )}
+              </Button>
             </div>
           </div>
         </div>
