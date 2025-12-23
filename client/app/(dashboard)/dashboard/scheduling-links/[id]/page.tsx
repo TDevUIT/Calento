@@ -99,8 +99,8 @@ const SchedulingLinkDetailsPage = () => {
   const [editOpen, setEditOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#EBECF0]">
-      <div className="bg-[#F7F8FC] pb-8">
+    <div className="min-h-full bg-transparent">
+      <div className="bg-white pb-8">
         <DetailsHeader onBack={handleBack} />
         <div className="max-w-2xl mx-auto px-6">
           {(isLoadingLink || (!isParamUuid && isLoadingSlug)) && (

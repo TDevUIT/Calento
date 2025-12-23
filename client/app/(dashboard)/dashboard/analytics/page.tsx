@@ -46,7 +46,7 @@ const AnalyticsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F8FC]">
+    <div className="min-h-full bg-transparent">
       <div className="p-6 max-w-7xl mx-auto space-y-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>

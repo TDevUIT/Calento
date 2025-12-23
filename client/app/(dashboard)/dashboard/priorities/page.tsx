@@ -67,7 +67,7 @@ const PrioritiesPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F8FC]">
+    <div className="min-h-full bg-transparent">
       <div className="flex flex-col">
         <div className=" px-6 py-3">
           <div className="flex items-center justify-between">

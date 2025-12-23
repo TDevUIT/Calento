@@ -131,7 +131,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="bg-background min-h-screen">
+    <div className="min-h-full bg-transparent">
       <div className="max-w-6xl mx-auto px-4 md:px-6 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">Settings</h1>

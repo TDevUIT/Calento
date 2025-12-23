@@ -15,7 +15,7 @@ export default function PrivacyPage() {
 
         <div className="prose prose-lg max-w-none text-slate-700 dark:prose-invert dark:text-slate-200">
           <p>
-            This Privacy Policy explains how Calento ("we", "us") collects, uses, and protects your information when you
+            This Privacy Policy explains how Calento (&quot;we&quot;, &quot;us&quot;) collects, uses, and protects your information when you
             use our Service.
           </p>
 

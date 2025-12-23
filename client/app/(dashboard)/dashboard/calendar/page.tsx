@@ -18,12 +18,15 @@ import { useCalendarSettingsStore } from '@/store/calendar-settings.store';
 import { COLORS } from '@/constants/theme.constants';
 import { DashboardCalendarWrapper } from '@/components/calendar/views/DashboardCalendarWrapper';
 import { ChatBox } from '@/components/calendar/chat';
+import { cn } from '@/lib/utils';
+import ChatboxExpandButton from '@/components/calendar/chat/ChatboxExpandButton';
 
 export default function Page() {
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
-  const { expandedCalendarSidebar, toggleCalendarSidebar } = useControllerStore();
+  const expandedCalendarSidebar = useControllerStore((state) => state.expandedCalendarSidebar);
+  const toggleCalendarSidebar = useControllerStore((state) => state.toggleCalendarSidebar);
 
   const defaultView = useCalendarSettingsStore((state) => state.defaultView);
   const enableKeyboardShortcuts = useCalendarSettingsStore((state) => state.enableKeyboardShortcuts);
@@ -43,6 +46,8 @@ export default function Page() {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showTaskDialog, setShowTaskDialog] = useState(false);
+
+  const isChatboxExpanded = useControllerStore((state) => state.isChatboxExpanded);
 
   useKeyboardShortcuts({
     onShowShortcuts: () => setShowShortcuts(true),
@@ -210,8 +215,12 @@ export default function Page() {
             compactMode={compactMode}
           />
         </div>
-        <div className='shrink-0 h-full overflow-hidden w-[28rem] max-w-[28rem] bg-white border-l'>
-          <ChatBox variant="panel" />
+        <div className={cn('shrink-0 h-full overflow-hidden  bg-white border-l ', 'transition-[width,max-width] duration-300 ease-in-out',  isChatboxExpanded ? 'w-[28rem] max-w-[28rem]' : 'w-[2rem] max-w-[2rem]')}>
+          {
+            isChatboxExpanded ? 
+            <ChatBox variant="panel"/> :
+            <ChatboxExpandButton />
+          }
         </div>
       </div>
     

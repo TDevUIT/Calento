@@ -15,7 +15,7 @@ export default function TermsPage() {
 
         <div className="prose prose-lg max-w-none text-slate-700 dark:prose-invert dark:text-slate-200">
           <p>
-            These Terms of Service ("Terms") govern your access to and use of Calento (the "Service"). By
+            These Terms of Service (&quot;Terms&quot;) govern your access to and use of Calento (the &quot;Service&quot;). By
             accessing or using the Service, you agree to be bound by these Terms.
           </p>
 
@@ -57,7 +57,7 @@ export default function TermsPage() {
 
           <h2>7. Disclaimer</h2>
           <p>
-            The Service is provided on an "as is" and "as available" basis. To the fullest extent permitted by law, we
+            The Service is provided on an &quot;as is&quot; and &quot;as available&quot; basis. To the fullest extent permitted by law, we
             disclaim all warranties, express or implied.
           </p>
 
