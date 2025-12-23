@@ -12,6 +12,7 @@ import {
   Plus,
   Mic,
   ArrowUp,
+  ArrowBigRight,
 } from 'lucide-react';
 import { useAIChat } from '@/hook/ai/use-ai-chat';
 import { useConversation, useConversations, useDeleteConversation } from '@/hook/ai/use-conversations';
@@ -23,6 +24,7 @@ import { TimeSlotsList } from './TimeSlotsList';
 import { EventsList } from './EventsList';
 import { EmptyState } from './EmptyState';
 import { toast } from 'sonner';
+import { useControllerStore } from '@/store/controller.store';
 
 interface ChatBoxProps {
   onClose?: () => void;
@@ -74,6 +76,9 @@ export function ChatBox({
 
   const chatMutation = useAIChat();
   const [isProcessing, setIsProcessing] = useState(false);
+
+  const toggleChatbox = useControllerStore((state) => state.toggleChatbox);
+  
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -267,12 +272,17 @@ export function ChatBox({
 
       {!hideHeader && (
         <div className="flex items-center justify-between px-4 py-2 flex-shrink-0 bg-white z-10 border-b">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between w-full gap-3">
             <div className="flex flex-col">
               <h2 className="text-lg font-medium text-gray-900">Calento Assistant</h2>
             </div>
+            <div>
+              <button type="button" onClick={toggleChatbox} aria-label="Collapse chatbox">
+                <ArrowBigRight />
+              </button>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
+          {/* <div className="flex items-center gap-2">
             {messages.length > 0 && (
               <Button
                 variant="ghost"
@@ -289,7 +299,7 @@ export function ChatBox({
                 <X className="h-4 w-4" />
               </Button>
             )}
-          </div>
+          </div> */}
         </div>
       )}
 

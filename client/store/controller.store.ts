@@ -5,15 +5,18 @@ interface ControllerState {
   expandedSidebar: boolean;
   expandedMobileSidebar: boolean;
   expandedCalendarSidebar: boolean;
+  isChatboxExpanded: boolean;
 }
 
 interface ControllerActions {
   setExpandedSidebar: (expanded: boolean) => void;
   setExpandedMobileSidebar: (expanded: boolean) => void;
   setExpandedCalendarSidebar: (expanded: boolean) => void;
+  setChatboxExpanded: (expanded: boolean) => void;
   toggleSidebar: () => void;
   toggleMobileSidebar: () => void;
   toggleCalendarSidebar: () => void;
+  toggleChatbox: () => void;
   reset: () => void;
 }
 
@@ -23,6 +26,7 @@ const initialState: ControllerState = {
   expandedSidebar: true,
   expandedMobileSidebar: false,
   expandedCalendarSidebar: true,
+  isChatboxExpanded: false,
 };
 
 export const useControllerStore = create<ControllerStore>()(
@@ -39,6 +43,9 @@ export const useControllerStore = create<ControllerStore>()(
       setExpandedCalendarSidebar: (expanded) =>
         set({ expandedCalendarSidebar: expanded }),
 
+      setChatboxExpanded: (expanded) =>
+        set({ isChatboxExpanded: expanded }),
+
       toggleSidebar: () =>
         set((state) => ({ expandedSidebar: !state.expandedSidebar })),
 
@@ -47,6 +54,9 @@ export const useControllerStore = create<ControllerStore>()(
 
       toggleCalendarSidebar: () =>
         set((state) => ({ expandedCalendarSidebar: !state.expandedCalendarSidebar })),
+
+      toggleChatbox: () =>
+        set((state) => ({ isChatboxExpanded: !state.isChatboxExpanded })),
 
       reset: () => set(initialState),
     }),
@@ -57,6 +67,7 @@ export const useControllerStore = create<ControllerStore>()(
         expandedSidebar: state.expandedSidebar,
         expandedMobileSidebar: state.expandedMobileSidebar,
         expandedCalendarSidebar: state.expandedCalendarSidebar,
+        isChatboxExpanded: state.isChatboxExpanded,
       }),
     }
   )
