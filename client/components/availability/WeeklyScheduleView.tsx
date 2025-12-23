@@ -26,8 +26,8 @@ export const WeeklyScheduleView = ({ schedule }: WeeklyScheduleViewProps) => {
       <CardHeader>
         <CardTitle className="text-lg">Weekly Schedule Overview</CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-7 gap-2">
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
           {daysOfWeek.map((day) => {
             const availabilities = schedule[day] || [];
             const hasAvailability = availabilities.length > 0;
@@ -78,13 +78,13 @@ export const WeeklyScheduleView = ({ schedule }: WeeklyScheduleViewProps) => {
           })}
         </div>
 
-        <div className="mt-4 flex items-center gap-4 text-xs text-gray-600">
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-gray-600">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded bg-blue-100 border-2 border-blue-200" />
+            <div className="w-3.5 h-3.5 rounded bg-blue-100 border-2 border-blue-200" />
             <span>Available</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded bg-gray-100 border-2 border-gray-200" />
+            <div className="w-3.5 h-3.5 rounded bg-gray-100 border-2 border-gray-200" />
             <span>Not available</span>
           </div>
         </div>

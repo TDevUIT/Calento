@@ -2,10 +2,10 @@
 
 import { useCalendarSettings } from '../shared/CalendarSettingsProvider';
 import { formatTimeWithSettings, formatDateWithSettings } from '@/utils';
-import { 
-  Clock, 
-  MapPin, 
-  Bell, 
+import {
+  Clock,
+  MapPin,
+  Bell,
   Repeat,
   User,
   Link2,
@@ -37,30 +37,30 @@ export const EventDetailView = ({ event, onEdit, onDelete, onClose }: EventDetai
 
   const formatRecurrence = (rule?: string) => {
     if (!rule) return null;
-    
+
     if (rule.includes('FREQ=WEEKLY')) {
       const dayName = DAY_NAMES[startDate.getDay()];
-      return `Hàng tuần vào ${dayName}`;
+      return `Weekly on ${dayName}`;
     }
-    if (rule.includes('FREQ=DAILY')) return 'Hàng ngày';
-    if (rule.includes('FREQ=MONTHLY')) return 'Hàng tháng';
-    if (rule.includes('FREQ=YEARLY')) return 'Hàng năm';
-    
-    return 'Lặp lại';
+    if (rule.includes('FREQ=DAILY')) return 'Daily';
+    if (rule.includes('FREQ=MONTHLY')) return 'Monthly';
+    if (rule.includes('FREQ=YEARLY')) return 'Yearly';
+
+    return 'Repeat';
   };
 
   const formatTimeRange = () => {
     if (event.is_all_day) {
       return {
         dayName: formatDateWithSettings(startDate, dateFormat),
-        timeRange: 'Cả ngày',
+        timeRange: 'All day',
       };
     }
 
     const dayName = formatDateWithSettings(startDate, dateFormat);
     const startTime = formatTimeWithSettings(startDate, timeFormat);
     const endTime = formatTimeWithSettings(endDate, timeFormat);
-    
+
     return {
       dayName,
       timeRange: `${startTime} - ${endTime}`,
@@ -70,7 +70,7 @@ export const EventDetailView = ({ event, onEdit, onDelete, onClose }: EventDetai
   const { dayName, timeRange } = formatTimeRange();
 
   const handleShareLink = () => {
-    toast.info('Tính năng chia sẻ đang phát triển');
+    toast.info('Sharing feature is under development');
   };
 
   return (
@@ -95,9 +95,9 @@ export const EventDetailView = ({ event, onEdit, onDelete, onClose }: EventDetai
         </div>
         <div className="flex items-center gap-1">
           {onEdit && (
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               className="h-8 w-8"
               onClick={onEdit}
             >
@@ -105,9 +105,9 @@ export const EventDetailView = ({ event, onEdit, onDelete, onClose }: EventDetai
             </Button>
           )}
           {onDelete && (
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               className="h-8 w-8 text-destructive hover:text-destructive"
               onClick={onDelete}
             >
@@ -115,9 +115,9 @@ export const EventDetailView = ({ event, onEdit, onDelete, onClose }: EventDetai
             </Button>
           )}
           {onClose && (
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               className="h-8 w-8"
               onClick={onClose}
             >
@@ -148,7 +148,7 @@ export const EventDetailView = ({ event, onEdit, onDelete, onClose }: EventDetai
           </div>
         </div>
 
-        
+
         {(event.creator || event.organizer_name) && (
           <div className="flex items-center gap-3">
             <User className="h-5 w-5 text-muted-foreground flex-shrink-0" />
@@ -157,7 +157,7 @@ export const EventDetailView = ({ event, onEdit, onDelete, onClose }: EventDetai
                 {event.creator?.name || event.organizer_name || 'Unknown'}
               </p>
               <p className="text-xs text-muted-foreground">
-                {event.creator?.name ? 'Người tạo' : 'Người tổ chức'}
+                {event.creator?.name ? 'Creator' : 'Organizer'}
               </p>
               {(event.creator?.email || event.organizer_email) && (
                 <p className="text-xs text-muted-foreground truncate">
@@ -181,7 +181,7 @@ export const EventDetailView = ({ event, onEdit, onDelete, onClose }: EventDetai
           </div>
         )}
 
-        
+
         {event.conference_data && (
           <>
             <Separator />
@@ -189,7 +189,7 @@ export const EventDetailView = ({ event, onEdit, onDelete, onClose }: EventDetai
           </>
         )}
 
-        
+
         {event.location && !event.conference_data && (
           <>
             <Separator />
@@ -202,7 +202,7 @@ export const EventDetailView = ({ event, onEdit, onDelete, onClose }: EventDetai
           </>
         )}
 
-        
+
         {event.attendees && event.attendees.length > 0 && (
           <>
             <Separator />
@@ -210,7 +210,7 @@ export const EventDetailView = ({ event, onEdit, onDelete, onClose }: EventDetai
           </>
         )}
 
-        
+
         {event.reminders && event.reminders.length > 0 && (
           <>
             <Separator />
@@ -220,9 +220,9 @@ export const EventDetailView = ({ event, onEdit, onDelete, onClose }: EventDetai
                 {event.reminders.map((reminder, index) => (
                   <div key={index} className="text-sm">
                     {reminder.method === 'email' && 'Email'}
-                    {reminder.method === 'popup' && 'Thông báo'}
+                    {reminder.method === 'popup' && 'Notification'}
                     {reminder.method === 'sms' && 'SMS'}
-                    {' '}{reminder.minutes} phút trước
+                    {' '}{reminder.minutes} minutes before
                   </div>
                 ))}
               </div>
@@ -230,12 +230,12 @@ export const EventDetailView = ({ event, onEdit, onDelete, onClose }: EventDetai
           </>
         )}
 
-        
+
         {event.description && (
           <>
             <Separator />
             <div className="space-y-2">
-              <p className="text-sm font-medium">Mô tả</p>
+              <p className="text-sm font-medium">Description</p>
               <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
                 {event.description}
               </p>
@@ -243,16 +243,16 @@ export const EventDetailView = ({ event, onEdit, onDelete, onClose }: EventDetai
           </>
         )}
 
-        
+
         <div className="pt-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             className="w-full"
             onClick={handleShareLink}
           >
             <Link2 className="h-4 w-4 mr-2" />
-            Chia sẻ sự kiện
+            Share event
           </Button>
         </div>
       </div>

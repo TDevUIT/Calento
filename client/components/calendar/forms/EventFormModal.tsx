@@ -220,7 +220,7 @@ export function EventFormModal({
       />
 
       <div className="relative w-full h-full" style={{ zIndex: 10001 }}>
-        <div className="w-full h-full bg-background animate-in zoom-in-95 fade-in duration-200">
+        <div className="w-full h-full bg-white animate-in zoom-in-95 fade-in duration-200">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col h-full w-full">
               <div className="flex items-center justify-between px-6 py-4 border-b bg-background flex-shrink-0">
@@ -233,7 +233,7 @@ export function EventFormModal({
                         <FormControl>
                           <Input
                             placeholder="Add title"
-                            className="border-0 border-b-1 rounded-none border-black text-xl font-medium focus-visible:ring-0 focus-visible:ring-offset-0 h-12 px-3"
+                            className="border-0 border-b-1 rounded-none border-border text-xl font-medium focus-visible:ring-0 focus-visible:ring-offset-0 h-12 px-3"
                             {...field}
                           />
                         </FormControl>
@@ -268,7 +268,7 @@ export function EventFormModal({
                 </div>
               </div>
 
-              <div className="flex-1 overflow-hidden flex justify-center bg-muted/30 min-h-0 max-w-7xl">
+              <div className="flex-1 overflow-hidden flex justify-center bg-[#F7F8FC] min-h-0 max-w-7xl">
                 <div className="w-full flex bg-background">
                   <div className="flex-1 overflow-y-auto min-w-0">
                     <div className="w-full h-full">

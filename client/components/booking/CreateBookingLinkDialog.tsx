@@ -208,7 +208,7 @@ export function CreateBookingLinkDialog({
                         <FormControl>
                           <Input
                             placeholder="30 Min Meeting"
-                            className="border-0 border-b-1 rounded-none border-black text-xl font-medium focus-visible:ring-0 focus-visible:ring-offset-0 h-12 px-3"
+                            className="border-0 border-b-1 rounded-none border-border text-xl font-medium focus-visible:ring-0 focus-visible:ring-offset-0 h-12 px-3"
                             {...field}
                             onChange={(e) => {
                               field.onChange(e);
@@ -247,7 +247,7 @@ export function CreateBookingLinkDialog({
                 </div>
               </div>
 
-              <div className="flex-1 overflow-hidden flex justify-center bg-muted/30 min-h-0 max-w-7xl">
+              <div className="flex-1 overflow-hidden flex justify-center bg-[#F7F8FC] min-h-0 max-w-7xl">
                 <div className="w-full flex bg-background">
                   <div className="flex-1 overflow-y-auto min-w-0">
                     <div className="w-full h-full">

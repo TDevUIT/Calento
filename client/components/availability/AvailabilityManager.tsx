@@ -117,13 +117,23 @@ export const AvailabilityManager = () => {
       </div>
 
       <Tabs defaultValue="schedule" className="w-full" onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="schedule">
-            <Calendar className="h-4 w-4 mr-2" />
-            Weekly Schedule
-          </TabsTrigger>
-          <TabsTrigger value="rules">Availability Rules</TabsTrigger>
-        </TabsList>
+        <div className="border-2 border-black dark:border-white rounded-lg p-2 bg-muted/30 max-w-1/2">
+          <TabsList className="grid w-full grid-cols-2 h-auto p-1 bg-transparent gap-2">
+            <TabsTrigger
+              value="schedule"
+              className="gap-2 data-[state=active]:bg-background data-[state=active]:border-2 data-[state=active]:border-black data-[state=active]:dark:border-white data-[state=active]:shadow-md rounded-md py-3 px-3 justify-start transition-all hover:bg-background/50 border-2 border-transparent"
+            >
+              <Calendar className="h-4 w-4" />
+              Weekly Schedule
+            </TabsTrigger>
+            <TabsTrigger
+              value="rules"
+              className="gap-2 data-[state=active]:bg-background data-[state=active]:border-2 data-[state=active]:border-black data-[state=active]:dark:border-white data-[state=active]:shadow-md rounded-md py-3 px-3 justify-start transition-all hover:bg-background/50 border-2 border-transparent"
+            >
+              Availability Rules
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="schedule" className="mt-6">
           {scheduleLoading ? (

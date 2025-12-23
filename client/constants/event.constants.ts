@@ -39,21 +39,21 @@ export const VISIBILITY_ICONS = {
  * Recurrence frequency display names (Vietnamese)
  */
 export const RECURRENCE_LABELS: Record<string, string> = {
-  DAILY: 'Hàng ngày',
-  WEEKLY: 'Hàng tuần',
-  MONTHLY: 'Hàng tháng',
-  YEARLY: 'Hàng năm',
+  DAILY: 'Daily',
+  WEEKLY: 'Weekly',
+  MONTHLY: 'Monthly',
+  YEARLY: 'Yearly',
 } as const;
 
 /**
  * Day names in Vietnamese
  */
 export const DAY_NAMES = [
-  'Chủ nhật',
-  'Thứ hai',
-  'Thứ ba',
-  'Thứ tư',
-  'Thứ năm',
-  'Thứ sáu',
-  'Thứ bảy',
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
 ] as const;

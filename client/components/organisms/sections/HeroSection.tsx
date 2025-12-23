@@ -165,7 +165,7 @@ export const HeroSection = () => {
               <div className="h-2 w-2 md:h-3 md:w-3 rounded-full bg-slate-300 dark:bg-slate-700" />
             </div>
             <div className="ml-2 md:ml-4 flex-1 rounded-md bg-white px-2 md:px-3 py-1 md:py-1.5 text-[10px] md:text-xs text-slate-400 dark:bg-slate-800 dark:text-slate-500 truncate">
-              app.calento.space/dashboard/calendar
+              calento.space/dashboard/calendar
             </div>
           </div>
 

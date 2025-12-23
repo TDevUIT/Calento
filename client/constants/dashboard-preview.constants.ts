@@ -57,10 +57,10 @@ export const SIDEBAR_ACTIONS: Array<{
   label: string;
   badge?: string;
 }> = [
-  { icon: Settings, label: 'Settings' },
-  { icon: Users, label: 'Affiliate', badge: '30%' },
-  { icon: HelpCircle, label: 'Help' }
-];
+    { icon: Settings, label: 'Settings' },
+    { icon: Users, label: 'Affiliate', badge: '30%' },
+    { icon: HelpCircle, label: 'Help' }
+  ];
 
 export const AI_CHAT_CONFIG = {
   title: 'Calento Assistant',
@@ -85,12 +85,12 @@ export const SAMPLE_CONVERSATION = {
       { type: 'success', text: 'Identified 5 mutual availability windows' },
       { type: 'skipped', text: 'Monday 9AM - back-to-back conflicts' },
       { type: 'skipped', text: 'Wednesday 3PM - end of day fatigue' },
-      { type: 'highlight', text: 'âœ“ Thursday 2PM - Peak productivity time' }
+      { type: 'highlight', text: '✓ Thursday 2PM - Peak productivity time' }
     ] as AIAnalysisStep[],
     matchScore: 92
   },
   aiResponse: {
-    content: 'Perfect! I found an ideal time when everyone is available ðŸŽ¯',
+    content: 'Perfect! I found an ideal time when everyone is available 🎯',
     timestamp: 'Now'
   },
   suggestedMeeting: {
