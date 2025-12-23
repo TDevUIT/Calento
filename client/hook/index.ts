@@ -12,6 +12,7 @@ export * from './event';
 export * from './google';
 export * from './health';
 export * from './invitations';
+export * from './notification';
 export * from './priority';
 export * from './task';
 export * from './team';

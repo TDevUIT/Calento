@@ -14,6 +14,14 @@ export {
     authService
 } from './core/auth.service';
 
+export {
+    getPendingNotifications,
+    scheduleNotificationReminders,
+    notificationService,
+} from './core/notification.service';
+
+export type { PendingEmailNotification } from './core/notification.service';
+
 // Scheduling Services  
 export * from './scheduling';
 

@@ -80,6 +80,9 @@ export const API_ROUTES = {
   AUTH_FORGOT_PASSWORD: '/auth/forgot-password',
   AUTH_RESET_PASSWORD: '/auth/reset-password',
   
+  NOTIFICATIONS_PENDING: '/notifications/pending',
+  NOTIFICATIONS_SCHEDULE_REMINDERS: '/notifications/schedule-reminders',
+  
   EVENTS: '/events',
   EVENT_CREATE: '/events',
   EVENT_DETAIL: (id: string) => `/events/${id}`,
