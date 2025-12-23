@@ -5,7 +5,7 @@ import { DueEmailNotificationRow, PendingEmailNotificationRow } from './notifica
 
 @Injectable()
 export class NotificationRepository {
-    constructor(private readonly db: DatabaseService) {}
+    constructor(private readonly db: DatabaseService) { }
 
     async insertEmailNotificationIfNotExists(
         eventId: string,
@@ -56,8 +56,8 @@ export class NotificationRepository {
 
     async markNotificationSent(notificationId: string): Promise<void> {
         await this.db.query(
-        `UPDATE notifications SET is_sent = true, updated_at = NOW() WHERE id = $1`,
-        [notificationId],
+            `UPDATE notifications SET is_sent = true, updated_at = NOW() WHERE id = $1`,
+            [notificationId],
         );
     }
 
@@ -82,6 +82,29 @@ export class NotificationRepository {
         `;
 
         const result = await this.db.query(query, [userId, limit]);
+        return result.rows;
+    }
+    async findUpcomingEvents(horizonMinutes: number): Promise<any[]> {
+        // Fetch events that start within [NOW, NOW + horizonMinutes]
+        // AND have reminders configured
+        const query = `
+        SELECT
+            e.id,
+            e.title,
+            e.start_time,
+            e.organizer_id,
+            e.reminders,
+            u.email as user_email
+        FROM events e
+        LEFT JOIN users u ON u.id = e.organizer_id
+        WHERE e.start_time >= NOW()
+            AND e.start_time <= (NOW() + ($1 || ' minutes')::INTERVAL)
+            AND e.reminders IS NOT NULL
+            AND e.reminders::text != '[]'
+            AND e.status != 'cancelled'
+        `;
+
+        const result = await this.db.query(query, [horizonMinutes]);
         return result.rows;
     }
 }

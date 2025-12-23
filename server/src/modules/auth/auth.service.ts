@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleInit, Inject, forwardRef } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit, Inject, forwardRef, InternalServerErrorException, HttpException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthRepository } from './auth.repository';
 import { PasswordService } from '../../common/services/password.service';
@@ -21,6 +21,7 @@ import { MessageService } from '../../common/message/message.service';
 import { ConfigService } from '../../config/config.service';
 import { randomBytes } from 'crypto';
 import { EmailService } from '../email/services/email.service';
+import { EmailQueueService } from '../../common/queue/services/email-queue.service';
 import { CalendarService } from '../calendar/calendar.service';
 import { GoogleAuthService } from '../google/services/google-auth.service';
 import { TIME_CONSTANTS, SECURITY_CONSTANTS } from '../../common/constants';
@@ -39,6 +40,7 @@ export class AuthService {
     private readonly userValidationService: UserValidationService,
     @Inject(forwardRef(() => EmailService))
     private readonly emailService: EmailService,
+    private readonly emailQueueService: EmailQueueService,
     private readonly calendarService: CalendarService,
     private readonly googleAuthService: GoogleAuthService,
   ) { }
@@ -77,6 +79,13 @@ export class AuthService {
       this.logger.log(`User registered successfully: ${user.email}`);
 
       await this.createDefaultCalendar(user);
+
+      // Send welcome email (via queue)
+      await this.emailQueueService.queueWelcomeEmail(
+        user.id,
+        user.email,
+        user.first_name || user.username,
+      );
 
       const tokens = await this.generateTokens(user);
 
@@ -178,7 +187,12 @@ export class AuthService {
       });
     } catch (error) {
       this.logger.error(`Password reset failed: ${error.message}`, error.stack);
-      throw new AuthenticationFailedException('Failed to reset password');
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        `Failed to reset password: ${error.message}`,
+      );
     }
   }
 
@@ -305,10 +319,6 @@ export class AuthService {
     return userWithoutPassword;
   }
 
-  /**
-   * Create default Personal Calendar for new user
-   * This ensures every user has at least one calendar to create events
-   */
   private async createDefaultCalendar(user: any): Promise<void> {
     try {
       const defaultCalendar = await this.calendarService.createCalendar(
@@ -442,7 +452,12 @@ export class AuthService {
       this.logger.log(`Password reset email sent to: ${email}`);
     } catch (error) {
       this.logger.error(`Password reset request failed: ${error.message}`, error.stack);
-      throw new AuthenticationFailedException('Failed to process password reset request');
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        `Failed to process password reset request: ${error.message}`,
+      );
     }
   }
 }
