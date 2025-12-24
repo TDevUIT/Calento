@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: pgvector/pgvector:pg17
+    image: pgvector/pgvector:pg15
     container_name: calento-postgres
     env_file:
       - ../server/.env
