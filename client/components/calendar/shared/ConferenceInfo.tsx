@@ -42,20 +42,20 @@ export function ConferenceInfo({ conference }: ConferenceInfoProps) {
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(conference.url);
-    toast.success('Đã sao chép liên kết');
+    toast.success('Link copied');
   };
 
   const handleCopyMeetingId = () => {
     if (conference.id) {
       navigator.clipboard.writeText(conference.id);
-      toast.success('Đã sao chép Meeting ID');
+      toast.success('Meeting ID copied');
     }
   };
 
   const handleCopyPassword = () => {
     if (conference.password) {
       navigator.clipboard.writeText(conference.password);
-      toast.success('Đã sao chép mật khẩu');
+      toast.success('Password copied');
     }
   };
 
@@ -76,7 +76,7 @@ export function ConferenceInfo({ conference }: ConferenceInfoProps) {
             className={`h-auto p-0 ${config.textColor} font-medium text-sm`}
             onClick={handleJoinMeeting}
           >
-            Tham gia cuộc họp
+            Join meeting
           </Button>
         </div>
         <Button
@@ -116,7 +116,7 @@ export function ConferenceInfo({ conference }: ConferenceInfoProps) {
           <div className="flex items-center gap-2">
             <Lock className="h-3.5 w-3.5 text-muted-foreground" />
             <Badge variant="outline" className="text-xs">
-              Mật khẩu
+              Password
             </Badge>
             <span className="text-xs font-mono">{'•'.repeat(conference.password.length)}</span>
             <Button

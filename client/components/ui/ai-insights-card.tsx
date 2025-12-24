@@ -13,19 +13,19 @@ interface Insight {
 export const AIInsightsCard: React.FC = () => {
   const insights: Insight[] = [
     {
-      icon: 'âš¡',
+      icon: '⚡',
       title: 'Peak productivity time',
       description: 'You work best between 9-11 AM',
       color: 'from-yellow-400 to-orange-500'
     },
     {
-      icon: 'ðŸŽ¯',
+      icon: '🎯',
       title: 'Focus time protected',
       description: '2.5 hours saved this week',
       color: 'from-blue-400 to-purple-500'
     },
     {
-      icon: 'ðŸ“Š',
+      icon: '📊',
       title: 'Meeting efficiency',
       description: '87% of meetings started on time',
       color: 'from-green-400 to-teal-500'

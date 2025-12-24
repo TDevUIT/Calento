@@ -36,7 +36,7 @@ export function EventPreview({ event }: EventPreviewProps) {
             {formatDateWithSettings(startDate, dateFormat)}
           </p>
           <p className="text-muted-foreground">
-            {event.is_all_day ? 'Cả ngày' : `${formatTimeWithSettings(startDate, timeFormat)} - ${formatTimeWithSettings(endDate, timeFormat)}`}
+            {event.is_all_day ? 'All day' : `${formatTimeWithSettings(startDate, timeFormat)} - ${formatTimeWithSettings(endDate, timeFormat)}`}
           </p>
         </div>
       </div>
@@ -56,7 +56,7 @@ export function EventPreview({ event }: EventPreviewProps) {
                 {event.creator.name || 'Unknown'}
               </p>
               <p className="text-xs text-muted-foreground truncate">
-                Người tổ chức
+                Organizer
               </p>
             </div>
           </div>

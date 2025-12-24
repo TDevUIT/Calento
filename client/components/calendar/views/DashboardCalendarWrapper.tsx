@@ -110,13 +110,13 @@ export function DashboardCalendarWrapper({
         <div className="flex items-center gap-2 min-w-0">
           <div className="hidden md:flex items-center gap-2 min-w-0">
             <CalendarDays className="h-5 w-5 text-muted-foreground" />
-            <span className="font-semibold truncate">Lịch</span>
+            <span className="font-semibold truncate">Calendar</span>
           </div>
 
           <div className="hidden sm:block h-6 w-px bg-border" />
 
           <CalendarTodayTrigger className="h-9 px-3 hover:bg-gray-100 hover:rounded-xl transition-colors">
-            Hôm nay
+            Today
           </CalendarTodayTrigger>
         </div>
 

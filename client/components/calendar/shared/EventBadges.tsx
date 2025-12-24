@@ -34,7 +34,7 @@ export function EventBadges({ event, size = 'sm' }: EventBadgesProps) {
     badges.push({
       key: 'attendees',
       icon: <Users className={`${iconSize} text-green-500`} />,
-      tooltip: `${event.attendees.length} ngÆ°á»i tham gia`,
+      tooltip: `${event.attendees.length} attendees`,
     });
   }
 
@@ -42,7 +42,7 @@ export function EventBadges({ event, size = 'sm' }: EventBadgesProps) {
     badges.push({
       key: 'recurring',
       icon: <Repeat className={`${iconSize} text-orange-500`} />,
-      tooltip: 'Sá»± kiá»‡n láº·p láº¡i',
+      tooltip: 'Recurring event',
     });
   }
 
@@ -50,15 +50,15 @@ export function EventBadges({ event, size = 'sm' }: EventBadgesProps) {
     badges.push({
       key: 'reminders',
       icon: <Bell className={`${iconSize} text-yellow-500`} />,
-      tooltip: `${event.reminders.length} nháº¯c nhá»Ÿ`,
+      tooltip: `${event.reminders.length} reminders`,
     });
   }
 
   if (event.visibility && event.visibility !== 'default') {
     const visibilityIcons = {
-      public: { icon: <Eye className={`${iconSize} text-gray-500`} />, tooltip: 'CÃ´ng khai' },
-      private: { icon: <EyeOff className={`${iconSize} text-gray-500`} />, tooltip: 'RiÃªng tÆ°' },
-      confidential: { icon: <Lock className={`${iconSize} text-red-500`} />, tooltip: 'Báº£o máº­t' },
+      public: { icon: <Eye className={`${iconSize} text-gray-500`} />, tooltip: 'Public' },
+      private: { icon: <EyeOff className={`${iconSize} text-gray-500`} />, tooltip: 'Private' },
+      confidential: { icon: <Lock className={`${iconSize} text-red-500`} />, tooltip: 'Confidential' },
     };
     
     const visibilityData = visibilityIcons[event.visibility as keyof typeof visibilityIcons];

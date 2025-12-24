@@ -147,14 +147,14 @@ export function generateInvitationSummary(invitation: InvitationDetails): string
 export function getInvitationResponseIcon(status: InvitationStatus): string {
   switch (status) {
     case INVITATION_STATUS.ACCEPTED:
-      return 'âœ…';
+      return '✅';
     case INVITATION_STATUS.DECLINED:
-      return 'âŒ';
+      return '❌';
     case INVITATION_STATUS.TENTATIVE:
-      return 'â“';
+      return '❓';
     case INVITATION_STATUS.PENDING:
     default:
-      return 'â³';
+      return '⏳';
   }
 }
 

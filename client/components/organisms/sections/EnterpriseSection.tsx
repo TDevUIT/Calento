@@ -22,7 +22,7 @@ export const EnterpriseSection: React.FC = () => {
             href="https://trust.calento.space/"
             className="inline-block text-[#0c7057] hover:text-[#0f8c6a] font-semibold text-lg transition-colors hover:scale-105 transform duration-300"
           >
-            Visit our trust center â†’
+            Visit our trust center →
           </Link>
         </div>
 

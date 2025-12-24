@@ -1,7 +1,7 @@
 "use client";
 
 import { format } from "date-fns";
-import { vi } from "date-fns/locale";
+import { enUS } from "date-fns/locale/en-US";
 import { Calendar, Clock, User, Mail, Phone, MessageSquare, MoreVertical, XCircle, RotateCw } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -89,7 +89,7 @@ export function BookingCard({ booking, onCancel, onReschedule }: BookingCardProp
                 {onReschedule && (
                   <DropdownMenuItem onClick={() => onReschedule(booking)}>
                     <RotateCw className="mr-2 h-4 w-4" />
-                    Äá»•i lá»‹ch
+                    Reschedule
                   </DropdownMenuItem>
                 )}
                 {onCancel && (
@@ -98,7 +98,7 @@ export function BookingCard({ booking, onCancel, onReschedule }: BookingCardProp
                     className="text-red-600 dark:text-red-400"
                   >
                     <XCircle className="mr-2 h-4 w-4" />
-                    Há»§y cuá»™c háº¹n
+                    Cancel booking
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>
@@ -112,7 +112,7 @@ export function BookingCard({ booking, onCancel, onReschedule }: BookingCardProp
         <div className="flex items-center gap-2 text-sm text-gray-700">
           <Calendar className="h-4 w-4 text-gray-400 flex-shrink-0" />
           <span className="font-medium">
-            {format(startTime, "dd MMM yyyy", { locale: vi })}
+            {format(startTime, "dd MMM yyyy", { locale: enUS })}
           </span>
           <span className="text-gray-400">•</span>
           <Clock className="h-4 w-4 text-gray-400 flex-shrink-0" />

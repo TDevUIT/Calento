@@ -11,7 +11,7 @@ import { useReportWebVitals } from 'next/web-vitals';
 export function WebVitals() {
   useReportWebVitals((metric) => {
     if (process.env.NODE_ENV === 'development') {
-      console.log('ðŸ“Š Web Vital:', metric);
+      console.log('📊 Web Vital:', metric);
     }
 
     if (process.env.NODE_ENV === 'production') {
@@ -66,7 +66,7 @@ export function usePerformanceObserver() {
     const longTaskObserver = new PerformanceObserver((list) => {
       for (const entry of list.getEntries()) {
         if (entry.duration > 50) {
-          console.warn('âš ï¸ Long Task detected:', {
+          console.warn('⚠️ Long Task detected:', {
             duration: entry.duration,
             startTime: entry.startTime,
           });

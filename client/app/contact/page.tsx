@@ -80,7 +80,7 @@ export default function ContactPage() {
               className="text-center"
             >
               <h1 className="mb-4 text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
-                ðŸŽ‰ Message Sent Successfully!
+                🎉 Message Sent Successfully!
               </h1>
               <p className="mb-8 text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
                 Thank you for reaching out to us! We&apos;ve received your message and will get back to you within 24 hours.
@@ -90,15 +90,15 @@ export default function ContactPage() {
                 <h3 className="font-semibold text-slate-900 dark:text-white mb-2">What happens next?</h3>
                 <ul className="text-sm text-slate-600 dark:text-slate-300 space-y-2">
                   <li className="flex items-center gap-2">
-                    <span className="text-blue-500">âœ“</span>
+                    <span className="text-blue-500">✓</span>
                     Our team reviews your inquiry
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-blue-500">âœ“</span>
+                    <span className="text-blue-500">✓</span>
                     Personalized response within 24 hours
                   </li>
                   <li className="flex items-center gap-2">
-                    <span className="text-blue-500">âœ“</span>
+                    <span className="text-blue-500">✓</span>
                     Follow-up support if needed
                   </li>
                 </ul>

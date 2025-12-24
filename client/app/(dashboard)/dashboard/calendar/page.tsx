@@ -124,7 +124,7 @@ export default function Page() {
         };
         return {
           id: task.id,
-          title: `ðŸ“‹ ${task.title}`,
+          title: `📋 ${task.title}`,
           start: dueDate,
           end: new Date(dueDate.getTime() + 30 * 60000),
           description: task.description,

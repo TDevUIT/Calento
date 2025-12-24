@@ -150,10 +150,10 @@ export function CreateBookingLinkDialog({
 
   const handleCreateGoogleMeet = async () => {
     if (!isConnected) {
-      toast.error('Cần kết nối Google Account', {
-        description: 'Vui lòng kết nối Google Account để tạo Google Meet link',
+      toast.error('Google account connection required', {
+        description: 'Please connect your Google account to create a Google Meet link',
         action: {
-          label: 'Kết nối',
+          label: 'Connect',
           onClick: () => {
             window.location.href = '/dashboard/calendar-sync';
           },
@@ -167,8 +167,8 @@ export function CreateBookingLinkDialog({
     const durationMinutes = form.getValues('duration_minutes') || 30;
 
     if (!title) {
-      toast.error('Vui lòng điền thông tin booking link', {
-        description: 'Cần có tiêu đề để tạo Google Meet',
+      toast.error('Please complete the booking link details', {
+        description: 'A title is required to create a Google Meet link',
       });
       return;
     }
@@ -189,12 +189,12 @@ export function CreateBookingLinkDialog({
       form.setValue('location', 'Google Meet');
       form.setValue('location_link', meetData.url, { shouldDirty: true, shouldValidate: true });
 
-      toast.success('Google Meet link đã được tạo thành công!');
+      toast.success('Google Meet link created successfully!');
     } catch (error) {
       console.error('Failed to create Google Meet:', error);
-      const errorMessage = (error as Error)?.message || 'Không thể tạo Google Meet link';
+      const errorMessage = (error as Error)?.message || 'Unable to create Google Meet link';
 
-      toast.error('Lỗi khi tạo Google Meet', {
+      toast.error('Error creating Google Meet link', {
         description: errorMessage,
       });
     } finally {
@@ -394,12 +394,12 @@ export function CreateBookingLinkDialog({
                                   {isCreatingMeet ? (
                                     <>
                                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                      Đang tạo Google Meet...
+                                      Creating Google Meet...
                                     </>
                                   ) : (
                                     <>
                                       <Video className="mr-2 h-4 w-4" />
-                                      Tạo Google Meet tự động
+                                      Auto-create Google Meet
                                     </>
                                   )}
                                 </Button>

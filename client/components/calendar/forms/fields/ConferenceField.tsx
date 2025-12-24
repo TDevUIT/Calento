@@ -22,10 +22,10 @@ export function ConferenceField({ form }: ConferenceFieldProps) {
 
   const addConference = async () => {
     if (!isConnected) {
-      toast.error('Cần kết nối Google Account', {
-        description: 'Vui lòng kết nối Google Account để tạo Google Meet link',
+      toast.error('Google account connection required', {
+        description: 'Please connect your Google account to create a Google Meet link',
         action: {
-          label: 'Kết nối',
+          label: 'Connect',
           onClick: () => {
             window.location.href = '/dashboard/calendar-sync';
           },
@@ -40,8 +40,8 @@ export function ConferenceField({ form }: ConferenceFieldProps) {
     const description = form.getValues('description');
 
     if (!title || !startTime || !endTime) {
-      toast.error('Vui lòng điền thông tin sự kiện', {
-        description: 'Cần có tiêu đề, thời gian bắt đầu và kết thúc để tạo Google Meet',
+      toast.error('Please fill in event details', {
+        description: 'Title, start time, and end time are required to create a Google Meet link',
       });
       return;
     }
@@ -62,17 +62,17 @@ export function ConferenceField({ form }: ConferenceFieldProps) {
         id: meetData.id,
       });
 
-      toast.success('Google Meet link đã được tạo thành công!');
+      toast.success('Google Meet link created successfully!');
     } catch (error) {
       console.error('Failed to create Google Meet:', error);
-      const errorMessage = (error as Error)?.message || 'Không thể tạo Google Meet link';
+      const errorMessage = (error as Error)?.message || 'Unable to create Google Meet link';
       
       if (errorMessage.includes('Not connected')) {
-        toast.error('Cần kết nối Google Account', {
-          description: 'Vui lòng kết nối lại Google Account',
+        toast.error('Google account connection required', {
+          description: 'Please reconnect your Google account',
         });
       } else {
-        toast.error('Lỗi khi tạo Google Meet', {
+        toast.error('Error creating Google Meet link', {
           description: errorMessage,
         });
       }
@@ -101,7 +101,7 @@ export function ConferenceField({ form }: ConferenceFieldProps) {
           {isCreating ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Đang tạo Google Meet...
+              Creating Google Meet...
             </>
           ) : (
             'Add Google Meet video conference'

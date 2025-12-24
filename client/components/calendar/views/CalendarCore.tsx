@@ -41,13 +41,13 @@ import { getStoredCalendarView, saveCalendarView } from '@/utils';
 const fixEmojiText = (text: string): string => {
   if (!text) return '';
   return text
-    .replace(/ðŸ"‹/g, String.fromCodePoint(0x1f4cb)) // Clipboard
-    .replace(/ðŸ"…/g, String.fromCodePoint(0x1f4c5)) // Calendar
-    .replace(/âœ…/g, String.fromCodePoint(0x2705)) // Checkmark
-    .replace(/ðŸš€/g, String.fromCodePoint(0x1f680)) // Rocket
-    .replace(/ðŸŽ‰/g, String.fromCodePoint(0x1f389)) // Party
-    .replace(/ðŸ'¡/g, String.fromCodePoint(0x1f4a1)) // Bulb
-    .replace(/â­/g, String.fromCodePoint(0x2b50)); // Star
+    .replace(/\u00F0\u009F"\u008B/g, String.fromCodePoint(0x1f4cb)) // Clipboard
+    .replace(/\u00F0\u009F"\u0085/g, String.fromCodePoint(0x1f4c5)) // Calendar
+    .replace(/\u00E2\u009C\u0085/g, String.fromCodePoint(0x2705)) // Checkmark
+    .replace(/\u00F0\u009F\u009A\u0080/g, String.fromCodePoint(0x1f680)) // Rocket
+    .replace(/\u00F0\u009F\u008E\u0089/g, String.fromCodePoint(0x1f389)) // Party
+    .replace(/\u00F0\u009F'\u00A1/g, String.fromCodePoint(0x1f4a1)) // Bulb
+    .replace(/\u00E2\u00AD/g, String.fromCodePoint(0x2b50)); // Star
 };
 
 type View = 'day' | 'week' | 'month' | 'year';

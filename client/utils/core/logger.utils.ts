@@ -11,22 +11,22 @@ const LOG_CONFIG: LogConfig = {
 export const logger = {
   request: (method?: string, url?: string) => {
     if (!LOG_CONFIG.enabled) return;
-    console.log(`ðŸš€ ${method?.toUpperCase()} ${url}`);
+    console.log(`🚀 ${method?.toUpperCase()} ${url}`);
   },
 
   response: (status: number, method?: string, url?: string) => {
     if (!LOG_CONFIG.enabled) return;
-    console.log(`âœ… ${status} ${method?.toUpperCase()} ${url}`);
+    console.log(`✅ ${status} ${method?.toUpperCase()} ${url}`);
   },
 
   error: (status: number | string, method?: string, url?: string) => {
     if (!LOG_CONFIG.enabled) return;
-    console.error(`âŒ ${status} ${method?.toUpperCase()} ${url}`);
+    console.error(`❌ ${status} ${method?.toUpperCase()} ${url}`);
   },
 
   retry: (delay: number, attempt: number, maxRetries: number, type: string) => {
     if (!LOG_CONFIG.enabled) return;
-    console.log(`ðŸ”„ ${type}, retrying in ${delay}ms (attempt ${attempt}/${maxRetries})`);
+    console.log(`🔄 ${type}, retrying in ${delay}ms (attempt ${attempt}/${maxRetries})`);
   },
 
   warn: (message: string, ...args: unknown[]) => {
@@ -36,6 +36,6 @@ export const logger = {
 
   info: (message: string, ...args: unknown[]) => {
     if (!LOG_CONFIG.enabled) return;
-    console.log(`â„¹ï¸  ${message}`, ...args);
+    console.log(`ℹ️  ${message}`, ...args);
   },
 };

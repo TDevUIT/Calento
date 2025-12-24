@@ -140,7 +140,7 @@ export const usePriorityBoard = (bookingLinks?: BookingLink[], tasks?: Task[]) =
 
     const itemInfo = extractItemInfo(activeId);
     if (!itemInfo) {
-      console.warn('âŒ Could not extract item info from:', activeId);
+      console.warn('❌ Could not extract item info from:', activeId);
       return;
     }
 
