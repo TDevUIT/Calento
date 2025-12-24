@@ -1,26 +1,13 @@
 -- ============================================================================
--- CALENTO DATABASE SCHEMA v2.0
--- ============================================================================
--- Consolidated schema file combining all migrations into a single source of truth
--- Generated: 2025-12-11
--- 
--- USAGE:
---   - For fresh database setup, run this file directly
---   - For existing databases, use individual migrations
---
--- NOTE: This file replaces all 29 previous migration files
+-- MODULE: 00_SETUP
+-- Extensions, Custom Types (ENUMs), and Shared Functions
 -- ============================================================================
 
--- ============================================================================
--- SECTION 1: EXTENSIONS
--- ============================================================================
-
+-- EXTENSIONS
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS vector;
 
--- ============================================================================
--- SECTION 2: CUSTOM TYPES (ENUMs)
--- ============================================================================
-
+-- CUSTOM TYPES (ENUMs)
 DO $$ BEGIN
     CREATE TYPE event_status AS ENUM ('confirmed', 'cancelled', 'tentative');
 EXCEPTION WHEN duplicate_object THEN NULL;
@@ -46,10 +33,7 @@ DO $$ BEGIN
 EXCEPTION WHEN duplicate_object THEN NULL;
 END $$;
 
--- ============================================================================
--- SECTION 3: SHARED FUNCTIONS  
--- ============================================================================
-
+-- SHARED FUNCTIONS
 -- Generic updated_at trigger function (reused by all tables)
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
@@ -59,13 +43,12 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- ============================================================================
--- SECTION 4: CORE TABLES
--- ============================================================================
 
--- -----------------------------------------------------------------------------
--- 4.1 Users & Authentication
--- -----------------------------------------------------------------------------
+
+-- ============================================================================
+-- MODULE: 01_AUTH
+-- Users, Credentials, and Settings
+-- ============================================================================
 
 -- Users table - stores user account information
 CREATE TABLE IF NOT EXISTS users (
@@ -126,9 +109,46 @@ CREATE TABLE IF NOT EXISTS user_settings (
 COMMENT ON TABLE user_settings IS 'Stores per-user application settings and preferences';
 COMMENT ON COLUMN user_settings.settings IS 'User preferences stored as JSONB';
 
--- -----------------------------------------------------------------------------
--- 4.2 Calendar & Events
--- -----------------------------------------------------------------------------
+-- INDEXES
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+CREATE INDEX IF NOT EXISTS idx_users_active ON users(is_active);
+CREATE INDEX IF NOT EXISTS idx_users_created_at ON users(created_at);
+CREATE INDEX IF NOT EXISTS idx_users_reset_token_identifier ON users(reset_token_identifier);
+CREATE INDEX IF NOT EXISTS idx_users_reset_token_expires_at ON users(reset_token_expires_at);
+CREATE INDEX IF NOT EXISTS idx_users_full_name ON users(full_name);
+
+CREATE INDEX IF NOT EXISTS idx_user_credentials_user_id ON user_credentials(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_credentials_provider ON user_credentials(provider);
+CREATE INDEX IF NOT EXISTS idx_user_credentials_sync ON user_credentials(user_id, provider, sync_enabled, is_active);
+
+CREATE INDEX IF NOT EXISTS idx_user_settings_user_id ON user_settings(user_id);
+
+-- TRIGGERS
+DROP TRIGGER IF EXISTS trigger_users_updated_at ON users;
+CREATE TRIGGER trigger_users_updated_at 
+    BEFORE UPDATE ON users 
+    FOR EACH ROW 
+    EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS trigger_user_credentials_updated_at ON user_credentials;
+CREATE TRIGGER trigger_user_credentials_updated_at 
+    BEFORE UPDATE ON user_credentials 
+    FOR EACH ROW 
+    EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS trigger_user_settings_updated_at ON user_settings;
+CREATE TRIGGER trigger_user_settings_updated_at 
+    BEFORE UPDATE ON user_settings 
+    FOR EACH ROW 
+    EXECUTE FUNCTION update_updated_at_column();
+
+
+
+-- ============================================================================
+-- MODULE: 02_CALENDAR
+-- Calendars, Events, Attendees, and Availability
+-- ============================================================================
 
 -- Calendars table - stores calendar information
 CREATE TABLE IF NOT EXISTS calendars (
@@ -246,9 +266,87 @@ COMMENT ON TABLE availabilities IS 'Stores user availability schedules for booki
 COMMENT ON COLUMN availabilities.is_active IS 'Whether this availability rule is currently active';
 COMMENT ON COLUMN availabilities.timezone IS 'Timezone for the availability rule (e.g., UTC, America/New_York)';
 
--- -----------------------------------------------------------------------------
--- 4.3 Booking System
--- -----------------------------------------------------------------------------
+-- Event conflicts table
+CREATE TABLE IF NOT EXISTS event_conflicts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    calento_event_id UUID REFERENCES events(id) ON DELETE CASCADE,
+    google_event_id VARCHAR(255),
+    conflict_reason VARCHAR(100) NOT NULL, -- 'duplicate', 'time_overlap', 'missing_mapping'
+    resolution VARCHAR(100), -- 'prefer_calento', 'prefer_google', 'keep_both', 'manual'
+    resolved BOOLEAN DEFAULT FALSE,
+    calento_event_data JSONB,
+    google_event_data JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    resolved_at TIMESTAMP
+);
+
+COMMENT ON TABLE event_conflicts IS 'Stores conflicts detected during calendar sync';
+
+-- INDEXES
+CREATE INDEX IF NOT EXISTS idx_calendars_user_id ON calendars(user_id);
+CREATE INDEX IF NOT EXISTS idx_calendars_google_id ON calendars(google_calendar_id);
+CREATE INDEX IF NOT EXISTS idx_calendars_primary ON calendars(is_primary);
+
+CREATE INDEX IF NOT EXISTS idx_events_calendar_id ON events(calendar_id);
+CREATE INDEX IF NOT EXISTS idx_events_google_id ON events(google_event_id) WHERE google_event_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_events_start_time ON events(start_time);
+CREATE INDEX IF NOT EXISTS idx_events_end_time ON events(end_time);
+CREATE INDEX IF NOT EXISTS idx_events_status ON events(status);
+CREATE INDEX IF NOT EXISTS idx_events_time_range ON events(start_time, end_time);
+CREATE INDEX IF NOT EXISTS idx_events_calendar_google ON events(calendar_id, google_event_id);
+CREATE INDEX IF NOT EXISTS idx_events_color ON events(color);
+CREATE INDEX IF NOT EXISTS idx_events_organizer_id ON events(organizer_id);
+CREATE INDEX IF NOT EXISTS idx_events_organizer_email ON events(organizer_email);
+CREATE INDEX IF NOT EXISTS idx_events_conference_data ON events USING GIN (conference_data);
+CREATE INDEX IF NOT EXISTS idx_events_recurrence_rule ON events(recurrence_rule) WHERE recurrence_rule IS NOT NULL AND recurrence_rule != '';
+
+CREATE INDEX IF NOT EXISTS idx_event_attendees_event_id ON event_attendees(event_id);
+CREATE INDEX IF NOT EXISTS idx_event_attendees_email ON event_attendees(email);
+CREATE INDEX IF NOT EXISTS idx_event_attendees_response_status ON event_attendees(response_status);
+CREATE INDEX IF NOT EXISTS idx_event_attendees_invitation_token ON event_attendees(invitation_token) WHERE invitation_token IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_event_attendees_pending_invitations ON event_attendees(event_id, response_status) WHERE response_status = 'needsAction';
+
+CREATE INDEX IF NOT EXISTS idx_availabilities_user_id ON availabilities(user_id);
+CREATE INDEX IF NOT EXISTS idx_availabilities_day_of_week ON availabilities(day_of_week);
+CREATE INDEX IF NOT EXISTS idx_availabilities_time_range ON availabilities(start_time, end_time);
+CREATE INDEX IF NOT EXISTS idx_availabilities_is_active ON availabilities(user_id, is_active) WHERE is_active = TRUE;
+CREATE INDEX IF NOT EXISTS idx_availabilities_timezone ON availabilities(timezone);
+
+CREATE INDEX IF NOT EXISTS idx_event_conflicts_user ON event_conflicts(user_id);
+CREATE INDEX IF NOT EXISTS idx_event_conflicts_resolved ON event_conflicts(resolved);
+
+-- TRIGGERS
+DROP TRIGGER IF EXISTS trigger_calendars_updated_at ON calendars;
+CREATE TRIGGER trigger_calendars_updated_at 
+    BEFORE UPDATE ON calendars 
+    FOR EACH ROW 
+    EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS trigger_events_updated_at ON events;
+CREATE TRIGGER trigger_events_updated_at 
+    BEFORE UPDATE ON events 
+    FOR EACH ROW 
+    EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS trigger_update_event_attendees_updated_at ON event_attendees;
+CREATE TRIGGER trigger_update_event_attendees_updated_at
+    BEFORE UPDATE ON event_attendees
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS trigger_availabilities_updated_at ON availabilities;
+CREATE TRIGGER trigger_availabilities_updated_at 
+    BEFORE UPDATE ON availabilities 
+    FOR EACH ROW 
+    EXECUTE FUNCTION update_updated_at_column();
+
+
+
+-- ============================================================================
+-- MODULE: 03_BOOKING
+-- Booking Links and Bookings
+-- ============================================================================
 
 -- Booking links table - stores public booking pages
 CREATE TABLE IF NOT EXISTS booking_links (
@@ -304,9 +402,41 @@ CREATE TABLE IF NOT EXISTS bookings (
 
 COMMENT ON TABLE bookings IS 'Stores booking appointments made through booking links';
 
--- -----------------------------------------------------------------------------
--- 4.4 Tasks & Priorities
--- -----------------------------------------------------------------------------
+-- INDEXES
+CREATE INDEX IF NOT EXISTS idx_booking_links_user_id ON booking_links(user_id);
+CREATE INDEX IF NOT EXISTS idx_booking_links_slug ON booking_links(slug);
+CREATE INDEX IF NOT EXISTS idx_booking_links_is_active ON booking_links(is_active) WHERE is_active = TRUE;
+CREATE INDEX IF NOT EXISTS idx_booking_links_expires_at ON booking_links(expires_at) WHERE expires_at IS NOT NULL AND is_active = TRUE;
+
+CREATE INDEX IF NOT EXISTS idx_bookings_booking_link_id ON bookings(booking_link_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_user_id ON bookings(user_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_event_id ON bookings(event_id);
+CREATE INDEX IF NOT EXISTS idx_bookings_start_time ON bookings(start_time);
+CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);
+CREATE INDEX IF NOT EXISTS idx_bookings_booker_email ON bookings(booker_email);
+CREATE INDEX IF NOT EXISTS idx_bookings_confirmation_token ON bookings(confirmation_token);
+CREATE INDEX IF NOT EXISTS idx_bookings_user_status ON bookings(user_id, status);
+CREATE INDEX IF NOT EXISTS idx_bookings_link_time ON bookings(booking_link_id, start_time);
+
+-- TRIGGERS
+DROP TRIGGER IF EXISTS trigger_update_booking_links_timestamp ON booking_links;
+CREATE TRIGGER trigger_update_booking_links_timestamp
+    BEFORE UPDATE ON booking_links
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS trigger_update_bookings_timestamp ON bookings;
+CREATE TRIGGER trigger_update_bookings_timestamp
+    BEFORE UPDATE ON bookings
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+
+
+-- ============================================================================
+-- MODULE: 04_TASKS
+-- Tasks and Priorities
+-- ============================================================================
 
 -- Tasks table
 CREATE TABLE IF NOT EXISTS tasks (
@@ -357,9 +487,42 @@ COMMENT ON COLUMN user_priorities.item_type IS 'Type of item: task, booking_link
 COMMENT ON COLUMN user_priorities.priority IS 'Priority level: critical, high, medium, low, disabled';
 COMMENT ON COLUMN user_priorities.position IS 'Position/order within the same priority column';
 
--- -----------------------------------------------------------------------------
--- 4.5 Team Collaboration
--- -----------------------------------------------------------------------------
+-- INDEXES
+CREATE INDEX IF NOT EXISTS idx_tasks_user_id ON tasks(user_id);
+CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
+CREATE INDEX IF NOT EXISTS idx_tasks_priority ON tasks(priority);
+CREATE INDEX IF NOT EXISTS idx_tasks_due_date ON tasks(due_date);
+CREATE INDEX IF NOT EXISTS idx_tasks_project_id ON tasks(project_id);
+CREATE INDEX IF NOT EXISTS idx_tasks_parent_task_id ON tasks(parent_task_id);
+CREATE INDEX IF NOT EXISTS idx_tasks_deleted_at ON tasks(deleted_at);
+CREATE INDEX IF NOT EXISTS idx_tasks_tags ON tasks USING GIN(tags);
+CREATE INDEX IF NOT EXISTS idx_tasks_user_status ON tasks(user_id, status);
+CREATE INDEX IF NOT EXISTS idx_tasks_user_priority ON tasks(user_id, priority);
+
+CREATE INDEX IF NOT EXISTS idx_user_priorities_user_id ON user_priorities(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_priorities_priority ON user_priorities(priority);
+CREATE INDEX IF NOT EXISTS idx_user_priorities_item_type ON user_priorities(item_type);
+CREATE INDEX IF NOT EXISTS idx_user_priorities_user_priority ON user_priorities(user_id, priority);
+
+-- TRIGGERS
+DROP TRIGGER IF EXISTS trigger_update_tasks_updated_at ON tasks;
+CREATE TRIGGER trigger_update_tasks_updated_at
+    BEFORE UPDATE ON tasks
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS trigger_update_user_priorities_updated_at ON user_priorities;
+CREATE TRIGGER trigger_update_user_priorities_updated_at
+    BEFORE UPDATE ON user_priorities
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+
+
+-- ============================================================================
+-- MODULE: 05_TEAMS
+-- Teams, Members, Rituals, and Team Availability
+-- ============================================================================
 
 -- Teams table
 CREATE TABLE IF NOT EXISTS teams (
@@ -438,9 +601,49 @@ CREATE TABLE IF NOT EXISTS team_meeting_rotations (
 
 COMMENT ON TABLE team_meeting_rotations IS 'Tracks meeting rotation assignments';
 
--- -----------------------------------------------------------------------------
--- 4.6 Blog System
--- -----------------------------------------------------------------------------
+-- INDEXES
+CREATE INDEX IF NOT EXISTS idx_teams_owner ON teams(owner_id);
+CREATE INDEX IF NOT EXISTS idx_teams_active ON teams(is_active);
+CREATE INDEX IF NOT EXISTS idx_team_members_team ON team_members(team_id);
+CREATE INDEX IF NOT EXISTS idx_team_members_user ON team_members(user_id);
+CREATE INDEX IF NOT EXISTS idx_team_members_status ON team_members(status);
+CREATE INDEX IF NOT EXISTS idx_team_rituals_team ON team_rituals(team_id);
+CREATE INDEX IF NOT EXISTS idx_team_rituals_active ON team_rituals(is_active);
+CREATE INDEX IF NOT EXISTS idx_team_availability_team_date ON team_availability(team_id, date);
+CREATE INDEX IF NOT EXISTS idx_team_availability_user ON team_availability(user_id);
+CREATE INDEX IF NOT EXISTS idx_team_meeting_rotations_ritual ON team_meeting_rotations(ritual_id);
+
+-- TRIGGERS
+DROP TRIGGER IF EXISTS update_teams_updated_at ON teams;
+CREATE TRIGGER update_teams_updated_at
+    BEFORE UPDATE ON teams
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_team_members_updated_at ON team_members;
+CREATE TRIGGER update_team_members_updated_at
+    BEFORE UPDATE ON team_members
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_team_rituals_updated_at ON team_rituals;
+CREATE TRIGGER update_team_rituals_updated_at
+    BEFORE UPDATE ON team_rituals
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_team_availability_updated_at ON team_availability;
+CREATE TRIGGER update_team_availability_updated_at
+    BEFORE UPDATE ON team_availability
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+
+
+-- ============================================================================
+-- MODULE: 06_BLOG
+-- Blog Categories, Posts, Tags, Comments, and Views
+-- ============================================================================
 
 -- Blog categories table
 CREATE TABLE IF NOT EXISTS blog_categories (
@@ -539,9 +742,91 @@ CREATE TABLE IF NOT EXISTS blog_views (
 COMMENT ON TABLE blog_views IS 'Analytics table for tracking blog post views';
 COMMENT ON COLUMN blog_views.ip_address IS 'Visitor IP address for analytics (anonymized in production)';
 
--- -----------------------------------------------------------------------------
--- 4.7 Sync & Integration
--- -----------------------------------------------------------------------------
+-- INDEXES
+CREATE INDEX IF NOT EXISTS idx_blog_posts_slug ON blog_posts(slug);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_status ON blog_posts(status);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_published_at ON blog_posts(published_at DESC);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_author_id ON blog_posts(author_id);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_category_id ON blog_posts(category_id);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_is_featured ON blog_posts(is_featured);
+CREATE INDEX IF NOT EXISTS idx_blog_posts_status_published ON blog_posts(status, published_at DESC);
+CREATE INDEX IF NOT EXISTS idx_blog_categories_slug ON blog_categories(slug);
+CREATE INDEX IF NOT EXISTS idx_blog_categories_is_active ON blog_categories(is_active);
+CREATE INDEX IF NOT EXISTS idx_blog_categories_sort_order ON blog_categories(sort_order);
+CREATE INDEX IF NOT EXISTS idx_blog_tags_slug ON blog_tags(slug);
+CREATE INDEX IF NOT EXISTS idx_blog_tags_usage_count ON blog_tags(usage_count DESC);
+CREATE INDEX IF NOT EXISTS idx_blog_comments_post_id ON blog_comments(post_id);
+CREATE INDEX IF NOT EXISTS idx_blog_comments_status ON blog_comments(status);
+CREATE INDEX IF NOT EXISTS idx_blog_comments_parent_id ON blog_comments(parent_id);
+CREATE INDEX IF NOT EXISTS idx_blog_comments_created_at ON blog_comments(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_blog_views_post_id ON blog_views(post_id);
+CREATE INDEX IF NOT EXISTS idx_blog_views_viewed_at ON blog_views(viewed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_blog_views_ip_address ON blog_views(ip_address);
+
+-- TRIGGERS
+DROP TRIGGER IF EXISTS update_blog_categories_updated_at ON blog_categories;
+CREATE TRIGGER update_blog_categories_updated_at 
+    BEFORE UPDATE ON blog_categories 
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_blog_posts_updated_at ON blog_posts;
+CREATE TRIGGER update_blog_posts_updated_at 
+    BEFORE UPDATE ON blog_posts 
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS update_blog_comments_updated_at ON blog_comments;
+CREATE TRIGGER update_blog_comments_updated_at 
+    BEFORE UPDATE ON blog_comments 
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Blog tag usage counter
+CREATE OR REPLACE FUNCTION update_tag_usage_count()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF TG_OP = 'INSERT' THEN
+        UPDATE blog_tags SET usage_count = usage_count + 1 WHERE id = NEW.tag_id;
+        RETURN NEW;
+    ELSIF TG_OP = 'DELETE' THEN
+        UPDATE blog_tags SET usage_count = usage_count - 1 WHERE id = OLD.tag_id;
+        RETURN OLD;
+    END IF;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS update_tag_usage_count_trigger ON blog_post_tags;
+CREATE TRIGGER update_tag_usage_count_trigger
+    AFTER INSERT OR DELETE ON blog_post_tags
+    FOR EACH ROW EXECUTE FUNCTION update_tag_usage_count();
+
+-- SEED DATA
+INSERT INTO blog_categories (name, slug, description, color, sort_order) VALUES
+('Product Updates', 'product-updates', 'Latest features and improvements to Calento', '#10b981', 1),
+('Best Practices', 'best-practices', 'Tips and best practices for calendar management', '#3b82f6', 2),
+('AI & Technology', 'ai-technology', 'Insights into AI-powered scheduling and productivity', '#8b5cf6', 3),
+('Company News', 'company-news', 'Company announcements and milestones', '#f59e0b', 4),
+('Integrations', 'integrations', 'Guides for Google Calendar, Slack, and other integrations', '#06b6d4', 5)
+ON CONFLICT (slug) DO NOTHING;
+
+INSERT INTO blog_tags (name, slug) VALUES
+('ai-scheduling', 'ai-scheduling'),
+('google-calendar', 'google-calendar'),
+('productivity', 'productivity'),
+('time-management', 'time-management'),
+('calendar-sync', 'calendar-sync'),
+('slack-integration', 'slack-integration'),
+('automation', 'automation'),
+('meeting-management', 'meeting-management'),
+('work-life-balance', 'work-life-balance'),
+('remote-work', 'remote-work')
+ON CONFLICT (slug) DO NOTHING;
+
+
+
+-- ============================================================================
+-- MODULE: 07_SYNC
+-- Sync Logs, Sync Errors, Webhooks, Integrations
+-- ============================================================================
 
 -- Sync logs table
 CREATE TABLE IF NOT EXISTS sync_logs (
@@ -592,23 +877,6 @@ COMMENT ON COLUMN sync_errors.max_retries IS 'Maximum number of retry attempts a
 COMMENT ON COLUMN sync_errors.next_retry_at IS 'Timestamp when next retry should be attempted';
 COMMENT ON COLUMN sync_errors.metadata IS 'Additional error context and retry parameters in JSON format';
 
--- Event conflicts table
-CREATE TABLE IF NOT EXISTS event_conflicts (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    calento_event_id UUID REFERENCES events(id) ON DELETE CASCADE,
-    google_event_id VARCHAR(255),
-    conflict_reason VARCHAR(100) NOT NULL, -- 'duplicate', 'time_overlap', 'missing_mapping'
-    resolution VARCHAR(100), -- 'prefer_calento', 'prefer_google', 'keep_both', 'manual'
-    resolved BOOLEAN DEFAULT FALSE,
-    calento_event_data JSONB,
-    google_event_data JSONB,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    resolved_at TIMESTAMP
-);
-
-COMMENT ON TABLE event_conflicts IS 'Stores conflicts detected during calendar sync';
-
 -- Webhook channels table
 CREATE TABLE IF NOT EXISTS webhook_channels (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -645,9 +913,62 @@ CREATE TABLE IF NOT EXISTS integrations (
 
 COMMENT ON TABLE integrations IS 'Stores third-party service integrations (Slack, etc.)';
 
--- -----------------------------------------------------------------------------
--- 4.8 Notifications & Email
--- -----------------------------------------------------------------------------
+-- INDEXES
+CREATE INDEX IF NOT EXISTS idx_sync_logs_user_id ON sync_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_sync_logs_status ON sync_logs(status);
+CREATE INDEX IF NOT EXISTS idx_sync_logs_created_at ON sync_logs(created_at);
+
+CREATE INDEX IF NOT EXISTS idx_sync_log_user_provider ON sync_log(user_id, provider);
+CREATE INDEX IF NOT EXISTS idx_sync_log_status ON sync_log(status);
+
+CREATE INDEX IF NOT EXISTS idx_sync_errors_user_id ON sync_errors(user_id);
+CREATE INDEX IF NOT EXISTS idx_sync_errors_error_type ON sync_errors(error_type);
+CREATE INDEX IF NOT EXISTS idx_sync_errors_resolved ON sync_errors(resolved);
+CREATE INDEX IF NOT EXISTS idx_sync_errors_next_retry ON sync_errors(next_retry_at) WHERE resolved = FALSE;
+CREATE INDEX IF NOT EXISTS idx_sync_errors_created_at ON sync_errors(created_at);
+CREATE INDEX IF NOT EXISTS idx_sync_errors_retry_lookup ON sync_errors(resolved, retry_count, next_retry_at);
+CREATE INDEX IF NOT EXISTS idx_sync_errors_user_resolved_created ON sync_errors(user_id, resolved, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_webhook_channels_user_id ON webhook_channels(user_id);
+CREATE INDEX IF NOT EXISTS idx_webhook_channels_channel_id ON webhook_channels(channel_id);
+CREATE INDEX IF NOT EXISTS idx_webhook_channels_active ON webhook_channels(is_active) WHERE is_active = TRUE;
+CREATE INDEX IF NOT EXISTS idx_webhook_channels_expiration ON webhook_channels(expiration) WHERE is_active = TRUE;
+CREATE INDEX IF NOT EXISTS idx_webhook_channels_user_calendar ON webhook_channels(user_id, calendar_id) WHERE is_active = TRUE;
+
+CREATE INDEX IF NOT EXISTS idx_integrations_user_id ON integrations(user_id);
+CREATE INDEX IF NOT EXISTS idx_integrations_provider ON integrations(provider);
+
+-- TRIGGERS
+DROP TRIGGER IF EXISTS trigger_sync_logs_updated_at ON sync_logs;
+CREATE TRIGGER trigger_sync_logs_updated_at 
+    BEFORE UPDATE ON sync_logs 
+    FOR EACH ROW 
+    EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS trigger_sync_errors_updated_at ON sync_errors;
+CREATE TRIGGER trigger_sync_errors_updated_at
+    BEFORE UPDATE ON sync_errors
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS trigger_update_webhook_channels_updated_at ON webhook_channels;
+CREATE TRIGGER trigger_update_webhook_channels_updated_at
+    BEFORE UPDATE ON webhook_channels
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS trigger_integrations_updated_at ON integrations;
+CREATE TRIGGER trigger_integrations_updated_at 
+    BEFORE UPDATE ON integrations 
+    FOR EACH ROW 
+    EXECUTE FUNCTION update_updated_at_column();
+
+
+
+-- ============================================================================
+-- MODULE: 08_NOTIFICATIONS
+-- Notifications, Meeting Notes, Email Logs
+-- ============================================================================
 
 -- Notifications table
 CREATE TABLE IF NOT EXISTS notifications (
@@ -694,9 +1015,45 @@ COMMENT ON COLUMN email_logs."to" IS 'Recipient email address';
 COMMENT ON COLUMN email_logs.template IS 'Email template used (if any)';
 COMMENT ON COLUMN email_logs.status IS 'Email delivery status: pending, sent, failed, queued';
 
--- -----------------------------------------------------------------------------
--- 4.9 AI System
--- -----------------------------------------------------------------------------
+-- INDEXES
+CREATE INDEX IF NOT EXISTS idx_notifications_event_id ON notifications(event_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_channel ON notifications(channel);
+CREATE INDEX IF NOT EXISTS idx_notifications_remind_at ON notifications(remind_at);
+CREATE INDEX IF NOT EXISTS idx_notifications_is_sent ON notifications(is_sent);
+
+CREATE INDEX IF NOT EXISTS idx_meeting_notes_event_id ON meeting_notes(event_id);
+CREATE INDEX IF NOT EXISTS idx_meeting_notes_created_at ON meeting_notes(created_at);
+
+CREATE INDEX IF NOT EXISTS idx_email_logs_user_id ON email_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_email_logs_status ON email_logs(status);
+CREATE INDEX IF NOT EXISTS idx_email_logs_created_at ON email_logs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_email_logs_user_status ON email_logs(user_id, status);
+
+-- TRIGGERS
+DROP TRIGGER IF EXISTS trigger_notifications_updated_at ON notifications;
+CREATE TRIGGER trigger_notifications_updated_at 
+    BEFORE UPDATE ON notifications 
+    FOR EACH ROW 
+    EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS trigger_meeting_notes_updated_at ON meeting_notes;
+CREATE TRIGGER trigger_meeting_notes_updated_at 
+    BEFORE UPDATE ON meeting_notes 
+    FOR EACH ROW 
+    EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS trigger_update_email_logs_updated_at ON email_logs;
+CREATE TRIGGER trigger_update_email_logs_updated_at
+    BEFORE UPDATE ON email_logs
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+
+
+-- ============================================================================
+-- MODULE: 09_AI
+-- AI Conversations and Actions
+-- ============================================================================
 
 -- AI conversations table
 CREATE TABLE IF NOT EXISTS ai_conversations (
@@ -728,9 +1085,33 @@ CREATE TABLE IF NOT EXISTS ai_actions (
 COMMENT ON TABLE ai_actions IS 'Tracks AI function calls and their execution results';
 COMMENT ON COLUMN ai_actions.status IS 'Status: pending, completed, or failed';
 
--- -----------------------------------------------------------------------------
--- 4.10 Contacts (Landing Page)
--- -----------------------------------------------------------------------------
+-- INDEXES
+CREATE INDEX IF NOT EXISTS idx_ai_conversations_user_id ON ai_conversations(user_id);
+CREATE INDEX IF NOT EXISTS idx_ai_conversations_created_at ON ai_conversations(created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_ai_actions_conversation_id ON ai_actions(conversation_id);
+CREATE INDEX IF NOT EXISTS idx_ai_actions_status ON ai_actions(status);
+CREATE INDEX IF NOT EXISTS idx_ai_actions_created_at ON ai_actions(created_at DESC);
+
+-- TRIGGERS
+DROP TRIGGER IF EXISTS trigger_ai_conversations_updated_at ON ai_conversations;
+CREATE TRIGGER trigger_ai_conversations_updated_at
+    BEFORE UPDATE ON ai_conversations
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+DROP TRIGGER IF EXISTS trigger_ai_actions_updated_at ON ai_actions;
+CREATE TRIGGER trigger_ai_actions_updated_at
+    BEFORE UPDATE ON ai_actions
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+
+
+-- ============================================================================
+-- MODULE: 10_CONTACTS
+-- Contacts (Landing Page)
+-- ============================================================================
 
 -- Contacts table
 CREATE TABLE IF NOT EXISTS contacts (
@@ -750,423 +1131,97 @@ CREATE TABLE IF NOT EXISTS contacts (
 
 COMMENT ON TABLE contacts IS 'Stores contact form submissions from landing page';
 
--- ============================================================================
--- SECTION 5: INDEXES
--- ============================================================================
-
--- Users indexes
-CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
-CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
-CREATE INDEX IF NOT EXISTS idx_users_active ON users(is_active);
-CREATE INDEX IF NOT EXISTS idx_users_created_at ON users(created_at);
-CREATE INDEX IF NOT EXISTS idx_users_reset_token_identifier ON users(reset_token_identifier);
-CREATE INDEX IF NOT EXISTS idx_users_reset_token_expires_at ON users(reset_token_expires_at);
-CREATE INDEX IF NOT EXISTS idx_users_full_name ON users(full_name);
-
--- User credentials indexes
-CREATE INDEX IF NOT EXISTS idx_user_credentials_user_id ON user_credentials(user_id);
-CREATE INDEX IF NOT EXISTS idx_user_credentials_provider ON user_credentials(provider);
-CREATE INDEX IF NOT EXISTS idx_user_credentials_sync ON user_credentials(user_id, provider, sync_enabled, is_active);
-
--- User settings indexes
-CREATE INDEX IF NOT EXISTS idx_user_settings_user_id ON user_settings(user_id);
-
--- Calendars indexes
-CREATE INDEX IF NOT EXISTS idx_calendars_user_id ON calendars(user_id);
-CREATE INDEX IF NOT EXISTS idx_calendars_google_id ON calendars(google_calendar_id);
-CREATE INDEX IF NOT EXISTS idx_calendars_primary ON calendars(is_primary);
-
--- Events indexes
-CREATE INDEX IF NOT EXISTS idx_events_calendar_id ON events(calendar_id);
-CREATE INDEX IF NOT EXISTS idx_events_google_id ON events(google_event_id) WHERE google_event_id IS NOT NULL;
-CREATE INDEX IF NOT EXISTS idx_events_start_time ON events(start_time);
-CREATE INDEX IF NOT EXISTS idx_events_end_time ON events(end_time);
-CREATE INDEX IF NOT EXISTS idx_events_status ON events(status);
-CREATE INDEX IF NOT EXISTS idx_events_time_range ON events(start_time, end_time);
-CREATE INDEX IF NOT EXISTS idx_events_calendar_google ON events(calendar_id, google_event_id);
-CREATE INDEX IF NOT EXISTS idx_events_color ON events(color);
-CREATE INDEX IF NOT EXISTS idx_events_organizer_id ON events(organizer_id);
-CREATE INDEX IF NOT EXISTS idx_events_organizer_email ON events(organizer_email);
-CREATE INDEX IF NOT EXISTS idx_events_conference_data ON events USING GIN (conference_data);
-CREATE INDEX IF NOT EXISTS idx_events_recurrence_rule ON events(recurrence_rule) WHERE recurrence_rule IS NOT NULL AND recurrence_rule != '';
-
--- Event attendees indexes
-CREATE INDEX IF NOT EXISTS idx_event_attendees_event_id ON event_attendees(event_id);
-CREATE INDEX IF NOT EXISTS idx_event_attendees_email ON event_attendees(email);
-CREATE INDEX IF NOT EXISTS idx_event_attendees_response_status ON event_attendees(response_status);
-CREATE INDEX IF NOT EXISTS idx_event_attendees_invitation_token ON event_attendees(invitation_token) WHERE invitation_token IS NOT NULL;
-CREATE INDEX IF NOT EXISTS idx_event_attendees_pending_invitations ON event_attendees(event_id, response_status) WHERE response_status = 'needsAction';
-
--- Availabilities indexes
-CREATE INDEX IF NOT EXISTS idx_availabilities_user_id ON availabilities(user_id);
-CREATE INDEX IF NOT EXISTS idx_availabilities_day_of_week ON availabilities(day_of_week);
-CREATE INDEX IF NOT EXISTS idx_availabilities_time_range ON availabilities(start_time, end_time);
-CREATE INDEX IF NOT EXISTS idx_availabilities_is_active ON availabilities(user_id, is_active) WHERE is_active = TRUE;
-CREATE INDEX IF NOT EXISTS idx_availabilities_timezone ON availabilities(timezone);
-
--- Booking links indexes
-CREATE INDEX IF NOT EXISTS idx_booking_links_user_id ON booking_links(user_id);
-CREATE INDEX IF NOT EXISTS idx_booking_links_slug ON booking_links(slug);
-CREATE INDEX IF NOT EXISTS idx_booking_links_is_active ON booking_links(is_active) WHERE is_active = TRUE;
-CREATE INDEX IF NOT EXISTS idx_booking_links_expires_at ON booking_links(expires_at) WHERE expires_at IS NOT NULL AND is_active = TRUE;
-
--- Bookings indexes
-CREATE INDEX IF NOT EXISTS idx_bookings_booking_link_id ON bookings(booking_link_id);
-CREATE INDEX IF NOT EXISTS idx_bookings_user_id ON bookings(user_id);
-CREATE INDEX IF NOT EXISTS idx_bookings_event_id ON bookings(event_id);
-CREATE INDEX IF NOT EXISTS idx_bookings_start_time ON bookings(start_time);
-CREATE INDEX IF NOT EXISTS idx_bookings_status ON bookings(status);
-CREATE INDEX IF NOT EXISTS idx_bookings_booker_email ON bookings(booker_email);
-CREATE INDEX IF NOT EXISTS idx_bookings_confirmation_token ON bookings(confirmation_token);
-CREATE INDEX IF NOT EXISTS idx_bookings_user_status ON bookings(user_id, status);
-CREATE INDEX IF NOT EXISTS idx_bookings_link_time ON bookings(booking_link_id, start_time);
-
--- Tasks indexes
-CREATE INDEX IF NOT EXISTS idx_tasks_user_id ON tasks(user_id);
-CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
-CREATE INDEX IF NOT EXISTS idx_tasks_priority ON tasks(priority);
-CREATE INDEX IF NOT EXISTS idx_tasks_due_date ON tasks(due_date);
-CREATE INDEX IF NOT EXISTS idx_tasks_project_id ON tasks(project_id);
-CREATE INDEX IF NOT EXISTS idx_tasks_parent_task_id ON tasks(parent_task_id);
-CREATE INDEX IF NOT EXISTS idx_tasks_deleted_at ON tasks(deleted_at);
-CREATE INDEX IF NOT EXISTS idx_tasks_tags ON tasks USING GIN(tags);
-CREATE INDEX IF NOT EXISTS idx_tasks_user_status ON tasks(user_id, status);
-CREATE INDEX IF NOT EXISTS idx_tasks_user_priority ON tasks(user_id, priority);
-
--- User priorities indexes
-CREATE INDEX IF NOT EXISTS idx_user_priorities_user_id ON user_priorities(user_id);
-CREATE INDEX IF NOT EXISTS idx_user_priorities_priority ON user_priorities(priority);
-CREATE INDEX IF NOT EXISTS idx_user_priorities_item_type ON user_priorities(item_type);
-CREATE INDEX IF NOT EXISTS idx_user_priorities_user_priority ON user_priorities(user_id, priority);
-
--- Team indexes
-CREATE INDEX IF NOT EXISTS idx_teams_owner ON teams(owner_id);
-CREATE INDEX IF NOT EXISTS idx_teams_active ON teams(is_active);
-CREATE INDEX IF NOT EXISTS idx_team_members_team ON team_members(team_id);
-CREATE INDEX IF NOT EXISTS idx_team_members_user ON team_members(user_id);
-CREATE INDEX IF NOT EXISTS idx_team_members_status ON team_members(status);
-CREATE INDEX IF NOT EXISTS idx_team_rituals_team ON team_rituals(team_id);
-CREATE INDEX IF NOT EXISTS idx_team_rituals_active ON team_rituals(is_active);
-CREATE INDEX IF NOT EXISTS idx_team_availability_team_date ON team_availability(team_id, date);
-CREATE INDEX IF NOT EXISTS idx_team_availability_user ON team_availability(user_id);
-CREATE INDEX IF NOT EXISTS idx_team_meeting_rotations_ritual ON team_meeting_rotations(ritual_id);
-
--- Blog indexes
-CREATE INDEX IF NOT EXISTS idx_blog_posts_slug ON blog_posts(slug);
-CREATE INDEX IF NOT EXISTS idx_blog_posts_status ON blog_posts(status);
-CREATE INDEX IF NOT EXISTS idx_blog_posts_published_at ON blog_posts(published_at DESC);
-CREATE INDEX IF NOT EXISTS idx_blog_posts_author_id ON blog_posts(author_id);
-CREATE INDEX IF NOT EXISTS idx_blog_posts_category_id ON blog_posts(category_id);
-CREATE INDEX IF NOT EXISTS idx_blog_posts_is_featured ON blog_posts(is_featured);
-CREATE INDEX IF NOT EXISTS idx_blog_posts_status_published ON blog_posts(status, published_at DESC);
-CREATE INDEX IF NOT EXISTS idx_blog_categories_slug ON blog_categories(slug);
-CREATE INDEX IF NOT EXISTS idx_blog_categories_is_active ON blog_categories(is_active);
-CREATE INDEX IF NOT EXISTS idx_blog_categories_sort_order ON blog_categories(sort_order);
-CREATE INDEX IF NOT EXISTS idx_blog_tags_slug ON blog_tags(slug);
-CREATE INDEX IF NOT EXISTS idx_blog_tags_usage_count ON blog_tags(usage_count DESC);
-CREATE INDEX IF NOT EXISTS idx_blog_comments_post_id ON blog_comments(post_id);
-CREATE INDEX IF NOT EXISTS idx_blog_comments_status ON blog_comments(status);
-CREATE INDEX IF NOT EXISTS idx_blog_comments_parent_id ON blog_comments(parent_id);
-CREATE INDEX IF NOT EXISTS idx_blog_comments_created_at ON blog_comments(created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_blog_views_post_id ON blog_views(post_id);
-CREATE INDEX IF NOT EXISTS idx_blog_views_viewed_at ON blog_views(viewed_at DESC);
-CREATE INDEX IF NOT EXISTS idx_blog_views_ip_address ON blog_views(ip_address);
-
--- Sync & integration indexes
-CREATE INDEX IF NOT EXISTS idx_sync_logs_user_id ON sync_logs(user_id);
-CREATE INDEX IF NOT EXISTS idx_sync_logs_status ON sync_logs(status);
-CREATE INDEX IF NOT EXISTS idx_sync_logs_created_at ON sync_logs(created_at);
-CREATE INDEX IF NOT EXISTS idx_sync_log_user_provider ON sync_log(user_id, provider);
-CREATE INDEX IF NOT EXISTS idx_sync_log_status ON sync_log(status);
-CREATE INDEX IF NOT EXISTS idx_sync_errors_user_id ON sync_errors(user_id);
-CREATE INDEX IF NOT EXISTS idx_sync_errors_error_type ON sync_errors(error_type);
-CREATE INDEX IF NOT EXISTS idx_sync_errors_resolved ON sync_errors(resolved);
-CREATE INDEX IF NOT EXISTS idx_sync_errors_next_retry ON sync_errors(next_retry_at) WHERE resolved = FALSE;
-CREATE INDEX IF NOT EXISTS idx_sync_errors_created_at ON sync_errors(created_at);
-CREATE INDEX IF NOT EXISTS idx_sync_errors_retry_lookup ON sync_errors(resolved, retry_count, next_retry_at);
-CREATE INDEX IF NOT EXISTS idx_sync_errors_user_resolved_created ON sync_errors(user_id, resolved, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_event_conflicts_user ON event_conflicts(user_id);
-CREATE INDEX IF NOT EXISTS idx_event_conflicts_resolved ON event_conflicts(resolved);
-CREATE INDEX IF NOT EXISTS idx_webhook_channels_user_id ON webhook_channels(user_id);
-CREATE INDEX IF NOT EXISTS idx_webhook_channels_channel_id ON webhook_channels(channel_id);
-CREATE INDEX IF NOT EXISTS idx_webhook_channels_active ON webhook_channels(is_active) WHERE is_active = TRUE;
-CREATE INDEX IF NOT EXISTS idx_webhook_channels_expiration ON webhook_channels(expiration) WHERE is_active = TRUE;
-CREATE INDEX IF NOT EXISTS idx_webhook_channels_user_calendar ON webhook_channels(user_id, calendar_id) WHERE is_active = TRUE;
-CREATE INDEX IF NOT EXISTS idx_integrations_user_id ON integrations(user_id);
-CREATE INDEX IF NOT EXISTS idx_integrations_provider ON integrations(provider);
-
--- Notifications & email indexes
-CREATE INDEX IF NOT EXISTS idx_notifications_event_id ON notifications(event_id);
-CREATE INDEX IF NOT EXISTS idx_notifications_channel ON notifications(channel);
-CREATE INDEX IF NOT EXISTS idx_notifications_remind_at ON notifications(remind_at);
-CREATE INDEX IF NOT EXISTS idx_notifications_is_sent ON notifications(is_sent);
-CREATE INDEX IF NOT EXISTS idx_meeting_notes_event_id ON meeting_notes(event_id);
-CREATE INDEX IF NOT EXISTS idx_meeting_notes_created_at ON meeting_notes(created_at);
-CREATE INDEX IF NOT EXISTS idx_email_logs_user_id ON email_logs(user_id);
-CREATE INDEX IF NOT EXISTS idx_email_logs_status ON email_logs(status);
-CREATE INDEX IF NOT EXISTS idx_email_logs_created_at ON email_logs(created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_email_logs_user_status ON email_logs(user_id, status);
-
--- AI indexes
-CREATE INDEX IF NOT EXISTS idx_ai_conversations_user_id ON ai_conversations(user_id);
-CREATE INDEX IF NOT EXISTS idx_ai_conversations_created_at ON ai_conversations(created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_ai_actions_conversation_id ON ai_actions(conversation_id);
-CREATE INDEX IF NOT EXISTS idx_ai_actions_status ON ai_actions(status);
-CREATE INDEX IF NOT EXISTS idx_ai_actions_created_at ON ai_actions(created_at DESC);
-
--- Contacts indexes
+-- INDEXES
 CREATE INDEX IF NOT EXISTS idx_contacts_email ON contacts(email);
 CREATE INDEX IF NOT EXISTS idx_contacts_status ON contacts(status);
 CREATE INDEX IF NOT EXISTS idx_contacts_created_at ON contacts(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_contacts_inquiry_type ON contacts(inquiry_type);
 
--- ============================================================================
--- SECTION 6: TRIGGERS
--- ============================================================================
-
--- Users trigger
-DROP TRIGGER IF EXISTS trigger_users_updated_at ON users;
-CREATE TRIGGER trigger_users_updated_at 
-    BEFORE UPDATE ON users 
-    FOR EACH ROW 
-    EXECUTE FUNCTION update_updated_at_column();
-
--- User credentials trigger
-DROP TRIGGER IF EXISTS trigger_user_credentials_updated_at ON user_credentials;
-CREATE TRIGGER trigger_user_credentials_updated_at 
-    BEFORE UPDATE ON user_credentials 
-    FOR EACH ROW 
-    EXECUTE FUNCTION update_updated_at_column();
-
--- User settings trigger
-DROP TRIGGER IF EXISTS trigger_user_settings_updated_at ON user_settings;
-CREATE TRIGGER trigger_user_settings_updated_at 
-    BEFORE UPDATE ON user_settings 
-    FOR EACH ROW 
-    EXECUTE FUNCTION update_updated_at_column();
-
--- Calendars trigger
-DROP TRIGGER IF EXISTS trigger_calendars_updated_at ON calendars;
-CREATE TRIGGER trigger_calendars_updated_at 
-    BEFORE UPDATE ON calendars 
-    FOR EACH ROW 
-    EXECUTE FUNCTION update_updated_at_column();
-
--- Events trigger
-DROP TRIGGER IF EXISTS trigger_events_updated_at ON events;
-CREATE TRIGGER trigger_events_updated_at 
-    BEFORE UPDATE ON events 
-    FOR EACH ROW 
-    EXECUTE FUNCTION update_updated_at_column();
-
--- Event attendees trigger
-DROP TRIGGER IF EXISTS trigger_update_event_attendees_updated_at ON event_attendees;
-CREATE TRIGGER trigger_update_event_attendees_updated_at
-    BEFORE UPDATE ON event_attendees
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
--- Sync logs trigger
-DROP TRIGGER IF EXISTS trigger_sync_logs_updated_at ON sync_logs;
-CREATE TRIGGER trigger_sync_logs_updated_at 
-    BEFORE UPDATE ON sync_logs 
-    FOR EACH ROW 
-    EXECUTE FUNCTION update_updated_at_column();
-
--- Availabilities trigger
-DROP TRIGGER IF EXISTS trigger_availabilities_updated_at ON availabilities;
-CREATE TRIGGER trigger_availabilities_updated_at 
-    BEFORE UPDATE ON availabilities 
-    FOR EACH ROW 
-    EXECUTE FUNCTION update_updated_at_column();
-
--- Integrations trigger
-DROP TRIGGER IF EXISTS trigger_integrations_updated_at ON integrations;
-CREATE TRIGGER trigger_integrations_updated_at 
-    BEFORE UPDATE ON integrations 
-    FOR EACH ROW 
-    EXECUTE FUNCTION update_updated_at_column();
-
--- Notifications trigger
-DROP TRIGGER IF EXISTS trigger_notifications_updated_at ON notifications;
-CREATE TRIGGER trigger_notifications_updated_at 
-    BEFORE UPDATE ON notifications 
-    FOR EACH ROW 
-    EXECUTE FUNCTION update_updated_at_column();
-
--- Meeting notes trigger
-DROP TRIGGER IF EXISTS trigger_meeting_notes_updated_at ON meeting_notes;
-CREATE TRIGGER trigger_meeting_notes_updated_at 
-    BEFORE UPDATE ON meeting_notes 
-    FOR EACH ROW 
-    EXECUTE FUNCTION update_updated_at_column();
-
--- Booking links trigger
-DROP TRIGGER IF EXISTS trigger_update_booking_links_timestamp ON booking_links;
-CREATE TRIGGER trigger_update_booking_links_timestamp
-    BEFORE UPDATE ON booking_links
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
--- Bookings trigger
-DROP TRIGGER IF EXISTS trigger_update_bookings_timestamp ON bookings;
-CREATE TRIGGER trigger_update_bookings_timestamp
-    BEFORE UPDATE ON bookings
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
--- Tasks trigger
-DROP TRIGGER IF EXISTS trigger_update_tasks_updated_at ON tasks;
-CREATE TRIGGER trigger_update_tasks_updated_at
-    BEFORE UPDATE ON tasks
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
--- User priorities trigger
-DROP TRIGGER IF EXISTS trigger_update_user_priorities_updated_at ON user_priorities;
-CREATE TRIGGER trigger_update_user_priorities_updated_at
-    BEFORE UPDATE ON user_priorities
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
--- Teams trigger
-DROP TRIGGER IF EXISTS update_teams_updated_at ON teams;
-CREATE TRIGGER update_teams_updated_at
-    BEFORE UPDATE ON teams
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
--- Team members trigger
-DROP TRIGGER IF EXISTS update_team_members_updated_at ON team_members;
-CREATE TRIGGER update_team_members_updated_at
-    BEFORE UPDATE ON team_members
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
--- Team rituals trigger
-DROP TRIGGER IF EXISTS update_team_rituals_updated_at ON team_rituals;
-CREATE TRIGGER update_team_rituals_updated_at
-    BEFORE UPDATE ON team_rituals
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
--- Team availability trigger
-DROP TRIGGER IF EXISTS update_team_availability_updated_at ON team_availability;
-CREATE TRIGGER update_team_availability_updated_at
-    BEFORE UPDATE ON team_availability
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
--- Blog categories trigger
-DROP TRIGGER IF EXISTS update_blog_categories_updated_at ON blog_categories;
-CREATE TRIGGER update_blog_categories_updated_at 
-    BEFORE UPDATE ON blog_categories 
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
--- Blog posts trigger
-DROP TRIGGER IF EXISTS update_blog_posts_updated_at ON blog_posts;
-CREATE TRIGGER update_blog_posts_updated_at 
-    BEFORE UPDATE ON blog_posts 
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
--- Blog comments trigger
-DROP TRIGGER IF EXISTS update_blog_comments_updated_at ON blog_comments;
-CREATE TRIGGER update_blog_comments_updated_at 
-    BEFORE UPDATE ON blog_comments 
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
--- Sync errors trigger
-DROP TRIGGER IF EXISTS trigger_sync_errors_updated_at ON sync_errors;
-CREATE TRIGGER trigger_sync_errors_updated_at
-    BEFORE UPDATE ON sync_errors
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
--- Webhook channels trigger
-DROP TRIGGER IF EXISTS trigger_update_webhook_channels_updated_at ON webhook_channels;
-CREATE TRIGGER trigger_update_webhook_channels_updated_at
-    BEFORE UPDATE ON webhook_channels
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
--- Email logs trigger
-DROP TRIGGER IF EXISTS trigger_update_email_logs_updated_at ON email_logs;
-CREATE TRIGGER trigger_update_email_logs_updated_at
-    BEFORE UPDATE ON email_logs
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
--- AI conversations trigger
-DROP TRIGGER IF EXISTS trigger_ai_conversations_updated_at ON ai_conversations;
-CREATE TRIGGER trigger_ai_conversations_updated_at
-    BEFORE UPDATE ON ai_conversations
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
--- AI actions trigger
-DROP TRIGGER IF EXISTS trigger_ai_actions_updated_at ON ai_actions;
-CREATE TRIGGER trigger_ai_actions_updated_at
-    BEFORE UPDATE ON ai_actions
-    FOR EACH ROW
-    EXECUTE FUNCTION update_updated_at_column();
-
--- Contacts trigger
+-- TRIGGERS
 DROP TRIGGER IF EXISTS trigger_update_contacts_updated_at ON contacts;
 CREATE TRIGGER trigger_update_contacts_updated_at
     BEFORE UPDATE ON contacts
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+
+
 -- ============================================================================
--- SECTION 7: BLOG TAG USAGE COUNTER TRIGGER
+-- MODULE: 11_CONTEXT
+-- User Context Summary (Vector Store)
 -- ============================================================================
 
-CREATE OR REPLACE FUNCTION update_tag_usage_count()
-RETURNS TRIGGER AS $$
+-- User Context Summary table
+CREATE TABLE IF NOT EXISTS user_context_summary (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    context JSONB NOT NULL DEFAULT '{}',
+    embedding vector(1536), -- Vector embedding for semantic search (OpenAI default)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+COMMENT ON TABLE user_context_summary IS 'Stores context information for each user with vector embeddings';
+
+-- INDEXES
+CREATE INDEX IF NOT EXISTS idx_user_context_summary_user_id ON user_context_summary(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_context_summary_created_at ON user_context_summary(created_at DESC);
+
+-- HNSW Index for fast approximate nearest neighbor search
+-- Note: 'vector_cosine_ops' is typical for embeddings. 
+-- Adjust 'm' and 'ef_construction' if needed for performance tuning.
+CREATE INDEX IF NOT EXISTS idx_user_context_summary_embedding 
+    ON user_context_summary USING hnsw (embedding vector_cosine_ops);
+
+-- TRIGGERS
+DROP TRIGGER IF EXISTS trigger_update_user_context_summary_updated_at ON user_context_summary;
+CREATE TRIGGER trigger_update_user_context_summary_updated_at
+    BEFORE UPDATE ON user_context_summary
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+
+
+-- ============================================================================
+-- MODULE: 12_HYBRID_SEARCH
+-- Hybrid Search Support (tsvector)
+-- ============================================================================
+
+-- Add text_search_vector column
+ALTER TABLE user_context_summary 
+ADD COLUMN IF NOT EXISTS text_search_vector tsvector;
+
+-- Create GIN index for fast full-text search
+CREATE INDEX IF NOT EXISTS idx_user_context_summary_text_search 
+ON user_context_summary USING GIN(text_search_vector);
+
+-- Function to automatically update tsvector from context
+CREATE OR REPLACE FUNCTION user_context_summary_tsvector_trigger() RETURNS trigger AS $$
+DECLARE
+    text_content TEXT;
 BEGIN
-    IF TG_OP = 'INSERT' THEN
-        UPDATE blog_tags SET usage_count = usage_count + 1 WHERE id = NEW.tag_id;
-        RETURN NEW;
-    ELSIF TG_OP = 'DELETE' THEN
-        UPDATE blog_tags SET usage_count = usage_count - 1 WHERE id = OLD.tag_id;
-        RETURN OLD;
+    -- Try to extract text content from likely fields
+    text_content := NEW.context->>'text' || ' ' || 
+                    COALESCE(NEW.context->>'content', '') || ' ' || 
+                    COALESCE(NEW.context->>'summary', '') || ' ' || 
+                    COALESCE(NEW.context->>'message', '') || ' ' ||
+                    COALESCE(NEW.context->>'_text_content', '');
+    
+    -- If empty, just stringify the whole thing (fallback)
+    IF length(trim(text_content)) = 0 THEN
+        text_content := NEW.context::text;
     END IF;
-    RETURN NULL;
-END;
+
+    NEW.text_search_vector := to_tsvector('english', text_content);
+    RETURN NEW;
+END
 $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS update_tag_usage_count_trigger ON blog_post_tags;
-CREATE TRIGGER update_tag_usage_count_trigger
-    AFTER INSERT OR DELETE ON blog_post_tags
-    FOR EACH ROW EXECUTE FUNCTION update_tag_usage_count();
+-- Trigger to update tsvector on insert or update
+DROP TRIGGER IF EXISTS tsvectorupdate ON user_context_summary;
+CREATE TRIGGER tsvectorupdate 
+BEFORE INSERT OR UPDATE ON user_context_summary
+FOR EACH ROW EXECUTE FUNCTION user_context_summary_tsvector_trigger();
 
--- ============================================================================
--- SECTION 8: SEED DATA
--- ============================================================================
 
--- Default blog categories
-INSERT INTO blog_categories (name, slug, description, color, sort_order) VALUES
-('Product Updates', 'product-updates', 'Latest features and improvements to Calento', '#10b981', 1),
-('Best Practices', 'best-practices', 'Tips and best practices for calendar management', '#3b82f6', 2),
-('AI & Technology', 'ai-technology', 'Insights into AI-powered scheduling and productivity', '#8b5cf6', 3),
-('Company News', 'company-news', 'Company announcements and milestones', '#f59e0b', 4),
-('Integrations', 'integrations', 'Guides for Google Calendar, Slack, and other integrations', '#06b6d4', 5)
-ON CONFLICT (slug) DO NOTHING;
 
--- Default blog tags
-INSERT INTO blog_tags (name, slug) VALUES
-('ai-scheduling', 'ai-scheduling'),
-('google-calendar', 'google-calendar'),
-('productivity', 'productivity'),
-('time-management', 'time-management'),
-('calendar-sync', 'calendar-sync'),
-('slack-integration', 'slack-integration'),
-('automation', 'automation'),
-('meeting-management', 'meeting-management'),
-('work-life-balance', 'work-life-balance'),
-('remote-work', 'remote-work')
-ON CONFLICT (slug) DO NOTHING;
-
--- ============================================================================
--- END OF SCHEMA
--- ============================================================================
