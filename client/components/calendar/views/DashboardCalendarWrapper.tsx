@@ -183,32 +183,31 @@ export function DashboardCalendarWrapper({
 
         <DashboardHeaderCalendarPortal />
 
-        <div
-          className={`bg-[#F7F8FC] h-full overflow-hidden ${calendarStyles.container}`}
-        >
-          <div className="h-full overflow-hidden">
-            <CalendarDayView />
-            <CalendarWeekView />
-            <CalendarMonthView />
-            <CalendarYearView />
-          </div>
-        </div>
-
-        {expandedCalendarSidebar && (
+        <div className="relative h-full">
           <div
-            className="fixed top-14 w-[460px] animate-in slide-in-from-right duration-300"
-            style={{ right: '28rem', height: 'calc(100vh - 3.5rem)', zIndex: 2500 }}
+            className={`bg-[#F7F8FC] h-full overflow-hidden ${calendarStyles.container}`}
           >
-            <CalendarSidebar
-              selectedDate={selectedDate}
-              onDateSelect={setSelectedDate}
-              onCreateEvent={() => setOpenEventDialog(true)}
-              onClose={toggleCalendarSidebar}
-              visibleCalendarIds={visibleCalendarIds}
-              onVisibleCalendarIdsChange={setVisibleCalendarIds}
-            />
+            <div className="h-full overflow-hidden">
+              <CalendarDayView />
+              <CalendarWeekView />
+              <CalendarMonthView />
+              <CalendarYearView />
+            </div>
           </div>
-        )}
+
+          {expandedCalendarSidebar && (
+            <div className="absolute inset-y-0 right-0 z-50 w-[460px] animate-in slide-in-from-right duration-300">
+              <CalendarSidebar
+                selectedDate={selectedDate}
+                onDateSelect={setSelectedDate}
+                onCreateEvent={() => setOpenEventDialog(true)}
+                onClose={toggleCalendarSidebar}
+                visibleCalendarIds={visibleCalendarIds}
+                onVisibleCalendarIdsChange={setVisibleCalendarIds}
+              />
+            </div>
+          )}
+        </div>
 
         <CreateEventDialog
           open={openEventDialog}
