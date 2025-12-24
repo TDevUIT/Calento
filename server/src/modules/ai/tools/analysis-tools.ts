@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import { z, ZodObject, ZodRawShape } from 'zod';
 import { BaseTool } from './base-tool';
 import { AgentContext } from '../agents/base/agent.interface';
-import { AIAnalysisService } from '../services/ai-analysis.service';
+import { AIAnalysisService } from '../services/analysis.service';
 import { FUNCTION_DESCRIPTIONS } from '../prompts/function-prompts';
 
 @Injectable()
@@ -9,6 +10,19 @@ export class AnalyzeTeamAvailabilityTool extends BaseTool {
   constructor(private readonly aiAnalysisService: AIAnalysisService) {
     const funcDef = FUNCTION_DESCRIPTIONS.ANALYZE_TEAM_AVAILABILITY;
     super(funcDef.name, funcDef.description, funcDef.category, funcDef.parameters);
+  }
+
+  getZodSchema(): ZodObject<ZodRawShape> {
+    return z.object({
+      member_ids: z.array(z.string()).optional().describe('List of team member IDs'),
+      start_date: z.string().describe('Start date in ISO format'),
+      end_date: z.string().describe('End date in ISO format'),
+      meeting_duration: z.number().optional().describe('Meeting duration in minutes'),
+      preferred_time_range: z.object({
+        start: z.string(),
+        end: z.string(),
+      }).optional().describe('Preferred time range'),
+    });
   }
 
   protected async run(args: any, context: AgentContext): Promise<any> {
@@ -28,14 +42,14 @@ export class AnalyzeTeamAvailabilityTool extends BaseTool {
 
     const bestMatch = analysis.best_match
       ? {
-          day: analysis.best_match.day,
-          time: analysis.best_match.time,
-          date: analysis.best_match.start.toISOString(),
-          available_members: analysis.best_match.available_members,
-          total_members: analysis.best_match.total_members,
-          availability: `${analysis.best_match.available_members}/${analysis.best_match.total_members} members available`,
-          reason: this.getBestMatchReason(analysis.best_match),
-        }
+        day: analysis.best_match.day,
+        time: analysis.best_match.time,
+        date: analysis.best_match.start.toISOString(),
+        available_members: analysis.best_match.available_members,
+        total_members: analysis.best_match.total_members,
+        availability: `${analysis.best_match.available_members}/${analysis.best_match.total_members} members available`,
+        reason: this.getBestMatchReason(analysis.best_match),
+      }
       : null;
 
     return {

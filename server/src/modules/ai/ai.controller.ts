@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import type { Response } from 'express';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
-import { AIConversationService } from './services/ai-conversation.service';
+import { AIConversationService } from './services/conversation.service';
 import { ChatRequestDto, ChatResponseDto, ConfirmActionDto } from './dto/ai-chat.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 

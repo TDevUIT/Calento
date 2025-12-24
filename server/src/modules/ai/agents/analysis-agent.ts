@@ -3,7 +3,7 @@ import { BaseAgent } from './base/base-agent';
 import { AgentType, AgentCapability, AgentRequest, AgentResponse, ToolCall } from './base/agent.interface';
 import { SYSTEM_PROMPTS, RESPONSE_FORMATS } from '../prompts/system-prompts';
 import { ToolRegistry } from '../tools/tool-registry';
-import { GeminiService } from '../services/gemini.service';
+import { LangChainService } from '../../llm/langchain.service';
 
 /**
  * Analysis Agent
@@ -36,7 +36,7 @@ export class AnalysisAgent extends BaseAgent {
 
   constructor(
     private readonly toolRegistry: ToolRegistry,
-    private readonly geminiService: GeminiService
+    private readonly langChainService: LangChainService
   ) {
     super({
       type: AgentType.ANALYSIS,
@@ -52,7 +52,7 @@ export class AnalysisAgent extends BaseAgent {
       const enhancedPrompt = this.buildEnhancedPrompt(this.config.systemPrompt, request.context);
       const tools = this.toolRegistry.getToolDescriptions('analysis');
 
-      const aiResponse = await this.geminiService.chat(
+      const aiResponse = await this.langChainService.chat(
         request.message,
         request.history || [],
         {

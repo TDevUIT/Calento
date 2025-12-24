@@ -3,7 +3,7 @@ import { BaseAgent } from './base/base-agent';
 import { AgentType, AgentCapability, AgentRequest, AgentResponse, ToolCall } from './base/agent.interface';
 import { SYSTEM_PROMPTS } from '../prompts/system-prompts';
 import { ToolRegistry } from '../tools/tool-registry';
-import { GeminiService } from '../services/gemini.service';
+import { LangChainService } from '../../llm/langchain.service';
 
 /**
  * Calendar Agent
@@ -35,7 +35,7 @@ export class CalendarAgent extends BaseAgent {
 
   constructor(
     private readonly toolRegistry: ToolRegistry,
-    private readonly geminiService: GeminiService
+    private readonly langChainService: LangChainService
   ) {
     super({
       type: AgentType.CALENDAR,
@@ -58,7 +58,7 @@ export class CalendarAgent extends BaseAgent {
 
       const tools = this.toolRegistry.getToolDescriptions('calendar');
 
-      const aiResponse = await this.geminiService.chat(
+      const aiResponse = await this.langChainService.chat(
         request.message,
         request.history || [],
         {

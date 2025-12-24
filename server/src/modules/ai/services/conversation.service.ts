@@ -1,12 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { GeminiService } from './gemini.service';
-import { AIFunctionCallingService } from './ai-function-calling.service';
+import { LangChainService } from '../../llm/langchain.service';
+import { AIFunctionCallingService } from './function-calling.service';
 import { AIConversationRepository } from '../repositories/ai-conversation.repository';
 import { AIActionRepository } from '../repositories/ai-action.repository';
 import { AIMessage, AICalendarContext } from '../interfaces/ai.interface';
-import { ConversationNotFoundException } from '../exceptions/ai.exceptions';
+import { ConversationNotFoundException } from '../exceptions/exceptions';
 import { EventService } from '../../event/event.service';
+import { RagService } from '../../rag/rag.service';
+import { ToolRegistry } from '../tools/tool-registry';
 import { AI_CONSTANTS, ERROR_MESSAGES } from '../constants/ai.constants';
+import { AgentOrchestrator } from './agent.orchestrator';
 
 @Injectable()
 export class AIConversationService {
@@ -14,11 +17,14 @@ export class AIConversationService {
 
 
   constructor(
-    private readonly geminiService: GeminiService,
+    private readonly langChainService: LangChainService,
     private readonly functionCallingService: AIFunctionCallingService,
     private readonly conversationRepo: AIConversationRepository,
     private readonly actionRepo: AIActionRepository,
     private readonly eventService: EventService,
+    private readonly ragService: RagService,
+    private readonly toolRegistry: ToolRegistry,
+    private readonly orchestrator: AgentOrchestrator,
   ) { }
 
   async chat(
@@ -45,6 +51,14 @@ export class AIConversationService {
       });
     }
 
+    // RAG: Retrieve similar contexts from long-term memory
+    let longTermMemory: any[] | null = null;
+    try {
+      longTermMemory = await this.ragService.retrieveConsolidatedContext(userId, message);
+    } catch (error) {
+      this.logger.warn(`RAG: Failed to retrieve contexts`, error);
+    }
+
     const userMessage: AIMessage = {
       role: 'user',
       content: message,
@@ -54,16 +68,48 @@ export class AIConversationService {
     await this.conversationRepo.addMessage(conversation.id, userMessage);
 
     let aiResponse;
+    const systemPrompt = this.buildSystemPrompt(conversation.context, longTermMemory);
+
     try {
-      aiResponse = await this.geminiService.chat(
+      const result = await this.orchestrator.chat(
         message,
+        userId,
         conversation.messages,
-        conversation.context
+        conversation.id,
+        {
+          systemPrompt,
+          long_term_memory: longTermMemory
+        }
       );
 
-      if (!aiResponse || (!aiResponse.text && !aiResponse.functionCalls)) {
-        throw new Error(ERROR_MESSAGES.EMPTY_AI_RESPONSE);
-      }
+      aiResponse = {
+        text: result.response,
+        functionCalls: result.actions.map(a => ({ name: a.type, arguments: a.result || {} })) // Helper mapping if needed, but orchestrator returns 'actions' with results
+      };
+
+      // Orchestrator handles execution and returns final response and actions.
+      // We usually want to persist the actions.
+      // Orchestrator ALREADY persists actions via injected actionRepo (if we implemented it that way).
+      // Let's check AgentOrchestrator impl. 
+      // Yes, it pushes to actionRepo.
+
+      // We just need to formulate the Assistant Message for the UI.
+      const assistantMessage: AIMessage = {
+        role: 'assistant',
+        content: this.buildResponseWithActions(result.response, result.actions),
+        timestamp: new Date(),
+      };
+
+      await this.conversationRepo.addMessage(conversation.id, assistantMessage);
+
+      return {
+        response: assistantMessage.content,
+        conversation_id: conversation.id,
+        function_calls: [], // Orchestrator handled them
+        actions: result.actions,
+        timestamp: new Date(),
+      };
+
     } catch (error) {
       this.logger.error('AI chat failed:', error);
       return {
@@ -74,58 +120,6 @@ export class AIConversationService {
         timestamp: new Date(),
       };
     }
-
-    const actions: Array<{
-      type: string;
-      status: string;
-      result?: any;
-      error?: string;
-    }> = [];
-    if (aiResponse.functionCalls && aiResponse.functionCalls.length > 0) {
-      for (const functionCall of aiResponse.functionCalls) {
-        const action = await this.actionRepo.create(
-          conversation.id,
-          functionCall.name,
-          functionCall.arguments
-        );
-
-        const result = await this.functionCallingService.executeFunctionCall(
-          functionCall,
-          userId
-        );
-
-        await this.actionRepo.updateStatus(
-          action.id,
-          result.success ? 'completed' : 'failed',
-          result.result,
-          result.error
-        );
-
-        actions.push({
-          type: functionCall.name,
-          status: result.success ? 'completed' : 'failed',
-          result: result.result,
-          error: result.error,
-        });
-      }
-    }
-
-    const responseText = aiResponse.text || 'I processed your request.';
-    const assistantMessage: AIMessage = {
-      role: 'assistant',
-      content: this.buildResponseWithActions(responseText, actions),
-      timestamp: new Date(),
-    };
-
-    await this.conversationRepo.addMessage(conversation.id, assistantMessage);
-
-    return {
-      response: assistantMessage.content,
-      conversation_id: conversation.id,
-      function_calls: aiResponse.functionCalls,
-      actions,
-      timestamp: new Date(),
-    };
   }
 
   async * chatStream(
@@ -152,6 +146,14 @@ export class AIConversationService {
       });
     }
 
+    // RAG: Retrieve similar contexts from long-term memory
+    let longTermMemory: any[] | null = null;
+    try {
+      longTermMemory = await this.ragService.retrieveConsolidatedContext(userId, message);
+    } catch (error) {
+      this.logger.warn(`RAG: Failed to retrieve contexts`, error);
+    }
+
     const userMessage: AIMessage = {
       role: 'user',
       content: message,
@@ -162,60 +164,35 @@ export class AIConversationService {
 
     let fullResponseText = '';
     const actions: any[] = [];
+    const systemPrompt = this.buildSystemPrompt(conversation.context, longTermMemory);
 
     try {
-      const stream = this.geminiService.chatStream(
+      const stream = this.orchestrator.chatStream(
         message,
+        userId,
         conversation.messages,
-        conversation.context
+        conversation.id,
+        {
+          systemPrompt,
+          long_term_memory: longTermMemory,
+        }
       );
 
       for await (const chunk of stream) {
-        if (chunk.text) {
-          fullResponseText += chunk.text;
-          yield { type: 'text', content: chunk.text };
-        }
-
-        if (chunk.functionCall) {
-          const action = await this.actionRepo.create(
-            conversation.id,
-            chunk.functionCall.name,
-            chunk.functionCall.arguments
-          );
-
+        if (chunk.type === 'text') {
+          fullResponseText += chunk.content;
+          yield { type: 'text', content: chunk.content };
+        } else if (chunk.type === 'action_start') {
+          // Optional: yield start info
           yield {
             type: 'action_start',
-            action: {
-              id: action.id,
-              type: chunk.functionCall.name,
-              parameters: chunk.functionCall.arguments
-            }
+            action: chunk.action
           };
-
-          const result = await this.functionCallingService.executeFunctionCall(
-            chunk.functionCall,
-            userId
-          );
-
-          await this.actionRepo.updateStatus(
-            action.id,
-            result.success ? 'completed' : 'failed',
-            result.result,
-            result.error
-          );
-
-          const actionResult = {
-            type: chunk.functionCall.name,
-            status: result.success ? 'completed' : 'failed',
-            result: result.result,
-            error: result.error,
-          };
-
-          actions.push(actionResult);
-
+        } else if (chunk.type === 'action_result') {
+          actions.push(chunk.action);
           yield {
             type: 'action_result',
-            action: actionResult
+            action: chunk.action
           };
         }
       }
@@ -381,5 +358,20 @@ export class AIConversationService {
     }
 
     return response;
+  }
+
+  private buildSystemPrompt(context: any, longTermMemory: any[] | null): string {
+    const { PROMPT_TEMPLATES } = require('../prompts/system-prompts');
+    const { SYSTEM_PROMPTS } = require('../prompts/system-prompts');
+
+    const enrichedContext = {
+      ...context,
+      long_term_memory: longTermMemory || undefined,
+    };
+
+    return PROMPT_TEMPLATES.WITH_CONTEXT(
+      SYSTEM_PROMPTS.CALENTO_MAIN,
+      enrichedContext
+    );
   }
 }

@@ -1,4 +1,5 @@
 ﻿import { Injectable } from '@nestjs/common';
+import { z, ZodObject, ZodRawShape } from 'zod';
 import { BaseTool } from './base-tool';
 import { AgentContext } from '../agents/base/agent.interface';
 import { EventService } from '../../event/event.service';
@@ -16,6 +17,18 @@ export class CreateEventTool extends BaseTool {
   ) {
     const funcDef = FUNCTION_DESCRIPTIONS.CREATE_EVENT;
     super(funcDef.name, funcDef.description, funcDef.category as 'calendar', funcDef.parameters);
+  }
+
+  getZodSchema(): ZodObject<ZodRawShape> {
+    return z.object({
+      title: z.string().describe('Event title'),
+      start_time: z.string().describe('Start time in ISO format'),
+      end_time: z.string().describe('End time in ISO format'),
+      description: z.string().optional().describe('Event description'),
+      location: z.string().optional().describe('Event location'),
+      timezone: z.string().optional().describe('Timezone'),
+      attendees: z.array(z.string()).optional().describe('List of attendee emails'),
+    });
   }
 
   protected async run(args: any, context: AgentContext): Promise<any> {
@@ -59,6 +72,14 @@ export class CheckAvailabilityTool extends BaseTool {
   constructor(private readonly eventService: EventService) {
     const funcDef = FUNCTION_DESCRIPTIONS.CHECK_AVAILABILITY;
     super(funcDef.name, funcDef.description, funcDef.category as 'calendar', funcDef.parameters);
+  }
+
+  getZodSchema(): ZodObject<ZodRawShape> {
+    return z.object({
+      start_date: z.string().describe('Start date in ISO format'),
+      end_date: z.string().describe('End date in ISO format'),
+      duration_minutes: z.number().optional().describe('Duration in minutes'),
+    });
   }
 
   protected async run(args: any, context: AgentContext): Promise<any> {
@@ -153,6 +174,14 @@ export class SearchEventsTool extends BaseTool {
     super(funcDef.name, funcDef.description, funcDef.category as 'calendar', funcDef.parameters);
   }
 
+  getZodSchema(): ZodObject<ZodRawShape> {
+    return z.object({
+      query: z.string().describe('Search query'),
+      start_date: z.string().optional().describe('Start date filter'),
+      end_date: z.string().optional().describe('End date filter'),
+    });
+  }
+
   protected async run(args: any, context: AgentContext): Promise<any> {
     const params: any = { query: args.query };
 
@@ -188,6 +217,19 @@ export class UpdateEventTool extends BaseTool {
     super(funcDef.name, funcDef.description, funcDef.category as 'calendar', funcDef.parameters);
   }
 
+  getZodSchema(): ZodObject<ZodRawShape> {
+    return z.object({
+      event_id: z.string().describe('Event ID to update'),
+      updates: z.object({
+        title: z.string().optional(),
+        start_time: z.string().optional(),
+        end_time: z.string().optional(),
+        description: z.string().optional(),
+        location: z.string().optional(),
+      }).describe('Fields to update'),
+    });
+  }
+
   protected async run(args: any, context: AgentContext): Promise<any> {
     const event = await this.eventService.updateEvent(
       args.event_id,
@@ -211,6 +253,12 @@ export class DeleteEventTool extends BaseTool {
   constructor(private readonly eventService: EventService) {
     const funcDef = FUNCTION_DESCRIPTIONS.DELETE_EVENT;
     super(funcDef.name, funcDef.description, funcDef.category as 'calendar', funcDef.parameters);
+  }
+
+  getZodSchema(): ZodObject<ZodRawShape> {
+    return z.object({
+      event_id: z.string().describe('Event ID to delete'),
+    });
   }
 
   protected async run(args: any, context: AgentContext): Promise<any> {

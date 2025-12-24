@@ -1,9 +1,9 @@
 ﻿import { Logger } from '@nestjs/common';
+import { StructuredTool } from '@langchain/core/tools';
+import { z, ZodObject, ZodRawShape } from 'zod';
 import { AgentContext } from '../agents/base/agent.interface';
 
-/**
- * Base Tool Interface
- */
+
 export interface ITool {
   readonly name: string;
   readonly description: string;
@@ -12,9 +12,7 @@ export interface ITool {
   execute(args: Record<string, any>, context: AgentContext): Promise<any>;
 }
 
-/**
- * Base Tool Class
- */
+
 export abstract class BaseTool implements ITool {
   protected readonly logger: Logger;
 
@@ -27,9 +25,7 @@ export abstract class BaseTool implements ITool {
     this.logger = new Logger(`Tool:${name}`);
   }
 
-  /**
-   * Execute the tool
-   */
+
   async execute(args: Record<string, any>, context: AgentContext): Promise<any> {
     this.logger.log(`Executing tool: ${this.name} for user: ${context.userId}`);
 
@@ -52,14 +48,28 @@ export abstract class BaseTool implements ITool {
     }
   }
 
-  /**
-   * Tool-specific execution logic
-   */
+
   protected abstract run(args: Record<string, any>, context: AgentContext): Promise<any>;
 
-  /**
-   * Validate arguments
-   */
+
+  abstract getZodSchema(): ZodObject<ZodRawShape>;
+
+  toLangChainTool(context: AgentContext): StructuredTool {
+    const self = this;
+    const schema = this.getZodSchema();
+
+    return new (class extends StructuredTool {
+      name = self.name;
+      description = self.description;
+      schema = schema;
+
+      async _call(args: z.infer<typeof schema>): Promise<string> {
+        const result = await self.execute(args, context);
+        return JSON.stringify(result);
+      }
+    })();
+  }
+
   protected validateArgs(args: Record<string, any>) {
     const required = this.parameters.required || [];
 

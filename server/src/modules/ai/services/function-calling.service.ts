@@ -4,7 +4,7 @@ import { EventService } from '../../event/event.service';
 import { TaskService } from '../../task/task.service';
 import { CalendarService } from '../../calendar/calendar.service';
 import { TaskPriority, TaskStatus } from '../../task/task.interface';
-import { AIAnalysisService } from './ai-analysis.service';
+import { AIAnalysisService } from './analysis.service';
 import { AI_CONSTANTS, ERROR_MESSAGES } from '../constants/ai.constants';
 
 @Injectable()
@@ -17,7 +17,7 @@ export class AIFunctionCallingService {
     private readonly taskService: TaskService,
     private readonly calendarService: CalendarService,
     private readonly aiAnalysisService: AIAnalysisService,
-  ) {}
+  ) { }
 
   async executeFunctionCall(
     functionCall: AIFunctionCall,
@@ -29,28 +29,28 @@ export class AIFunctionCallingService {
       switch (functionCall.name) {
         case 'createEvent':
           return await this.handleCreateEvent(functionCall.arguments, userId);
-        
+
         case 'checkAvailability':
           return await this.handleCheckAvailability(functionCall.arguments, userId);
-        
+
         case 'createTask':
           return await this.handleCreateTask(functionCall.arguments, userId);
-        
+
         case 'searchEvents':
           return await this.handleSearchEvents(functionCall.arguments, userId);
-        
+
         case 'updateEvent':
           return await this.handleUpdateEvent(functionCall.arguments, userId);
-        
+
         case 'deleteEvent':
           return await this.handleDeleteEvent(functionCall.arguments, userId);
-        
+
         case 'createLearningPlan':
           return await this.handleCreateLearningPlan(functionCall.arguments, userId);
-        
+
         case 'analyzeTeamAvailability':
           return await this.handleAnalyzeTeamAvailability(functionCall.arguments, userId);
-        
+
         default:
           this.logger.warn(`Invalid function call attempted: ${functionCall.name}`);
           return {
@@ -181,7 +181,7 @@ export class AIFunctionCallingService {
   private async handleSearchEvents(args: any, userId: string) {
     try {
       const now = new Date();
-      
+
       let startDate: Date;
       if (args.start_date) {
         startDate = new Date(args.start_date);
@@ -189,7 +189,7 @@ export class AIFunctionCallingService {
         startDate = new Date(now);
         startDate.setHours(0, 0, 0, 0);
       }
-      
+
       let endDate: Date;
       if (args.end_date) {
         endDate = new Date(args.end_date);
@@ -199,9 +199,9 @@ export class AIFunctionCallingService {
         endDate = new Date(now);
         endDate.setHours(24, 0, 0, 0);
       }
-      
+
       const query = args.query || '';
-      
+
       this.logger.log(`Searching events for user ${userId}`);
       this.logger.log(`   Date range: ${startDate.toISOString()} to ${endDate.toISOString()}`);
       this.logger.log(`   Query: "${query}"`);
@@ -225,8 +225,8 @@ export class AIFunctionCallingService {
         description: e.description,
       }));
 
-      const periodDescription = query 
-        ? `matching "${query}"` 
+      const periodDescription = query
+        ? `matching "${query}"`
         : `from ${startDate.toLocaleDateString()} to ${endDate.toLocaleDateString()}`;
 
       return {
@@ -238,7 +238,7 @@ export class AIFunctionCallingService {
             start: startDate.toISOString(),
             end: endDate.toISOString(),
           },
-          message: events.length > 0 
+          message: events.length > 0
             ? `Found ${events.length} event(s) ${periodDescription}`
             : `No events found ${periodDescription}`,
         },
@@ -365,14 +365,14 @@ export class AIFunctionCallingService {
 
       const bestMatch = analysis.best_match
         ? {
-            day: analysis.best_match.day,
-            time: analysis.best_match.time,
-            date: analysis.best_match.start.toISOString(),
-            available_members: analysis.best_match.available_members,
-            total_members: analysis.best_match.total_members,
-            availability: `${analysis.best_match.available_members}/${analysis.best_match.total_members} members available`,
-            reason: this.getBestMatchReason(analysis.best_match),
-          }
+          day: analysis.best_match.day,
+          time: analysis.best_match.time,
+          date: analysis.best_match.start.toISOString(),
+          available_members: analysis.best_match.available_members,
+          total_members: analysis.best_match.total_members,
+          availability: `${analysis.best_match.available_members}/${analysis.best_match.total_members} members available`,
+          reason: this.getBestMatchReason(analysis.best_match),
+        }
         : null;
 
       return {
@@ -453,7 +453,7 @@ export class AIFunctionCallingService {
 
       const dayStart = new Date(currentDate);
       dayStart.setHours(AI_CONSTANTS.WORK_HOURS.START, 0, 0, 0);
-      
+
       const dayEnd = new Date(currentDate);
       dayEnd.setHours(AI_CONSTANTS.WORK_HOURS.END, 0, 0, 0);
 
