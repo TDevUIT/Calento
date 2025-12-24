@@ -158,7 +158,30 @@ export class LangChainService {
 
             for await (const chunk of stream) {
                 if (chunk.content) {
-                    yield { text: chunk.content as string };
+                    if (typeof chunk.content === 'string') {
+                        if (chunk.content.length > 0) {
+                            yield { text: chunk.content };
+                        }
+                    } else if (Array.isArray(chunk.content)) {
+                        for (const part of chunk.content as any[]) {
+                            if (!part) continue;
+
+                            if (part.type === 'text' && typeof part.text === 'string' && part.text.length > 0) {
+                                yield { text: part.text };
+                                continue;
+                            }
+
+                            if (part.type === 'functionCall' && part.functionCall?.name) {
+                                yield {
+                                    functionCall: {
+                                        name: part.functionCall.name,
+                                        arguments: part.functionCall.args || {},
+                                    },
+                                };
+                                continue;
+                            }
+                        }
+                    }
                 }
 
                 if (chunk.additional_kwargs?.tool_calls) {

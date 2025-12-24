@@ -123,7 +123,7 @@ export function ChatBox({
       content: input.trim(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages((prev: ChatMessage[]) => [...prev, userMessage]);
     setInput('');
     setIsProcessing(true);
 
@@ -135,7 +135,7 @@ export function ChatBox({
       isStreaming: true,
       actions: [],
     };
-    setMessages((prev) => [...prev, initialAssistantMessage]);
+    setMessages((prev: ChatMessage[]) => [...prev, initialAssistantMessage]);
 
     try {
       await aiService.chatStream(
@@ -154,7 +154,14 @@ export function ChatBox({
           },
         },
         (event: StreamMessage) => {
-          setMessages((prev) => {
+          if (event.type === 'done' && event.conversation_id) {
+            setConversation(event.conversation_id);
+            if (onConversationCreated) {
+              onConversationCreated(event.conversation_id);
+            }
+          }
+
+          setMessages((prev: ChatMessage[]) => {
             const newMessages = [...prev];
             const lastMsgIndex = newMessages.length - 1;
             const lastMsg = newMessages[lastMsgIndex];
@@ -179,7 +186,7 @@ export function ChatBox({
         },
         () => {
           setIsProcessing(false);
-          setMessages((prev) => {
+          setMessages((prev: ChatMessage[]) => {
             const newMessages = [...prev];
             const lastMsgIndex = newMessages.length - 1;
             if (newMessages[lastMsgIndex].role === 'assistant') {
@@ -197,7 +204,7 @@ export function ChatBox({
             role: 'assistant',
             content: `❌ Sorry, I encountered an error: ${error?.message || 'Unknown error'}`,
           };
-          setMessages((prev) => [...prev, errorMessage]);
+          setMessages((prev: ChatMessage[]) => [...prev, errorMessage]);
         }
       );
     } catch (err) {
@@ -207,7 +214,7 @@ export function ChatBox({
         role: 'assistant',
         content: `❌ Sorry, I encountered an error: ${error?.message || 'Unknown error'}`,
       };
-      setMessages((prev) => [...prev, errorMessage]);
+      setMessages((prev: ChatMessage[]) => [...prev, errorMessage]);
     }
   };
 
@@ -223,7 +230,7 @@ export function ChatBox({
         role: 'assistant',
         content: 'Meeting has been scheduled and invites sent to all participants.',
       };
-      setMessages((prev) => [...prev, confirmMessage]);
+      setMessages((prev: ChatMessage[]) => [...prev, confirmMessage]);
     } catch {
       toast.error('Failed to confirm action');
     }

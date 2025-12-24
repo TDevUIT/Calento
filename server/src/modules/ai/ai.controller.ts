@@ -105,7 +105,6 @@ export class AIController {
         res.write(`data: ${JSON.stringify(event)}\n\n`);
       }
 
-      res.write(`data: ${JSON.stringify({ type: 'done' })}\n\n`);
       res.end();
     } catch (error) {
       this.logger.error(`Stream error: ${error.message}`);
