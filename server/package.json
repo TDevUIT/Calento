@@ -27,7 +27,7 @@
     "migrate:google-sync": "ts-node scripts/migrate-google-sync.ts"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.24.1",
+    "@langchain/google-genai": "^2.1.3",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
@@ -51,6 +51,7 @@
     "handlebars": "^4.7.8",
     "helmet": "^8.1.0",
     "ics": "^3.8.1",
+    "langchain": "^1.2.3",
     "nodemailer": "^7.0.6",
     "p-limit": "^7.1.1",
     "passport": "^0.7.0",
@@ -61,7 +62,7 @@
     "rxjs": "^7.8.1",
     "streamifier": "^0.1.1",
     "uuid": "^13.0.0",
-    "zod": "^4.1.11"
+    "zod": "^4.2.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
