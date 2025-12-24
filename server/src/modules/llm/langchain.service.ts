@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
+import { AI_CONSTANTS, ERROR_MESSAGES } from '../ai/constants/ai.constants';
 import {
     HumanMessage,
     SystemMessage,
@@ -20,17 +21,24 @@ export class LangChainService {
             this.configService.get<string>('GEMINI_API_KEY') ||
             this.configService.get<string>('GOOGLE_API_KEY');
 
+        if (!apiKey) {
+            throw new Error(ERROR_MESSAGES.API_KEY_NOT_CONFIGURED);
+        }
+
+        const modelName =
+            this.configService.get<string>('GEMINI_MODEL') ||
+            AI_CONSTANTS.GEMINI.MODEL;
+
         this.model = new ChatGoogleGenerativeAI({
             apiKey,
-            model: 'gemini-1.5-flash',
-            maxOutputTokens: 2048,
+            model: modelName,
+            temperature: AI_CONSTANTS.GEMINI.TEMPERATURE,
+            topP: AI_CONSTANTS.GEMINI.TOP_P,
+            topK: AI_CONSTANTS.GEMINI.TOP_K,
+            maxOutputTokens: AI_CONSTANTS.GEMINI.MAX_OUTPUT_TOKENS,
         });
     }
 
-    /**
-     * Chat with enhanced function calling support
-     * Properly maps conversation history and binds tools for LLM function calling
-     */
     async chat(
         message: string,
         history: any[] = [],
@@ -44,23 +52,16 @@ export class LangChainService {
         try {
             const messages: BaseMessage[] = [];
 
-            // Add system prompt with context
             if (options.systemPrompt) {
                 messages.push(new SystemMessage(options.systemPrompt));
             }
 
-            // Map conversation history to LangChain messages
             if (history && history.length > 0) {
                 for (const msg of history) {
                     if (msg.role === 'user') {
                         messages.push(new HumanMessage(msg.content));
                     } else if (msg.role === 'assistant') {
                         const content = msg.content || '';
-                        // If there were function calls, we might need to represent them?
-                        // For simplicity in this structure, we assume assistant msg is just text or we rely on the implementation
-                        // IF the assistant message had tool calls, we should ideally represent them.
-                        // But existing history structure might simply store text.
-                        // Let's assume content is enough for now unless we store tool_calls in history explicitly
                         messages.push(new AIMessage(content));
                     } else if (msg.role === 'function') {
                         messages.push(new ToolMessage({
@@ -76,7 +77,6 @@ export class LangChainService {
                 messages.push(new HumanMessage(message));
             }
 
-            // Bind tools if provided
             let modelToUse: any = this.model;
             if (options.tools && options.tools.length > 0) {
                 modelToUse = this.model.bindTools(options.tools);
@@ -85,7 +85,6 @@ export class LangChainService {
 
             const response = await modelToUse.invoke(messages);
 
-            // Extract function calls from response
             const functionCalls: any[] = [];
             if (response.additional_kwargs?.tool_calls) {
                 for (const toolCall of response.additional_kwargs.tool_calls) {
@@ -112,10 +111,6 @@ export class LangChainService {
         }
     }
 
-    /**
-     * Streaming chat with function calling support
-     * Yields text chunks and function calls as they arrive
-     */
     async *chatStream(
         message: string,
         history: any[] = [],
@@ -133,7 +128,6 @@ export class LangChainService {
                 messages.push(new SystemMessage(options.systemPrompt));
             }
 
-            // Map conversation history
             if (history && history.length > 0) {
                 for (const msg of history) {
                     if (msg.role === 'user') {
@@ -154,7 +148,6 @@ export class LangChainService {
                 messages.push(new HumanMessage(message));
             }
 
-            // Bind tools if provided
             let modelToUse: any = this.model;
             if (options.tools && options.tools.length > 0) {
                 modelToUse = this.model.bindTools(options.tools);
@@ -164,12 +157,10 @@ export class LangChainService {
             const stream = await modelToUse.stream(messages);
 
             for await (const chunk of stream) {
-                // Yield text chunks
                 if (chunk.content) {
                     yield { text: chunk.content as string };
                 }
 
-                // Yield function calls
                 if (chunk.additional_kwargs?.tool_calls) {
                     for (const toolCall of chunk.additional_kwargs.tool_calls) {
                         try {

@@ -32,7 +32,7 @@ export const AI_CONSTANTS = {
     CONFIDENCE_SIMILARITY_THRESHOLD: 10,
   },
   GEMINI: {
-    MODEL: 'gemini-2.5-flash',
+    MODEL: 'models/gemini-2.5-flash',
     TEMPERATURE: 0.7,
     TOP_P: 0.95,
     TOP_K: 40,
