@@ -71,16 +71,6 @@ const PrioritiesPage = () => {
       <div className="flex flex-col">
         <div className=" px-6 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex-1 max-w-md">
-              <Button
-                variant="outline"
-                onClick={() => setSearchOpen(true)}
-                className="w-full justify-start text-gray-500 font-normal border-gray-200 bg-gray-50 hover:bg-gray-100"
-              >
-                <Search className="mr-2 h-4 w-4 text-gray-400" />
-                Search for something...
-              </Button>
-            </div>
             <div className="flex items-center gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

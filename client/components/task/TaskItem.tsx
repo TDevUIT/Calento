@@ -62,7 +62,7 @@ export const TaskItem = ({ task, onEdit }: TaskItemProps) => {
       className={cn(
         "bg-white border rounded-lg p-4 transition-all",
         isDeleted && "opacity-50",
-        isOverdue && "border-l-4 border-l-red-500"
+        isOverdue && ""
       )}
     >
       <div className="flex items-start gap-3">

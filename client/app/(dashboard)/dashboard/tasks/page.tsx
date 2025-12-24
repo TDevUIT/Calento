@@ -59,9 +59,7 @@ const TasksPage = () => {
           </div>
           <CreateTaskDialog />
         </div>
-
         {/* <TaskStatistics /> */}
-
         <div className=" rounded-lg bg-white p-6">
           <div className="flex items-center gap-4 mb-6">
             <div className="flex-1 relative">
