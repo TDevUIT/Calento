@@ -12,6 +12,8 @@ export interface BookingLink extends BaseEntity {
   slug: string;
   title: string;
   description?: string;
+  location?: string;
+  location_link?: string;
   duration_minutes: number;
   buffer_time_minutes: number;
   max_bookings_per_day?: number;
@@ -66,6 +68,8 @@ export interface PublicBookingLink {
   slug: string;
   title: string;
   description?: string;
+  location?: string;
+  location_link?: string;
   duration_minutes: number;
   timezone: string;
   user_name?: string;

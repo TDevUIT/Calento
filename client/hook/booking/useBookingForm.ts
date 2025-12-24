@@ -1,9 +1,12 @@
 ﻿import { useState } from 'react';
 import { toast } from 'sonner';
 import { format, startOfDay } from 'date-fns';
+import { useQueryClient } from '@tanstack/react-query';
 import { useCreatePublicBooking } from '@/hook/booking';
+import { BOOKING_QUERY_KEYS } from '@/hook/booking/use-bookings';
 
 export const useBookingForm = (slug: string) => {
+  const queryClient = useQueryClient();
   const [selectedDate, setSelectedDate] = useState<string>(
     format(startOfDay(new Date()), 'yyyy-MM-dd')
   );
@@ -53,8 +56,15 @@ export const useBookingForm = (slug: string) => {
         },
       });
       setStep('confirmation');
-    } catch {
-      
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '';
+      if (message.toLowerCase().includes('selected time slot is not available')) {
+        setSelectedSlot('');
+        setStep('select-time');
+        queryClient.invalidateQueries({
+          queryKey: [...BOOKING_QUERY_KEYS.public.all, 'slots', slug],
+        });
+      }
     }
   };
 

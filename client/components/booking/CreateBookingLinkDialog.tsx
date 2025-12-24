@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -27,13 +28,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { X, Loader2, Palette, Check } from "lucide-react";
+import { X, Loader2, Palette, Check, Video, AlertCircle } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCreateBookingLink, useUpdateBookingLink } from "@/hook/booking";
-import { BookingLink } from "@/service";
+import { BookingLink, createGoogleMeet } from "@/service";
 import { COLOR_OPTIONS } from "@/components/calendar/forms/form-constants";
 import { useRecentColors } from "@/hook";
+import { useGoogleAuth } from "@/hook/google/use-google-auth";
 
 const bookingLinkSchema = z.object({
   title: z.string().min(1, "Title is required").max(255, "Title too long"),
@@ -42,6 +44,14 @@ const bookingLinkSchema = z.object({
     .max(100, "Slug too long")
     .regex(/^[a-z0-9-]+$/, "Slug can only contain lowercase letters, numbers, and hyphens"),
   description: z.string().optional(),
+  location: z.string().optional(),
+  location_link: z
+    .string()
+    .optional()
+    .refine(
+      (v) => !v || /^https?:\/\//i.test(v),
+      'Google Meet link must start with http:// or https://'
+    ),
   duration_minutes: z.number().min(5, "Minimum 5 minutes").max(480, "Maximum 8 hours"),
   buffer_time_minutes: z.number().min(0).max(60, "Maximum 60 minutes").optional(),
   advance_notice_hours: z.number().min(0).max(168, "Maximum 1 week").optional(),
@@ -87,6 +97,7 @@ export function CreateBookingLinkDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [showUnsavedWarning, setShowUnsavedWarning] = useState(false);
+  const [isCreatingMeet, setIsCreatingMeet] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -95,6 +106,8 @@ export function CreateBookingLinkDialog({
 
   const createMutation = useCreateBookingLink();
   const updateMutation = useUpdateBookingLink();
+
+  const { isConnected, isLoading: isCheckingGoogleConnection } = useGoogleAuth();
 
   const isEditing = !!bookingLink;
 
@@ -106,6 +119,8 @@ export function CreateBookingLinkDialog({
       title: bookingLink?.title || "",
       slug: bookingLink?.slug || "",
       description: bookingLink?.description || "",
+      location: bookingLink?.location || "Google Meet",
+      location_link: bookingLink?.location_link || "",
       duration_minutes: bookingLink?.duration_minutes || 30,
       buffer_time_minutes: bookingLink?.buffer_time_minutes || 0,
       advance_notice_hours: bookingLink?.advance_notice_hours || 24,
@@ -130,6 +145,60 @@ export function CreateBookingLinkDialog({
         .replace(/-+/g, '-')
         .trim();
       form.setValue('slug', slug);
+    }
+  };
+
+  const handleCreateGoogleMeet = async () => {
+    if (!isConnected) {
+      toast.error('Cần kết nối Google Account', {
+        description: 'Vui lòng kết nối Google Account để tạo Google Meet link',
+        action: {
+          label: 'Kết nối',
+          onClick: () => {
+            window.location.href = '/dashboard/calendar-sync';
+          },
+        },
+      });
+      return;
+    }
+
+    const title = form.getValues('title');
+    const description = form.getValues('description');
+    const durationMinutes = form.getValues('duration_minutes') || 30;
+
+    if (!title) {
+      toast.error('Vui lòng điền thông tin booking link', {
+        description: 'Cần có tiêu đề để tạo Google Meet',
+      });
+      return;
+    }
+
+    try {
+      setIsCreatingMeet(true);
+
+      const startTime = new Date();
+      const endTime = new Date(startTime.getTime() + durationMinutes * 60 * 1000);
+
+      const meetData = await createGoogleMeet({
+        summary: title,
+        description: description || undefined,
+        start_time: startTime.toISOString(),
+        end_time: endTime.toISOString(),
+      });
+
+      form.setValue('location', 'Google Meet');
+      form.setValue('location_link', meetData.url, { shouldDirty: true, shouldValidate: true });
+
+      toast.success('Google Meet link đã được tạo thành công!');
+    } catch (error) {
+      console.error('Failed to create Google Meet:', error);
+      const errorMessage = (error as Error)?.message || 'Không thể tạo Google Meet link';
+
+      toast.error('Lỗi khi tạo Google Meet', {
+        description: errorMessage,
+      });
+    } finally {
+      setIsCreatingMeet(false);
     }
   };
 
@@ -293,6 +362,51 @@ export function CreateBookingLinkDialog({
                                   {...field}
                                 />
                               </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name="location_link"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Google Meet Link</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="url"
+                                  placeholder="https://meet.google.com/abc-defg-hij"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                This link will be opened when someone clicks Google Meet in your booking link.
+                              </FormDescription>
+                              <div className="flex items-center gap-2 mt-2">
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  className="justify-start px-2"
+                                  onClick={handleCreateGoogleMeet}
+                                  disabled={isCreatingMeet || isCheckingGoogleConnection}
+                                >
+                                  {isCreatingMeet ? (
+                                    <>
+                                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                      Đang tạo Google Meet...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Video className="mr-2 h-4 w-4" />
+                                      Tạo Google Meet tự động
+                                    </>
+                                  )}
+                                </Button>
+                                {!isConnected && !isCheckingGoogleConnection && (
+                                  <AlertCircle className="h-4 w-4 text-amber-500" />
+                                )}
+                              </div>
                               <FormMessage />
                             </FormItem>
                           )}

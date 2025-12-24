@@ -2,9 +2,12 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
+import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 import { usePublicBookingLink, useAvailableSlots } from "@/hook/booking";
 import { useAuthStore } from "@/store/auth.store";
 import { CreateBookingLinkDialog } from "@/components/booking/CreateBookingLinkDialog";
+import { BOOKING_QUERY_KEYS } from '@/hook/booking/use-bookings';
 import {
   LoadingState,
   ErrorState,
@@ -22,6 +25,7 @@ export default function PublicBookingPage() {
   const params = useParams();
   const slug = params.slug as string;
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: bookingLink, isLoading: isLoadingLink, error: linkError } = usePublicBookingLink(slug);
   const currentUser = useAuthStore((s) => s.user);
@@ -45,6 +49,19 @@ export default function PublicBookingPage() {
     end_date: selectedDate,
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
   });
+
+  const isSelectedSlotStillAvailable = !!availableSlots?.some(
+    (s) => s.available && s.start === selectedSlot,
+  );
+
+  const handleSlotNoLongerAvailable = () => {
+    toast.error('Selected time slot is no longer available. Please choose another slot.');
+    handleSlotSelect('');
+    setStep('select-time');
+    queryClient.invalidateQueries({
+      queryKey: [...BOOKING_QUERY_KEYS.public.all, 'slots', slug],
+    });
+  };
 
   const isOwner = currentUser?.id === bookingLink?.user_id;
 
@@ -115,7 +132,17 @@ export default function PublicBookingPage() {
             } : null}
             onDateSelect={handleDateSelect}
             onSlotSelect={handleSlotSelect}
-            onContinue={handleContinueToDetails}
+            onContinue={() => {
+              if (!selectedSlot) {
+                handleContinueToDetails();
+                return;
+              }
+              if (!isSelectedSlotStillAvailable) {
+                handleSlotNoLongerAvailable();
+                return;
+              }
+              handleContinueToDetails();
+            }}
             formatDuration={formatDuration}
             formatTimeSlot={formatTimeSlot}
           />
@@ -130,7 +157,14 @@ export default function PublicBookingPage() {
             setBookingData={setBookingData}
             isPending={createBookingMutation.isPending}
             onBack={() => setStep('select-time')}
-            onSubmit={handleBookingSubmit}
+            onSubmit={(e) => {
+              if (!selectedSlot || !isSelectedSlotStillAvailable) {
+                e.preventDefault();
+                handleSlotNoLongerAvailable();
+                return;
+              }
+              handleBookingSubmit(e);
+            }}
             formatDateDisplay={formatDateDisplay}
             formatTimeSlot={formatTimeSlot}
             formatDuration={formatDuration}

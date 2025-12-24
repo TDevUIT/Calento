@@ -2,6 +2,7 @@
 
 import { Edit, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 interface LinkDetails {
   title: string;
@@ -40,7 +41,6 @@ export const DetailsContent = ({ details, onEdit }: DetailsContentProps) => {
 
   return (
     <div className="py-6">
-      {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-gray-900 mb-1">
@@ -60,10 +60,8 @@ export const DetailsContent = ({ details, onEdit }: DetailsContentProps) => {
         </div>
       </div>
 
-      {/* Details Grid */}
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
-          {/* Group */}
           <div>
             <label className="text-xs font-medium text-gray-700 block mb-1">Group</label>
             <p className="text-sm text-blue-600 hover:underline cursor-pointer">
@@ -71,13 +69,11 @@ export const DetailsContent = ({ details, onEdit }: DetailsContentProps) => {
             </p>
           </div>
           
-          {/* Duration */}
           <div>
             <label className="text-xs font-medium text-gray-700 block mb-1">Duration</label>
             <p className="text-sm text-gray-900">{details.duration}</p>
           </div>
           
-          {/* Hours */}
           {details.hours && (
             <div>
               <label className="text-xs font-medium text-gray-700 block mb-1">Hours</label>
@@ -92,34 +88,67 @@ export const DetailsContent = ({ details, onEdit }: DetailsContentProps) => {
             </div>
           )}
           
-          {/* Calendar */}
           <div>
             <label className="text-xs font-medium text-gray-700 block mb-1">Calendar</label>
             <p className="text-sm text-gray-900">{details.calendar}</p>
           </div>
           
-          {/* Dates */}
           <div className="md:col-span-2">
             <label className="text-xs font-medium text-gray-700 block mb-1">Dates</label>
             <p className="text-sm text-gray-900">{details.dates}</p>
           </div>
           
-          {/* Location */}
           {details.location && (
             <div>
               <label className="text-xs font-medium text-gray-700 block mb-1">Location</label>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-green-500 rounded flex items-center justify-center">
-                  <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M2 6a2 2 0 012-2h6l2 2h6a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
-                  </svg>
-                </div>
-                <p className="text-sm text-blue-600 hover:underline cursor-pointer">{details.location}</p>
+              <div className="flex items-center gap-1">
+                {details.location === 'Google Meet' ? (
+                  <>
+                    <img
+                      className="h-4 w-auto"
+                      src="/Google_Meet_icon.svg"
+                      alt=""
+                      aria-hidden="true"
+                      role="presentation"
+                    />
+                    {details.locationLink ? (
+                      <Link
+                        href={details.locationLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-blue-600 hover:underline cursor-pointer"
+                      >
+                        Google Meet
+                      </Link>
+                    ) : (
+                      <span className="text-sm text-blue-600 hover:underline cursor-pointer">Google Meet</span>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <div className="w-4 h-4 bg-green-500 rounded flex items-center justify-center">
+                      <svg className="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2 6a2 2 0 012-2h6l2 2h6a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+                      </svg>
+                    </div>
+                    {details.locationLink ? (
+                      <Link
+                        href={details.locationLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-blue-600 hover:underline cursor-pointer"
+                      >
+                        {details.location}
+                      </Link>
+                    ) : (
+                      <p className="text-sm text-blue-600 hover:underline cursor-pointer">{details.location}</p>
+                    )}
+                  </>
+                )}
               </div>
             </div>
           )}
           
-          {/* Organizers */}
           {details.organizers && (
             <div>
               <label className="text-xs font-medium text-gray-700 block mb-1">Organizers</label>
@@ -133,7 +162,6 @@ export const DetailsContent = ({ details, onEdit }: DetailsContentProps) => {
           )}
         </div>
 
-        {/* Scheduling Link */}
         <div>
           <label className="text-xs font-medium text-gray-700 block mb-2">Scheduling Link</label>
           <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-md border border-blue-100">

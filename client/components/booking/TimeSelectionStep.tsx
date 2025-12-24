@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { Calendar, Check } from 'lucide-react';
+import { Calendar, Check, Video, ShieldCheck } from 'lucide-react';
 import { BookingLink } from '@/service';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -57,8 +57,13 @@ export const TimeSelectionStep = ({
           <div>
             <div className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Videoconference</div>
             <div className="flex items-center gap-2 text-gray-900 dark:text-gray-100">
-              <span>🟩</span>
-              <span>Google Meet</span>
+              <div className="h-6 w-6 rounded-md bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center">
+                <Video className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+              </div>
+              <div className="flex-1">
+                <div className="text-sm font-medium leading-5">Google Meet</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 leading-4">Video call</div>
+              </div>
             </div>
           </div>
           <div>
@@ -134,11 +139,18 @@ export const TimeSelectionStep = ({
             </div>
 
             <div>
-              <div className="mb-4">
-                <div className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">Select a time</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">
-                  {Intl.DateTimeFormat().resolvedOptions().timeZone}
+              <div className="mb-4 flex items-start justify-between gap-3">
+                <div>
+                  <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">Select a time</div>
+                  <div className="mt-1 inline-flex items-center rounded-full border border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-2 py-0.5 text-[11px] font-medium text-gray-600 dark:text-gray-300">
+                    {Intl.DateTimeFormat().resolvedOptions().timeZone}
+                  </div>
                 </div>
+                {availableSlots && availableSlots.filter((s) => s.available).slice(0, 3).length > 0 && (
+                  <div className="inline-flex items-center rounded-full bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300">
+                    Preferred time
+                  </div>
+                )}
               </div>
               <div className="space-y-2 max-h-[420px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
                 {isLoadingSlots ? (
@@ -149,14 +161,6 @@ export const TimeSelectionStep = ({
                   </div>
                 ) : availableSlots && availableSlots.length > 0 ? (
                   <>
-                    {availableSlots.slice(0, 3).length > 0 && (
-                      <div className="mb-3">
-                        <div className="flex items-center gap-2 text-xs text-green-600 dark:text-green-500 mb-2">
-                          <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                          <span className="font-medium">Preferred time</span>
-                        </div>
-                      </div>
-                    )}
                     {availableSlots.map((slot: BookingTimeSlot, index: number) => (
                       <button
                         key={slot.start}
@@ -195,9 +199,14 @@ export const TimeSelectionStep = ({
 
         {currentUser && (
           <div className="lg:col-span-3 border-l border-gray-200 dark:border-gray-700 p-5">
-            <div className="mb-4">
-              <div className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">My calendar</div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">Your calendar will never be shared</div>
+            <div className="mb-4 flex items-start justify-between gap-3">
+              <div>
+                <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">My calendar</div>
+                <div className="mt-1 flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+                  <ShieldCheck className="h-3.5 w-3.5" />
+                  <span>Your calendar will never be shared</span>
+                </div>
+              </div>
             </div>
             <div className="h-[420px] overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
               <div className="relative">

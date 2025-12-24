@@ -35,7 +35,7 @@ const SchedulingLinksPage = () => {
     return name.trim();
   }, [currentUser]);
 
-  const bookingPageUrl = `app.calento.com/${userSlug}`;
+  const bookingPageUrl = `calento.space/${userSlug}`;
 
   const handleCloseDialog = () => {
     setCreateDialogOpen(false);
@@ -81,10 +81,11 @@ const SchedulingLinksPage = () => {
               onClick={() => handleCardClick(bookingLinks[0].id)}
               onEdit={() => handleEditLink(bookingLinks[0])}
               bookingUrl={`${typeof window !== 'undefined' ? window.location.origin : ''}/book/${bookingLinks[0].slug}`}
+              location={bookingLinks[0].location}
+              locationLink={bookingLinks[0].location_link}
             />
           )}
           
-          {/* New Links Button */}
           <button
             onClick={handleCreateClick}
             className="w-full p-6 border-2 border-dashed border-gray-300 hover:border-gray-400 hover:bg-gray-50 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-gray-700 font-medium"

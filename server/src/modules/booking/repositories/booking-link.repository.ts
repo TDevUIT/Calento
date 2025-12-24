@@ -132,6 +132,8 @@ export class BookingLinkRepository extends BaseRepository<BookingLink> {
     ];
     const optionalFields = [
       'description',
+      'location',
+      'location_link',
       'max_bookings_per_day',
       'color',
       'is_active',
@@ -188,6 +190,8 @@ export class BookingLinkRepository extends BaseRepository<BookingLink> {
       'slug',
       'title',
       'description',
+      'location',
+      'location_link',
       'duration_minutes',
       'buffer_time_minutes',
       'max_bookings_per_day',

@@ -166,22 +166,40 @@ export class AvailabilityService {
       throw new InvalidDateRangeException(message);
     }
 
-    const dayOfWeek = startDate.getDay() as DayOfWeek;
-    const availabilityRules =
-      await this.availabilityRepository.findByUserIdAndDay(userId, dayOfWeek);
+    const allActiveRules = await this.availabilityRepository.findActiveByUserId(
+      userId,
+    );
 
-    if (availabilityRules.length === 0) {
+    if (allActiveRules.length === 0) {
       return {
         available: false,
         conflicts: [],
       };
     }
 
-    const startTime = this.formatTime(startDate);
-    const endTime = this.formatTime(endDate);
+    const timezone = allActiveRules[0].timezone || 'UTC';
+    const startInTz = toZonedTime(startDate, timezone);
+    const endInTz = toZonedTime(endDate, timezone);
 
-    const isWithinAvailability = availabilityRules.some((rule) => {
-      return startTime >= rule.start_time && endTime <= rule.end_time;
+    const dayOfWeek = startInTz.getDay() as DayOfWeek;
+    const dayRules = allActiveRules.filter(
+      (rule) => rule.day_of_week === dayOfWeek,
+    );
+
+    if (dayRules.length === 0) {
+      return {
+        available: false,
+        conflicts: [],
+      };
+    }
+
+    const startTime = this.formatTime(startInTz);
+    const endTime = this.formatTime(endInTz);
+
+    const isWithinAvailability = dayRules.some((rule) => {
+      const ruleStart = rule.start_time.length >= 5 ? rule.start_time.slice(0, 5) : rule.start_time;
+      const ruleEnd = rule.end_time.length >= 5 ? rule.end_time.slice(0, 5) : rule.end_time;
+      return startTime >= ruleStart && endTime <= ruleEnd;
     });
 
     if (!isWithinAvailability) {
@@ -245,21 +263,10 @@ export class AvailabilityService {
       await this.availabilityRepository.findActiveByUserId(userId);
 
     if (availabilityRules.length === 0) {
-      this.logger.log(`No availability rules found for user ${userId}, creating default rules in timezone: ${timezone}`);
-      await this.createDefaultAvailabilityRules(userId, timezone);
-      
-      const newAvailabilityRules = await this.availabilityRepository.findActiveByUserId(userId);
-      
-      if (newAvailabilityRules.length === 0) {
-        const message = this.messageService.get(
-          'availability.no_rules_found',
-          undefined,
-          { userId },
-        );
-        throw new NoAvailabilityFoundException(message);
-      }
-      
-      availabilityRules.push(...newAvailabilityRules);
+      this.logger.log(
+        `No availability rules found for user ${userId}. Returning empty slots (availability not configured).`,
+      );
+      return [];
     }
 
     const slots: TimeSlot[] = [];
@@ -299,11 +306,11 @@ export class AvailabilityService {
     timezone: string = 'UTC',
   ): Promise<void> {
     const defaultRules = [
-      { day_of_week: 1, start_time: '09:00', end_time: '17:00' }, // Monday
-      { day_of_week: 2, start_time: '09:00', end_time: '17:00' }, // Tuesday
-      { day_of_week: 3, start_time: '09:00', end_time: '17:00' }, // Wednesday
-      { day_of_week: 4, start_time: '09:00', end_time: '17:00' }, // Thursday
-      { day_of_week: 5, start_time: '09:00', end_time: '17:00' }, // Friday
+      { day_of_week: 1, start_time: '09:00:00', end_time: '17:00:00' }, // Monday
+      { day_of_week: 2, start_time: '09:00:00', end_time: '17:00:00' }, // Tuesday
+      { day_of_week: 3, start_time: '09:00:00', end_time: '17:00:00' }, // Wednesday
+      { day_of_week: 4, start_time: '09:00:00', end_time: '17:00:00' }, // Thursday
+      { day_of_week: 5, start_time: '09:00:00', end_time: '17:00:00' }, // Friday
     ];
 
     try {

@@ -4,6 +4,7 @@ import {
   IsInt,
   IsOptional,
   IsBoolean,
+  IsUrl,
   IsEmail,
   IsDateString,
   IsEnum,
@@ -42,6 +43,23 @@ export class CreateBookingLinkDto {
   @IsOptional()
   @IsString()
   description?: string;
+
+  @ApiPropertyOptional({
+    description: 'Location name for the booking link',
+    example: 'Google Meet',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  location?: string;
+
+  @ApiPropertyOptional({
+    description: 'Location URL for the booking link',
+    example: 'https://meet.google.com/abc-defg-hij',
+  })
+  @IsOptional()
+  @IsUrl({ require_protocol: true }, { message: 'location_link must be a valid URL' })
+  location_link?: string;
 
   @ApiProperty({
     description: 'Duration of the booking in minutes',
@@ -139,6 +157,21 @@ export class UpdateBookingLinkDto {
   @IsOptional()
   @IsString()
   description?: string;
+
+  @ApiPropertyOptional({
+    description: 'Location name',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  location?: string;
+
+  @ApiPropertyOptional({
+    description: 'Location URL',
+  })
+  @IsOptional()
+  @IsUrl({ require_protocol: true }, { message: 'location_link must be a valid URL' })
+  location_link?: string;
 
   @ApiPropertyOptional({
     description: 'Duration in minutes',
@@ -319,6 +352,12 @@ export class BookingLinkResponseDto {
 
   @ApiPropertyOptional()
   description?: string;
+
+  @ApiPropertyOptional()
+  location?: string;
+
+  @ApiPropertyOptional()
+  location_link?: string;
 
   @ApiProperty()
   duration_minutes: number;
