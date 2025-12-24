@@ -13,9 +13,10 @@ import { GoogleModule } from '../google/google.module';
 import { EmailModule } from '../email/email.module';
 import { UsersModule } from '../users/users.module';
 import { RecurringEventsService } from '../../common/services/recurring-events.service';
+import { VectorModule } from '../vector/vector.module';
 
 @Module({
-  imports: [DatabaseModule, GoogleModule, EmailModule, UsersModule],
+  imports: [DatabaseModule, GoogleModule, EmailModule, UsersModule, VectorModule],
   controllers: [EventController, CalendarSyncController, EventQueueController],
   providers: [
     EventService,
@@ -28,4 +29,4 @@ import { RecurringEventsService } from '../../common/services/recurring-events.s
   ],
   exports: [EventService, EventRepository, EventSyncService, CalendarSyncManagerService, EventInvitationService],
 })
-export class EventModule {}
+export class EventModule { }

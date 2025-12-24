@@ -8,6 +8,7 @@ import { CreateEventDto, UpdateEventDto, PartialUpdateEventDto } from './dto/eve
 import { EventRepository } from './event.repository';
 import { EventSyncService } from './services/event-sync.service';
 import { EventInvitationService } from './services/event-invitation.service';
+import { VectorService } from '../vector/vector.service';
 import { UserService } from '../users/user.service';
 
 @Injectable()
@@ -19,7 +20,36 @@ export class EventService {
     private readonly eventSyncService: EventSyncService,
     private readonly invitationService: EventInvitationService,
     private readonly userService: UserService,
-  ) {}
+    private readonly vectorService: VectorService,
+  ) { }
+
+  private async syncEventToVector(event: Event, userId: string): Promise<void> {
+    try {
+      if (!event) return;
+
+      const context = {
+        type: 'event',
+        eventId: event.id,
+        title: event.title,
+        description: event.description || '',
+        start: event.start_time,
+        end: event.end_time,
+        location: event.location || '',
+        attendees: event.attendees?.map(a => a.email).join(', ') || ''
+      };
+
+      const textToEmbed = `Event: ${event.title}. 
+      When: ${new Date(event.start_time).toLocaleString()} to ${new Date(event.end_time).toLocaleString()}. 
+      Where: ${event.location || 'No location'}. 
+      Description: ${event.description || ''}. 
+      Attendees: ${context.attendees}.`;
+
+      await this.vectorService.storeContext(userId, context, undefined, textToEmbed);
+      this.logger.log(`Synced event ${event.id} to vector store for user ${userId}`);
+    } catch (error) {
+      this.logger.warn(`Failed to sync event ${event.id} to vector store: ${error.message}`);
+    }
+  }
 
   async createEvent(
     eventDto: CreateEventDto,
@@ -40,6 +70,8 @@ export class EventService {
           `Event ${result.event.id} created locally (not synced to Google)`,
         );
       }
+
+      await this.syncEventToVector(result.event, userId);
 
       return {
         ...result.event,
@@ -72,6 +104,10 @@ export class EventService {
         );
       }
 
+      // Update vector store: delete old and add new
+      await this.vectorService.deleteContextByMetadata(userId, 'eventId', eventId);
+      await this.syncEventToVector(result.event, userId);
+
       return {
         ...result.event,
         syncedToGoogle: result.syncedToGoogle,
@@ -102,6 +138,10 @@ export class EventService {
           `Event ${eventId} updated and synced to Google Calendar`,
         );
       }
+
+      // Update vector store: delete old and add new
+      await this.vectorService.deleteContextByMetadata(userId, 'eventId', eventId);
+      await this.syncEventToVector(result.event, userId);
 
       return {
         ...result.event,
@@ -134,6 +174,8 @@ export class EventService {
           `Event ${eventId} deleted locally (not synced to Google)`,
         );
       }
+
+      await this.vectorService.deleteContextByMetadata(userId, 'eventId', eventId);
 
       return result.deleted;
     } catch (error) {
@@ -220,7 +262,7 @@ export class EventService {
       }
 
       const user = await this.userService.getUserById(userId);
-      
+
       if (!user || !user.email) {
         throw new Error('User not found or user email is missing');
       }
@@ -290,7 +332,7 @@ export class EventService {
   async syncAllEventAttendeesToDatabase(userId: string): Promise<{ synced: number; failed: number }> {
     try {
       this.logger.log(`ðŸ”„ Starting attendees sync for user ${userId}`);
-      
+
       const user = await this.userService.getUserById(userId);
       if (!user?.email) {
         throw new Error('User not found or email missing');
@@ -322,7 +364,7 @@ export class EventService {
       }
 
       this.logger.log(`âœ… Sync complete: ${synced} events synced, ${failed} failed out of ${result.data.length} events`);
-      
+
       return { synced, failed };
     } catch (error) {
       this.logger.error(`Failed to sync attendees: ${error.message}`);
