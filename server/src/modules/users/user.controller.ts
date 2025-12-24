@@ -3,11 +3,13 @@
   Get,
   Post,
   Put,
+  Patch,
   Delete,
   Body,
   Param,
   Query,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -30,7 +32,10 @@ import {
   SearchPaginationQueryDto,
 } from '../../common/dto/pagination.dto';
 import { Public } from '../../common/decorators/public.decorator';
+import { CurrentUserId } from '../../common/decorators/current-user.decorator';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { SwaggerExamples } from '../../common/swagger/swagger-examples';
+import { UpdateUserSettingsDto } from './dto/user-settings.dto';
 
 @ApiTags('Users')
 @ApiExtraModels(
@@ -153,6 +158,40 @@ export class UserController {
       this.messageService.get('success.retrieved'),
       usersWithoutPassword,
       result.meta,
+    );
+  }
+
+  @Get('settings')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Get current user settings' })
+  @ApiResponse({ status: 200, description: 'User settings retrieved successfully' })
+  async getUserSettings(
+    @CurrentUserId() userId: string,
+  ): Promise<SuccessResponseDto<Record<string, any>>> {
+    const settings = await this.userService.getUserSettings(userId);
+
+    return new SuccessResponseDto(
+      this.messageService.get('success.retrieved'),
+      settings,
+    );
+  }
+
+  @Patch('settings')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Update current user settings' })
+  @ApiResponse({ status: 200, description: 'User settings updated successfully' })
+  async updateUserSettings(
+    @CurrentUserId() userId: string,
+    @Body() dto: UpdateUserSettingsDto,
+  ): Promise<SuccessResponseDto<Record<string, any>>> {
+    const settings = await this.userService.updateUserSettings(
+      userId,
+      dto.settings,
+    );
+
+    return new SuccessResponseDto(
+      this.messageService.get('success.updated'),
+      settings,
     );
   }
 

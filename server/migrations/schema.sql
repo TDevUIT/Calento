@@ -114,6 +114,18 @@ COMMENT ON COLUMN user_credentials.sync_enabled IS 'Whether automatic sync with 
 COMMENT ON COLUMN user_credentials.last_sync_at IS 'Last successful sync timestamp';
 COMMENT ON COLUMN user_credentials.is_active IS 'Whether the connection is currently active';
 
+-- User settings table - stores per-user application/UI preferences
+CREATE TABLE IF NOT EXISTS user_settings (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+    settings JSONB NOT NULL DEFAULT '{}',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+COMMENT ON TABLE user_settings IS 'Stores per-user application settings and preferences';
+COMMENT ON COLUMN user_settings.settings IS 'User preferences stored as JSONB';
+
 -- -----------------------------------------------------------------------------
 -- 4.2 Calendar & Events
 -- -----------------------------------------------------------------------------
@@ -245,6 +257,8 @@ CREATE TABLE IF NOT EXISTS booking_links (
     slug VARCHAR(100) UNIQUE NOT NULL,
     title VARCHAR(255) NOT NULL,
     description TEXT,
+    location VARCHAR(100),
+    location_link TEXT,
     duration_minutes INTEGER NOT NULL,
     buffer_time_minutes INTEGER DEFAULT 0,
     max_bookings_per_day INTEGER,
@@ -754,6 +768,9 @@ CREATE INDEX IF NOT EXISTS idx_user_credentials_user_id ON user_credentials(user
 CREATE INDEX IF NOT EXISTS idx_user_credentials_provider ON user_credentials(provider);
 CREATE INDEX IF NOT EXISTS idx_user_credentials_sync ON user_credentials(user_id, provider, sync_enabled, is_active);
 
+-- User settings indexes
+CREATE INDEX IF NOT EXISTS idx_user_settings_user_id ON user_settings(user_id);
+
 -- Calendars indexes
 CREATE INDEX IF NOT EXISTS idx_calendars_user_id ON calendars(user_id);
 CREATE INDEX IF NOT EXISTS idx_calendars_google_id ON calendars(google_calendar_id);
@@ -918,6 +935,13 @@ CREATE TRIGGER trigger_users_updated_at
 DROP TRIGGER IF EXISTS trigger_user_credentials_updated_at ON user_credentials;
 CREATE TRIGGER trigger_user_credentials_updated_at 
     BEFORE UPDATE ON user_credentials 
+    FOR EACH ROW 
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- User settings trigger
+DROP TRIGGER IF EXISTS trigger_user_settings_updated_at ON user_settings;
+CREATE TRIGGER trigger_user_settings_updated_at 
+    BEFORE UPDATE ON user_settings 
     FOR EACH ROW 
     EXECUTE FUNCTION update_updated_at_column();
 
