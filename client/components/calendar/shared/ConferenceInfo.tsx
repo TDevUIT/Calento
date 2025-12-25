@@ -40,6 +40,12 @@ const conferenceConfigs = {
 export function ConferenceInfo({ conference }: ConferenceInfoProps) {
   const config = conferenceConfigs[conference.type];
 
+  const maskedPassword = (password: unknown) => {
+    const value = typeof password === 'string' ? password : String(password ?? '');
+    const count = Math.max(0, Number.isFinite(value.length) ? value.length : 0);
+    return '•'.repeat(count);
+  };
+
   const handleCopyLink = () => {
     navigator.clipboard.writeText(conference.url);
     toast.success('Link copied');
@@ -118,7 +124,7 @@ export function ConferenceInfo({ conference }: ConferenceInfoProps) {
             <Badge variant="outline" className="text-xs">
               Password
             </Badge>
-            <span className="text-xs font-mono">{'•'.repeat(conference.password.length)}</span>
+            <span className="text-xs font-mono">{maskedPassword(conference.password)}</span>
             <Button
               variant="ghost"
               size="icon"

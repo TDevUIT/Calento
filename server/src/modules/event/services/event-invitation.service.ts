@@ -72,12 +72,28 @@ export class EventInvitationService {
       const token = this.generateInvitationToken();
       this.logger.log(`Generated new invitation token`);
 
-      await this.db.query(
+      const updateResult = await this.db.query(
         `UPDATE event_attendees 
          SET invitation_token = $1, invitation_sent_at = NOW()
          WHERE event_id = $2 AND email = $3`,
         [token, eventId, attendeeEmail],
       );
+
+      if ((updateResult as any)?.rowCount === 0) {
+        await this.db.query(
+          `INSERT INTO event_attendees (event_id, email, response_status, is_organizer)
+           VALUES ($1, $2, 'needsAction', false)
+           ON CONFLICT (event_id, email) DO NOTHING`,
+          [eventId, attendeeEmail],
+        );
+
+        await this.db.query(
+          `UPDATE event_attendees 
+           SET invitation_token = $1, invitation_sent_at = NOW()
+           WHERE event_id = $2 AND email = $3`,
+          [token, eventId, attendeeEmail],
+        );
+      }
 
       this.logger.log(`Invitation token saved successfully`);
       return token;
@@ -135,7 +151,7 @@ export class EventInvitationService {
       const result = await this.emailService.sendEmail(
         {
           to: attendee.email,
-          subject: `ðŸ“… Lá»i má»i: ${event.title}`,
+          subject: `Invitation: ${event.title}`,
           template: 'event-invitation',
           context: {
             guestName: attendee.name || attendee.email.split('@')[0],
@@ -413,8 +429,9 @@ export class EventInvitationService {
         `SELECT * FROM event_attendees 
          WHERE event_id = $1 
          AND response_status = 'needsAction'
-         AND is_organizer = false`,
-        [eventId],
+         AND is_organizer = false
+         AND LOWER(email) <> LOWER($2)`,
+        [eventId, event.organizer_email],
       );
 
       const attendees = attendeesResult.rows;

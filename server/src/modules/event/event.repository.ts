@@ -249,11 +249,6 @@ export class EventRepository extends BaseRepository<Event> {
     this.logger.log(`ðŸ“§ Syncing ${attendees.length} attendees to database for event ${eventId}`);
 
     try {
-      await this.databaseService.query(
-        `DELETE FROM event_attendees WHERE event_id = $1`,
-        [eventId],
-      );
-
       for (const attendee of attendees) {
         const isOrganizer = attendee.email.toLowerCase() === organizerEmail.toLowerCase();
 
@@ -264,7 +259,10 @@ export class EventRepository extends BaseRepository<Event> {
            ON CONFLICT (event_id, email) 
            DO UPDATE SET 
              name = EXCLUDED.name,
-             response_status = EXCLUDED.response_status,
+             response_status = CASE 
+               WHEN event_attendees.is_organizer = true THEN event_attendees.response_status
+               ELSE event_attendees.response_status
+             END,
              is_organizer = EXCLUDED.is_organizer,
              is_optional = EXCLUDED.is_optional,
              comment = EXCLUDED.comment,
@@ -273,7 +271,7 @@ export class EventRepository extends BaseRepository<Event> {
             eventId,
             attendee.email,
             attendee.name || null,
-            attendee.response_status || 'needsAction',
+            isOrganizer ? 'accepted' : 'needsAction',
             isOrganizer,
             attendee.is_optional || false,
             attendee.comment || null,

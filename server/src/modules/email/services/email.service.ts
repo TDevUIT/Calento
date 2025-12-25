@@ -189,18 +189,12 @@ export class EmailService {
           subject: options.subject,
           template: options.template,
         });
-        
-        if (process.env.NODE_ENV === 'development') {
-          this.logger.log('ðŸ”§ Development mode: Skipping email send (SMTP not configured)');
-          return {
-            success: true,
-            messageId: `dev-${Date.now()}`,
-          };
-        }
-        
-        throw new Error(
-          'SMTP credentials not configured. Please set SMTP_USER and SMTP_PASSWORD environment variables.'
-        );
+
+        return {
+          success: false,
+          error:
+            'SMTP credentials not configured. Please set SMTP_USER and SMTP_PASSWORD environment variables.',
+        };
       }
 
       let html = options.html;
