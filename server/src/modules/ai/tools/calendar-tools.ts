@@ -6,9 +6,6 @@ import { EventService } from '../../event/event.service';
 import { CalendarService } from '../../calendar/calendar.service';
 import { FUNCTION_DESCRIPTIONS } from '../prompts/function-prompts';
 
-/**
- * Create Event Tool
- */
 @Injectable()
 export class CreateEventTool extends BaseTool {
   constructor(
@@ -164,14 +161,36 @@ export class CheckAvailabilityTool extends BaseTool {
   }
 }
 
-/**
- * Search Events Tool
- */
+
 @Injectable()
 export class SearchEventsTool extends BaseTool {
   constructor(private readonly eventService: EventService) {
     const funcDef = FUNCTION_DESCRIPTIONS.SEARCH_EVENTS;
     super(funcDef.name, funcDef.description, funcDef.category as 'calendar', funcDef.parameters);
+  }
+
+  private inferDateRangeFromQuery(query: string): { start: Date; end: Date } | null {
+    const match = query.match(/\b(\d{1,2})[\/-](\d{1,2})(?:[\/-](\d{2,4}))?\b/);
+    if (!match) return null;
+
+    const day = parseInt(match[1], 10);
+    const month = parseInt(match[2], 10);
+    if (!Number.isFinite(day) || !Number.isFinite(month)) return null;
+    if (day < 1 || day > 31 || month < 1 || month > 12) return null;
+
+    const now = new Date();
+    let year = now.getFullYear();
+    if (match[3]) {
+      const yRaw = parseInt(match[3], 10);
+      if (!Number.isFinite(yRaw)) return null;
+      year = yRaw < 100 ? 2000 + yRaw : yRaw;
+    }
+
+    const start = new Date(year, month - 1, day, 0, 0, 0, 0);
+    const end = new Date(year, month - 1, day, 23, 59, 59, 999);
+
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return null;
+    return { start, end };
   }
 
   getZodSchema(): ZodObject<ZodRawShape> {
@@ -183,15 +202,23 @@ export class SearchEventsTool extends BaseTool {
   }
 
   protected async run(args: any, context: AgentContext): Promise<any> {
-    const params: any = { query: args.query };
+    const query = String(args.query ?? '').trim();
+    if (!query) {
+      throw new Error('Missing required parameter: query');
+    }
 
-    if (args.start_date) params.start_date = new Date(args.start_date);
-    if (args.end_date) params.end_date = new Date(args.end_date);
+    const options = { page: 1, limit: 20 };
 
-    const eventsResult = await this.eventService.searchEvents(context.userId, params, {
-      page: 1,
-      limit: 20,
-    });
+    const startDate = args.start_date ? new Date(args.start_date) : undefined;
+    const endDate = args.end_date ? new Date(args.end_date) : undefined;
+
+    const inferred = !startDate && !endDate ? this.inferDateRangeFromQuery(query) : null;
+
+    const eventsResult = (startDate && endDate)
+      ? await this.eventService.searchEventsByDateRange(context.userId, startDate, endDate, query, options)
+      : inferred
+        ? await this.eventService.searchEventsByDateRange(context.userId, inferred.start, inferred.end, query, options)
+        : await this.eventService.searchEvents(context.userId, query, options);
 
     return {
       total_found: eventsResult.data.length,
@@ -225,15 +252,31 @@ export class UpdateEventTool extends BaseTool {
         start_time: z.string().optional(),
         end_time: z.string().optional(),
         description: z.string().optional(),
+        note: z.string().optional().describe('Alias for description'),
         location: z.string().optional(),
+        timezone: z.string().optional(),
+        attendees: z.array(z.string()).optional().describe('List of attendee emails'),
       }).describe('Fields to update'),
     });
   }
 
   protected async run(args: any, context: AgentContext): Promise<any> {
+    const updates = { ...(args.updates || {}) };
+
+    if (updates.note !== undefined && updates.description === undefined) {
+      updates.description = updates.note;
+    }
+
+    if (Array.isArray(updates.attendees)) {
+      updates.attendees = updates.attendees.map((email: string) => ({
+        email,
+        response_status: 'needsAction',
+      }));
+    }
+
     const event = await this.eventService.updateEvent(
       args.event_id,
-      args.updates,
+      updates,
       context.userId
     );
 
@@ -245,9 +288,6 @@ export class UpdateEventTool extends BaseTool {
   }
 }
 
-/**
- * Delete Event Tool
- */
 @Injectable()
 export class DeleteEventTool extends BaseTool {
   constructor(private readonly eventService: EventService) {

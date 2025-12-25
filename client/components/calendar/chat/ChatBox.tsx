@@ -1,5 +1,6 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { aiService } from '@/service';
@@ -25,6 +26,7 @@ import { EventsList } from './EventsList';
 import { EmptyState } from './EmptyState';
 import { toast } from 'sonner';
 import { useControllerStore } from '@/store/controller.store';
+import { EVENT_QUERY_KEYS } from '@/hook/event/query-keys';
 
 interface ChatBoxProps {
   onClose?: () => void;
@@ -60,6 +62,8 @@ export function ChatBox({
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [showHistory, setShowHistory] = useState(false);
   const [minimized, setMinimized] = useState(false);
+
+  const queryClient = useQueryClient();
 
   const { activeConversationId, setConversation, clearConversation } = useConversationState();
   const displayConversationId = externalConversationId || activeConversationId;
@@ -161,6 +165,16 @@ export function ChatBox({
             }
           }
 
+          if (event.type === 'action_result' && event.action?.type === 'createEvent' && event.action?.result?.id) {
+            queryClient.removeQueries({
+              queryKey: EVENT_QUERY_KEYS.all,
+            });
+            queryClient.invalidateQueries({
+              queryKey: EVENT_QUERY_KEYS.all,
+              refetchType: 'active',
+            });
+          }
+
           setMessages((prev: ChatMessage[]) => {
             const newMessages = [...prev];
             const lastMsgIndex = newMessages.length - 1;
@@ -249,20 +263,20 @@ export function ChatBox({
     toast.success('Started new conversation');
   };
 
-  const handleSelectConversation = (id: string) => {
-    setConversation(id);
-    if (onConversationCreated) {
-      onConversationCreated(id);
-    }
-  };
+  // const handleSelectConversation = (id: string) => {
+  //   setConversation(id);
+  //   if (onConversationCreated) {
+  //     onConversationCreated(id);
+  //   }
+  // };
 
-  const handleDeleteConversation = (id: string) => {
-    if (displayConversationId === id) {
-      clearConversation();
-      setMessages([]);
-    }
-    deleteConversation.mutate(id);
-  };
+  // const handleDeleteConversation = (id: string) => {
+  //   if (displayConversationId === id) {
+  //     clearConversation();
+  //     setMessages([]);
+  //   }
+  //   deleteConversation.mutate(id);
+  // };
 
   return (
     <div
@@ -354,7 +368,7 @@ export function ChatBox({
                   {message.role === 'user' ? (
                     <div className="flex justify-end">
                       <div className="bg-gray-800 text-white rounded-lg px-3 py-2.5 max-w-[85%]">
-                        <p className="text-[15px] leading-relaxed">
+                        <p className="text-[15px] leading-relaxed break-words whitespace-pre-wrap">
                           {message.content}
                         </p>
                       </div>
@@ -363,7 +377,7 @@ export function ChatBox({
                     <div className="space-y-4">
                       {message.content && (
                         <div className="flex items-start gap-3 max-w-[85%]">
-                          <div className="flex-1 bg-gray-50 rounded-lg px-3 py-2.5 border border-gray-200">
+                          <div className="flex-1 min-w-0 bg-gray-50 rounded-lg px-3 py-2.5 border border-gray-200 break-words whitespace-pre-wrap">
                             <MessageContent content={message.content} />
                             {message.isStreaming && (
                               <span className="inline-block w-1.5 h-4 bg-gray-900 ml-1 animate-pulse" />

@@ -40,7 +40,8 @@ const buildMainPrompt = () => `You are Calento, an intelligent AI calendar assis
   - **Always acknowledge information user provides:** "Got it! I have [specific details]..."
   - When showing time slots, mention the best options
   - Include emojis for better UX: ${EMOJIS.SUCCESS}, ${EMOJIS.CALENDAR}, ${EMOJIS.TIME}, ${EMOJIS.TARGET}, ${EMOJIS.BRAIN}
-  - **Confirm collected details before creating:** "I'll create [title] on [date] at [time] with [attendees]. Correct?"
+  - **IMPORTANT:** This system executes tool actions immediately (no user confirmation step). When you need to use a function/tool, do NOT ask the user to confirm first.
+  - Call the necessary function/tool first, then respond ONE time with the final result (success or error).
   - Always provide actionable next steps or suggestions
   
   Important notes:
@@ -70,7 +71,7 @@ const CALENDAR_AGENT = `You are the Calendar Agent, specialized in calendar oper
   - Extract accurate date/time information
   - Use ISO 8601 format with timezone offset for dates (e.g. +07:00)
   - Default meeting duration: ${PROMPT_CONFIG.DEFAULT_MEETING_DURATION} minutes
-  - Confirm critical actions with users
+  - IMPORTANT: Do NOT ask for confirmation. Execute the appropriate tool/function and then report the final outcome.
   - Working hours: ${PROMPT_CONFIG.WORKING_HOURS.START} AM - ${PROMPT_CONFIG.WORKING_HOURS.END} PM`;
 
 const TASK_AGENT = `You are the Task Agent, specialized in task management.

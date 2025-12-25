@@ -7,6 +7,13 @@ import {
 
 @Injectable()
 export class PaginationService {
+  private detectPrimaryTableAlias(baseQuery: string): string | null {
+    // Try to detect the alias in a query like: FROM table_name t
+    // Keep it intentionally simple and conservative.
+    const match = baseQuery.match(/\bFROM\s+[^\s]+\s+([a-zA-Z_][a-zA-Z0-9_]*)\b/i);
+    return match?.[1] ?? null;
+  }
+
   createPaginationMeta(
     page: number,
     limit: number,
@@ -44,12 +51,16 @@ export class PaginationService {
     sortBy?: string,
     sortOrder: 'ASC' | 'DESC' = 'DESC',
     allowedSortFields: string[] = ['created_at', 'updated_at', 'id'],
+    tableAlias?: string,
   ): string {
     // Validate sort field to prevent SQL injection
     const safeSortBy =
       sortBy && allowedSortFields.includes(sortBy) ? sortBy : 'created_at';
 
-    return `ORDER BY ${safeSortBy} ${sortOrder}`;
+    const qualifiedSortBy =
+      tableAlias && !safeSortBy.includes('.') ? `${tableAlias}.${safeSortBy}` : safeSortBy;
+
+    return `ORDER BY ${qualifiedSortBy} ${sortOrder}`;
   }
 
   buildLimitOffsetClause(
@@ -125,37 +136,30 @@ export class PaginationService {
     const { page, limit, sortBy, sortOrder } =
       this.validatePaginationOptions(options);
 
-    // Build WHERE clause
     let whereClause = '';
     if (additionalWhereConditions) {
-      // Check if baseQuery already has a WHERE clause
       const hasWhereClause = baseQuery.toUpperCase().includes('WHERE');
       whereClause = hasWhereClause
         ? `AND ${additionalWhereConditions}`
         : `WHERE ${additionalWhereConditions}`;
     }
 
-    // Build ORDER BY clause
+    const primaryAlias = this.detectPrimaryTableAlias(baseQuery);
     const orderByClause = this.buildOrderByClause(
       sortBy,
       sortOrder,
       allowedSortFields,
+      primaryAlias ?? undefined,
     );
 
     const baseParams = additionalParams || [];
     const paramStartIndex = baseParams.length + 1;
 
-    // Build LIMIT OFFSET clause with correct parameter indexes
     const { clause: limitOffsetClause, values: limitOffsetValues } =
       this.buildLimitOffsetClause(page, limit, paramStartIndex);
 
-    // Count query - subquery always needs WHERE not AND
-    const countWhereClause = additionalWhereConditions
-      ? `WHERE ${additionalWhereConditions}`
-      : '';
-    const countQuery = `SELECT COUNT(*) FROM (${baseQuery}) as base_query ${countWhereClause}`;
+    const countQuery = `SELECT COUNT(*) FROM (${baseQuery} ${whereClause}) as base_query`;
 
-    // Data query
     const dataQuery = `
         ${baseQuery} 
         ${whereClause} 

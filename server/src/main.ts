@@ -34,7 +34,23 @@ async function bootstrap() {
     }),
   );
 
-  app.use(compression());
+  app.use(
+    compression({
+      filter: (req, res) => {
+        const acceptHeader = String(req.headers?.accept || '');
+        if (acceptHeader.includes('text/event-stream')) {
+          return false;
+        }
+
+        const url = String(req.originalUrl || req.url || '');
+        if (url.includes('/ai/chat/stream')) {
+          return false;
+        }
+
+        return compression.filter(req, res);
+      },
+    }),
+  );
 
   app.use(cookieParser(env.SESSION_SECRET));
 

@@ -77,6 +77,7 @@ export interface StreamChatRequest {
 
 export type StreamMessage =
   | { type: 'text'; content: string }
+  | { type: 'status'; content: string }
   | { type: 'action_start'; action: string }
   | { type: 'action_result'; action: ActionPerformed }
   | { type: 'done'; conversation_id?: string }

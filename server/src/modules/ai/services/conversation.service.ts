@@ -130,6 +130,8 @@ export class AIConversationService {
   ) {
     this.logger.log(`Processing chat stream for user: ${userId}`);
 
+    yield { type: 'status', content: 'initializing' };
+
     let conversation = conversationId
       ? await this.conversationRepo.findById(conversationId)
       : null;
@@ -146,7 +148,6 @@ export class AIConversationService {
       });
     }
 
-    // RAG: Retrieve similar contexts from long-term memory
     let longTermMemory: any[] | null = null;
     try {
       longTermMemory = await this.ragService.retrieveConsolidatedContext(userId, message);
@@ -343,6 +344,21 @@ export class AIConversationService {
 
   private buildResponseWithActions(text: string, actions: any[]): string {
     let response = text || 'Processing your request...';
+
+    const normalized = response.replace(/\r\n/g, '\n');
+    const parts = normalized
+      .split(/\n{2,}/)
+      .map(p => p.trim())
+      .filter(Boolean);
+
+    if (parts.length >= 2) {
+      const hasConfirm = parts.some(p => /xác nhận/i.test(p));
+      const hasSuccess = parts.some(p => /đã\s+.*thành công/i.test(p));
+      if (hasConfirm && hasSuccess) {
+        const filtered = parts.filter(p => !/xác nhận/i.test(p));
+        response = filtered.join('\n\n');
+      }
+    }
 
     if (actions.length === 0) {
       return response;

@@ -36,7 +36,8 @@ export class LangChainService {
             topP: AI_CONSTANTS.GEMINI.TOP_P,
             topK: AI_CONSTANTS.GEMINI.TOP_K,
             maxOutputTokens: AI_CONSTANTS.GEMINI.MAX_OUTPUT_TOKENS,
-        });
+            streaming: true,
+        } as any);
     }
 
     async chat(
@@ -62,11 +63,21 @@ export class LangChainService {
                         messages.push(new HumanMessage(msg.content));
                     } else if (msg.role === 'assistant') {
                         const content = msg.content || '';
-                        messages.push(new AIMessage(content));
+                        if (msg.tool_calls && Array.isArray(msg.tool_calls) && msg.tool_calls.length > 0) {
+                            messages.push(new AIMessage({
+                                content,
+                                additional_kwargs: {
+                                    tool_calls: msg.tool_calls,
+                                },
+                            } as any));
+                        } else {
+                            messages.push(new AIMessage(content));
+                        }
                     } else if (msg.role === 'function') {
                         messages.push(new ToolMessage({
                             content: JSON.stringify(msg.function_response || msg.content),
-                            tool_call_id: msg.function_call?.name || 'unknown', // Ideally we store call_id
+                            tool_call_id:
+                                msg.tool_call_id || msg.function_call?.name || 'unknown', // Ideally we store call_id
                             name: msg.function_call?.name,
                         }));
                     }
@@ -124,6 +135,32 @@ export class LangChainService {
         try {
             const messages: BaseMessage[] = [];
 
+            const startedAt = Date.now();
+            let firstChunkAt: number | null = null;
+            let chunkCount = 0;
+
+            // Some providers emit cumulative content on each streamed chunk.
+            // Normalize to delta text to avoid duplicated output on the client.
+            let emittedText = '';
+
+            const yieldTextDelta = (incoming: string) => {
+                if (!incoming) return;
+
+                // If the incoming text is cumulative (starts with what we already emitted), only yield the suffix.
+                if (emittedText.length > 0 && incoming.startsWith(emittedText)) {
+                    const delta = incoming.slice(emittedText.length);
+                    if (delta.length > 0) {
+                        emittedText = incoming;
+                        return delta;
+                    }
+                    return;
+                }
+
+                // Otherwise assume incoming is already a delta.
+                emittedText += incoming;
+                return incoming;
+            };
+
             if (options.systemPrompt) {
                 messages.push(new SystemMessage(options.systemPrompt));
             }
@@ -133,11 +170,21 @@ export class LangChainService {
                     if (msg.role === 'user') {
                         messages.push(new HumanMessage(msg.content));
                     } else if (msg.role === 'assistant') {
-                        messages.push(new AIMessage(msg.content));
+                        const content = msg.content || '';
+                        if (msg.tool_calls && Array.isArray(msg.tool_calls) && msg.tool_calls.length > 0) {
+                            messages.push(new AIMessage({
+                                content,
+                                additional_kwargs: {
+                                    tool_calls: msg.tool_calls,
+                                },
+                            } as any));
+                        } else {
+                            messages.push(new AIMessage(content));
+                        }
                     } else if (msg.role === 'function') {
                         messages.push(new ToolMessage({
                             content: JSON.stringify(msg.function_response || msg.content),
-                            tool_call_id: msg.function_call?.name || 'unknown',
+                            tool_call_id: msg.tool_call_id || msg.function_call?.name || 'unknown',
                             name: msg.function_call?.name,
                         }));
                     }
@@ -157,17 +204,36 @@ export class LangChainService {
             const stream = await modelToUse.stream(messages);
 
             for await (const chunk of stream) {
+                chunkCount += 1;
                 if (chunk.content) {
                     if (typeof chunk.content === 'string') {
                         if (chunk.content.length > 0) {
-                            yield { text: chunk.content };
+                            const delta = yieldTextDelta(chunk.content);
+                            if (delta) {
+                                if (firstChunkAt === null) {
+                                    firstChunkAt = Date.now();
+                                    this.logger.debug(
+                                        `First stream chunk after ${firstChunkAt - startedAt}ms`,
+                                    );
+                                }
+                                yield { text: delta };
+                            }
                         }
                     } else if (Array.isArray(chunk.content)) {
                         for (const part of chunk.content as any[]) {
                             if (!part) continue;
 
                             if (part.type === 'text' && typeof part.text === 'string' && part.text.length > 0) {
-                                yield { text: part.text };
+                                const delta = yieldTextDelta(part.text);
+                                if (delta) {
+                                    if (firstChunkAt === null) {
+                                        firstChunkAt = Date.now();
+                                        this.logger.debug(
+                                            `First stream chunk after ${firstChunkAt - startedAt}ms`,
+                                        );
+                                    }
+                                    yield { text: delta };
+                                }
                                 continue;
                             }
 
@@ -201,6 +267,8 @@ export class LangChainService {
                     }
                 }
             }
+
+            this.logger.debug(`Stream completed with ${chunkCount} chunks`);
         } catch (error) {
             this.logger.error('Chat stream failed', error);
             throw error;

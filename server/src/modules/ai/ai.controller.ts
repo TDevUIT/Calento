@@ -86,12 +86,35 @@ export class AIController {
     const userId = this.getUserId(req);
     this.logger.log(`AI Chat Stream request from user: ${userId}`);
 
+    (req.socket as any)?.setNoDelay?.(true);
+
     // Set SSE headers
+    res.status(200);
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
     res.setHeader('X-Accel-Buffering', 'no');
+    res.setHeader('Content-Encoding', 'identity');
+    res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
     res.flushHeaders();
+
+    res.write(`: connected\n\n`);
+    (res as any).flush?.();
+
+    res.write(`data: ${JSON.stringify({ type: 'status', content: 'connected' })}\n\n`);
+    (res as any).flush?.();
+
+    let clientClosed = false;
+    const heartbeat = setInterval(() => {
+      if (clientClosed) return;
+      res.write(`: ping\n\n`);
+      (res as any).flush?.();
+    }, 15000);
+
+    req.on('close', () => {
+      clientClosed = true;
+      clearInterval(heartbeat);
+    });
 
     try {
       const stream = this.conversationService.chatStream(
@@ -102,7 +125,9 @@ export class AIController {
       );
 
       for await (const event of stream) {
+        if (clientClosed) break;
         res.write(`data: ${JSON.stringify(event)}\n\n`);
+        (res as any).flush?.();
       }
 
       res.end();
@@ -110,6 +135,8 @@ export class AIController {
       this.logger.error(`Stream error: ${error.message}`);
       res.write(`data: ${JSON.stringify({ type: 'error', error: error.message })}\n\n`);
       res.end();
+    } finally {
+      clearInterval(heartbeat);
     }
   }
 

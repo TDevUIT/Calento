@@ -104,6 +104,9 @@ const processSSELine = (
         case 'text':
           onMessage({ type: 'text', content: eventData.content });
           break;
+        case 'status':
+          onMessage({ type: 'status', content: eventData.content });
+          break;
         case 'action_start':
           onMessage({ type: 'action_start', action: eventData.action });
           break;
@@ -112,7 +115,6 @@ const processSSELine = (
           break;
         case 'done':
           onMessage({ type: 'done', conversation_id: eventData.conversation_id });
-          onComplete();
           break;
         case 'error':
           onError(new Error(eventData.error));
@@ -156,11 +158,27 @@ export const chatStream = async (
     const decoder = new TextDecoder();
     let buffer = '';
 
+    let streamCompleted = false;
+
     // Helper function to process a single line with a small delay for UI updates
     const processLineWithDelay = (line: string): Promise<void> => {
       return new Promise((resolve) => {
         processSSELine(line, onMessage, onComplete, onError);
         // Use setTimeout to allow React to process the state update before continuing
+        setTimeout(resolve, 0);
+      });
+    };
+
+    const onMessageWrapped = (chunk: StreamMessage) => {
+      onMessage(chunk);
+      if (chunk.type === 'done') {
+        streamCompleted = true;
+      }
+    };
+
+    const processLineWithDelayWrapped = (line: string): Promise<void> => {
+      return new Promise((resolve) => {
+        processSSELine(line, onMessageWrapped, () => {}, onError);
         setTimeout(resolve, 0);
       });
     };
@@ -172,9 +190,11 @@ export const chatStream = async (
         logger.info('Reader done');
         // Process any remaining buffer
         if (buffer.trim()) {
-          await processLineWithDelay(buffer);
+          await processLineWithDelayWrapped(buffer);
         }
-        onComplete();
+        if (!streamCompleted) {
+          onComplete();
+        }
         break;
       }
 
@@ -187,8 +207,20 @@ export const chatStream = async (
       // Process each line sequentially to allow UI updates
       for (const line of lines) {
         if (line.trim()) {
-          await processLineWithDelay(line);
+          await processLineWithDelayWrapped(line);
+          if (streamCompleted) {
+            try {
+              await reader.cancel();
+            } catch {
+            }
+            break;
+          }
         }
+      }
+
+      if (streamCompleted) {
+        onComplete();
+        break;
       }
     }
   } catch (error) {

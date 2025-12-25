@@ -3,6 +3,8 @@
   content: string;
   function_call?: AIFunctionCall;
   function_response?: any;
+  tool_calls?: any[];
+  tool_call_id?: string;
   thinking_steps?: ThinkingStep[];
   timestamp?: Date;
 }

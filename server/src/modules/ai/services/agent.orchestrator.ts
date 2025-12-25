@@ -31,11 +31,19 @@ export class AgentOrchestrator {
         let iterations = 0;
         const tools = this.getLangChainTools(userId);
 
+        if (message && message.length > 0) {
+            currentHistory.push({
+                role: 'user',
+                content: message,
+                timestamp: new Date(),
+            });
+        }
+
         while (iterations < this.MAX_ITERATIONS) {
             this.logger.debug(`Agent Loop Iteration ${iterations + 1}`);
 
             const aiResponse = await this.langChainService.chat(
-                message,
+                '',
                 currentHistory,
                 {
                     systemPrompt: context.systemPrompt,
@@ -48,7 +56,28 @@ export class AgentOrchestrator {
             if (aiResponse.functionCalls && aiResponse.functionCalls.length > 0) {
                 this.logger.log(`Agent decided to call ${aiResponse.functionCalls.length} tools`);
 
+                const toolCallsForTurn = aiResponse.functionCalls.map((call, index) => {
+                    const toolCallId = `${conversationId}:${iterations}:${index}`;
+                    return {
+                        id: toolCallId,
+                        type: 'function',
+                        function: {
+                            name: call.name,
+                            arguments: JSON.stringify(call.arguments ?? {}),
+                        },
+                    };
+                });
+
+                currentHistory.push({
+                    role: 'assistant',
+                    content: aiResponse.text || '',
+                    tool_calls: toolCallsForTurn,
+                });
+
                 for (const call of aiResponse.functionCalls) {
+                    const callIndex = aiResponse.functionCalls.indexOf(call);
+                    const toolCallId = `${conversationId}:${iterations}:${callIndex}`;
+
                     const action = await this.actionRepo.create(
                         conversationId,
                         call.name,
@@ -83,6 +112,7 @@ export class AgentOrchestrator {
                     currentHistory.push({
                         role: 'function',
                         content: JSON.stringify(result.result || result.error),
+                        tool_call_id: toolCallId,
                         function_call: {
                             name: call.name,
                             arguments: call.arguments
@@ -121,9 +151,17 @@ export class AgentOrchestrator {
         let iterations = 0;
         const tools = this.getLangChainTools(userId);
 
+        if (message && message.length > 0) {
+            currentHistory.push({
+                role: 'user',
+                content: message,
+                timestamp: new Date(),
+            });
+        }
+
         while (iterations < this.MAX_ITERATIONS) {
             const stream = this.langChainService.chatStream(
-                message,
+                '',
                 currentHistory,
                 {
                     systemPrompt: context.systemPrompt,
@@ -147,7 +185,28 @@ export class AgentOrchestrator {
             }
 
             if (collectedTools.length > 0) {
+                const toolCallsForTurn = collectedTools.map((tool, index) => {
+                    const toolCallId = `${conversationId}:${iterations}:${index}`;
+                    return {
+                        id: toolCallId,
+                        type: 'function',
+                        function: {
+                            name: tool.name,
+                            arguments: JSON.stringify(tool.arguments ?? {}),
+                        },
+                    };
+                });
+
+                currentHistory.push({
+                    role: 'assistant',
+                    content: collectedText || '',
+                    tool_calls: toolCallsForTurn,
+                });
+
                 for (const tool of collectedTools) {
+                    const toolIndex = collectedTools.indexOf(tool);
+                    const toolCallId = `${conversationId}:${iterations}:${toolIndex}`;
+
                     yield {
                         type: 'action_start',
                         action: { type: tool.name, parameters: tool.arguments }
@@ -187,6 +246,7 @@ export class AgentOrchestrator {
                     currentHistory.push({
                         role: 'function',
                         content: JSON.stringify(result.result || result.error),
+                        tool_call_id: toolCallId,
                         function_call: {
                             name: tool.name,
                             arguments: tool.arguments

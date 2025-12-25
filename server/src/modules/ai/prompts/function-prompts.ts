@@ -61,7 +61,11 @@ export const FUNCTION_DESCRIPTIONS = {
       type: OBJECT_TYPE,
       properties: {
         event_id: { type: STRING_TYPE, description: 'ID of the event to update' },
-        updates: { type: OBJECT_TYPE, description: 'Fields to update (title, start_time, end_time, description, location, timezone)' },
+        updates: {
+          type: OBJECT_TYPE,
+          description:
+            'Fields to update (title, start_time, end_time, description, location, timezone, attendees)',
+        },
       },
       required: ['event_id', 'updates'],
     },
