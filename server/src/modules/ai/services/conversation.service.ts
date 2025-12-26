@@ -84,16 +84,9 @@ export class AIConversationService {
 
       aiResponse = {
         text: result.response,
-        functionCalls: result.actions.map(a => ({ name: a.type, arguments: a.result || {} })) // Helper mapping if needed, but orchestrator returns 'actions' with results
+        functionCalls: result.actions.map(a => ({ name: a.type, arguments: a.result || {} }))
       };
 
-      // Orchestrator handles execution and returns final response and actions.
-      // We usually want to persist the actions.
-      // Orchestrator ALREADY persists actions via injected actionRepo (if we implemented it that way).
-      // Let's check AgentOrchestrator impl. 
-      // Yes, it pushes to actionRepo.
-
-      // We just need to formulate the Assistant Message for the UI.
       const assistantMessage: AIMessage = {
         role: 'assistant',
         content: this.buildResponseWithActions(result.response, result.actions),
@@ -132,15 +125,24 @@ export class AIConversationService {
 
     yield { type: 'status', content: 'initializing' };
 
-    let conversation = conversationId
-      ? await this.conversationRepo.findById(conversationId)
-      : null;
+    let conversationPromise = conversationId
+      ? this.conversationRepo.findById(conversationId)
+      : Promise.resolve(null);
+
+    const longTermMemoryPromise = this.ragService.retrieveConsolidatedContext(userId, message)
+      .catch(error => {
+        this.logger.warn(`RAG: Failed to retrieve contexts`, error);
+        return null;
+      });
+
+    let conversation = await conversationPromise;
 
     if (conversationId && !conversation) {
       throw new ConversationNotFoundException(conversationId);
     }
 
     if (!conversation) {
+      yield { type: 'status', content: 'analyzing_calendar' };
       const calendarContext = await this.buildCalendarContext(userId);
       conversation = await this.conversationRepo.create(userId, {
         ...context,
@@ -148,20 +150,18 @@ export class AIConversationService {
       });
     }
 
-    let longTermMemory: any[] | null = null;
-    try {
-      longTermMemory = await this.ragService.retrieveConsolidatedContext(userId, message);
-    } catch (error) {
-      this.logger.warn(`RAG: Failed to retrieve contexts`, error);
-    }
-
     const userMessage: AIMessage = {
       role: 'user',
       content: message,
       timestamp: new Date(),
     };
-
     await this.conversationRepo.addMessage(conversation.id, userMessage);
+
+    yield { type: 'status', content: 'searching_memory' };
+    const longTermMemory = await longTermMemoryPromise;
+    this.logger.log(`RAG: Memory retrieval completed. Found ${longTermMemory?.length || 0} contexts.`);
+
+    yield { type: 'status', content: 'thinking' };
 
     let fullResponseText = '';
     const actions: any[] = [];

@@ -49,7 +49,7 @@ export const FUNCTION_DESCRIPTIONS = {
         start_date: { type: STRING_TYPE, description: 'Search start date (optional)' },
         end_date: { type: STRING_TYPE, description: 'Search end date (optional)' },
       },
-      required: ['query'],
+      required: [],
     },
   },
 

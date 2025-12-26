@@ -258,6 +258,13 @@ export class AgentOrchestrator {
                 message = "";
                 iterations++;
             } else {
+                // If we have collected text but no tools, we update history and break the loop
+                if (collectedText) {
+                    currentHistory.push({
+                        role: 'assistant',
+                        content: collectedText,
+                    });
+                }
                 return;
             }
         }

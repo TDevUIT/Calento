@@ -93,27 +93,21 @@ export class AIController {
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
-    res.setHeader('X-Accel-Buffering', 'no');
-    res.setHeader('Content-Encoding', 'identity');
-    res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+    res.setHeader('X-Accel-Buffering', 'no'); // Disable buffering for Nginx
     res.flushHeaders();
 
-    res.write(`: connected\n\n`);
+    // Initial connection event
+    res.write(`event: status\ndata: ${JSON.stringify({ content: 'connected' })}\n\n`);
     (res as any).flush?.();
 
-    res.write(`data: ${JSON.stringify({ type: 'status', content: 'connected' })}\n\n`);
-    (res as any).flush?.();
-
-    let clientClosed = false;
     const heartbeat = setInterval(() => {
-      if (clientClosed) return;
       res.write(`: ping\n\n`);
       (res as any).flush?.();
     }, 15000);
 
     req.on('close', () => {
-      clientClosed = true;
       clearInterval(heartbeat);
+      res.end();
     });
 
     try {
@@ -125,15 +119,24 @@ export class AIController {
       );
 
       for await (const event of stream) {
-        if (clientClosed) break;
-        res.write(`data: ${JSON.stringify(event)}\n\n`);
+        // Format based on event type
+        if (event.type === 'text') {
+          res.write(`event: text\ndata: ${JSON.stringify({ content: event.content })}\n\n`);
+        } else if (event.type === 'action_start') {
+          res.write(`event: action_start\ndata: ${JSON.stringify({ action: event.action })}\n\n`);
+        } else if (event.type === 'action_result') {
+          res.write(`event: action_result\ndata: ${JSON.stringify({ action: event.action })}\n\n`);
+        }
         (res as any).flush?.();
       }
 
+      // Send done event
+      res.write(`event: done\ndata: ${JSON.stringify({ conversation_id: dto.conversation_id })}\n\n`);
       res.end();
+
     } catch (error) {
       this.logger.error(`Stream error: ${error.message}`);
-      res.write(`data: ${JSON.stringify({ type: 'error', error: error.message })}\n\n`);
+      res.write(`event: error\ndata: ${JSON.stringify({ error: error.message })}\n\n`);
       res.end();
     } finally {
       clearInterval(heartbeat);

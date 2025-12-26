@@ -195,7 +195,7 @@ export class SearchEventsTool extends BaseTool {
 
   getZodSchema(): ZodObject<ZodRawShape> {
     return z.object({
-      query: z.string().describe('Search query'),
+      query: z.string().optional().describe('Search query for title or description'),
       start_date: z.string().optional().describe('Start date filter'),
       end_date: z.string().optional().describe('End date filter'),
     });
@@ -203,22 +203,33 @@ export class SearchEventsTool extends BaseTool {
 
   protected async run(args: any, context: AgentContext): Promise<any> {
     const query = String(args.query ?? '').trim();
-    if (!query) {
-      throw new Error('Missing required parameter: query');
-    }
+    // if (!query && !args.start_date && !args.end_date) {
+    //    throw new Error('Please provide a search query or a date range.');
+    // }
 
     const options = { page: 1, limit: 20 };
 
     const startDate = args.start_date ? new Date(args.start_date) : undefined;
     const endDate = args.end_date ? new Date(args.end_date) : undefined;
 
-    const inferred = !startDate && !endDate ? this.inferDateRangeFromQuery(query) : null;
+    const inferred = !startDate && !endDate && query ? this.inferDateRangeFromQuery(query) : null;
 
-    const eventsResult = (startDate && endDate)
-      ? await this.eventService.searchEventsByDateRange(context.userId, startDate, endDate, query, options)
-      : inferred
-        ? await this.eventService.searchEventsByDateRange(context.userId, inferred.start, inferred.end, query, options)
-        : await this.eventService.searchEvents(context.userId, query, options);
+    let eventsResult;
+
+    if (startDate && endDate) {
+      eventsResult = await this.eventService.searchEventsByDateRange(context.userId, startDate, endDate, query, options);
+    } else if (inferred) {
+      eventsResult = await this.eventService.searchEventsByDateRange(context.userId, inferred.start, inferred.end, query, options);
+    } else if (query) {
+      eventsResult = await this.eventService.searchEvents(context.userId, query, options);
+    } else {
+      // Fallback: if no query and no dates, maybe return upcoming events?
+      // Or just return empty to avoid error.
+      const now = new Date();
+      const nextWeek = new Date();
+      nextWeek.setDate(now.getDate() + 7);
+      eventsResult = await this.eventService.getEventsByDateRange(context.userId, now, nextWeek, options);
+    }
 
     return {
       total_found: eventsResult.data.length,
