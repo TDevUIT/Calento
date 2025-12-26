@@ -139,28 +139,6 @@ export class LangChainService {
             let firstChunkAt: number | null = null;
             let chunkCount = 0;
 
-            // Some providers emit cumulative content on each streamed chunk.
-            // Normalize to delta text to avoid duplicated output on the client.
-            let emittedText = '';
-
-            const yieldTextDelta = (incoming: string) => {
-                if (!incoming) return;
-
-                // If the incoming text is cumulative (starts with what we already emitted), only yield the suffix.
-                if (emittedText.length > 0 && incoming.startsWith(emittedText)) {
-                    const delta = incoming.slice(emittedText.length);
-                    if (delta.length > 0) {
-                        emittedText = incoming;
-                        return delta;
-                    }
-                    return;
-                }
-
-                // Otherwise assume incoming is already a delta.
-                emittedText += incoming;
-                return incoming;
-            };
-
             if (options.systemPrompt) {
                 messages.push(new SystemMessage(options.systemPrompt));
             }
@@ -198,42 +176,40 @@ export class LangChainService {
             let modelToUse: any = this.model;
             if (options.tools && options.tools.length > 0) {
                 modelToUse = this.model.bindTools(options.tools);
-                this.logger.debug(`Streaming with ${options.tools.length} tools bound`);
+                this.logger.warn(`Streaming with ${options.tools.length} tools bound`);
             }
 
             const stream = await modelToUse.stream(messages);
 
             for await (const chunk of stream) {
                 chunkCount += 1;
+                this.logger.debug(`Chunk ${chunkCount} received. Type: ${typeof chunk.content}. Is Array: ${Array.isArray(chunk.content)}`);
+
                 if (chunk.content) {
                     if (typeof chunk.content === 'string') {
+                        this.logger.debug(`Chunk ${chunkCount} string length: ${chunk.content.length}`);
                         if (chunk.content.length > 0) {
-                            const delta = yieldTextDelta(chunk.content);
-                            if (delta) {
+                            if (firstChunkAt === null) {
+                                firstChunkAt = Date.now();
+                                this.logger.debug(
+                                    `First stream chunk after ${firstChunkAt - startedAt}ms`,
+                                );
+                            }
+                            yield { text: chunk.content };
+                        }
+                    } else if (Array.isArray(chunk.content)) {
+                        this.logger.debug(`Chunk ${chunkCount} array length: ${chunk.content.length}`);
+                        for (const part of chunk.content as any[]) {
+                            if (!part) continue;
+
+                            if (part.type === 'text' && typeof part.text === 'string' && part.text.length > 0) {
                                 if (firstChunkAt === null) {
                                     firstChunkAt = Date.now();
                                     this.logger.debug(
                                         `First stream chunk after ${firstChunkAt - startedAt}ms`,
                                     );
                                 }
-                                yield { text: delta };
-                            }
-                        }
-                    } else if (Array.isArray(chunk.content)) {
-                        for (const part of chunk.content as any[]) {
-                            if (!part) continue;
-
-                            if (part.type === 'text' && typeof part.text === 'string' && part.text.length > 0) {
-                                const delta = yieldTextDelta(part.text);
-                                if (delta) {
-                                    if (firstChunkAt === null) {
-                                        firstChunkAt = Date.now();
-                                        this.logger.debug(
-                                            `First stream chunk after ${firstChunkAt - startedAt}ms`,
-                                        );
-                                    }
-                                    yield { text: delta };
-                                }
+                                yield { text: part.text };
                                 continue;
                             }
 

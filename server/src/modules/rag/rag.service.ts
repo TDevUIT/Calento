@@ -18,31 +18,59 @@ export class RagService {
 
     async retrieveConsolidatedContext(userId: string, message: string): Promise<any[]> {
         try {
-            this.logger.log(`Retrieving consolidated context for user ${userId}`);
+            this.logger.debug(`Retrieving consolidated context for user ${userId}`);
 
-            const expandedQuery = await this.expandQuery(message);
+            const expandedQuery = await this.withTimeout(
+                this.expandQuery(message),
+                3000,
+                message // fallback to original message
+            );
             this.logger.debug(`Original query: "${message}" -> Expanded: "${expandedQuery}"`);
 
 
             const similarContexts = await this.vectorService.searchHybrid(
                 userId,
                 expandedQuery,
-                10 // Fetch top 10 for reranking
+                10
             );
 
-            this.logger.log(`Retrieved ${similarContexts.length} candidates for reranking`);
+            this.logger.debug(`Retrieved ${similarContexts.length} candidates for reranking`);
 
-         
-            const rerankedContexts = await this.rerankContexts(message, similarContexts);
+            const rerankedContexts = await this.withTimeout(
+                this.rerankContexts(message, similarContexts),
+                3000,
+                similarContexts // fallback to original contexts
+            );
 
             const topContexts = rerankedContexts.slice(0, 3);
 
-            this.logger.log(`Reranked to top ${topContexts.length} contexts`);
+            this.logger.debug(`Reranked to top ${topContexts.length} contexts`);
 
             return topContexts.map(c => c.context);
         } catch (error) {
             this.logger.error('Failed to retrieve consolidated context', error);
-            throw new Error(`Context retrieval failed: ${error.message}`);
+            // Non-blocking error - just return empty context
+            return [];
+        }
+    }
+
+    private async withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+        let timeoutId: NodeJS.Timeout;
+        const timeoutPromise = new Promise<T>((resolve) => {
+            timeoutId = setTimeout(() => {
+                this.logger.warn(`Operation timed out after ${ms}ms, using fallback`);
+                resolve(fallback);
+            }, ms);
+        });
+
+        try {
+            const result = await Promise.race([promise, timeoutPromise]);
+            clearTimeout(timeoutId!);
+            return result;
+        } catch (error) {
+            clearTimeout(timeoutId!);
+            this.logger.error(`Operation failed: ${error.message}, using fallback`);
+            return fallback;
         }
     }
 
