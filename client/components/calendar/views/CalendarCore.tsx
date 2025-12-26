@@ -27,6 +27,7 @@ import {
   type HTMLAttributes,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from 'react';
@@ -135,6 +136,10 @@ const Calendar = ({
 
   const [date, setDate] = useState(defaultDate);
   const [events, setEvents] = useState<CalendarEvent[]>(defaultEvents);
+
+  useEffect(() => {
+    setEvents(defaultEvents);
+  }, [defaultEvents]);
 
   const today = useMemo(() => new Date(), []);
 

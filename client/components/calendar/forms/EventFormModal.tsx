@@ -75,7 +75,10 @@ export function EventFormModal({
       color: '#3b82f6',
       recurrence_rule: undefined,
       attendees: [],
-      reminders: [{ method: 'popup', minutes: 30 }],
+      reminders: [
+        { method: 'email', minutes: 30 },
+        { method: 'popup', minutes: 30 },
+      ],
       visibility: 'default',
     },
   });
@@ -98,7 +101,10 @@ export function EventFormModal({
         recurrence_rule: event.recurrence_rule || undefined,
         attendees: event.attendees || [],
         conference_data: cleanConferenceData,
-        reminders: event.reminders || [{ method: 'popup', minutes: 30 }],
+        reminders: event.reminders || [
+          { method: 'email', minutes: 30 },
+          { method: 'popup', minutes: 30 },
+        ],
         visibility: event.visibility || 'default',
       };
       
