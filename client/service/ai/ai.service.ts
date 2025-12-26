@@ -94,6 +94,11 @@ const processSSELine = (
 
       const eventData = parsed.data || parsed;
 
+      // Debug log for specific events
+      if (eventData.type === 'status') {
+        logger.info(`Stream Status Update: ${eventData.content}`);
+      }
+
       if (eventData.error) {
         logger.error(`Backend error: ${eventData.error}`);
         onError(new Error(eventData.error));
@@ -140,92 +145,89 @@ export const chatStream = async (
 ): Promise<void> => {
   try {
     logger.info('Starting stream to:', API_ROUTES.AI_CHAT_STREAM);
-    logger.info('Request data:', data);
 
     const fullUrl = `${api.defaults.baseURL}${API_ROUTES.AI_CHAT_STREAM}`;
-    logger.info('Full URL:', fullUrl);
 
     await checkBackendHealth();
 
-    const response = await initiateStreamRequest(fullUrl, data);
-    logger.info('Streaming connection established');
+    const fetchHeaders: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'Accept': 'text/event-stream',
+    };
+
+    const response = await fetch(fullUrl, {
+      method: 'POST',
+      headers: fetchHeaders,
+      body: JSON.stringify(data),
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => 'Unknown error');
+      throw new Error(`HTTP error! status: ${response.status}. ${errorText}`);
+    }
 
     const reader = response.body?.getReader();
-    if (!reader) {
-      throw new Error('No reader available');
-    }
+    if (!reader) throw new Error('No reader available');
 
     const decoder = new TextDecoder();
     let buffer = '';
 
-    let streamCompleted = false;
-
-    // Helper function to process a single line with a small delay for UI updates
-    const processLineWithDelay = (line: string): Promise<void> => {
-      return new Promise((resolve) => {
-        processSSELine(line, onMessage, onComplete, onError);
-        // Use setTimeout to allow React to process the state update before continuing
-        setTimeout(resolve, 0);
-      });
-    };
-
-    const onMessageWrapped = (chunk: StreamMessage) => {
-      onMessage(chunk);
-      if (chunk.type === 'done') {
-        streamCompleted = true;
-      }
-    };
-
-    const processLineWithDelayWrapped = (line: string): Promise<void> => {
-      return new Promise((resolve) => {
-        processSSELine(line, onMessageWrapped, () => {}, onError);
-        setTimeout(resolve, 0);
-      });
-    };
-
     while (true) {
       const { done, value } = await reader.read();
-
-      if (done) {
-        logger.info('Reader done');
-        // Process any remaining buffer
-        if (buffer.trim()) {
-          await processLineWithDelayWrapped(buffer);
-        }
-        if (!streamCompleted) {
-          onComplete();
-        }
-        break;
-      }
+      if (done) break;
 
       buffer += decoder.decode(value, { stream: true });
-
-      // Split by double newline (SSE format) or single newline
-      const lines = buffer.split(/\n\n|\n/);
+      const lines = buffer.split('\n\n');
       buffer = lines.pop() || '';
 
-      // Process each line sequentially to allow UI updates
       for (const line of lines) {
-        if (line.trim()) {
-          await processLineWithDelayWrapped(line);
-          if (streamCompleted) {
-            try {
-              await reader.cancel();
-            } catch {
-            }
-            break;
+        if (!line.trim()) continue;
+
+        const [eventType, ...dataParts] = line.split('\n');
+        const dataStr = dataParts.join('\n').replace(/^data: /, '');
+
+        if (!dataStr) continue;
+
+        try {
+          const eventData = JSON.parse(dataStr);
+          const type = eventType.replace('event: ', '').trim();
+
+          switch (type) {
+            case 'text':
+              const content = eventData.content as string;
+              const chunks = content.match(/.{1,2}/g) || [];
+              for (const chunk of chunks) {
+                onMessage({ type: 'text', content: chunk });
+                await new Promise(resolve => setTimeout(resolve, 15));
+              }
+              break;
+            case 'action_start':
+              onMessage({ type: 'action_start', action: eventData.action });
+              break;
+            case 'action_result':
+              onMessage({ type: 'action_result', action: eventData.action });
+              break;
+            case 'error':
+              onError(new Error(eventData.error));
+              break;
+            case 'done':
+              onMessage({ type: 'done', conversation_id: eventData.conversation_id });
+              break;
+            case 'status':
+              onMessage({ type: 'status', content: eventData.content });
+              break;
           }
+        } catch (e) {
+          console.error('Failed to parse SSE message:', line, e);
         }
       }
-
-      if (streamCompleted) {
-        onComplete();
-        break;
-      }
     }
+
+    onComplete();
   } catch (error) {
-    logger.error(`chatStream error: ${error instanceof Error ? error.message : String(error)}`);
-    onError(new Error(getErrorMessage(error)));
+    logger.error('Stream error:');
+    onError(error instanceof Error ? error : new Error(String(error)));
   }
 };
 
