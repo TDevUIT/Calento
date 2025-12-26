@@ -25,7 +25,7 @@ import { useTasks } from "@/hook/task";
 import { useBookingLinks } from "@/hook/booking";
 import { logger } from "@/utils";
 import { toast } from "sonner";
-import { usePendingNotifications } from "@/hook/notification";
+import { usePendingNotifications, useWebEventReminders } from "@/hook/notification";
 import { notificationService } from "@/service";
 import { useRouter } from "next/navigation";
 
@@ -37,6 +37,7 @@ export function DashboardHeader({ notificationCount = 3 }: DashboardHeaderProps)
   const [openSearchDialog, setOpenSearchDialog] = useState(false);
   const router = useRouter();
   const pendingNotificationsQuery = usePendingNotifications();
+  useWebEventReminders({ daysAhead: 7 });
   
   const { data: eventsData } = useEvents({ page: 1, limit: 50 });
   const { data: tasksData } = useTasks({ page: 1, limit: 50 });

@@ -1,9 +1,5 @@
 ﻿'use client';
 
-/**
- * Global Error Boundary
- * Catches errors in the application
- */
 export default function Error({
   error,
   reset,
@@ -14,7 +10,6 @@ export default function Error({
   return (
     <div className="flex min-h-screen items-center justify-center bg-white px-4">
       <div className="max-w-md text-center">
-        {/* Error Icon */}
         <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
           <svg
             className="h-8 w-8 text-red-600"
