@@ -79,7 +79,7 @@ export async function middleware(request: NextRequest) {
 
   const protectedPrefixes = ['/dashboard', '/calendar', '/events', '/profile', '/settings'];
 
-  const guestOnlyRoutes = ['/login', '/register', '/forgot-password'];
+  const guestOnlyRoutes = ['/login', '/register', '/forgot-password', '/'];
 
   let isAuthenticated = await verifyAuthFromCookies(request);
 
@@ -104,7 +104,9 @@ export async function middleware(request: NextRequest) {
     const returnUrl = searchParams.get('returnUrl');
     const redirectTo = returnUrl && protectedPrefixes.some(prefix =>
       returnUrl === prefix || returnUrl.startsWith(prefix + '/')
-    ) ? returnUrl : '/dashboard';
+    )
+      ? returnUrl
+      : (pathname === '/' ? '/dashboard/calendar' : '/dashboard');
 
     return NextResponse.redirect(new URL(redirectTo, request.url));
   }
@@ -116,6 +118,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    '/',
     '/dashboard/:path*',
     '/calendar/:path*',
     '/events/:path*',
