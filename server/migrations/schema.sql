@@ -169,6 +169,7 @@ COMMENT ON TABLE calendars IS 'Stores calendar metadata synced from Google Calen
 CREATE TABLE IF NOT EXISTS events (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     calendar_id UUID NOT NULL REFERENCES calendars(id) ON DELETE CASCADE,
+    team_id UUID,
     google_event_id VARCHAR(255), -- Nullable for local events
     title VARCHAR(500),
     description TEXT,
@@ -538,6 +539,11 @@ CREATE TABLE IF NOT EXISTS teams (
 );
 
 COMMENT ON TABLE teams IS 'Stores team information for collaborative scheduling';
+
+-- Link events to teams (optional)
+ALTER TABLE events
+    ADD CONSTRAINT IF NOT EXISTS fk_events_team_id
+    FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE SET NULL;
 
 -- Team members table
 CREATE TABLE IF NOT EXISTS team_members (

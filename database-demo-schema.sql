@@ -107,6 +107,7 @@ CREATE TABLE calendars (
 CREATE TABLE events (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     calendar_id UUID NOT NULL,
+    team_id UUID,
     google_event_id VARCHAR(255),
     
     -- Event details
@@ -452,6 +453,10 @@ CREATE TABLE teams (
         FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+ALTER TABLE events 
+    ADD CONSTRAINT fk_events_team_id 
+        FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE SET NULL;
+
 -- Team members table
 CREATE TABLE team_members (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -748,6 +753,7 @@ CREATE INDEX idx_calendars_primary ON calendars(is_primary);
 
 -- Events indexes
 CREATE INDEX idx_events_calendar_id ON events(calendar_id);
+CREATE INDEX idx_events_team_id ON events(team_id);
 CREATE INDEX idx_events_google_id ON events(google_event_id);
 CREATE INDEX idx_events_start_time ON events(start_time);
 CREATE INDEX idx_events_end_time ON events(end_time);
