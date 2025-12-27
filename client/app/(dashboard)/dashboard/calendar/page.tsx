@@ -40,6 +40,7 @@ export default function Page() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [visibleCalendarIds, setVisibleCalendarIds] = useState<Set<string>>(new Set());
+  const [visibleTeamIds, setVisibleTeamIds] = useState<Set<string>>(new Set());
   const [openEventDialog, setOpenEventDialog] = useState(false);
 
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
@@ -107,6 +108,8 @@ export default function Page() {
       end: new Date(event.end_time),
       description: event.description,
       calendarId: event.calendar_id,
+      teamId: event.team_id,
+      team: event.team,
       color: getColorHex(event.color),
       creator: event.creator,
       type: 'event' as const,
@@ -141,7 +144,14 @@ export default function Page() {
 
   const filteredEvents = calendarEvents.filter(event => {
     if (event.type === 'task') return true;
-    return visibleCalendarIds.size === 0 || visibleCalendarIds.has(event.calendarId || '');
+
+    const calendarOk = visibleCalendarIds.size === 0 || visibleCalendarIds.has(event.calendarId || '');
+    const teamOk =
+      visibleTeamIds.size === 0 ||
+      (event.teamId ? visibleTeamIds.has(event.teamId) : false);
+
+    // If team filter is active, only show events that belong to a selected team.
+    return calendarOk && teamOk;
   });
 
   if (isLoading) {
@@ -205,6 +215,8 @@ export default function Page() {
             setShowTaskDialog={setShowTaskDialog}
             visibleCalendarIds={visibleCalendarIds}
             setVisibleCalendarIds={setVisibleCalendarIds}
+            visibleTeamIds={visibleTeamIds}
+            setVisibleTeamIds={setVisibleTeamIds}
             defaultView={defaultView}
             enableKeyboardShortcuts={enableKeyboardShortcuts}
             calendarLocale={calendarLocale}

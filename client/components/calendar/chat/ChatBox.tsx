@@ -25,6 +25,7 @@ import { EmptyState } from './EmptyState';
 import { toast } from 'sonner';
 import { useControllerStore } from '@/store/controller.store';
 import { EVENT_QUERY_KEYS } from '@/hook/event/query-keys';
+import { getBrowserTimezone } from '@/utils';
 
 interface ChatBoxProps {
   onClose?: () => void;
@@ -167,7 +168,7 @@ export function ChatBox({
               day: 'numeric',
               year: 'numeric',
             }),
-            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            timezone: getBrowserTimezone(),
           },
         },
         (event: StreamMessage) => {

@@ -27,6 +27,7 @@ export const reminderSchema = z.object({
 export const eventFormSchema = z.object({
   calendar_id: z.string()
     .min(1, 'Please select a calendar'),
+  team_id: z.string().optional(),
   title: z.string().min(1, 'Title is required').max(255, 'Title must be at most 255 characters'),
   description: z.string().max(1000, 'Description must be at most 1000 characters').optional(),
   start_time: z.string().min(1, 'Start time is required'),

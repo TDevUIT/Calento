@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { Resolver } from 'react-hook-form';
 import { format } from 'date-fns';
-import { X, Loader2, MapPin, Bell, AlertTriangle } from 'lucide-react';
+import { X, Loader2, MapPin, Bell, AlertTriangle, Users } from 'lucide-react';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,6 +27,8 @@ import { CalendarField } from './fields/CalendarField';
 import { GuestsField } from './fields/GuestsField';
 import { useCreateEvent, useUpdateEvent } from '@/hook';
 import { useSendInvitations, useSendReminders } from '@/hook/invitations';
+import { useTeams } from '@/hook/team/use-teams';
+import { CustomSelect, SelectOption } from '@/components/ui/custom-select';
 
 interface EventFormModalProps {
   open: boolean;
@@ -60,12 +62,16 @@ export function EventFormModal({
   const { mutate: sendInvitations } = useSendInvitations();
   const { mutate: sendReminders } = useSendReminders();
 
+  const { data: teamsResponse } = useTeams();
+  const teams = teamsResponse?.data || [];
+
   const form = useForm<EventFormData>({
     resolver: zodResolver(eventFormSchema) as Resolver<EventFormData>,
     mode: 'onChange',
     reValidateMode: 'onChange',
     defaultValues: {
       calendar_id: defaultCalendarId || '',
+      team_id: undefined,
       title: '',
       description: '',
       start_time: defaultStartTime ? format(defaultStartTime, "yyyy-MM-dd'T'HH:mm") : '',
@@ -91,6 +97,7 @@ export function EventFormModal({
       
       const formData = {
         calendar_id: event.calendar_id,
+        team_id: event.team_id || undefined,
         title: event.title,
         description: event.description || '',
         start_time: format(new Date(event.start_time), "yyyy-MM-dd'T'HH:mm"),
@@ -133,6 +140,7 @@ export function EventFormModal({
 
       const cleanedData = {
         ...data,
+        team_id: data.team_id && data.team_id.trim().length > 0 ? data.team_id : undefined,
         description: data.description?.trim() || undefined,
         location: data.location?.trim() || undefined,
         recurrence_rule: data.recurrence_rule?.trim() || undefined,
@@ -287,6 +295,34 @@ export function EventFormModal({
                           </div>
 
                           <CalendarField form={form} />
+
+                          <FormField
+                            control={form.control}
+                            name="team_id"
+                            render={({ field }) => {
+                              const options: SelectOption[] = [
+                                { value: '', label: 'Personal (no team)' },
+                                ...teams.map((t) => ({ value: t.id, label: t.name })),
+                              ];
+
+                              return (
+                                <FormItem>
+                                  <div className="flex items-center gap-3 py-3 border-b border-border/40">
+                                    <Users className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                                    <FormControl>
+                                      <CustomSelect
+                                        value={field.value || ''}
+                                        onValueChange={(val) => field.onChange(val || undefined)}
+                                        options={options}
+                                        placeholder="Select team (optional)"
+                                        className="flex-1 border-0"
+                                      />
+                                    </FormControl>
+                                  </div>
+                                </FormItem>
+                              );
+                            }}
+                          />
 
                           <RecurrenceField form={form} />
 

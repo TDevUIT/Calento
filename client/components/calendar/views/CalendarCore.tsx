@@ -77,6 +77,11 @@ export type CalendarEvent = {
   color?: string;
   description?: string;
   calendarId?: string;
+  teamId?: string;
+  team?: {
+    id: string;
+    name?: string;
+  };
   creator?: {
     id: string;
     name?: string;
@@ -94,6 +99,7 @@ function convertToFullEvent(calendarEvent: CalendarEvent): Event {
     id: calendarEvent.id,
     user_id: '',
     calendar_id: calendarEvent.calendarId || '',
+    team_id: calendarEvent.teamId,
     title: calendarEvent.title,
     start_time: calendarEvent.start,
     end_time: calendarEvent.end,
@@ -103,6 +109,7 @@ function convertToFullEvent(calendarEvent: CalendarEvent): Event {
     created_at: new Date(),
     updated_at: new Date(),
     creator: calendarEvent.creator,
+    team: calendarEvent.team,
   };
 }
 

@@ -146,6 +146,13 @@ export function EventQuickPreview({ event }: EventQuickPreviewProps) {
             <span>{formatTimeRange()}</span>
           </div>
 
+          {event.team?.id && (
+            <Badge variant="secondary" className="text-xs px-2 py-0.5 gap-1">
+              <Users className="h-3 w-3" />
+              {event.team.name || 'Team'}
+            </Badge>
+          )}
+
           {event.recurrence_rule && (
             <Badge variant="secondary" className="text-xs px-2 py-0.5 gap-1">
               <Repeat className="h-3 w-3" />

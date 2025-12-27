@@ -52,6 +52,8 @@ export type DashboardCalendarWrapperProps = {
   setShowTaskDialog: (show: boolean) => void;
   visibleCalendarIds: Set<string>;
   setVisibleCalendarIds: (ids: Set<string>) => void;
+  visibleTeamIds: Set<string>;
+  setVisibleTeamIds: (ids: Set<string>) => void;
   defaultView: 'day' | 'week' | 'month' | 'year';
   enableKeyboardShortcuts: boolean;
   calendarLocale: Locale;
@@ -87,6 +89,8 @@ export function DashboardCalendarWrapper({
   setShowTaskDialog,
   visibleCalendarIds,
   setVisibleCalendarIds,
+  visibleTeamIds,
+  setVisibleTeamIds,
   defaultView,
   enableKeyboardShortcuts,
   calendarLocale,
@@ -204,6 +208,8 @@ export function DashboardCalendarWrapper({
                 onClose={toggleCalendarSidebar}
                 visibleCalendarIds={visibleCalendarIds}
                 onVisibleCalendarIdsChange={setVisibleCalendarIds}
+                visibleTeamIds={visibleTeamIds}
+                onVisibleTeamIdsChange={setVisibleTeamIds}
               />
             </div>
           )}
