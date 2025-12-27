@@ -11,6 +11,7 @@ import {
   DetailsContent,
   UpcomingSidebar,
 } from "@/components/scheduling-links";
+import { getBrowserTimezone } from '@/utils';
 
 const SchedulingLinkDetailsPage = () => {
   const router = useRouter();
@@ -51,7 +52,7 @@ const SchedulingLinkDetailsPage = () => {
     description: link.description || "This is a link to my maximum availability",
     group: displayName ? `${displayName}'s Booking Page` : "",
     duration: durationText,
-    hours: link.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+    hours: link.timezone || getBrowserTimezone(),
     calendar: currentUser?.email || "",
     dates: datesWindowText,
     location: link.location || "Google Meet",
