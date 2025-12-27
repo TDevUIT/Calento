@@ -68,15 +68,23 @@ const TeamsPage = () => {
 
       <div className="flex-1 overflow-auto">
         <div className="max-w-7xl mx-auto px-6 py-6">
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList>
-              <TabsTrigger value="all">
-                All Teams ({allTeams.length})
-              </TabsTrigger>
-              <TabsTrigger value="owned">
-                My Teams ({ownedTeams.length})
-              </TabsTrigger>
-            </TabsList>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <div className="border-2 border-black dark:border-white rounded-lg p-2 bg-muted/30 max-w-1/2">
+              <TabsList className="grid w-full grid-cols-2 h-auto p-1 bg-transparent gap-2">
+                <TabsTrigger
+                  value="all"
+                  className="gap-2 data-[state=active]:bg-background data-[state=active]:border-2 data-[state=active]:border-black data-[state=active]:dark:border-white data-[state=active]:shadow-md rounded-md py-3 px-3 justify-start transition-all hover:bg-background/50 border-2 border-transparent"
+                >
+                  All Teams ({allTeams.length})
+                </TabsTrigger>
+                <TabsTrigger
+                  value="owned"
+                  className="gap-2 data-[state=active]:bg-background data-[state=active]:border-2 data-[state=active]:border-black data-[state=active]:dark:border-white data-[state=active]:shadow-md rounded-md py-3 px-3 justify-start transition-all hover:bg-background/50 border-2 border-transparent"
+                >
+                  My Teams ({ownedTeams.length})
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
             <TabsContent value="all" className="mt-6">
               {isLoadingAll ? (

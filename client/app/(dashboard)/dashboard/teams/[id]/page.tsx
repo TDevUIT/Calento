@@ -12,6 +12,7 @@ import { TeamMembersList } from '@/components/team/TeamMembersList';
 import { TeamRitualsList } from '@/components/team/TeamRitualsList';
 import { TeamAvailability } from '@/components/team/TeamAvailability';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -47,8 +48,8 @@ const TeamDetailPage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col h-full bg-gray-50">
-        <div className="bg-white border-b">
+      <div className="flex flex-col h-full bg-muted/30">
+        <div className="bg-background border-b border-border">
           <div className="max-w-7xl mx-auto px-6 py-6">
             <Skeleton className="h-8 w-48 mb-2" />
             <Skeleton className="h-4 w-96" />
@@ -75,8 +76,8 @@ const TeamDetailPage = () => {
   const isOwner = currentUser?.id === team.owner_id;
 
   return (
-    <div className="flex flex-col h-full bg-gray-50">
-      <div className="bg-white border-b">
+    <div className="flex flex-col h-full bg-muted/30">
+      <div className="bg-background">
         <div className="max-w-7xl mx-auto px-6 py-6">
           <Button
             variant="ghost"
@@ -90,29 +91,24 @@ const TeamDetailPage = () => {
 
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{team.name}</h1>
+              <h1 className="text-2xl font-bold text-foreground">{team.name}</h1>
               {team.description && (
-                <p className="text-sm text-gray-600 mt-1">{team.description}</p>
+                <p className="text-sm text-muted-foreground mt-1">{team.description}</p>
               )}
               <div className="flex items-center gap-4 mt-2">
-                <span className="text-xs text-gray-500">
-                  Timezone: {team.timezone}
-                </span>
-                <span
-                  className={`text-xs px-2 py-1 rounded ${
-                    team.is_active
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-gray-100 text-gray-700'
-                  }`}
-                >
+                <span className="text-xs text-muted-foreground">Timezone: {team.timezone}</span>
+                <Badge variant={team.is_active ? 'default' : 'secondary'}>
                   {team.is_active ? 'Active' : 'Inactive'}
-                </span>
+                </Badge>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
               {isOwner && (
-                <Button variant="outline">
+                <Button
+                  variant="outline"
+                  onClick={() => router.push(PROTECTED_ROUTES.TEAM_EDIT(teamId))}
+                >
                   <Settings className="h-4 w-4 mr-2" />
                   Settings
                 </Button>
@@ -148,24 +144,38 @@ const TeamDetailPage = () => {
 
       <div className="flex-1 overflow-auto">
         <div className="max-w-7xl mx-auto px-6 py-6">
-          <Tabs defaultValue="overview">
-            <TabsList>
-              <TabsTrigger value="overview">
-                Overview
-              </TabsTrigger>
-              <TabsTrigger value="members">
-                <UsersIcon className="h-4 w-4 mr-2" />
-                Members
-              </TabsTrigger>
-              <TabsTrigger value="rituals">
-                <Calendar className="h-4 w-4 mr-2" />
-                Rituals
-              </TabsTrigger>
-              <TabsTrigger value="availability">
-                <TrendingUp className="h-4 w-4 mr-2" />
-                Availability
-              </TabsTrigger>
-            </TabsList>
+          <Tabs defaultValue="overview" className="w-full">
+            <div className="border-2 border-black dark:border-white rounded-lg p-2 bg-muted/30 max-w-1/2">
+              <TabsList className="grid w-full grid-cols-4 h-auto p-1 bg-transparent gap-2">
+                <TabsTrigger
+                  value="overview"
+                  className="gap-2 data-[state=active]:bg-background data-[state=active]:border-2 data-[state=active]:border-black data-[state=active]:dark:border-white data-[state=active]:shadow-md rounded-md py-3 px-3 justify-start transition-all hover:bg-background/50 border-2 border-transparent"
+                >
+                  Overview
+                </TabsTrigger>
+                <TabsTrigger
+                  value="members"
+                  className="gap-2 data-[state=active]:bg-background data-[state=active]:border-2 data-[state=active]:border-black data-[state=active]:dark:border-white data-[state=active]:shadow-md rounded-md py-3 px-3 justify-start transition-all hover:bg-background/50 border-2 border-transparent"
+                >
+                  <UsersIcon className="h-4 w-4" />
+                  Members
+                </TabsTrigger>
+                <TabsTrigger
+                  value="rituals"
+                  className="gap-2 data-[state=active]:bg-background data-[state=active]:border-2 data-[state=active]:border-black data-[state=active]:dark:border-white data-[state=active]:shadow-md rounded-md py-3 px-3 justify-start transition-all hover:bg-background/50 border-2 border-transparent"
+                >
+                  <Calendar className="h-4 w-4" />
+                  Rituals
+                </TabsTrigger>
+                <TabsTrigger
+                  value="availability"
+                  className="gap-2 data-[state=active]:bg-background data-[state=active]:border-2 data-[state=active]:border-black data-[state=active]:dark:border-white data-[state=active]:shadow-md rounded-md py-3 px-3 justify-start transition-all hover:bg-background/50 border-2 border-transparent"
+                >
+                  <TrendingUp className="h-4 w-4" />
+                  Availability
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
             <TabsContent value="overview" className="mt-6">
               <TeamOverview team={team} />
@@ -180,7 +190,7 @@ const TeamDetailPage = () => {
             </TabsContent>
 
             <TabsContent value="availability" className="mt-6">
-              <TeamAvailability />
+              <TeamAvailability teamId={teamId} timezone={team.timezone} />
             </TabsContent>
           </Tabs>
         </div>

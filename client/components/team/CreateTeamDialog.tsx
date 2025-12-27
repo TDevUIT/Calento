@@ -26,8 +26,33 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import { useCreateTeam } from '@/hook/team';
 import { PROTECTED_ROUTES } from '@/constants/routes';
+
+const TIMEZONES = [
+  { value: 'Asia/Ho_Chi_Minh', label: 'Ho Chi Minh (GMT+7)' },
+  { value: 'Asia/Bangkok', label: 'Bangkok (GMT+7)' },
+  { value: 'Asia/Singapore', label: 'Singapore (GMT+8)' },
+  { value: 'Asia/Tokyo', label: 'Tokyo (GMT+9)' },
+  { value: 'America/New_York', label: 'New York (GMT-5)' },
+  { value: 'America/Los_Angeles', label: 'Los Angeles (GMT-8)' },
+  { value: 'Europe/London', label: 'London (GMT+0)' },
+  { value: 'Europe/Paris', label: 'Paris (GMT+1)' },
+  { value: 'Australia/Sydney', label: 'Sydney (GMT+10)' },
+];
 
 const createTeamSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(100),
@@ -133,7 +158,22 @@ export const CreateTeamDialog = ({ open, onClose }: CreateTeamDialogProps) => {
                 <FormItem>
                   <FormLabel>Timezone</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Asia/Ho_Chi_Minh" {...field} />
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value}
+                      disabled={createTeam.isPending}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select timezone" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {TIMEZONES.map((tz) => (
+                          <SelectItem key={tz.value} value={tz.value}>
+                            {tz.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </FormControl>
                   <FormDescription>
                     The timezone for scheduling team rituals
@@ -144,18 +184,16 @@ export const CreateTeamDialog = ({ open, onClose }: CreateTeamDialogProps) => {
             />
 
             <div className="border-t pt-4">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowAdvanced(!showAdvanced)}
-                className="mb-4"
+              <Accordion
+                type="single"
+                collapsible
+                value={showAdvanced ? 'advanced' : ''}
+                onValueChange={(value) => setShowAdvanced(value === 'advanced')}
               >
-                {showAdvanced ? 'Hide' : 'Show'} Advanced Settings
-              </Button>
-
-              {showAdvanced && (
-                <div className="space-y-6 pl-4">
+                <AccordionItem value="advanced" className="border-0">
+                  <AccordionTrigger className="py-2">Advanced settings</AccordionTrigger>
+                  <AccordionContent className="pt-2">
+                    <div className="space-y-6">
                   <FormField
                     control={form.control}
                     name="settings.auto_buffer_enabled"
@@ -262,8 +300,10 @@ export const CreateTeamDialog = ({ open, onClose }: CreateTeamDialogProps) => {
                       </FormItem>
                     )}
                   />
-                </div>
-              )}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
             </div>
 
             <DialogFooter>
