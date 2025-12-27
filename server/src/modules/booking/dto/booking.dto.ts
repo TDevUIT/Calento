@@ -58,7 +58,10 @@ export class CreateBookingLinkDto {
     example: 'https://meet.google.com/abc-defg-hij',
   })
   @IsOptional()
-  @IsUrl({ require_protocol: true }, { message: 'location_link must be a valid URL' })
+  @IsUrl(
+    { require_protocol: true },
+    { message: 'location_link must be a valid URL' },
+  )
   location_link?: string;
 
   @ApiProperty({
@@ -170,7 +173,10 @@ export class UpdateBookingLinkDto {
     description: 'Location URL',
   })
   @IsOptional()
-  @IsUrl({ require_protocol: true }, { message: 'location_link must be a valid URL' })
+  @IsUrl(
+    { require_protocol: true },
+    { message: 'location_link must be a valid URL' },
+  )
   location_link?: string;
 
   @ApiPropertyOptional({
@@ -284,8 +290,9 @@ export class CreateBookingDto {
     description: 'Timezone of the booker',
     example: 'Asia/Ho_Chi_Minh',
   })
+  @IsOptional()
   @IsString()
-  timezone: string;
+  timezone?: string;
 }
 
 export class CancelBookingDto {

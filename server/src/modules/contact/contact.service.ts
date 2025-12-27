@@ -11,15 +11,18 @@ export class ContactService {
 
   async createContact(dto: CreateContactDto): Promise<ContactResponseDto> {
     this.logger.log(`Creating new contact: ${dto.email}`);
-    
+
     const contact = await this.contactRepository.create(dto);
-    
+
     return this.mapToResponseDto(contact);
   }
 
-  async getAllContacts(limit: number = 50, offset: number = 0): Promise<ContactResponseDto[]> {
+  async getAllContacts(
+    limit: number = 50,
+    offset: number = 0,
+  ): Promise<ContactResponseDto[]> {
     const contacts = await this.contactRepository.findAll(limit, offset);
-    return contacts.map(contact => this.mapToResponseDto(contact));
+    return contacts.map((contact) => this.mapToResponseDto(contact));
   }
 
   async getContactById(id: string): Promise<ContactResponseDto | null> {
@@ -39,7 +42,7 @@ export class ContactService {
       message: contact.message,
       subscribe_offers: contact.subscribe_offers,
       status: contact.status,
-      created_at: contact.created_at
+      created_at: contact.created_at,
     };
   }
 }

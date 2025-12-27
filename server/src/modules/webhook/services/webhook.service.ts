@@ -189,9 +189,7 @@ export class WebhookService {
 
   async handleNotification(event: WebhookNotificationEvent): Promise<void> {
     try {
-      this.logger.log(
-        `ðŸ”” ===== WEBHOOK NOTIFICATION RECEIVED =====`,
-      );
+      this.logger.log(`ðŸ”” ===== WEBHOOK NOTIFICATION RECEIVED =====`);
       this.logger.log(`ðŸ“¨ Channel ID: ${event.channel_id}`);
       this.logger.log(`ðŸ“¦ Resource ID: ${event.resource_id}`);
       this.logger.log(`========================================`);
@@ -250,7 +248,9 @@ export class WebhookService {
       const timeMax = new Date();
       timeMax.setDate(timeMax.getDate() + 90);
 
-      this.logger.log(`Time Range: ${timeMin.toISOString()} to ${timeMax.toISOString()}`);
+      this.logger.log(
+        `Time Range: ${timeMin.toISOString()} to ${timeMax.toISOString()}`,
+      );
 
       const googleEvents = await this.googleCalendarService.listEvents(
         userId,
@@ -262,7 +262,9 @@ export class WebhookService {
         },
       );
 
-      this.logger.log(`Fetched ${googleEvents.length} events from Google Calendar`);
+      this.logger.log(
+        `Fetched ${googleEvents.length} events from Google Calendar`,
+      );
 
       const tempraCalendarId = await this.getTempraCalendarId(
         userId,
@@ -306,18 +308,10 @@ export class WebhookService {
           );
 
           if (existingEvent) {
-            await this.updateEventInTempra(
-              existingEvent.id,
-              eventData,
-              userId,
-            );
+            await this.updateEventInTempra(existingEvent.id, eventData, userId);
             updated++;
           } else {
-            await this.createEventInTempra(
-              eventData,
-              userId,
-              googleEvent.id!,
-            );
+            await this.createEventInTempra(eventData, userId, googleEvent.id!);
             created++;
           }
         } catch (error) {
@@ -389,17 +383,12 @@ export class WebhookService {
 
       return result.rows.length > 0 ? result.rows[0] : null;
     } catch (error) {
-      this.logger.error(
-        `Failed to find event by Google ID: ${error.message}`,
-      );
+      this.logger.error(`Failed to find event by Google ID: ${error.message}`);
       return null;
     }
   }
 
-  private mapGoogleEventToTempra(
-    googleEvent: any,
-    calendarId: string,
-  ): any {
+  private mapGoogleEventToTempra(googleEvent: any, calendarId: string): any {
     return {
       calendar_id: calendarId,
       title: googleEvent.summary || 'Untitled Event',

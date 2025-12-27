@@ -31,7 +31,10 @@ import {
   BookingTimeSlotResponseDto,
 } from './dto/booking.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
-import { CurrentUser, CurrentUserId } from '../../common/decorators/current-user.decorator';
+import {
+  CurrentUser,
+  CurrentUserId,
+} from '../../common/decorators/current-user.decorator';
 import { MessageService } from '../../common/message/message.service';
 import { Public } from '../../common/decorators/public.decorator';
 

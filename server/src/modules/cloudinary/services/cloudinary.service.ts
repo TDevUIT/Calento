@@ -1,6 +1,10 @@
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { v2 as cloudinary, UploadApiResponse, UploadApiErrorResponse } from 'cloudinary';
+import {
+  v2 as cloudinary,
+  UploadApiResponse,
+  UploadApiErrorResponse,
+} from 'cloudinary';
 import { Readable } from 'stream';
 import {
   CloudinaryUploadResult,
@@ -21,7 +25,8 @@ export class CloudinaryService {
       api_secret: this.configService.get<string>('CLOUDINARY_API_SECRET'),
     });
 
-    this.uploadPreset = this.configService.get<string>('CLOUDINARY_UPLOAD_PRESET') || '';
+    this.uploadPreset =
+      this.configService.get<string>('CLOUDINARY_UPLOAD_PRESET') || '';
     this.logger.log('Cloudinary service initialized');
   }
 
@@ -57,7 +62,10 @@ export class CloudinaryService {
       this.logger.log(`Avatar uploaded successfully: ${result.public_id}`);
       return result;
     } catch (error) {
-      this.logger.error(`Failed to upload avatar: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to upload avatar: ${error.message}`,
+        error.stack,
+      );
       throw new BadRequestException(`Avatar upload failed: ${error.message}`);
     }
   }
@@ -81,7 +89,10 @@ export class CloudinaryService {
       this.logger.log(`Image uploaded successfully: ${result.public_id}`);
       return result;
     } catch (error) {
-      this.logger.error(`Failed to upload image: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to upload image: ${error.message}`,
+        error.stack,
+      );
       throw new BadRequestException(`Image upload failed: ${error.message}`);
     }
   }
@@ -93,7 +104,10 @@ export class CloudinaryService {
       this.logger.log(`Image deleted successfully: ${publicId}`);
       return result;
     } catch (error) {
-      this.logger.error(`Failed to delete image: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to delete image: ${error.message}`,
+        error.stack,
+      );
       throw new BadRequestException(`Image deletion failed: ${error.message}`);
     }
   }
@@ -105,11 +119,17 @@ export class CloudinaryService {
       );
       this.logger.log(`Deleted avatars for user: ${userId}`, result);
     } catch (error) {
-      this.logger.error(`Failed to delete user avatars: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to delete user avatars: ${error.message}`,
+        error.stack,
+      );
     }
   }
 
-  getOptimizedUrl(publicId: string, transformation?: CloudinaryTransformation): string {
+  getOptimizedUrl(
+    publicId: string,
+    transformation?: CloudinaryTransformation,
+  ): string {
     return cloudinary.url(publicId, {
       secure: true,
       ...transformation,
@@ -159,7 +179,13 @@ export class CloudinaryService {
       throw new BadRequestException('File size exceeds 5MB limit');
     }
 
-    const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+    const allowedMimes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/webp',
+      'image/gif',
+    ];
     if (!allowedMimes.includes(file.mimetype)) {
       throw new BadRequestException(
         'Invalid file type. Only JPEG, PNG, WebP, and GIF are allowed',

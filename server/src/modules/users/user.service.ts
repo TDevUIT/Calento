@@ -35,7 +35,41 @@ export class UserService {
   ) {}
 
   async createUser(createUserDto: CreateUserDto): Promise<User> {
-    return this.userRepository.createUser(createUserDto);
+    const user = await this.userRepository.createUser(createUserDto);
+    await this.ensureUserSettingsInitialized(user.id);
+    return user;
+  }
+
+  async ensureUserSettingsInitialized(
+    userId: string,
+    overrides?: Record<string, any>,
+  ): Promise<Record<string, any>> {
+    const saved =
+      await this.userSettingsRepository.findSettingsByUserId(userId);
+
+    if (!saved) {
+      const created = await this.userSettingsRepository.upsertSettingsByUserId(
+        userId,
+        { ...DEFAULT_USER_SETTINGS, ...(overrides ?? {}) },
+      );
+      return { ...DEFAULT_USER_SETTINGS, ...(created ?? {}) };
+    }
+
+    const tz = typeof saved.timezone === 'string' ? saved.timezone.trim() : '';
+    if (!tz) {
+      const updated = await this.userSettingsRepository.upsertSettingsByUserId(
+        userId,
+        {
+          ...DEFAULT_USER_SETTINGS,
+          ...saved,
+          ...(overrides ?? {}),
+          timezone: DEFAULT_USER_SETTINGS.timezone,
+        },
+      );
+      return { ...DEFAULT_USER_SETTINGS, ...(updated ?? {}) };
+    }
+
+    return { ...DEFAULT_USER_SETTINGS, ...saved, ...(overrides ?? {}) };
   }
 
   async getUserById(id: string): Promise<User | null> {
@@ -91,7 +125,8 @@ export class UserService {
   }
 
   async getUserSettings(userId: string): Promise<Record<string, any>> {
-    const saved = await this.userSettingsRepository.findSettingsByUserId(userId);
+    const saved =
+      await this.userSettingsRepository.findSettingsByUserId(userId);
     return { ...DEFAULT_USER_SETTINGS, ...(saved ?? {}) };
   }
 
@@ -106,5 +141,12 @@ export class UserService {
       merged,
     );
     return { ...DEFAULT_USER_SETTINGS, ...(stored ?? {}) };
+  }
+
+  async getUserTimezone(userId: string): Promise<string> {
+    const settings = await this.getUserSettings(userId);
+    const tz =
+      typeof settings.timezone === 'string' ? settings.timezone.trim() : '';
+    return tz || DEFAULT_USER_SETTINGS.timezone;
   }
 }

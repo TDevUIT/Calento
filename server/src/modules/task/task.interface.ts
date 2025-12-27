@@ -1,4 +1,7 @@
-﻿import { UserOwnedEntity, SoftDeletableEntity } from '../../common/interfaces/base-entity.interface';
+﻿import {
+  UserOwnedEntity,
+  SoftDeletableEntity,
+} from '../../common/interfaces/base-entity.interface';
 
 export enum TaskStatus {
   TODO = 'todo',

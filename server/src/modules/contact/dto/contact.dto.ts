@@ -1,4 +1,12 @@
-﻿import { IsEmail, IsString, IsOptional, IsBoolean, IsEnum, MinLength, MaxLength } from 'class-validator';
+﻿import {
+  IsEmail,
+  IsString,
+  IsOptional,
+  IsBoolean,
+  IsEnum,
+  MinLength,
+  MaxLength,
+} from 'class-validator';
 import { InquiryType } from '../contact.interface';
 
 export class CreateContactDto {

@@ -16,7 +16,7 @@ export class AuthRepository {
   constructor(
     private readonly databaseService: DatabaseService,
     private readonly userValidationService: UserValidationService,
-  ) { }
+  ) {}
 
   async createUser(
     userData: RegisterDto & { password_hash: string },
@@ -170,8 +170,6 @@ export class AuthRepository {
       throw new DatabaseOperationException('Database error during email check');
     }
   }
-
-
 
   async usernameExists(username: string): Promise<boolean> {
     try {

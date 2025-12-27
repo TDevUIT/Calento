@@ -1,6 +1,9 @@
 ﻿import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsDateString, IsOptional, IsString } from 'class-validator';
-import { AnalyticsPeriod, AnalyticsMetric } from '../interfaces/analytics.interface';
+import {
+  AnalyticsPeriod,
+  AnalyticsMetric,
+} from '../interfaces/analytics.interface';
 
 export class AnalyticsQueryDto {
   @ApiProperty({

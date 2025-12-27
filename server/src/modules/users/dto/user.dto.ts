@@ -104,7 +104,8 @@ export class UpdateUserDto extends StatusEntityDto {
 
   @ApiPropertyOptional({
     description: 'Avatar URL',
-    example: 'https://res.cloudinary.com/demo/image/upload/v1234567890/avatars/user_123.jpg',
+    example:
+      'https://res.cloudinary.com/demo/image/upload/v1234567890/avatars/user_123.jpg',
   })
   @IsString()
   @IsOptional()
@@ -146,7 +147,8 @@ export class UserResponseDto extends StatusEntityDto {
 
   @ApiPropertyOptional({
     description: 'Avatar URL',
-    example: 'https://res.cloudinary.com/demo/image/upload/v1234567890/avatars/user_123.jpg',
+    example:
+      'https://res.cloudinary.com/demo/image/upload/v1234567890/avatars/user_123.jpg',
   })
   avatar?: string;
 

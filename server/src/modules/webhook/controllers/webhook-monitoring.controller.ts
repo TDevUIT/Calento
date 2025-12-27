@@ -15,7 +15,10 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
-import { CurrentUser, CurrentUserId } from '../../../common/decorators/current-user.decorator';
+import {
+  CurrentUser,
+  CurrentUserId,
+} from '../../../common/decorators/current-user.decorator';
 import { WebhookSchedulerService } from '../services/webhook-scheduler.service';
 import { SyncErrorRecoveryService } from '../../../common/services/sync-error-recovery.service';
 import { SuccessResponseDto } from '../../../common/dto/base-response.dto';
@@ -267,7 +270,6 @@ export class WebhookMonitoringController {
       throw error;
     }
   }
-
 
   private determineWebhookHealth(stats: any): 'good' | 'warning' | 'critical' {
     const { totalActive, expiringWithin24h, expired } = stats;

@@ -1,5 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsOptional, IsEnum, IsNumber, Min, Max } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsNumber,
+  Min,
+  Max,
+} from 'class-validator';
 
 export class UploadAvatarDto {
   @ApiProperty({
@@ -19,13 +26,15 @@ export class CloudinaryUploadResponseDto {
 
   @ApiProperty({
     description: 'Secure URL of the uploaded image',
-    example: 'https://res.cloudinary.com/demo/image/upload/v1234567890/avatars/user_123.jpg',
+    example:
+      'https://res.cloudinary.com/demo/image/upload/v1234567890/avatars/user_123.jpg',
   })
   url: string;
 
   @ApiProperty({
     description: 'Secure HTTPS URL',
-    example: 'https://res.cloudinary.com/demo/image/upload/v1234567890/avatars/user_123.jpg',
+    example:
+      'https://res.cloudinary.com/demo/image/upload/v1234567890/avatars/user_123.jpg',
   })
   secure_url: string;
 
@@ -57,7 +66,8 @@ export class CloudinaryUploadResponseDto {
 export class UpdateAvatarDto {
   @ApiProperty({
     description: 'Cloudinary secure URL of the avatar',
-    example: 'https://res.cloudinary.com/demo/image/upload/v1234567890/avatars/user_123.jpg',
+    example:
+      'https://res.cloudinary.com/demo/image/upload/v1234567890/avatars/user_123.jpg',
   })
   @IsString()
   avatar_url: string;

@@ -17,7 +17,7 @@ export enum ContactStatus {
   NEW = 'new',
   IN_PROGRESS = 'in_progress',
   RESOLVED = 'resolved',
-  CLOSED = 'closed'
+  CLOSED = 'closed',
 }
 
 export enum InquiryType {
@@ -26,5 +26,5 @@ export enum InquiryType {
   SUPPORT = 'support',
   PARTNERSHIP = 'partnership',
   FEEDBACK = 'feedback',
-  OTHER = 'other'
+  OTHER = 'other',
 }

@@ -10,6 +10,7 @@
   Query,
   HttpStatus,
   UseGuards,
+  UnauthorizedException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -164,10 +165,24 @@ export class UserController {
   @Get('settings')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get current user settings' })
-  @ApiResponse({ status: 200, description: 'User settings retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'User settings retrieved successfully',
+  })
   async getUserSettings(
     @CurrentUserId() userId: string,
   ): Promise<SuccessResponseDto<Record<string, any>>> {
+    if (!userId) {
+      throw new UnauthorizedException({
+        status: 401,
+        message: 'Session expired. Please login again.',
+        errors: ['No valid session found'],
+        timestamp: new Date().toISOString(),
+        requiresLogin: true,
+      });
+    }
+
+    await this.userService.ensureUserSettingsInitialized(userId);
     const settings = await this.userService.getUserSettings(userId);
 
     return new SuccessResponseDto(
@@ -179,11 +194,25 @@ export class UserController {
   @Patch('settings')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Update current user settings' })
-  @ApiResponse({ status: 200, description: 'User settings updated successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'User settings updated successfully',
+  })
   async updateUserSettings(
     @CurrentUserId() userId: string,
     @Body() dto: UpdateUserSettingsDto,
   ): Promise<SuccessResponseDto<Record<string, any>>> {
+    if (!userId) {
+      throw new UnauthorizedException({
+        status: 401,
+        message: 'Session expired. Please login again.',
+        errors: ['No valid session found'],
+        timestamp: new Date().toISOString(),
+        requiresLogin: true,
+      });
+    }
+
+    await this.userService.ensureUserSettingsInitialized(userId);
     const settings = await this.userService.updateUserSettings(
       userId,
       dto.settings,

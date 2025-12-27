@@ -26,7 +26,10 @@ import { AuthService } from './auth.service';
 import { CookieAuthService } from './services/cookie-auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import { PasswordResetRequestDto, PasswordResetDto } from './dto/password-reset.dto';
+import {
+  PasswordResetRequestDto,
+  PasswordResetDto,
+} from './dto/password-reset.dto';
 import { AuthResponseDto, AuthUserResponseDto } from './dto/auth-response.dto';
 import { AuthResponse } from './interfaces/auth.interface';
 import { Public } from '../../common/decorators/public.decorator';
@@ -47,7 +50,7 @@ export class AuthController {
     private readonly messageService: MessageService,
     private readonly googleAuthService: GoogleAuthService,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
   @Public()
   @Post('register')
@@ -103,8 +106,6 @@ export class AuthController {
       result,
     );
   }
-
-
 
   @Post('logout')
   @UseGuards(JwtAuthGuard)
@@ -262,7 +263,8 @@ export class AuthController {
   @Get('google/url')
   @ApiOperation({
     summary: 'ðŸ”— Get Google OAuth URL for Login',
-    description: 'Generate OAuth URL for Google login (no authentication required)',
+    description:
+      'Generate OAuth URL for Google login (no authentication required)',
   })
   @ApiResponse({
     status: 200,
@@ -294,7 +296,11 @@ export class AuthController {
   })
   @ApiQuery({ name: 'code', description: 'Authorization code from Google' })
   @ApiQuery({ name: 'state', description: 'State parameter', required: false })
-  @ApiQuery({ name: 'error', description: 'Error from Google', required: false })
+  @ApiQuery({
+    name: 'error',
+    description: 'Error from Google',
+    required: false,
+  })
   @ApiResponse({
     status: 302,
     description: 'âœ… Redirects to frontend callback page',
@@ -305,7 +311,8 @@ export class AuthController {
     @Query('error') error: string,
     @Res() res: Response,
   ) {
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
+    const frontendUrl =
+      this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
     const callbackPath = '/auth/callback/google';
 
     const params = new URLSearchParams();

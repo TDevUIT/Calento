@@ -82,7 +82,8 @@ export class GoogleController {
   @Get('auth/callback')
   @ApiOperation({
     summary: '🔄 OAuth Callback Handler',
-    description: 'Handle OAuth callback from Google and save credentials. Automatically triggers initial sync and webhook setup.',
+    description:
+      'Handle OAuth callback from Google and save credentials. Automatically triggers initial sync and webhook setup.',
   })
   @ApiQuery({ name: 'code', description: 'Authorization code from Google' })
   @ApiQuery({
@@ -350,15 +351,12 @@ export class GoogleController {
       );
     }
 
-    const meetData = await this.googleCalendarService.createGoogleMeet(
-      userId,
-      {
-        summary: createMeetDto.summary,
-        description: createMeetDto.description,
-        start_time: createMeetDto.start_time,
-        end_time: createMeetDto.end_time,
-      },
-    );
+    const meetData = await this.googleCalendarService.createGoogleMeet(userId, {
+      summary: createMeetDto.summary,
+      description: createMeetDto.description,
+      start_time: createMeetDto.start_time,
+      end_time: createMeetDto.end_time,
+    });
 
     if (!meetData) {
       return new SuccessResponseDto(

@@ -4,6 +4,7 @@ import { DatabaseService } from '../../../database/database.service';
 import { MessageService } from '../../../common/message/message.service';
 import { TIME_CONSTANTS } from '../../../common/constants';
 import { toZonedTime, fromZonedTime } from 'date-fns-tz';
+import { UserService } from '../../users/user.service';
 import {
   Availability,
   DayOfWeek,
@@ -32,6 +33,7 @@ export class AvailabilityService {
     private readonly availabilityRepository: AvailabilityRepository,
     private readonly databaseService: DatabaseService,
     private readonly messageService: MessageService,
+    private readonly userService: UserService,
   ) {}
 
   async create(
@@ -166,9 +168,8 @@ export class AvailabilityService {
       throw new InvalidDateRangeException(message);
     }
 
-    const allActiveRules = await this.availabilityRepository.findActiveByUserId(
-      userId,
-    );
+    const allActiveRules =
+      await this.availabilityRepository.findActiveByUserId(userId);
 
     if (allActiveRules.length === 0) {
       return {
@@ -197,8 +198,12 @@ export class AvailabilityService {
     const endTime = this.formatTime(endInTz);
 
     const isWithinAvailability = dayRules.some((rule) => {
-      const ruleStart = rule.start_time.length >= 5 ? rule.start_time.slice(0, 5) : rule.start_time;
-      const ruleEnd = rule.end_time.length >= 5 ? rule.end_time.slice(0, 5) : rule.end_time;
+      const ruleStart =
+        rule.start_time.length >= 5
+          ? rule.start_time.slice(0, 5)
+          : rule.start_time;
+      const ruleEnd =
+        rule.end_time.length >= 5 ? rule.end_time.slice(0, 5) : rule.end_time;
       return startTime >= ruleStart && endTime <= ruleEnd;
     });
 
@@ -225,21 +230,28 @@ export class AvailabilityService {
     userId: string,
     dto: GetAvailableSlotsDto,
   ): Promise<TimeSlot[]> {
-    const timezone = dto.timezone || 'UTC';
-    this.logger.log(`Generating slots for user ${userId} in timezone: ${timezone}`);
-    
+    const timezone =
+      dto.timezone || (await this.userService.getUserTimezone(userId)) || 'UTC';
+    this.logger.log(
+      `Generating slots for user ${userId} in timezone: ${timezone}`,
+    );
+
     const startDateStr = `${dto.start_date}T00:00:00`;
     // Create dates in user's timezone, then convert to UTC for processing
     const startDateInTz = new Date(startDateStr);
     const endDateInTz = new Date(`${dto.end_date}T23:59:59`);
-    
+
     const startDate = fromZonedTime(startDateInTz, timezone);
     const endDate = fromZonedTime(endDateInTz, timezone);
-    
+
     const durationMinutes = dto.duration_minutes || 30;
-    
-    this.logger.log(`Date range in ${timezone}: ${startDateStr} to ${dto.end_date}`);
-    this.logger.log(`Date range in UTC: ${startDate.toISOString()} to ${endDate.toISOString()}`);
+
+    this.logger.log(
+      `Date range in ${timezone}: ${startDateStr} to ${dto.end_date}`,
+    );
+    this.logger.log(
+      `Date range in UTC: ${startDate.toISOString()} to ${endDate.toISOString()}`,
+    );
 
     if (startDate > endDate) {
       const message = this.messageService.get(
@@ -281,7 +293,7 @@ export class AvailabilityService {
       for (const rule of dayRules) {
         // Convert currentDate to user's timezone for slot generation
         const currentDateInTz = toZonedTime(currentDate, timezone);
-        
+
         const daySlots = await this.generateSlotsForDay(
           currentDateInTz,
           rule,
@@ -326,7 +338,10 @@ export class AvailabilityService {
       }
       this.logger.log(`Created default availability rules for user ${userId}`);
     } catch (error) {
-      this.logger.error(`Failed to create default availability rules for user ${userId}:`, error);
+      this.logger.error(
+        `Failed to create default availability rules for user ${userId}:`,
+        error,
+      );
       throw error;
     }
   }
@@ -339,7 +354,7 @@ export class AvailabilityService {
     timezone: string = 'UTC',
   ): Promise<TimeSlot[]> {
     const slots: TimeSlot[] = [];
-    
+
     // Parse availability rule times
     const [startHour, startMinute] = rule.start_time.split(':').map(Number);
     const [endHour, endMinute] = rule.end_time.split(':').map(Number);

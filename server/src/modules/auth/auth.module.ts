@@ -14,6 +14,7 @@ import { EmailModule } from '../email/email.module';
 import { CalendarModule } from '../calendar/calendar.module';
 import { GoogleModule } from '../google/google.module';
 import { QueueModule } from '../../common/queue/queue.module';
+import { UsersModule } from '../users/users.module';
 
 @Global()
 @Module({
@@ -24,6 +25,7 @@ import { QueueModule } from '../../common/queue/queue.module';
     CalendarModule, // Import CalendarModule for auto-creating default calendar
     GoogleModule, // Import GoogleModule for Google OAuth
     QueueModule,
+    UsersModule,
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -46,4 +48,4 @@ import { QueueModule } from '../../common/queue/queue.module';
   ],
   exports: [AuthService, CookieAuthService],
 })
-export class AuthModule { }
+export class AuthModule {}

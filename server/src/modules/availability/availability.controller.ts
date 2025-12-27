@@ -28,7 +28,10 @@ import {
   CheckAvailabilityResponseDto,
 } from './dto/availability.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
-import { CurrentUser, CurrentUserId } from '../../common/decorators/current-user.decorator';
+import {
+  CurrentUser,
+  CurrentUserId,
+} from '../../common/decorators/current-user.decorator';
 import { MessageService } from '../../common/message/message.service';
 
 @ApiTags('Availability')
@@ -281,16 +284,20 @@ export class AvailabilityController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Initialize default availability rules',
-    description: 'Create default availability rules (Mon-Fri, 9 AM - 5 PM) for the current user',
+    description:
+      'Create default availability rules (Mon-Fri, 9 AM - 5 PM) for the current user',
   })
   @ApiResponse({
     status: 201,
     description: 'Default availability rules created successfully',
   })
-  @ApiResponse({ status: 409, description: 'User already has availability rules' })
+  @ApiResponse({
+    status: 409,
+    description: 'User already has availability rules',
+  })
   async initializeDefaultRules(@CurrentUserId() userId: string) {
     const existingRules = await this.availabilityService.findActive(userId);
-    
+
     if (existingRules.length > 0) {
       return {
         success: false,

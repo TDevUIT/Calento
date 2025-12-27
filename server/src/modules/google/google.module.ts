@@ -7,10 +7,7 @@ import { EventModule } from '../event/event.module';
 import { WebhookModule } from '../webhook/webhook.module';
 
 @Module({
-  imports: [
-    forwardRef(() => EventModule),
-    forwardRef(() => WebhookModule),
-  ],
+  imports: [forwardRef(() => EventModule), forwardRef(() => WebhookModule)],
   controllers: [GoogleController],
   providers: [
     GoogleAuthService,

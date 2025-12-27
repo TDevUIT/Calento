@@ -4,7 +4,10 @@ import { Task, TaskStatus, TaskPriority } from './task.interface';
 import { DatabaseService } from '../../database/database.service';
 import { PaginationService } from '../../common/services/pagination.service';
 import { MessageService } from '../../common/message/message.service';
-import { PaginatedResult, PaginationOptions } from '../../common/interfaces/pagination.interface';
+import {
+  PaginatedResult,
+  PaginationOptions,
+} from '../../common/interfaces/pagination.interface';
 
 @Injectable()
 export class TaskRepository extends UserOwnedRepository<Task> {
@@ -54,14 +57,19 @@ export class TaskRepository extends UserOwnedRepository<Task> {
     return query;
   }
 
-
   private normalizeTaskDataWithCreator(row: any): Task {
     const creator_id = row.creator_id;
     const creator_name = row.creator_name;
     const creator_email = row.creator_email;
     const creator_avatar = row.creator_avatar;
 
-    const { creator_id: _, creator_name: __, creator_email: ___, creator_avatar: ____, ...taskData } = row;
+    const {
+      creator_id: _,
+      creator_name: __,
+      creator_email: ___,
+      creator_avatar: ____,
+      ...taskData
+    } = row;
 
     if (creator_id) {
       return {
@@ -112,18 +120,18 @@ export class TaskRepository extends UserOwnedRepository<Task> {
     `;
   }
 
-
   async findByUserId(
     userId: string,
     paginationOptions: Partial<PaginationOptions>,
     options?: any,
   ): Promise<PaginatedResult<Task>> {
-    const validatedOptions = this.paginationService.validatePaginationOptions(paginationOptions);
+    const validatedOptions =
+      this.paginationService.validatePaginationOptions(paginationOptions);
     const { page, limit } = validatedOptions;
 
     const baseQuery = this.buildSelectQuery(options?.includeDeleted);
     let whereCondition = 'user_id = $1';
-    
+
     whereCondition += `
       AND (
         NOT EXISTS (
@@ -135,7 +143,7 @@ export class TaskRepository extends UserOwnedRepository<Task> {
         )
       )
     `;
-    
+
     const whereParams: any[] = [userId];
     const allowedSortFields = this.getAllowedSortFields();
 
@@ -155,7 +163,9 @@ export class TaskRepository extends UserOwnedRepository<Task> {
       ]);
 
       const total = parseInt(countResult.rows[0].count);
-      const items = dataResult.rows.map(row => this.normalizeTaskDataWithCreator(row));
+      const items = dataResult.rows.map((row) =>
+        this.normalizeTaskDataWithCreator(row),
+      );
 
       return this.paginationService.createPaginatedResult(
         items,
@@ -179,13 +189,29 @@ export class TaskRepository extends UserOwnedRepository<Task> {
     options?: any,
   ): Promise<PaginatedResult<Task>> {
     const userId = whereParams[0] as string;
-    const aliasedCondition = whereCondition.replace(/user_id/g, 't.user_id').replace(/status/g, 't.status').replace(/priority/g, 't.priority').replace(/project_id/g, 't.project_id').replace(/due_date/g, 't.due_date').replace(/tags/g, 't.tags').replace(/title/g, 't.title').replace(/description/g, 't.description');
-    const filteredCondition = this.buildWhereConditionWithDisabledFilter(aliasedCondition, userId);
-    const result = await super.search(filteredCondition, whereParams, paginationOptions, options);
-    
+    const aliasedCondition = whereCondition
+      .replace(/user_id/g, 't.user_id')
+      .replace(/status/g, 't.status')
+      .replace(/priority/g, 't.priority')
+      .replace(/project_id/g, 't.project_id')
+      .replace(/due_date/g, 't.due_date')
+      .replace(/tags/g, 't.tags')
+      .replace(/title/g, 't.title')
+      .replace(/description/g, 't.description');
+    const filteredCondition = this.buildWhereConditionWithDisabledFilter(
+      aliasedCondition,
+      userId,
+    );
+    const result = await super.search(
+      filteredCondition,
+      whereParams,
+      paginationOptions,
+      options,
+    );
+
     return {
       ...result,
-      data: result.data.map(task => this.normalizeTaskDataWithCreator(task)),
+      data: result.data.map((task) => this.normalizeTaskDataWithCreator(task)),
     };
   }
 
@@ -280,16 +306,13 @@ export class TaskRepository extends UserOwnedRepository<Task> {
     return super.search(whereCondition, whereParams, paginationOptions);
   }
 
-  async updateStatus(
-    taskId: string,
-    status: TaskStatus,
-  ): Promise<Task | null> {
+  async updateStatus(taskId: string, status: TaskStatus): Promise<Task | null> {
     const updateData: Partial<Task> = { status };
-    
+
     if (status === TaskStatus.COMPLETED) {
       updateData.completed_at = new Date();
     }
-    
+
     return this.update(taskId, updateData);
   }
 
@@ -346,7 +369,10 @@ export class TaskRepository extends UserOwnedRepository<Task> {
         completed_today: parseInt(row.completed_today),
       };
     } catch (error) {
-      this.logger.error(`Failed to get task statistics for user ${userId}:`, error);
+      this.logger.error(
+        `Failed to get task statistics for user ${userId}:`,
+        error,
+      );
       throw new Error(this.messageService.get('error.internal_server_error'));
     }
   }

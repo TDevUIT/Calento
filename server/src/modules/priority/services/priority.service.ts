@@ -1,7 +1,10 @@
 ﻿import { Injectable, NotFoundException, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { PriorityRepository } from '../repositories/priority.repository';
-import { UserPriority, PriorityUpdatePayload } from '../interfaces/priority.interface';
+import {
+  UserPriority,
+  PriorityUpdatePayload,
+} from '../interfaces/priority.interface';
 import { UpdatePriorityDto, BulkUpdatePriorityDto } from '../dto/priority.dto';
 import { DatabaseService } from '../../../database/database.service';
 
@@ -27,17 +30,17 @@ export class PriorityService {
   async getItemPriority(
     userId: string,
     itemId: string,
-    itemType: string
+    itemType: string,
   ): Promise<UserPriority> {
     const priority = await this.priorityRepository.findByUserIdAndItem(
       userId,
       itemId,
-      itemType
+      itemType,
     );
 
     if (!priority) {
       throw new NotFoundException(
-        `Priority not found for item ${itemId} of type ${itemType}`
+        `Priority not found for item ${itemId} of type ${itemType}`,
       );
     }
 
@@ -49,7 +52,7 @@ export class PriorityService {
    */
   async updatePriority(
     userId: string,
-    dto: UpdatePriorityDto
+    dto: UpdatePriorityDto,
   ): Promise<UserPriority> {
     const payload: PriorityUpdatePayload = {
       item_id: dto.item_id,
@@ -66,9 +69,9 @@ export class PriorityService {
    */
   async bulkUpdatePriorities(
     userId: string,
-    dto: BulkUpdatePriorityDto
+    dto: BulkUpdatePriorityDto,
   ): Promise<UserPriority[]> {
-    const payloads: PriorityUpdatePayload[] = dto.updates.map(update => ({
+    const payloads: PriorityUpdatePayload[] = dto.updates.map((update) => ({
       item_id: update.item_id,
       item_type: update.item_type,
       priority: update.priority,
@@ -84,17 +87,17 @@ export class PriorityService {
   async deletePriority(
     userId: string,
     itemId: string,
-    itemType: string
+    itemType: string,
   ): Promise<void> {
     const deleted = await this.priorityRepository.deletePriority(
       userId,
       itemId,
-      itemType
+      itemType,
     );
 
     if (!deleted) {
       throw new NotFoundException(
-        `Priority not found for item ${itemId} of type ${itemType}`
+        `Priority not found for item ${itemId} of type ${itemType}`,
       );
     }
   }
@@ -104,7 +107,7 @@ export class PriorityService {
    */
   async getPrioritiesByLevel(
     userId: string,
-    priority: string
+    priority: string,
   ): Promise<UserPriority[]> {
     return this.priorityRepository.findByUserIdAndPriority(userId, priority);
   }
@@ -114,7 +117,7 @@ export class PriorityService {
    */
   async getPrioritiesByType(
     userId: string,
-    itemType: string
+    itemType: string,
   ): Promise<UserPriority[]> {
     return this.priorityRepository.findByUserIdAndItemType(userId, itemType);
   }
@@ -124,12 +127,12 @@ export class PriorityService {
    */
   async resetUserPriorities(userId: string): Promise<void> {
     const priorities = await this.priorityRepository.findByUserId(userId);
-    
+
     for (const priority of priorities) {
       await this.priorityRepository.deletePriority(
         userId,
         priority.item_id,
-        priority.item_type
+        priority.item_type,
       );
     }
   }
@@ -138,12 +141,12 @@ export class PriorityService {
   async autoDisableExpiredItems(): Promise<void> {
     try {
       this.logger.log('Starting auto-disable for expired items...');
-      
+
       const expiredTasks = await this.findExpiredTasks();
       const expiredBookings = await this.findExpiredBookingLinks();
-      
+
       let disabledCount = 0;
-      
+
       for (const task of expiredTasks) {
         await this.priorityRepository.upsertPriority(task.user_id, {
           item_id: task.id,
@@ -152,7 +155,7 @@ export class PriorityService {
         });
         disabledCount++;
       }
-      
+
       for (const booking of expiredBookings) {
         await this.priorityRepository.upsertPriority(booking.user_id, {
           item_id: booking.id,
@@ -161,8 +164,10 @@ export class PriorityService {
         });
         disabledCount++;
       }
-      
-      this.logger.log(`Auto-disabled ${disabledCount} expired items (${expiredTasks.length} tasks, ${expiredBookings.length} bookings)`);
+
+      this.logger.log(
+        `Auto-disabled ${disabledCount} expired items (${expiredTasks.length} tasks, ${expiredBookings.length} bookings)`,
+      );
     } catch (error) {
       this.logger.error('Failed to auto-disable expired items:', error);
     }
@@ -179,7 +184,7 @@ export class PriorityService {
         AND t.deleted_at IS NULL
         AND (up.priority IS NULL OR up.priority != 'disabled')
       `;
-      
+
       const result = await this.databaseService.query(query);
       return result.rows;
     } catch (error) {
@@ -199,7 +204,7 @@ export class PriorityService {
         AND bl.is_active = true
         AND (up.priority IS NULL OR up.priority != 'disabled')
       `;
-      
+
       const result = await this.databaseService.query(query);
       return result.rows;
     } catch (error) {

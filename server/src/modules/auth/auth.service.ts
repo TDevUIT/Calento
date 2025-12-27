@@ -1,4 +1,12 @@
-import { Injectable, Logger, OnModuleInit, Inject, forwardRef, InternalServerErrorException, HttpException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleInit,
+  Inject,
+  forwardRef,
+  InternalServerErrorException,
+  HttpException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthRepository } from './auth.repository';
 import { PasswordService } from '../../common/services/password.service';
@@ -26,6 +34,7 @@ import { CalendarService } from '../calendar/calendar.service';
 import { GoogleAuthService } from '../google/services/google-auth.service';
 import { TIME_CONSTANTS, SECURITY_CONSTANTS } from '../../common/constants';
 import { google } from 'googleapis';
+import { UserService } from '../users/user.service';
 
 @Injectable()
 export class AuthService {
@@ -43,7 +52,8 @@ export class AuthService {
     private readonly emailQueueService: EmailQueueService,
     private readonly calendarService: CalendarService,
     private readonly googleAuthService: GoogleAuthService,
-  ) { }
+    private readonly userService: UserService,
+  ) {}
 
   async register(registerDto: RegisterDto): Promise<AuthResponse> {
     try {
@@ -77,6 +87,10 @@ export class AuthService {
       });
 
       this.logger.log(`User registered successfully: ${user.email}`);
+
+      await this.userService.ensureUserSettingsInitialized(user.id, {
+        timezone: registerDto.timezone || 'UTC',
+      });
 
       await this.createDefaultCalendar(user);
 
@@ -159,10 +173,6 @@ export class AuthService {
     }
   }
 
-
-
-
-
   async resetPassword(token: string, newPassword: string): Promise<void> {
     try {
       const user = await this.authRepository.findByPasswordResetToken(token);
@@ -172,7 +182,8 @@ export class AuthService {
         throw new InvalidCredentialsException();
       }
 
-      const hashedPassword = await this.passwordService.hashPassword(newPassword);
+      const hashedPassword =
+        await this.passwordService.hashPassword(newPassword);
       await this.authRepository.updatePassword(user.id, hashedPassword);
 
       this.logger.log(`Password successfully reset for user: ${user.email}`);
@@ -321,12 +332,14 @@ export class AuthService {
 
   private async createDefaultCalendar(user: any): Promise<void> {
     try {
+      const timezone = await this.userService.getUserTimezone(user.id);
       const defaultCalendar = await this.calendarService.createCalendar(
         {
           google_calendar_id: `personal_${user.id}`,
           name: 'Personal Calendar',
-          description: 'Your default personal calendar for events and appointments',
-          timezone: 'Asia/Ho_Chi_Minh', // Default timezone (can be user's locale)
+          description:
+            'Your default personal calendar for events and appointments',
+          timezone,
           is_primary: true,
         },
         user.id,
@@ -352,7 +365,9 @@ export class AuthService {
       const { tokens } = await oauth2Client.getToken(code);
 
       if (!tokens.access_token) {
-        throw new AuthenticationFailedException('No access token received from Google');
+        throw new AuthenticationFailedException(
+          'No access token received from Google',
+        );
       }
 
       oauth2Client.setCredentials(tokens);
@@ -360,14 +375,16 @@ export class AuthService {
       const { data: googleUser } = await oauth2.userinfo.get();
 
       if (!googleUser.email) {
-        throw new AuthenticationFailedException('No email received from Google');
+        throw new AuthenticationFailedException(
+          'No email received from Google',
+        );
       }
 
       let user = await this.authRepository.findByEmail(googleUser.email);
 
       if (!user) {
         const hashedPassword = await this.passwordService.hashPassword(
-          randomBytes(32).toString('hex')
+          randomBytes(32).toString('hex'),
         );
 
         const userData = {
@@ -382,6 +399,8 @@ export class AuthService {
 
         user = await this.authRepository.createUser(userData);
         this.logger.log(`Created new user from Google: ${user.email}`);
+
+        await this.userService.ensureUserSettingsInitialized(user.id);
 
         await this.createDefaultCalendar(user);
       }
@@ -409,7 +428,6 @@ export class AuthService {
         tokens: authTokens,
         login_at: new Date(),
       };
-
     } catch (error) {
       this.logger.error('Google login failed:', error);
 
@@ -426,14 +444,22 @@ export class AuthService {
       const user = await this.authRepository.findByEmail(email);
 
       if (!user) {
-        this.logger.warn(`Password reset requested for non-existent email: ${email}`);
+        this.logger.warn(
+          `Password reset requested for non-existent email: ${email}`,
+        );
         return;
       }
 
       const resetToken = randomBytes(32).toString('hex');
-      const expiresAt = new Date(Date.now() + SECURITY_CONSTANTS.PASSWORD_RESET_TOKEN_EXPIRY);
+      const expiresAt = new Date(
+        Date.now() + SECURITY_CONSTANTS.PASSWORD_RESET_TOKEN_EXPIRY,
+      );
 
-      await this.authRepository.savePasswordResetToken(user.id, resetToken, expiresAt);
+      await this.authRepository.savePasswordResetToken(
+        user.id,
+        resetToken,
+        expiresAt,
+      );
 
       const frontendUrl = this.configService.frontendUrl;
       const resetUrl = `${frontendUrl}/auth/reset-password?token=${resetToken}`;
@@ -445,13 +471,17 @@ export class AuthService {
         context: {
           user_name: user.first_name || user.username,
           reset_url: resetUrl,
-          expiry_hours: SECURITY_CONSTANTS.PASSWORD_RESET_TOKEN_EXPIRY / (1000 * 60 * 60),
+          expiry_hours:
+            SECURITY_CONSTANTS.PASSWORD_RESET_TOKEN_EXPIRY / (1000 * 60 * 60),
         },
       });
 
       this.logger.log(`Password reset email sent to: ${email}`);
     } catch (error) {
-      this.logger.error(`Password reset request failed: ${error.message}`, error.stack);
+      this.logger.error(
+        `Password reset request failed: ${error.message}`,
+        error.stack,
+      );
       if (error instanceof HttpException) {
         throw error;
       }

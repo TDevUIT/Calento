@@ -25,7 +25,9 @@ export class FileSizeException extends BadRequestException {
 }
 
 export class InvalidFileTypeException extends BadRequestException {
-  constructor(allowedTypes: string[] = ['image/jpeg', 'image/png', 'image/webp']) {
+  constructor(
+    allowedTypes: string[] = ['image/jpeg', 'image/png', 'image/webp'],
+  ) {
     super(`Invalid file type. Allowed types: ${allowedTypes.join(', ')}`);
   }
 }

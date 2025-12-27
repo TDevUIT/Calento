@@ -2,10 +2,10 @@
 import { ConfigService } from '@nestjs/config';
 import { google, Auth } from 'googleapis';
 import { UserCredentialsRepository } from '../repositories/user-credentials.repository';
-import { 
-  TIME_CONSTANTS, 
-  GOOGLE_API_CONSTANTS, 
-  OAUTH_CONSTANTS 
+import {
+  TIME_CONSTANTS,
+  GOOGLE_API_CONSTANTS,
+  OAUTH_CONSTANTS,
 } from '../../../common/constants';
 
 @Injectable()

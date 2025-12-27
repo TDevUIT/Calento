@@ -20,11 +20,19 @@ import {
   ApiParam,
 } from '@nestjs/swagger';
 import { TaskService } from './task.service';
-import { CreateTaskDto, UpdateTaskDto, TaskQueryDto, TaskResponseDto } from './dto/task.dto';
+import {
+  CreateTaskDto,
+  UpdateTaskDto,
+  TaskQueryDto,
+  TaskResponseDto,
+} from './dto/task.dto';
 import { TaskStatus } from './task.interface';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUserId } from '../../common/decorators/current-user.decorator';
-import { SuccessResponseDto, PaginatedResponseDto } from '../../common/dto/base-response.dto';
+import {
+  SuccessResponseDto,
+  PaginatedResponseDto,
+} from '../../common/dto/base-response.dto';
 import { MessageService } from '../../common/message/message.service';
 
 @ApiTags('Tasks')
@@ -162,7 +170,11 @@ export class TaskController {
     @Param('id') taskId: string,
     @Body() updateTaskDto: UpdateTaskDto,
   ): Promise<SuccessResponseDto<TaskResponseDto>> {
-    const task = await this.taskService.updateTask(userId, taskId, updateTaskDto);
+    const task = await this.taskService.updateTask(
+      userId,
+      taskId,
+      updateTaskDto,
+    );
     return new SuccessResponseDto(
       this.messageService.get('success.updated'),
       task as TaskResponseDto,
@@ -190,7 +202,11 @@ export class TaskController {
     @Param('id') taskId: string,
     @Body() updateTaskDto: UpdateTaskDto,
   ): Promise<SuccessResponseDto<TaskResponseDto>> {
-    const task = await this.taskService.updateTask(userId, taskId, updateTaskDto);
+    const task = await this.taskService.updateTask(
+      userId,
+      taskId,
+      updateTaskDto,
+    );
     return new SuccessResponseDto(
       this.messageService.get('success.updated'),
       task as TaskResponseDto,
@@ -218,7 +234,11 @@ export class TaskController {
     @Param('id') taskId: string,
     @Body('status') status: TaskStatus,
   ): Promise<SuccessResponseDto<TaskResponseDto>> {
-    const task = await this.taskService.updateTaskStatus(userId, taskId, status);
+    const task = await this.taskService.updateTaskStatus(
+      userId,
+      taskId,
+      status,
+    );
     return new SuccessResponseDto(
       this.messageService.get('success.updated'),
       task as TaskResponseDto,

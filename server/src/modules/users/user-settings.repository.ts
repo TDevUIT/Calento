@@ -7,7 +7,9 @@ export class UserSettingsRepository {
 
   constructor(private readonly databaseService: DatabaseService) {}
 
-  async findSettingsByUserId(userId: string): Promise<Record<string, any> | null> {
+  async findSettingsByUserId(
+    userId: string,
+  ): Promise<Record<string, any> | null> {
     try {
       const result = await this.databaseService.query(
         'SELECT settings FROM user_settings WHERE user_id = $1',
@@ -19,7 +21,10 @@ export class UserSettingsRepository {
       const settings = result.rows[0].settings;
       return typeof settings === 'string' ? JSON.parse(settings) : settings;
     } catch (error) {
-      this.logger.error(`Failed to fetch user settings for user ${userId}:`, error);
+      this.logger.error(
+        `Failed to fetch user settings for user ${userId}:`,
+        error,
+      );
       throw error;
     }
   }
@@ -41,7 +46,10 @@ export class UserSettingsRepository {
       const returned = result.rows[0]?.settings ?? settings;
       return typeof returned === 'string' ? JSON.parse(returned) : returned;
     } catch (error) {
-      this.logger.error(`Failed to upsert user settings for user ${userId}:`, error);
+      this.logger.error(
+        `Failed to upsert user settings for user ${userId}:`,
+        error,
+      );
       throw error;
     }
   }

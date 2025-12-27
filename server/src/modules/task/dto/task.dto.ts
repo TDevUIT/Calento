@@ -12,8 +12,14 @@
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { UserOwnedEntityDto, SoftDeletableEntityDto } from '../../../common/dto/base-entity.dto';
-import { PaginationQueryDto, SearchPaginationQueryDto } from '../../../common/dto/pagination.dto';
+import {
+  UserOwnedEntityDto,
+  SoftDeletableEntityDto,
+} from '../../../common/dto/base-entity.dto';
+import {
+  PaginationQueryDto,
+  SearchPaginationQueryDto,
+} from '../../../common/dto/pagination.dto';
 import { TaskStatus, TaskPriority } from '../task.interface';
 
 export class CreateTaskDto {

@@ -11,38 +11,45 @@ export class ContactController {
 
   @Post()
   @ApiOperation({ summary: 'Submit contact form' })
-  @ApiResponse({ status: HttpStatus.CREATED, description: 'Contact form submitted successfully' })
-  async createContact(@Body() dto: CreateContactDto): Promise<SuccessResponseDto<ContactResponseDto>> {
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Contact form submitted successfully',
+  })
+  async createContact(
+    @Body() dto: CreateContactDto,
+  ): Promise<SuccessResponseDto<ContactResponseDto>> {
     const contact = await this.contactService.createContact(dto);
-    
+
     return new SuccessResponseDto(
       'Contact form submitted successfully. We will get back to you within 24 hours.',
       contact,
-      HttpStatus.CREATED
+      HttpStatus.CREATED,
     );
   }
 
   @Get()
   @ApiOperation({ summary: 'Get all contacts' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'Contacts retrieved successfully' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Contacts retrieved successfully',
+  })
   async getAllContacts(): Promise<SuccessResponseDto<ContactResponseDto[]>> {
     const contacts = await this.contactService.getAllContacts();
-    
-    return new SuccessResponseDto(
-      'Contacts retrieved successfully',
-      contacts
-    );
+
+    return new SuccessResponseDto('Contacts retrieved successfully', contacts);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get contact by ID' })
-  @ApiResponse({ status: HttpStatus.OK, description: 'Contact retrieved successfully' })
-  async getContactById(@Param('id') id: string): Promise<SuccessResponseDto<ContactResponseDto | null>> {
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Contact retrieved successfully',
+  })
+  async getContactById(
+    @Param('id') id: string,
+  ): Promise<SuccessResponseDto<ContactResponseDto | null>> {
     const contact = await this.contactService.getContactById(id);
-    
-    return new SuccessResponseDto(
-      'Contact retrieved successfully',
-      contact
-    );
+
+    return new SuccessResponseDto('Contact retrieved successfully', contact);
   }
 }

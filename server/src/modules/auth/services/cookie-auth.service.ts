@@ -13,13 +13,14 @@ export class CookieAuthService {
   setAuthCookies(response: Response, tokens: AuthTokens): void {
     const isProd = env.NODE_ENV === 'production';
     const frontendDomain = env.FRONTEND_DOMAIN || 'localhost';
-    
+
     const cookieOptions: CookieOptions = {
       httpOnly: true,
       secure: isProd,
       sameSite: isProd ? 'none' : 'lax',
       path: '/',
-      ...(isProd && frontendDomain !== 'localhost' && { domain: `.${frontendDomain}` }),
+      ...(isProd &&
+        frontendDomain !== 'localhost' && { domain: `.${frontendDomain}` }),
     };
 
     response.cookie('access_token', tokens.access_token, {
@@ -37,20 +38,21 @@ export class CookieAuthService {
       secure: cookieOptions.secure,
       sameSite: cookieOptions.sameSite,
       isProd,
-      frontendDomain
+      frontendDomain,
     });
   }
 
   clearAuthCookies(response: Response): void {
     const isProd = env.NODE_ENV === 'production';
     const frontendDomain = env.FRONTEND_DOMAIN || 'localhost';
-    
+
     const cookieOptions: CookieOptions = {
       httpOnly: true,
       secure: isProd,
       sameSite: isProd ? 'none' : 'lax',
       path: '/',
-      ...(isProd && frontendDomain !== 'localhost' && { domain: `.${frontendDomain}` }),
+      ...(isProd &&
+        frontendDomain !== 'localhost' && { domain: `.${frontendDomain}` }),
     };
 
     response.clearCookie('access_token', cookieOptions);
@@ -59,7 +61,7 @@ export class CookieAuthService {
     this.logger.debug('Authentication cookies cleared', {
       domain: cookieOptions.domain || 'no-domain',
       secure: cookieOptions.secure,
-      sameSite: cookieOptions.sameSite
+      sameSite: cookieOptions.sameSite,
     });
   }
 
@@ -107,7 +109,7 @@ export class CookieAuthService {
     response: Response,
   ): Promise<AuthTokens | null> {
     this.logger.debug('Attempting to refresh token from cookies...');
-    
+
     const refreshToken = this.extractRefreshTokenFromCookies(request);
 
     if (!refreshToken) {
@@ -123,10 +125,14 @@ export class CookieAuthService {
         secret: env.JWT_REFRESH_SECRET,
       });
 
-      this.logger.debug(`Token decoded - type: ${decoded.type}, email: ${decoded.email}`);
+      this.logger.debug(
+        `Token decoded - type: ${decoded.type}, email: ${decoded.email}`,
+      );
 
       if (decoded.type !== 'refresh') {
-        this.logger.warn(`Invalid token type: ${decoded.type}, expected 'refresh'`);
+        this.logger.warn(
+          `Invalid token type: ${decoded.type}, expected 'refresh'`,
+        );
         return null;
       }
 
@@ -140,10 +146,14 @@ export class CookieAuthService {
       this.logger.debug('Setting new auth cookies...');
       this.setAuthCookies(response, newTokens);
 
-      this.logger.log(`âœ… Tokens refreshed successfully for user: ${decoded.email}`);
+      this.logger.log(
+        `âœ… Tokens refreshed successfully for user: ${decoded.email}`,
+      );
       return newTokens;
     } catch (error) {
-      this.logger.error(`âŒ Token refresh failed: ${error.name} - ${error.message}`);
+      this.logger.error(
+        `âŒ Token refresh failed: ${error.name} - ${error.message}`,
+      );
       this.clearAuthCookies(response);
       return null;
     }

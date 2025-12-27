@@ -1,17 +1,19 @@
-
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../../database/database.service';
-import { DueEmailNotificationRow, PendingEmailNotificationRow } from './notification.interface';
+import {
+  DueEmailNotificationRow,
+  PendingEmailNotificationRow,
+} from './notification.interface';
 
 @Injectable()
 export class NotificationRepository {
-    constructor(private readonly db: DatabaseService) { }
+  constructor(private readonly db: DatabaseService) {}
 
-    async insertEmailNotificationIfNotExists(
-        eventId: string,
-        remindAtIso: string,
-    ): Promise<boolean> {
-        const insertQuery = `
+  async insertEmailNotificationIfNotExists(
+    eventId: string,
+    remindAtIso: string,
+  ): Promise<boolean> {
+    const insertQuery = `
         INSERT INTO notifications (event_id, channel, remind_at, is_sent)
         SELECT $1, $2, $3, false
         WHERE NOT EXISTS (
@@ -22,12 +24,18 @@ export class NotificationRepository {
         )
         `;
 
-        const result = await this.db.query(insertQuery, [eventId, 'email', remindAtIso]);
-        return (result as any)?.rowCount === 1;
-    }
+    const result = await this.db.query(insertQuery, [
+      eventId,
+      'email',
+      remindAtIso,
+    ]);
+    return (result as any)?.rowCount === 1;
+  }
 
-    async findDueEmailNotifications(limit: number = 50): Promise<DueEmailNotificationRow[]> {
-        const query = `
+  async findDueEmailNotifications(
+    limit: number = 50,
+  ): Promise<DueEmailNotificationRow[]> {
+    const query = `
         SELECT
             n.id as notification_id,
             n.event_id,
@@ -50,22 +58,22 @@ export class NotificationRepository {
         LIMIT $1
         `;
 
-        const result = await this.db.query(query, [limit]);
-        return result.rows;
-    }
+    const result = await this.db.query(query, [limit]);
+    return result.rows;
+  }
 
-    async markNotificationSent(notificationId: string): Promise<void> {
-        await this.db.query(
-            `UPDATE notifications SET is_sent = true, updated_at = NOW() WHERE id = $1`,
-            [notificationId],
-        );
-    }
+  async markNotificationSent(notificationId: string): Promise<void> {
+    await this.db.query(
+      `UPDATE notifications SET is_sent = true, updated_at = NOW() WHERE id = $1`,
+      [notificationId],
+    );
+  }
 
-    async findPendingEmailNotificationsForUser(
-        userId: string,
-        limit: number = 200,
-    ): Promise<PendingEmailNotificationRow[]> {
-        const query = `
+  async findPendingEmailNotificationsForUser(
+    userId: string,
+    limit: number = 200,
+  ): Promise<PendingEmailNotificationRow[]> {
+    const query = `
         SELECT
             n.id as notification_id,
             n.event_id,
@@ -81,13 +89,13 @@ export class NotificationRepository {
         LIMIT $2
         `;
 
-        const result = await this.db.query(query, [userId, limit]);
-        return result.rows;
-    }
-    async findUpcomingEvents(horizonMinutes: number): Promise<any[]> {
-        // Fetch events that start within [NOW, NOW + horizonMinutes]
-        // AND have reminders configured
-        const query = `
+    const result = await this.db.query(query, [userId, limit]);
+    return result.rows;
+  }
+  async findUpcomingEvents(horizonMinutes: number): Promise<any[]> {
+    // Fetch events that start within [NOW, NOW + horizonMinutes]
+    // AND have reminders configured
+    const query = `
         SELECT
             e.id,
             e.title,
@@ -104,8 +112,7 @@ export class NotificationRepository {
             AND e.status != 'cancelled'
         `;
 
-        const result = await this.db.query(query, [horizonMinutes]);
-        return result.rows;
-    }
+    const result = await this.db.query(query, [horizonMinutes]);
+    return result.rows;
+  }
 }
-

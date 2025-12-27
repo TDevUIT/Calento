@@ -17,7 +17,10 @@ export class TaskService {
 
   constructor(private readonly taskRepository: TaskRepository) {}
 
-  async createTask(userId: string, createTaskDto: CreateTaskDto): Promise<Task> {
+  async createTask(
+    userId: string,
+    createTaskDto: CreateTaskDto,
+  ): Promise<Task> {
     try {
       const taskData: Partial<Task> = {
         id: uuidv4(),
@@ -26,7 +29,9 @@ export class TaskService {
         description: createTaskDto.description,
         status: createTaskDto.status || TaskStatus.TODO,
         priority: createTaskDto.priority || TaskPriority.MEDIUM,
-        due_date: createTaskDto.due_date ? new Date(createTaskDto.due_date) : undefined,
+        due_date: createTaskDto.due_date
+          ? new Date(createTaskDto.due_date)
+          : undefined,
         tags: createTaskDto.tags,
         project_id: createTaskDto.project_id,
         parent_task_id: createTaskDto.parent_task_id,
@@ -44,7 +49,7 @@ export class TaskService {
 
   async getTaskById(userId: string, taskId: string): Promise<Task> {
     const task = await this.taskRepository.findById(taskId);
-    
+
     if (!task || task.user_id !== userId) {
       throw new TaskNotFoundException(taskId);
     }
@@ -57,22 +62,47 @@ export class TaskService {
     queryDto: TaskQueryDto,
   ): Promise<PaginatedResult<Task>> {
     try {
-      const { status, priority, project_id, due_before, due_after, tags, search, ...paginationOptions } = queryDto;
+      const {
+        status,
+        priority,
+        project_id,
+        due_before,
+        due_after,
+        tags,
+        search,
+        ...paginationOptions
+      } = queryDto;
 
       if (search) {
-        return this.taskRepository.searchTasks(userId, search, paginationOptions);
+        return this.taskRepository.searchTasks(
+          userId,
+          search,
+          paginationOptions,
+        );
       }
 
       if (status) {
-        return this.taskRepository.findByStatus(userId, status, paginationOptions);
+        return this.taskRepository.findByStatus(
+          userId,
+          status,
+          paginationOptions,
+        );
       }
 
       if (priority) {
-        return this.taskRepository.findByPriority(userId, priority, paginationOptions);
+        return this.taskRepository.findByPriority(
+          userId,
+          priority,
+          paginationOptions,
+        );
       }
 
       if (project_id) {
-        return this.taskRepository.findByProject(userId, project_id, paginationOptions);
+        return this.taskRepository.findByProject(
+          userId,
+          project_id,
+          paginationOptions,
+        );
       }
 
       if (due_before && due_after) {
@@ -85,8 +115,12 @@ export class TaskService {
       }
 
       if (tags) {
-        const tagArray = tags.split(',').map(tag => tag.trim());
-        return this.taskRepository.findByTags(userId, tagArray, paginationOptions);
+        const tagArray = tags.split(',').map((tag) => tag.trim());
+        return this.taskRepository.findByTags(
+          userId,
+          tagArray,
+          paginationOptions,
+        );
       }
 
       return this.taskRepository.findByUserId(userId, paginationOptions);
@@ -96,7 +130,10 @@ export class TaskService {
     }
   }
 
-  async getOverdueTasks(userId: string, queryDto: TaskQueryDto): Promise<PaginatedResult<Task>> {
+  async getOverdueTasks(
+    userId: string,
+    queryDto: TaskQueryDto,
+  ): Promise<PaginatedResult<Task>> {
     try {
       return this.taskRepository.findOverdue(userId, queryDto);
     } catch (error) {
@@ -115,29 +152,44 @@ export class TaskService {
     try {
       const updateData: Partial<Task> = {};
 
-      if (updateTaskDto.title !== undefined) updateData.title = updateTaskDto.title;
-      if (updateTaskDto.description !== undefined) updateData.description = updateTaskDto.description;
+      if (updateTaskDto.title !== undefined)
+        updateData.title = updateTaskDto.title;
+      if (updateTaskDto.description !== undefined)
+        updateData.description = updateTaskDto.description;
       if (updateTaskDto.status !== undefined) {
         updateData.status = updateTaskDto.status;
-        if (updateTaskDto.status === TaskStatus.COMPLETED && !existingTask.completed_at) {
+        if (
+          updateTaskDto.status === TaskStatus.COMPLETED &&
+          !existingTask.completed_at
+        ) {
           updateData.completed_at = new Date();
         }
       }
-      if (updateTaskDto.priority !== undefined) updateData.priority = updateTaskDto.priority;
+      if (updateTaskDto.priority !== undefined)
+        updateData.priority = updateTaskDto.priority;
       if (updateTaskDto.due_date !== undefined) {
-        updateData.due_date = updateTaskDto.due_date ? new Date(updateTaskDto.due_date) : undefined;
+        updateData.due_date = updateTaskDto.due_date
+          ? new Date(updateTaskDto.due_date)
+          : undefined;
       }
-      if (updateTaskDto.tags !== undefined) updateData.tags = updateTaskDto.tags;
-      if (updateTaskDto.project_id !== undefined) updateData.project_id = updateTaskDto.project_id;
-      if (updateTaskDto.parent_task_id !== undefined) updateData.parent_task_id = updateTaskDto.parent_task_id;
-      if (updateTaskDto.estimated_duration !== undefined) updateData.estimated_duration = updateTaskDto.estimated_duration;
-      if (updateTaskDto.actual_duration !== undefined) updateData.actual_duration = updateTaskDto.actual_duration;
+      if (updateTaskDto.tags !== undefined)
+        updateData.tags = updateTaskDto.tags;
+      if (updateTaskDto.project_id !== undefined)
+        updateData.project_id = updateTaskDto.project_id;
+      if (updateTaskDto.parent_task_id !== undefined)
+        updateData.parent_task_id = updateTaskDto.parent_task_id;
+      if (updateTaskDto.estimated_duration !== undefined)
+        updateData.estimated_duration = updateTaskDto.estimated_duration;
+      if (updateTaskDto.actual_duration !== undefined)
+        updateData.actual_duration = updateTaskDto.actual_duration;
       if (updateTaskDto.completed_at !== undefined) {
-        updateData.completed_at = updateTaskDto.completed_at ? new Date(updateTaskDto.completed_at) : undefined;
+        updateData.completed_at = updateTaskDto.completed_at
+          ? new Date(updateTaskDto.completed_at)
+          : undefined;
       }
 
       const updatedTask = await this.taskRepository.update(taskId, updateData);
-      
+
       if (!updatedTask) {
         throw new TaskNotFoundException(taskId);
       }
@@ -161,13 +213,18 @@ export class TaskService {
     await this.getTaskById(userId, taskId);
 
     try {
-      const updatedTask = await this.taskRepository.updateStatus(taskId, status);
-      
+      const updatedTask = await this.taskRepository.updateStatus(
+        taskId,
+        status,
+      );
+
       if (!updatedTask) {
         throw new TaskNotFoundException(taskId);
       }
 
-      this.logger.log(`Task status updated successfully: ${taskId} to ${status}`);
+      this.logger.log(
+        `Task status updated successfully: ${taskId} to ${status}`,
+      );
       return updatedTask;
     } catch (error) {
       this.logger.error(`Failed to update task status ${taskId}:`, error);
@@ -183,7 +240,7 @@ export class TaskService {
 
     try {
       const deleted = await this.taskRepository.softDelete(taskId);
-      
+
       if (!deleted) {
         throw new TaskNotFoundException(taskId);
       }
@@ -199,8 +256,10 @@ export class TaskService {
   }
 
   async restoreTask(userId: string, taskId: string): Promise<Task> {
-    const task = await this.taskRepository.findById(taskId, { includeDeleted: true });
-    
+    const task = await this.taskRepository.findById(taskId, {
+      includeDeleted: true,
+    });
+
     if (!task || task.user_id !== userId) {
       throw new TaskNotFoundException(taskId);
     }
@@ -208,11 +267,11 @@ export class TaskService {
     try {
       await this.taskRepository.restore(taskId);
       const restoredTask = await this.taskRepository.findById(taskId);
-      
+
       if (!restoredTask) {
         throw new TaskNotFoundException(taskId);
       }
-      
+
       this.logger.log(`Task restored successfully: ${taskId}`);
       return restoredTask;
     } catch (error) {

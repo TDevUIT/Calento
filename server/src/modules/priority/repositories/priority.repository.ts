@@ -3,7 +3,10 @@ import { BaseRepository } from '../../../common/repositories/base.repository';
 import { DatabaseService } from '../../../database/database.service';
 import { PaginationService } from '../../../common/services/pagination.service';
 import { MessageService } from '../../../common/message/message.service';
-import { UserPriority, PriorityUpdatePayload } from '../interfaces/priority.interface';
+import {
+  UserPriority,
+  PriorityUpdatePayload,
+} from '../interfaces/priority.interface';
 
 @Injectable()
 export class PriorityRepository extends BaseRepository<UserPriority> {
@@ -12,7 +15,12 @@ export class PriorityRepository extends BaseRepository<UserPriority> {
     paginationService: PaginationService,
     messageService: MessageService,
   ) {
-    super(databaseService, paginationService, messageService, 'user_priorities');
+    super(
+      databaseService,
+      paginationService,
+      messageService,
+      'user_priorities',
+    );
   }
 
   protected getAllowedSortFields(): string[] {
@@ -25,29 +33,37 @@ export class PriorityRepository extends BaseRepository<UserPriority> {
       WHERE user_id = $1
       ORDER BY priority, position
     `;
-    
+
     try {
-      const result = await this.databaseService.query<UserPriority>(query, [userId]);
+      const result = await this.databaseService.query<UserPriority>(query, [
+        userId,
+      ]);
       return result.rows;
     } catch (error) {
-      this.logger.error(`Failed to find priorities by user ID ${userId}:`, error);
+      this.logger.error(
+        `Failed to find priorities by user ID ${userId}:`,
+        error,
+      );
       throw new Error(this.messageService.get('error.internal_server_error'));
     }
   }
 
-
   async findByUserIdAndItem(
-    userId: string, 
-    itemId: string, 
-    itemType: string
+    userId: string,
+    itemId: string,
+    itemType: string,
   ): Promise<UserPriority | null> {
     const query = `
       SELECT * FROM ${this.tableName}
       WHERE user_id = $1 AND item_id = $2 AND item_type = $3
     `;
-    
+
     try {
-      const result = await this.databaseService.query<UserPriority>(query, [userId, itemId, itemType]);
+      const result = await this.databaseService.query<UserPriority>(query, [
+        userId,
+        itemId,
+        itemType,
+      ]);
       return result.rows[0] || null;
     } catch (error) {
       this.logger.error(`Failed to find priority for item ${itemId}:`, error);
@@ -55,13 +71,12 @@ export class PriorityRepository extends BaseRepository<UserPriority> {
     }
   }
 
-
   async upsertPriority(
     userId: string,
-    payload: PriorityUpdatePayload
+    payload: PriorityUpdatePayload,
   ): Promise<UserPriority> {
     const position = payload.position ?? 0;
-    
+
     const query = `
       INSERT INTO ${this.tableName} 
         (user_id, item_id, item_type, priority, position)
@@ -73,24 +88,30 @@ export class PriorityRepository extends BaseRepository<UserPriority> {
         updated_at = NOW()
       RETURNING *
     `;
-    
+
     try {
-      const result = await this.databaseService.query<UserPriority>(
-        query,
-        [userId, payload.item_id, payload.item_type, payload.priority, position]
-      );
-      
+      const result = await this.databaseService.query<UserPriority>(query, [
+        userId,
+        payload.item_id,
+        payload.item_type,
+        payload.priority,
+        position,
+      ]);
+
       this.logger.log(`Upserted priority for item ${payload.item_id}`);
       return result.rows[0];
     } catch (error) {
-      this.logger.error(`Failed to upsert priority for item ${payload.item_id}:`, error);
+      this.logger.error(
+        `Failed to upsert priority for item ${payload.item_id}:`,
+        error,
+      );
       throw new Error(this.messageService.get('error.internal_server_error'));
     }
   }
 
   async bulkUpsertPriorities(
     userId: string,
-    updates: PriorityUpdatePayload[]
+    updates: PriorityUpdatePayload[],
   ): Promise<UserPriority[]> {
     if (updates.length === 0) {
       return [];
@@ -98,13 +119,15 @@ export class PriorityRepository extends BaseRepository<UserPriority> {
 
     try {
       const results: UserPriority[] = [];
-      
+
       for (const update of updates) {
         const result = await this.upsertPriority(userId, update);
         results.push(result);
       }
 
-      this.logger.log(`Bulk upserted ${results.length} priorities for user ${userId}`);
+      this.logger.log(
+        `Bulk upserted ${results.length} priorities for user ${userId}`,
+      );
       return results;
     } catch (error) {
       this.logger.error(`Failed to bulk upsert priorities:`, error);
@@ -115,15 +138,19 @@ export class PriorityRepository extends BaseRepository<UserPriority> {
   async deletePriority(
     userId: string,
     itemId: string,
-    itemType: string
+    itemType: string,
   ): Promise<boolean> {
     const query = `
       DELETE FROM ${this.tableName}
       WHERE user_id = $1 AND item_id = $2 AND item_type = $3
     `;
-    
+
     try {
-      const result = await this.databaseService.query(query, [userId, itemId, itemType]);
+      const result = await this.databaseService.query(query, [
+        userId,
+        itemId,
+        itemType,
+      ]);
       const deleted = (result.rowCount ?? 0) > 0;
       if (deleted) {
         this.logger.log(`Deleted priority for item ${itemId}`);
@@ -137,38 +164,50 @@ export class PriorityRepository extends BaseRepository<UserPriority> {
 
   async findByUserIdAndPriority(
     userId: string,
-    priority: string
+    priority: string,
   ): Promise<UserPriority[]> {
     const query = `
       SELECT * FROM ${this.tableName}
       WHERE user_id = $1 AND priority = $2
       ORDER BY position
     `;
-    
+
     try {
-      const result = await this.databaseService.query<UserPriority>(query, [userId, priority]);
+      const result = await this.databaseService.query<UserPriority>(query, [
+        userId,
+        priority,
+      ]);
       return result.rows;
     } catch (error) {
-      this.logger.error(`Failed to find priorities by level ${priority}:`, error);
+      this.logger.error(
+        `Failed to find priorities by level ${priority}:`,
+        error,
+      );
       throw new Error(this.messageService.get('error.internal_server_error'));
     }
   }
 
   async findByUserIdAndItemType(
     userId: string,
-    itemType: string
+    itemType: string,
   ): Promise<UserPriority[]> {
     const query = `
       SELECT * FROM ${this.tableName}
       WHERE user_id = $1 AND item_type = $2
       ORDER BY priority, position
     `;
-    
+
     try {
-      const result = await this.databaseService.query<UserPriority>(query, [userId, itemType]);
+      const result = await this.databaseService.query<UserPriority>(query, [
+        userId,
+        itemType,
+      ]);
       return result.rows;
     } catch (error) {
-      this.logger.error(`Failed to find priorities by type ${itemType}:`, error);
+      this.logger.error(
+        `Failed to find priorities by type ${itemType}:`,
+        error,
+      );
       throw new Error(this.messageService.get('error.internal_server_error'));
     }
   }

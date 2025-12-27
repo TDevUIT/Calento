@@ -2,10 +2,7 @@
 
 export class TaskCreationFailedException extends HttpException {
   constructor(message?: string) {
-    super(
-      message || 'Failed to create task',
-      HttpStatus.INTERNAL_SERVER_ERROR,
-    );
+    super(message || 'Failed to create task', HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }
 
@@ -26,18 +23,12 @@ export class TaskValidationException extends HttpException {
 
 export class TaskUpdateFailedException extends HttpException {
   constructor(message?: string) {
-    super(
-      message || 'Failed to update task',
-      HttpStatus.INTERNAL_SERVER_ERROR,
-    );
+    super(message || 'Failed to update task', HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }
 
 export class TaskDeleteFailedException extends HttpException {
   constructor(message?: string) {
-    super(
-      message || 'Failed to delete task',
-      HttpStatus.INTERNAL_SERVER_ERROR,
-    );
+    super(message || 'Failed to delete task', HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }

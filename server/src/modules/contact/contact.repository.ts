@@ -28,7 +28,7 @@ export class ContactRepository {
       dto.inquiry_type,
       dto.message,
       dto.subscribe_offers,
-      ContactStatus.NEW
+      ContactStatus.NEW,
     ];
 
     try {
@@ -58,7 +58,7 @@ export class ContactRepository {
 
   async findById(id: string): Promise<Contact | null> {
     const query = 'SELECT * FROM contacts WHERE id = $1';
-    
+
     try {
       const result = await this.db.query(query, [id]);
       return result.rows[0] || null;

@@ -217,7 +217,6 @@ export class BlogController {
     return await this.blogService.getBlogPosts(query, options);
   }
 
-
   @Post(':id/publish')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()

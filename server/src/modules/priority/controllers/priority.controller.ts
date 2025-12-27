@@ -62,12 +62,12 @@ export class PriorityController {
   async getItemPriority(
     @CurrentUserId() userId: string,
     @Param('itemId') itemId: string,
-    @Param('itemType') itemType: string
+    @Param('itemType') itemType: string,
   ) {
     const priority = await this.priorityService.getItemPriority(
       userId,
       itemId,
-      itemType
+      itemType,
     );
 
     return {
@@ -86,11 +86,11 @@ export class PriorityController {
   })
   async getPrioritiesByLevel(
     @CurrentUserId() userId: string,
-    @Param('priority') priority: string
+    @Param('priority') priority: string,
   ) {
     const priorities = await this.priorityService.getPrioritiesByLevel(
       userId,
-      priority
+      priority,
     );
 
     return {
@@ -109,11 +109,11 @@ export class PriorityController {
   })
   async getPrioritiesByType(
     @CurrentUserId() userId: string,
-    @Param('itemType') itemType: string
+    @Param('itemType') itemType: string,
   ) {
     const priorities = await this.priorityService.getPrioritiesByType(
       userId,
-      itemType
+      itemType,
     );
 
     return {
@@ -133,9 +133,12 @@ export class PriorityController {
   })
   async updatePriority(
     @CurrentUserId() userId: string,
-    @Body() updateDto: UpdatePriorityDto
+    @Body() updateDto: UpdatePriorityDto,
   ) {
-    const priority = await this.priorityService.updatePriority(userId, updateDto);
+    const priority = await this.priorityService.updatePriority(
+      userId,
+      updateDto,
+    );
 
     return {
       success: true,
@@ -154,11 +157,11 @@ export class PriorityController {
   })
   async bulkUpdatePriorities(
     @CurrentUserId() userId: string,
-    @Body() bulkUpdateDto: BulkUpdatePriorityDto
+    @Body() bulkUpdateDto: BulkUpdatePriorityDto,
   ) {
     const priorities = await this.priorityService.bulkUpdatePriorities(
       userId,
-      bulkUpdateDto
+      bulkUpdateDto,
     );
 
     return {
@@ -176,7 +179,7 @@ export class PriorityController {
   async deletePriority(
     @CurrentUserId() userId: string,
     @Param('itemId') itemId: string,
-    @Param('itemType') itemType: string
+    @Param('itemType') itemType: string,
   ) {
     await this.priorityService.deletePriority(userId, itemId, itemType);
 

@@ -19,7 +19,10 @@ import {
 import { EmailService } from './services/email.service';
 import { SendEmailDto, EmailLogResponseDto } from './dto/send-email.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
-import { CurrentUser, CurrentUserId } from '../../common/decorators/current-user.decorator';
+import {
+  CurrentUser,
+  CurrentUserId,
+} from '../../common/decorators/current-user.decorator';
 import {
   SuccessResponseDto,
   PaginatedResponseDto,

@@ -1,167 +1,189 @@
-import { Injectable, Logger } from "@nestjs/common";
-import { Cron } from "@nestjs/schedule";
-import { EventService } from "../event/event.service";
-import { EmailService } from "../email/services/email.service";
-import { NotificationRepository } from "./notification.repository";
-import { PendingEmailNotificationRow } from "./notification.interface";
+import { Injectable, Logger } from '@nestjs/common';
+import { Cron } from '@nestjs/schedule';
+import { EventService } from '../event/event.service';
+import { EmailService } from '../email/services/email.service';
+import { NotificationRepository } from './notification.repository';
+import { PendingEmailNotificationRow } from './notification.interface';
 
 @Injectable()
 export class NotificationService {
-    private readonly logger = new Logger(NotificationService.name);
+  private readonly logger = new Logger(NotificationService.name);
 
-    constructor(
-        private notificationRepository: NotificationRepository,
-        private eventService: EventService,
-        private emailService: EmailService,
-    ) { }
+  constructor(
+    private notificationRepository: NotificationRepository,
+    private eventService: EventService,
+    private emailService: EmailService,
+  ) {}
 
-    async scheduleEventReminderNotifications(
-        userId: string,
-        horizonDays: number = 30,
-    ): Promise<{ scheduled: number }> {
-        const now = new Date();
-        const horizon = new Date(now);
-        horizon.setDate(horizon.getDate() + horizonDays);
+  async scheduleEventReminderNotifications(
+    userId: string,
+    horizonDays: number = 30,
+  ): Promise<{ scheduled: number }> {
+    const now = new Date();
+    const horizon = new Date(now);
+    horizon.setDate(horizon.getDate() + horizonDays);
 
-        const eventsResult = await this.eventService.getEvents(userId, {
-            page: 1,
-            limit: 1000,
-            sortBy: 'start_time',
-            sortOrder: 'ASC',
-            start_date: now.toISOString(),
-            end_date: horizon.toISOString(),
-        } as any);
+    const eventsResult = await this.eventService.getEvents(userId, {
+      page: 1,
+      limit: 1000,
+      sortBy: 'start_time',
+      sortOrder: 'ASC',
+      start_date: now.toISOString(),
+      end_date: horizon.toISOString(),
+    } as any);
 
-        let scheduled = 0;
+    let scheduled = 0;
 
-        for (const event of eventsResult.data) {
-            const reminders = (event as any).reminders as Array<{ method: string; minutes: number }> | undefined;
-            if (!reminders || reminders.length === 0) continue;
+    for (const event of eventsResult.data) {
+      const reminders = (event as any).reminders as
+        | Array<{ method: string; minutes: number }>
+        | undefined;
+      if (!reminders || reminders.length === 0) continue;
 
-            if (!event.start_time) continue;
-            const eventStart = new Date(event.start_time as any);
-            if (isNaN(eventStart.getTime())) continue;
+      if (!event.start_time) continue;
+      const eventStart = new Date(event.start_time as any);
+      if (isNaN(eventStart.getTime())) continue;
 
-            for (const reminder of reminders) {
-                if (reminder?.method !== 'email') continue;
-                const minutes = Number(reminder.minutes);
-                if (!Number.isFinite(minutes) || minutes < 0) continue;
+      for (const reminder of reminders) {
+        if (reminder?.method !== 'email') continue;
+        const minutes = Number(reminder.minutes);
+        if (!Number.isFinite(minutes) || minutes < 0) continue;
 
-                const remindAt = new Date(eventStart);
-                remindAt.setMinutes(remindAt.getMinutes() - minutes);
+        const remindAt = new Date(eventStart);
+        remindAt.setMinutes(remindAt.getMinutes() - minutes);
 
-                if (remindAt <= now) continue;
+        if (remindAt <= now) continue;
 
-                const inserted = await this.notificationRepository.insertEmailNotificationIfNotExists(
-                    event.id,
-                    remindAt.toISOString(),
-                );
+        const inserted =
+          await this.notificationRepository.insertEmailNotificationIfNotExists(
+            event.id,
+            remindAt.toISOString(),
+          );
 
-                if (inserted) {
-                    scheduled++;
-                }
-            }
+        if (inserted) {
+          scheduled++;
+        }
+      }
+    }
+
+    return { scheduled };
+  }
+
+  @Cron('*/15 * * * *', {
+    name: 'notification-scheduler-global',
+    timeZone: 'UTC',
+  })
+  async scheduleGlobalReminders(): Promise<void> {
+    this.logger.log('Starting global reminder scheduling...');
+    const horizonMinutes = 24 * 60; // Look ahead 24 hours
+
+    try {
+      const events =
+        await this.notificationRepository.findUpcomingEvents(horizonMinutes);
+      let scheduledCount = 0;
+      const now = new Date();
+
+      for (const event of events) {
+        const reminders =
+          typeof event.reminders === 'string'
+            ? JSON.parse(event.reminders)
+            : event.reminders;
+
+        if (!Array.isArray(reminders)) continue;
+
+        const eventStart = new Date(event.start_time);
+        if (isNaN(eventStart.getTime())) continue;
+
+        for (const reminder of reminders) {
+          if (reminder?.method !== 'email') continue;
+
+          const minutes = Number(reminder.minutes);
+          if (!Number.isFinite(minutes) || minutes < 0) continue;
+
+          const remindAt = new Date(eventStart);
+          remindAt.setMinutes(remindAt.getMinutes() - minutes);
+
+          // Only schedule if reminder time hasn't passed more than 1 hour ago
+          // (prevents spamming old reminders if server was down)
+          if (remindAt <= now) {
+            const ageMinutes = (now.getTime() - remindAt.getTime()) / 60000;
+            if (ageMinutes > 60) continue;
+          }
+
+          const inserted =
+            await this.notificationRepository.insertEmailNotificationIfNotExists(
+              event.id,
+              remindAt.toISOString(),
+            );
+
+          if (inserted) {
+            scheduledCount++;
+            this.logger.debug(
+              `Scheduled email reminder for event ${event.id} at ${remindAt.toISOString()}`,
+            );
+          }
+        }
+      }
+
+      if (scheduledCount > 0) {
+        this.logger.log(
+          `âœ… Scheduled ${scheduledCount} new notification reminders`,
+        );
+      }
+    } catch (error) {
+      this.logger.error(
+        `Failed to schedule global reminders: ${error.message}`,
+        error.stack,
+      );
+    }
+  }
+
+  @Cron('*/1 * * * *', {
+    name: 'notification-reminder-dispatcher',
+    timeZone: 'UTC',
+  })
+  async processDueNotifications(): Promise<void> {
+    const due = await this.notificationRepository.findDueEmailNotifications(50);
+    if (due.length === 0) return;
+
+    for (const row of due) {
+      try {
+        if (!row.organizer_id || !row.user_email) {
+          await this.notificationRepository.markNotificationSent(
+            row.notification_id,
+          );
+          continue;
         }
 
-        return { scheduled };
+        await this.emailService.sendEventReminderEmail(
+          row.organizer_id,
+          row.user_email,
+          {
+            title: row.title,
+            startTime: new Date(row.start_time),
+            location: row.location || undefined,
+            description: row.description || undefined,
+          },
+        );
+
+        await this.notificationRepository.markNotificationSent(
+          row.notification_id,
+        );
+      } catch (error) {
+        this.logger.error(
+          `Failed to process notification ${row.notification_id}: ${error.message}`,
+          error.stack,
+        );
+      }
     }
+  }
 
-    @Cron('*/15 * * * *', {
-        name: 'notification-scheduler-global',
-        timeZone: 'UTC',
-    })
-    async scheduleGlobalReminders(): Promise<void> {
-        this.logger.log('Starting global reminder scheduling...');
-        const horizonMinutes = 24 * 60; // Look ahead 24 hours
-
-        try {
-            const events = await this.notificationRepository.findUpcomingEvents(horizonMinutes);
-            let scheduledCount = 0;
-            const now = new Date();
-
-            for (const event of events) {
-                const reminders = typeof event.reminders === 'string'
-                    ? JSON.parse(event.reminders)
-                    : event.reminders;
-
-                if (!Array.isArray(reminders)) continue;
-
-                const eventStart = new Date(event.start_time);
-                if (isNaN(eventStart.getTime())) continue;
-
-                for (const reminder of reminders) {
-                    if (reminder?.method !== 'email') continue;
-
-                    const minutes = Number(reminder.minutes);
-                    if (!Number.isFinite(minutes) || minutes < 0) continue;
-
-                    const remindAt = new Date(eventStart);
-                    remindAt.setMinutes(remindAt.getMinutes() - minutes);
-
-                    // Only schedule if reminder time hasn't passed more than 1 hour ago
-                    // (prevents spamming old reminders if server was down)
-                    if (remindAt <= now) {
-                        const ageMinutes = (now.getTime() - remindAt.getTime()) / 60000;
-                        if (ageMinutes > 60) continue;
-                    }
-
-                    const inserted = await this.notificationRepository.insertEmailNotificationIfNotExists(
-                        event.id,
-                        remindAt.toISOString(),
-                    );
-
-                    if (inserted) {
-                        scheduledCount++;
-                        this.logger.debug(`Scheduled email reminder for event ${event.id} at ${remindAt.toISOString()}`);
-                    }
-                }
-            }
-
-            if (scheduledCount > 0) {
-                this.logger.log(`âœ… Scheduled ${scheduledCount} new notification reminders`);
-            }
-        } catch (error) {
-            this.logger.error(`Failed to schedule global reminders: ${error.message}`, error.stack);
-        }
-    }
-
-    @Cron('*/1 * * * *', {
-        name: 'notification-reminder-dispatcher',
-        timeZone: 'UTC',
-    })
-    async processDueNotifications(): Promise<void> {
-        const due = await this.notificationRepository.findDueEmailNotifications(50);
-        if (due.length === 0) return;
-
-        for (const row of due) {
-            try {
-                if (!row.organizer_id || !row.user_email) {
-                    await this.notificationRepository.markNotificationSent(row.notification_id);
-                    continue;
-                }
-
-                await this.emailService.sendEventReminderEmail(
-                    row.organizer_id,
-                    row.user_email,
-                    {
-                        title: row.title,
-                        startTime: new Date(row.start_time),
-                        location: row.location || undefined,
-                        description: row.description || undefined,
-                    },
-                );
-
-                await this.notificationRepository.markNotificationSent(row.notification_id);
-            } catch (error) {
-                this.logger.error(
-                    `Failed to process notification ${row.notification_id}: ${error.message}`,
-                    error.stack,
-                );
-            }
-        }
-    }
-
-    async getPendingEmailNotifications(userId: string): Promise<PendingEmailNotificationRow[]> {
-        return this.notificationRepository.findPendingEmailNotificationsForUser(userId, 200);
-    }
+  async getPendingEmailNotifications(
+    userId: string,
+  ): Promise<PendingEmailNotificationRow[]> {
+    return this.notificationRepository.findPendingEmailNotificationsForUser(
+      userId,
+      200,
+    );
+  }
 }

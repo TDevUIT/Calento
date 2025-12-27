@@ -37,7 +37,9 @@ export class EmailService {
       secure: this.configService.get<string>('SMTP_SECURE', 'false') === 'true',
       auth: {
         user: this.configService.get<string>('SMTP_USER', ''),
-        pass: (this.configService.get<string>('SMTP_PASSWORD', '') || '').replace(/\s+/g, ''),
+        pass: (
+          this.configService.get<string>('SMTP_PASSWORD', '') || ''
+        ).replace(/\s+/g, ''),
       },
       from: this.configService.get<string>(
         'SMTP_FROM',
@@ -120,8 +122,25 @@ export class EmailService {
 
     const possiblePaths = [
       path.join(__dirname, '..', 'templates', `${templateName}.hbs`),
-      path.join(process.cwd(), 'src', 'modules', 'email', 'templates', `${templateName}.hbs`),
-      path.join(__dirname, '..', '..', '..', 'src', 'modules', 'email', 'templates', `${templateName}.hbs`),
+      path.join(
+        process.cwd(),
+        'src',
+        'modules',
+        'email',
+        'templates',
+        `${templateName}.hbs`,
+      ),
+      path.join(
+        __dirname,
+        '..',
+        '..',
+        '..',
+        'src',
+        'modules',
+        'email',
+        'templates',
+        `${templateName}.hbs`,
+      ),
     ];
 
     let templateSource: string | null = null;
@@ -132,7 +151,9 @@ export class EmailService {
         if (fs.existsSync(templatePath)) {
           templateSource = fs.readFileSync(templatePath, 'utf-8');
           usedPath = templatePath;
-          this.logger.log(`âœ… Loaded template ${templateName} from: ${templatePath}`);
+          this.logger.log(
+            `âœ… Loaded template ${templateName} from: ${templatePath}`,
+          );
           break;
         }
       } catch (error) {
@@ -141,8 +162,13 @@ export class EmailService {
     }
 
     if (!templateSource || !usedPath) {
-      this.logger.error(`Failed to load template ${templateName}. Tried paths:`, possiblePaths);
-      throw new Error(`Template ${templateName} not found in any expected location`);
+      this.logger.error(
+        `Failed to load template ${templateName}. Tried paths:`,
+        possiblePaths,
+      );
+      throw new Error(
+        `Template ${templateName} not found in any expected location`,
+      );
     }
 
     try {
@@ -183,7 +209,9 @@ export class EmailService {
   ): Promise<SendEmailResult> {
     try {
       if (!this.emailConfig.auth.user || !this.emailConfig.auth.pass) {
-        this.logger.warn('âš ï¸  SMTP credentials not configured - Email will not be sent');
+        this.logger.warn(
+          'âš ï¸  SMTP credentials not configured - Email will not be sent',
+        );
         this.logger.warn('ðŸ“§ Email details:', {
           to: options.to,
           subject: options.subject,

@@ -8,6 +8,6 @@ import { DatabaseModule } from '../../database/database.module';
   imports: [DatabaseModule],
   controllers: [ContactController],
   providers: [ContactService, ContactRepository],
-  exports: [ContactService]
+  exports: [ContactService],
 })
 export class ContactModule {}

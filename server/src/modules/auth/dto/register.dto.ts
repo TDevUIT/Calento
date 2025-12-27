@@ -97,4 +97,14 @@ export class RegisterDto {
   @IsUrl({}, { message: 'Avatar must be a valid URL' })
   @Transform(({ value }) => value?.trim())
   avatar?: string;
+
+  @ApiProperty({
+    example: 'Asia/Ho_Chi_Minh',
+    description: 'Browser timezone (IANA) to initialize user settings',
+    required: false,
+  })
+  @IsOptional()
+  @IsString({ message: 'Timezone must be a string' })
+  @Transform(({ value }) => value?.trim())
+  timezone?: string;
 }

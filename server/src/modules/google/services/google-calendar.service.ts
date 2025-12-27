@@ -166,7 +166,9 @@ export class GoogleCalendarService {
         requestBody,
       });
 
-      this.logger.log(`Created event in Google Calendar for user ${userId} with source attribution`);
+      this.logger.log(
+        `Created event in Google Calendar for user ${userId} with source attribution`,
+      );
       return response.data;
     } catch (error) {
       this.logger.error(`Failed to create event for user ${userId}:`, error);
@@ -244,7 +246,9 @@ export class GoogleCalendarService {
         requestBody: updateData,
       });
 
-      this.logger.log(`Updated event ${eventId} in Google Calendar with source attribution`);
+      this.logger.log(
+        `Updated event ${eventId} in Google Calendar with source attribution`,
+      );
       return response.data;
     } catch (error) {
       this.logger.error(`Failed to update event ${eventId}:`, error);

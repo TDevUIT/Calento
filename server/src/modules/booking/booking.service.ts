@@ -30,6 +30,7 @@ import {
   BookingAlreadyCancelledException,
 } from './exceptions/booking.exceptions';
 import { AvailabilityService } from '../availability/services/availability.service';
+import { UserService } from '../users/user.service';
 
 @Injectable()
 export class BookingService {
@@ -40,12 +41,15 @@ export class BookingService {
     private readonly bookingRepository: BookingRepository,
     private readonly availabilityService: AvailabilityService,
     private readonly messageService: MessageService,
-  ) { }
+    private readonly userService: UserService,
+  ) {}
 
   async createBookingLink(
     userId: string,
     dto: CreateBookingLinkDto,
   ): Promise<BookingLink> {
+    const timezone =
+      dto.timezone || (await this.userService.getUserTimezone(userId)) || 'UTC';
     return this.bookingLinkRepository.create({
       user_id: userId,
       ...dto,
@@ -53,7 +57,7 @@ export class BookingService {
       buffer_time_minutes: dto.buffer_time_minutes ?? 0,
       advance_notice_hours: dto.advance_notice_hours ?? 24,
       booking_window_days: dto.booking_window_days ?? 60,
-      timezone: dto.timezone ?? 'UTC',
+      timezone,
     });
   }
 
@@ -157,7 +161,7 @@ export class BookingService {
       booker_notes: dto.booker_notes,
       start_time: startTime,
       end_time: endTime,
-      timezone: dto.timezone,
+      timezone: dto.timezone || bookingLink.timezone || 'UTC',
       status: BookingStatus.CONFIRMED,
       confirmation_token: this.generateConfirmationToken(),
     });
@@ -257,7 +261,7 @@ export class BookingService {
         end_date: dto.end_date,
         duration_minutes:
           bookingLink.duration_minutes + bookingLink.buffer_time_minutes,
-        timezone: dto.timezone || 'UTC', // Pass timezone from request
+        timezone: dto.timezone,
       },
     );
 

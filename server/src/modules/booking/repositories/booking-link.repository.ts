@@ -45,9 +45,9 @@ export class BookingLinkRepository extends BaseRepository<BookingLink> {
     `;
 
     const result = await this.databaseService.query(query, [userId]);
-    return result.rows.map(row => ({
+    return result.rows.map((row) => ({
       ...row,
-      bookings_count: parseInt(row.bookings_count) || 0
+      bookings_count: parseInt(row.bookings_count) || 0,
     }));
   }
 
@@ -71,9 +71,9 @@ export class BookingLinkRepository extends BaseRepository<BookingLink> {
     `;
 
     const result = await this.databaseService.query(query, [userId]);
-    return result.rows.map(row => ({
+    return result.rows.map((row) => ({
       ...row,
-      bookings_count: parseInt(row.bookings_count) || 0
+      bookings_count: parseInt(row.bookings_count) || 0,
     }));
   }
 

@@ -32,29 +32,30 @@ export class AnalyticsRepository {
     const dateConditions = `${baseConditions} AND e.start_time >= $2 AND e.end_time <= $3`;
 
     try {
-      const [total, upcoming, past, recurring, thisWeek, thisMonth] = await Promise.all([
-        this.countEvents(dateConditions, [userId, startDate, endDate]),
-        this.countEvents(
-          `${baseConditions} AND e.start_time >= $2`,
-          [userId, now],
-        ),
-        this.countEvents(
-          `${baseConditions} AND e.end_time < $2`,
-          [userId, now],
-        ),
-        this.countEvents(
-          `${dateConditions} AND e.recurrence_rule IS NOT NULL`,
-          [userId, startDate, endDate],
-        ),
-        this.countEvents(
-          `${baseConditions} AND e.start_time >= $2 AND e.start_time < $3`,
-          [userId, weekStart, endDate],
-        ),
-        this.countEvents(
-          `${baseConditions} AND e.start_time >= $2 AND e.start_time < $3`,
-          [userId, monthStart, endDate],
-        ),
-      ]);
+      const [total, upcoming, past, recurring, thisWeek, thisMonth] =
+        await Promise.all([
+          this.countEvents(dateConditions, [userId, startDate, endDate]),
+          this.countEvents(`${baseConditions} AND e.start_time >= $2`, [
+            userId,
+            now,
+          ]),
+          this.countEvents(`${baseConditions} AND e.end_time < $2`, [
+            userId,
+            now,
+          ]),
+          this.countEvents(
+            `${dateConditions} AND e.recurrence_rule IS NOT NULL`,
+            [userId, startDate, endDate],
+          ),
+          this.countEvents(
+            `${baseConditions} AND e.start_time >= $2 AND e.start_time < $3`,
+            [userId, weekStart, endDate],
+          ),
+          this.countEvents(
+            `${baseConditions} AND e.start_time >= $2 AND e.start_time < $3`,
+            [userId, monthStart, endDate],
+          ),
+        ]);
 
       return {
         total_events: total,
@@ -110,8 +111,18 @@ export class AnalyticsRepository {
       const utilizationRate = scheduledHours / totalHours;
 
       const busiestRow = result.rows[0];
-      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-      const busiestDay = busiestRow ? dayNames[parseInt(busiestRow.day_of_week)] : 'N/A';
+      const dayNames = [
+        'Sunday',
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+      ];
+      const busiestDay = busiestRow
+        ? dayNames[parseInt(busiestRow.day_of_week)]
+        : 'N/A';
       const busiestHour = busiestRow ? parseInt(busiestRow.hour_of_day) : 0;
 
       return {
@@ -255,8 +266,12 @@ export class AnalyticsRepository {
         this.databaseService.query(topQuery, [userId, startDate, endDate]),
       ]);
 
-      const totalAttendees = parseInt(totalResult.rows[0]?.total_attendees || 0);
-      const uniqueAttendees = parseInt(totalResult.rows[0]?.unique_attendees || 0);
+      const totalAttendees = parseInt(
+        totalResult.rows[0]?.total_attendees || 0,
+      );
+      const uniqueAttendees = parseInt(
+        totalResult.rows[0]?.unique_attendees || 0,
+      );
       const eventCount = await this.countEvents(
         `${baseConditions} AND e.start_time >= $2 AND e.end_time <= $3`,
         [userId, startDate, endDate],
@@ -330,7 +345,8 @@ export class AnalyticsRepository {
         pending_bookings: parseInt(stats?.pending_bookings || 0),
         completed_bookings: parseInt(stats?.completed_bookings || 0),
         booking_rate: totalBookings > 0 ? confirmedBookings / totalBookings : 0,
-        cancellation_rate: totalBookings > 0 ? cancelledBookings / totalBookings : 0,
+        cancellation_rate:
+          totalBookings > 0 ? cancelledBookings / totalBookings : 0,
         top_booking_links: topLinksResult.rows.map((row) => ({
           id: row.id,
           title: row.title,
