@@ -3,7 +3,10 @@ import { TeamRitualRepository } from '../repositories/team-ritual.repository';
 import { TeamRepository } from '../repositories/team.repository';
 import { TeamRitual } from '../interfaces/team.interface';
 import { CreateRitualDto, UpdateRitualDto } from '../dto/team.dto';
-import { TeamRitualNotFoundException, MaxTeamRitualsException } from '../exceptions/team.exceptions';
+import {
+  TeamRitualNotFoundException,
+  MaxTeamRitualsException,
+} from '../exceptions/team.exceptions';
 import { TEAM_CONSTANTS } from '../constants/team.constants';
 
 @Injectable()
@@ -15,7 +18,10 @@ export class TeamRitualService {
     private readonly teamRepo: TeamRepository,
   ) {}
 
-  async createRitual(teamId: string, dto: CreateRitualDto): Promise<TeamRitual> {
+  async createRitual(
+    teamId: string,
+    dto: CreateRitualDto,
+  ): Promise<TeamRitual> {
     const ritualCount = await this.teamRepo.countRituals(teamId);
     if (ritualCount >= TEAM_CONSTANTS.LIMITS.MAX_RITUALS) {
       throw new MaxTeamRitualsException(TEAM_CONSTANTS.LIMITS.MAX_RITUALS);
@@ -32,11 +38,17 @@ export class TeamRitualService {
     return ritual;
   }
 
-  async getTeamRituals(teamId: string, activeOnly: boolean = false): Promise<TeamRitual[]> {
+  async getTeamRituals(
+    teamId: string,
+    activeOnly: boolean = false,
+  ): Promise<TeamRitual[]> {
     return await this.ritualRepo.findByTeam(teamId, activeOnly);
   }
 
-  async updateRitual(ritualId: string, dto: UpdateRitualDto): Promise<TeamRitual> {
+  async updateRitual(
+    ritualId: string,
+    dto: UpdateRitualDto,
+  ): Promise<TeamRitual> {
     await this.getRitualById(ritualId);
     return await this.ritualRepo.update(ritualId, dto);
   }
@@ -50,8 +62,18 @@ export class TeamRitualService {
     return await this.ritualRepo.getNextRotationUser(ritualId);
   }
 
-  async recordRotation(ritualId: string, userId: string, scheduledAt: Date, eventId?: string): Promise<void> {
-    await this.ritualRepo.createRotationRecord(ritualId, userId, scheduledAt, eventId);
+  async recordRotation(
+    ritualId: string,
+    userId: string,
+    scheduledAt: Date,
+    eventId?: string,
+  ): Promise<void> {
+    await this.ritualRepo.createRotationRecord(
+      ritualId,
+      userId,
+      scheduledAt,
+      eventId,
+    );
     await this.ritualRepo.incrementRotation(ritualId);
   }
 

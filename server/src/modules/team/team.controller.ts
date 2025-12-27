@@ -1,5 +1,21 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, Req } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse as SwaggerApiResponse } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse as SwaggerApiResponse,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { TeamService } from './services/team.service';
 import { TeamMemberService } from './services/team-member.service';
@@ -43,12 +59,15 @@ export class TeamController {
   }
 
   @Get('invitations/pending')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Get my pending team invitations',
-    description: 'Get all pending invitations for the current user where they can accept/decline'
+    description:
+      'Get all pending invitations for the current user where they can accept/decline',
   })
   async getMyPendingInvitations(@Req() req) {
-    return await this.memberService.getMyPendingInvitations(this.getUserId(req));
+    return await this.memberService.getMyPendingInvitations(
+      this.getUserId(req),
+    );
   }
 
   @Get('owned')
@@ -65,7 +84,11 @@ export class TeamController {
 
   @Put(':teamId')
   @ApiOperation({ summary: 'Update team' })
-  async updateTeam(@Req() req, @Param('teamId') teamId: string, @Body() dto: UpdateTeamDto) {
+  async updateTeam(
+    @Req() req,
+    @Param('teamId') teamId: string,
+    @Body() dto: UpdateTeamDto,
+  ) {
     return await this.teamService.updateTeam(teamId, this.getUserId(req), dto);
   }
 
@@ -78,40 +101,78 @@ export class TeamController {
 
   @Post(':teamId/members')
   @ApiOperation({ summary: 'Invite team member' })
-  async inviteMember(@Req() req, @Param('teamId') teamId: string, @Body() dto: InviteMemberDto) {
+  async inviteMember(
+    @Req() req,
+    @Param('teamId') teamId: string,
+    @Body() dto: InviteMemberDto,
+  ) {
     await this.teamService.validateAdminAccess(teamId, this.getUserId(req));
     return await this.memberService.inviteMember(teamId, dto);
   }
 
   @Get(':teamId/members')
   @ApiOperation({ summary: 'Get team members' })
-  async getMembers(@Req() req, @Param('teamId') teamId: string, @Query('status') status?: string) {
+  async getMembers(
+    @Req() req,
+    @Param('teamId') teamId: string,
+    @Query('status') status?: string,
+  ) {
     await this.teamService.validateMemberAccess(teamId, this.getUserId(req));
     return await this.memberService.getTeamMembers(teamId, status);
   }
 
   @Put(':teamId/members/:memberId/accept')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Accept team invitation',
-    description: 'Accept a team invitation. Only the invited user can accept their own invitation.'
+    description:
+      'Accept a team invitation. Only the invited user can accept their own invitation.',
   })
-  @SwaggerApiResponse({ status: 200, description: 'Invitation accepted successfully' })
-  @SwaggerApiResponse({ status: 403, description: 'Not authorized to accept this invitation' })
+  @SwaggerApiResponse({
+    status: 200,
+    description: 'Invitation accepted successfully',
+  })
+  @SwaggerApiResponse({
+    status: 403,
+    description: 'Not authorized to accept this invitation',
+  })
   @SwaggerApiResponse({ status: 400, description: 'Invitation is not pending' })
-  async acceptInvitation(@Req() req, @Param('teamId') teamId: string, @Param('memberId') memberId: string) {
-    return await this.memberService.acceptInvitation(memberId, this.getUserId(req), teamId);
+  async acceptInvitation(
+    @Req() req,
+    @Param('teamId') teamId: string,
+    @Param('memberId') memberId: string,
+  ) {
+    return await this.memberService.acceptInvitation(
+      memberId,
+      this.getUserId(req),
+      teamId,
+    );
   }
 
   @Put(':teamId/members/:memberId/decline')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Decline team invitation',
-    description: 'Decline a team invitation. Only the invited user can decline their own invitation.'
+    description:
+      'Decline a team invitation. Only the invited user can decline their own invitation.',
   })
-  @SwaggerApiResponse({ status: 200, description: 'Invitation declined successfully' })
-  @SwaggerApiResponse({ status: 403, description: 'Not authorized to decline this invitation' })
+  @SwaggerApiResponse({
+    status: 200,
+    description: 'Invitation declined successfully',
+  })
+  @SwaggerApiResponse({
+    status: 403,
+    description: 'Not authorized to decline this invitation',
+  })
   @SwaggerApiResponse({ status: 400, description: 'Invitation is not pending' })
-  async declineInvitation(@Req() req, @Param('teamId') teamId: string, @Param('memberId') memberId: string) {
-    await this.memberService.declineInvitation(memberId, this.getUserId(req), teamId);
+  async declineInvitation(
+    @Req() req,
+    @Param('teamId') teamId: string,
+    @Param('memberId') memberId: string,
+  ) {
+    await this.memberService.declineInvitation(
+      memberId,
+      this.getUserId(req),
+      teamId,
+    );
     return { success: true };
   }
 
@@ -121,7 +182,7 @@ export class TeamController {
     @Req() req,
     @Param('teamId') teamId: string,
     @Param('memberId') memberId: string,
-    @Body() dto: UpdateMemberRoleDto
+    @Body() dto: UpdateMemberRoleDto,
   ) {
     await this.teamService.validateAdminAccess(teamId, this.getUserId(req));
     return await this.memberService.updateMemberRole(memberId, dto);
@@ -129,7 +190,11 @@ export class TeamController {
 
   @Delete(':teamId/members/:memberId')
   @ApiOperation({ summary: 'Remove team member' })
-  async removeMember(@Req() req, @Param('teamId') teamId: string, @Param('memberId') memberId: string) {
+  async removeMember(
+    @Req() req,
+    @Param('teamId') teamId: string,
+    @Param('memberId') memberId: string,
+  ) {
     await this.teamService.validateAdminAccess(teamId, this.getUserId(req));
     await this.memberService.removeMember(memberId);
     return { success: true };
@@ -144,14 +209,22 @@ export class TeamController {
 
   @Post(':teamId/rituals')
   @ApiOperation({ summary: 'Create team ritual' })
-  async createRitual(@Req() req, @Param('teamId') teamId: string, @Body() dto: CreateRitualDto) {
+  async createRitual(
+    @Req() req,
+    @Param('teamId') teamId: string,
+    @Body() dto: CreateRitualDto,
+  ) {
     await this.teamService.validateAdminAccess(teamId, this.getUserId(req));
     return await this.ritualService.createRitual(teamId, dto);
   }
 
   @Get(':teamId/rituals')
   @ApiOperation({ summary: 'Get team rituals' })
-  async getRituals(@Req() req, @Param('teamId') teamId: string, @Query('active') active?: string) {
+  async getRituals(
+    @Req() req,
+    @Param('teamId') teamId: string,
+    @Query('active') active?: string,
+  ) {
     await this.teamService.validateMemberAccess(teamId, this.getUserId(req));
     return await this.ritualService.getTeamRituals(teamId, active === 'true');
   }
@@ -162,7 +235,7 @@ export class TeamController {
     @Req() req,
     @Param('teamId') teamId: string,
     @Param('ritualId') ritualId: string,
-    @Body() dto: UpdateRitualDto
+    @Body() dto: UpdateRitualDto,
   ) {
     await this.teamService.validateAdminAccess(teamId, this.getUserId(req));
     return await this.ritualService.updateRitual(ritualId, dto);
@@ -170,7 +243,11 @@ export class TeamController {
 
   @Delete(':teamId/rituals/:ritualId')
   @ApiOperation({ summary: 'Delete team ritual' })
-  async deleteRitual(@Req() req, @Param('teamId') teamId: string, @Param('ritualId') ritualId: string) {
+  async deleteRitual(
+    @Req() req,
+    @Param('teamId') teamId: string,
+    @Param('ritualId') ritualId: string,
+  ) {
     await this.teamService.validateAdminAccess(teamId, this.getUserId(req));
     await this.ritualService.deleteRitual(ritualId);
     return { success: true };
@@ -178,7 +255,11 @@ export class TeamController {
 
   @Get(':teamId/rituals/:ritualId/rotation')
   @ApiOperation({ summary: 'Get ritual rotation history' })
-  async getRotationHistory(@Req() req, @Param('teamId') teamId: string, @Param('ritualId') ritualId: string) {
+  async getRotationHistory(
+    @Req() req,
+    @Param('teamId') teamId: string,
+    @Param('ritualId') ritualId: string,
+  ) {
     await this.teamService.validateMemberAccess(teamId, this.getUserId(req));
     return await this.ritualService.getRotationHistory(ritualId);
   }
@@ -188,14 +269,15 @@ export class TeamController {
   async getAvailabilityHeatmap(
     @Req() req,
     @Param('teamId') teamId: string,
-    @Body() dto: GetAvailabilityHeatmapDto
+    @Body() dto: GetAvailabilityHeatmapDto,
   ) {
     await this.teamService.validateMemberAccess(teamId, this.getUserId(req));
     return await this.availabilityService.generateHeatmap(
       teamId,
+      this.getUserId(req),
       new Date(dto.start_date),
       new Date(dto.end_date),
-      dto.timezone
+      dto.timezone,
     );
   }
 
@@ -204,16 +286,17 @@ export class TeamController {
   async findOptimalTimes(
     @Req() req,
     @Param('teamId') teamId: string,
-    @Body() dto: FindOptimalTimeDto
+    @Body() dto: FindOptimalTimeDto,
   ) {
     await this.teamService.validateMemberAccess(teamId, this.getUserId(req));
     return await this.availabilityService.findOptimalTimes(
       teamId,
+      this.getUserId(req),
       new Date(dto.start_date),
       new Date(dto.end_date),
       dto.duration_minutes,
       dto.required_members,
-      dto.timezone
+      dto.timezone,
     );
   }
 }

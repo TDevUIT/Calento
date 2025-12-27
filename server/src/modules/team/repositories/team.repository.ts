@@ -15,25 +15,30 @@ export class TeamRepository {
       `INSERT INTO teams (name, description, owner_id, timezone, settings)
        VALUES ($1, $2, $3, $4, $5)
        RETURNING *`,
-      [dto.name, dto.description, userId, dto.timezone || 'UTC', JSON.stringify(settings)]
+      [
+        dto.name,
+        dto.description,
+        userId,
+        dto.timezone || 'UTC',
+        JSON.stringify(settings),
+      ],
     );
     return this.mapToTeam(result.rows[0]);
   }
 
   async findById(id: string): Promise<Team | null> {
-    const result = await this.db.query(
-      'SELECT * FROM teams WHERE id = $1',
-      [id]
-    );
+    const result = await this.db.query('SELECT * FROM teams WHERE id = $1', [
+      id,
+    ]);
     return result.rows[0] ? this.mapToTeam(result.rows[0]) : null;
   }
 
   async findByOwner(userId: string): Promise<Team[]> {
     const result = await this.db.query(
       'SELECT * FROM teams WHERE owner_id = $1 ORDER BY created_at DESC',
-      [userId]
+      [userId],
     );
-    return result.rows.map(row => this.mapToTeam(row));
+    return result.rows.map((row) => this.mapToTeam(row));
   }
 
   async findByMember(userId: string): Promise<Team[]> {
@@ -42,9 +47,9 @@ export class TeamRepository {
        INNER JOIN team_members tm ON t.id = tm.team_id
        WHERE tm.user_id = $1 AND tm.status = 'active'
        ORDER BY t.created_at DESC`,
-      [userId]
+      [userId],
     );
-    return result.rows.map(row => this.mapToTeam(row));
+    return result.rows.map((row) => this.mapToTeam(row));
   }
 
   async update(id: string, dto: UpdateTeamDto): Promise<Team> {
@@ -76,7 +81,7 @@ export class TeamRepository {
     values.push(id);
     const result = await this.db.query(
       `UPDATE teams SET ${updates.join(', ')} WHERE id = $${paramCount} RETURNING *`,
-      values
+      values,
     );
     return this.mapToTeam(result.rows[0]);
   }
@@ -88,7 +93,7 @@ export class TeamRepository {
   async countMembers(teamId: string): Promise<number> {
     const result = await this.db.query(
       'SELECT COUNT(*) as count FROM team_members WHERE team_id = $1 AND status = $2',
-      [teamId, 'active']
+      [teamId, 'active'],
     );
     return parseInt(result.rows[0].count);
   }
@@ -96,7 +101,7 @@ export class TeamRepository {
   async countRituals(teamId: string): Promise<number> {
     const result = await this.db.query(
       'SELECT COUNT(*) as count FROM team_rituals WHERE team_id = $1 AND is_active = true',
-      [teamId]
+      [teamId],
     );
     return parseInt(result.rows[0].count);
   }
@@ -108,7 +113,10 @@ export class TeamRepository {
       description: row.description,
       owner_id: row.owner_id,
       timezone: row.timezone,
-      settings: typeof row.settings === 'string' ? JSON.parse(row.settings) : row.settings,
+      settings:
+        typeof row.settings === 'string'
+          ? JSON.parse(row.settings)
+          : row.settings,
       is_active: row.is_active,
       created_at: row.created_at,
       updated_at: row.updated_at,

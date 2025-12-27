@@ -78,6 +78,11 @@ CREATE TABLE IF NOT EXISTS team_meeting_rotations (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Link events to teams (optional)
+ALTER TABLE events
+    ADD CONSTRAINT IF NOT EXISTS fk_events_team_id
+    FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE SET NULL;
+
 COMMENT ON TABLE team_meeting_rotations IS 'Tracks meeting rotation assignments';
 
 -- INDEXES

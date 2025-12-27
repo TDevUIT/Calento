@@ -12,7 +12,9 @@ export class TeamNotFoundException extends HttpException {
 export class TeamMemberNotFoundException extends HttpException {
   constructor(memberId?: string) {
     super(
-      memberId ? `Team member with ID ${memberId} not found` : 'Team member not found',
+      memberId
+        ? `Team member with ID ${memberId} not found`
+        : 'Team member not found',
       HttpStatus.NOT_FOUND,
     );
   }
@@ -21,7 +23,9 @@ export class TeamMemberNotFoundException extends HttpException {
 export class TeamRitualNotFoundException extends HttpException {
   constructor(ritualId?: string) {
     super(
-      ritualId ? `Team ritual with ID ${ritualId} not found` : 'Team ritual not found',
+      ritualId
+        ? `Team ritual with ID ${ritualId} not found`
+        : 'Team ritual not found',
       HttpStatus.NOT_FOUND,
     );
   }
@@ -35,13 +39,19 @@ export class AlreadyTeamMemberException extends HttpException {
 
 export class MaxTeamMembersException extends HttpException {
   constructor(limit: number) {
-    super(`Maximum number of team members (${limit}) reached`, HttpStatus.BAD_REQUEST);
+    super(
+      `Maximum number of team members (${limit}) reached`,
+      HttpStatus.BAD_REQUEST,
+    );
   }
 }
 
 export class MaxTeamRitualsException extends HttpException {
   constructor(limit: number) {
-    super(`Maximum number of team rituals (${limit}) reached`, HttpStatus.BAD_REQUEST);
+    super(
+      `Maximum number of team rituals (${limit}) reached`,
+      HttpStatus.BAD_REQUEST,
+    );
   }
 }
 
@@ -83,18 +93,27 @@ export class CannotInviteOwnerException extends HttpException {
 
 export class UserNotFoundForInviteException extends HttpException {
   constructor(email: string) {
-    super(`User with email ${email} not found. Please check the email address.`, HttpStatus.NOT_FOUND);
+    super(
+      `User with email ${email} not found. Please check the email address.`,
+      HttpStatus.NOT_FOUND,
+    );
   }
 }
 
 export class UnauthorizedInvitationActionException extends HttpException {
   constructor() {
-    super('You are not authorized to accept/decline this invitation', HttpStatus.FORBIDDEN);
+    super(
+      'You are not authorized to accept/decline this invitation',
+      HttpStatus.FORBIDDEN,
+    );
   }
 }
 
 export class InvitationNotPendingException extends HttpException {
   constructor(status: string) {
-    super(`Invitation is not pending. Current status: ${status}`, HttpStatus.BAD_REQUEST);
+    super(
+      `Invitation is not pending. Current status: ${status}`,
+      HttpStatus.BAD_REQUEST,
+    );
   }
 }

@@ -21,10 +21,15 @@ export class TeamService {
 
   async createTeam(userId: string, dto: CreateTeamDto): Promise<Team> {
     this.logger.log(`Creating team: ${dto.name} for user: ${userId}`);
-    
+
     const team = await this.teamRepo.create(userId, dto);
-    
-    await this.memberRepo.create(team.id, userId, TEAM_CONSTANTS.ROLES.OWNER, TEAM_CONSTANTS.STATUS.ACTIVE);
+
+    await this.memberRepo.create(
+      team.id,
+      userId,
+      TEAM_CONSTANTS.ROLES.OWNER,
+      TEAM_CONSTANTS.STATUS.ACTIVE,
+    );
 
     return team;
   }
@@ -47,7 +52,11 @@ export class TeamService {
     return await this.teamRepo.findByOwner(userId);
   }
 
-  async updateTeam(teamId: string, userId: string, dto: UpdateTeamDto): Promise<Team> {
+  async updateTeam(
+    teamId: string,
+    userId: string,
+    dto: UpdateTeamDto,
+  ): Promise<Team> {
     await this.validateOwnerAccess(teamId, userId);
     return await this.teamRepo.update(teamId, dto);
   }
@@ -69,7 +78,10 @@ export class TeamService {
     if (!member || member.status !== TEAM_CONSTANTS.STATUS.ACTIVE) {
       throw new TeamNotFoundException(teamId);
     }
-    if (member.role !== TEAM_CONSTANTS.ROLES.OWNER && member.role !== TEAM_CONSTANTS.ROLES.ADMIN) {
+    if (
+      member.role !== TEAM_CONSTANTS.ROLES.OWNER &&
+      member.role !== TEAM_CONSTANTS.ROLES.ADMIN
+    ) {
       throw new NotTeamAdminException();
     }
   }
@@ -92,6 +104,9 @@ export class TeamService {
   async isTeamAdmin(teamId: string, userId: string): Promise<boolean> {
     const member = await this.memberRepo.findByTeamAndUser(teamId, userId);
     if (!member) return false;
-    return member.role === TEAM_CONSTANTS.ROLES.OWNER || member.role === TEAM_CONSTANTS.ROLES.ADMIN;
+    return (
+      member.role === TEAM_CONSTANTS.ROLES.OWNER ||
+      member.role === TEAM_CONSTANTS.ROLES.ADMIN
+    );
   }
 }

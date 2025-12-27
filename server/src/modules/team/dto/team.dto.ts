@@ -1,4 +1,17 @@
-import { IsString, IsOptional, IsBoolean, IsInt, IsEnum, IsArray, IsDateString, Min, Max, MaxLength, IsNotEmpty, ValidateNested } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsBoolean,
+  IsInt,
+  IsEnum,
+  IsArray,
+  IsDateString,
+  Min,
+  Max,
+  MaxLength,
+  IsNotEmpty,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { TEAM_CONSTANTS } from '../constants/team.constants';
@@ -141,7 +154,10 @@ export class CreateRitualDto {
   @IsOptional()
   buffer_after?: number;
 
-  @ApiPropertyOptional({ enum: Object.values(TEAM_CONSTANTS.ROTATION_TYPES), default: 'none' })
+  @ApiPropertyOptional({
+    enum: Object.values(TEAM_CONSTANTS.ROTATION_TYPES),
+    default: 'none',
+  })
   @IsEnum(Object.values(TEAM_CONSTANTS.ROTATION_TYPES))
   @IsOptional()
   rotation_type?: string;

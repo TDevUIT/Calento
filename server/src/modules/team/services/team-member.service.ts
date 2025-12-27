@@ -28,7 +28,10 @@ export class TeamMemberService {
     private readonly emailService: EmailService,
   ) {}
 
-  async inviteMember(teamId: string, dto: InviteMemberDto): Promise<TeamMember> {
+  async inviteMember(
+    teamId: string,
+    dto: InviteMemberDto,
+  ): Promise<TeamMember> {
     this.logger.log(`Inviting member to team ${teamId}: ${dto.email}`);
 
     const team = await this.teamRepo.findById(teamId);
@@ -43,7 +46,7 @@ export class TeamMemberService {
 
     const userResult = await this.db.query(
       'SELECT id FROM users WHERE email = $1',
-      [dto.email]
+      [dto.email],
     );
 
     if (!userResult.rows[0]) {
@@ -59,19 +62,29 @@ export class TeamMemberService {
     const existing = await this.memberRepo.findByTeamAndUser(teamId, userId);
 
     if (existing) {
-      if (existing.status === TEAM_CONSTANTS.STATUS.ACTIVE || existing.status === TEAM_CONSTANTS.STATUS.PENDING) {
+      if (
+        existing.status === TEAM_CONSTANTS.STATUS.ACTIVE ||
+        existing.status === TEAM_CONSTANTS.STATUS.PENDING
+      ) {
         throw new AlreadyTeamMemberException();
       }
-      const member = await this.memberRepo.updateStatus(existing.id, TEAM_CONSTANTS.STATUS.PENDING);
+      const member = await this.memberRepo.updateStatus(
+        existing.id,
+        TEAM_CONSTANTS.STATUS.PENDING,
+      );
       await this.sendInvitationEmail(team, member, dto.email);
       return member;
     }
 
-    const member = await this.memberRepo.create(teamId, userId, dto.role || TEAM_CONSTANTS.ROLES.MEMBER);
-    
+    const member = await this.memberRepo.create(
+      teamId,
+      userId,
+      dto.role || TEAM_CONSTANTS.ROLES.MEMBER,
+    );
+
     // Send invitation email
     await this.sendInvitationEmail(team, member, dto.email);
-    
+
     return member;
   }
 
@@ -84,19 +97,21 @@ export class TeamMemberService {
       // Get inviter (owner) info
       const ownerResult = await this.db.query(
         'SELECT first_name, last_name, email FROM users WHERE id = $1',
-        [team.owner_id]
+        [team.owner_id],
       );
       const owner = ownerResult.rows[0];
 
       // Get invitee info
       const inviteeResult = await this.db.query(
         'SELECT first_name, last_name FROM users WHERE id = $1',
-        [member.user_id]
+        [member.user_id],
       );
       const invitee = inviteeResult.rows[0];
 
-      const inviterName = `${owner.first_name} ${owner.last_name}`.trim() || owner.email;
-      const inviteeName = `${invitee.first_name} ${invitee.last_name}`.trim() || inviteeEmail;
+      const inviterName =
+        `${owner.first_name} ${owner.last_name}`.trim() || owner.email;
+      const inviteeName =
+        `${invitee.first_name} ${invitee.last_name}`.trim() || inviteeEmail;
 
       await this.emailService.sendTeamInvitationEmail(
         team.owner_id, // userId for email log
@@ -114,7 +129,9 @@ export class TeamMemberService {
       this.logger.log(`✅ Team invitation email sent to ${inviteeEmail}`);
     } catch (error) {
       // Don't fail the invitation if email fails
-      this.logger.error(`❌ Failed to send team invitation email: ${error.message}`);
+      this.logger.error(
+        `❌ Failed to send team invitation email: ${error.message}`,
+      );
     }
   }
 
@@ -130,13 +147,21 @@ export class TeamMemberService {
     return member;
   }
 
-  async acceptInvitation(memberId: string, userId: string, teamId?: string): Promise<TeamMember> {
-    this.logger.log(`User ${userId} attempting to accept invitation ${memberId}`);
+  async acceptInvitation(
+    memberId: string,
+    userId: string,
+    teamId?: string,
+  ): Promise<TeamMember> {
+    this.logger.log(
+      `User ${userId} attempting to accept invitation ${memberId}`,
+    );
     const member = await this.getMemberById(memberId);
-    
+
     // Only the invited user can accept their own invitation
     if (member.user_id !== userId) {
-      this.logger.warn(`Unauthorized: User ${userId} tried to accept invitation for user ${member.user_id}`);
+      this.logger.warn(
+        `Unauthorized: User ${userId} tried to accept invitation for user ${member.user_id}`,
+      );
       throw new UnauthorizedInvitationActionException();
     }
 
@@ -149,17 +174,30 @@ export class TeamMemberService {
       throw new InvitationNotPendingException(member.status);
     }
 
-    this.logger.log(`User ${userId} accepted invitation to team ${member.team_id}`);
-    return await this.memberRepo.updateStatus(memberId, TEAM_CONSTANTS.STATUS.ACTIVE);
+    this.logger.log(
+      `User ${userId} accepted invitation to team ${member.team_id}`,
+    );
+    return await this.memberRepo.updateStatus(
+      memberId,
+      TEAM_CONSTANTS.STATUS.ACTIVE,
+    );
   }
 
-  async declineInvitation(memberId: string, userId: string, teamId?: string): Promise<void> {
-    this.logger.log(`User ${userId} attempting to decline invitation ${memberId}`);
+  async declineInvitation(
+    memberId: string,
+    userId: string,
+    teamId?: string,
+  ): Promise<void> {
+    this.logger.log(
+      `User ${userId} attempting to decline invitation ${memberId}`,
+    );
     const member = await this.getMemberById(memberId);
-    
+
     // Only the invited user can decline their own invitation
     if (member.user_id !== userId) {
-      this.logger.warn(`Unauthorized: User ${userId} tried to decline invitation for user ${member.user_id}`);
+      this.logger.warn(
+        `Unauthorized: User ${userId} tried to decline invitation for user ${member.user_id}`,
+      );
       throw new UnauthorizedInvitationActionException();
     }
 
@@ -172,13 +210,21 @@ export class TeamMemberService {
       throw new InvitationNotPendingException(member.status);
     }
 
-    this.logger.log(`User ${userId} declined invitation to team ${member.team_id}`);
-    await this.memberRepo.updateStatus(memberId, TEAM_CONSTANTS.STATUS.DECLINED);
+    this.logger.log(
+      `User ${userId} declined invitation to team ${member.team_id}`,
+    );
+    await this.memberRepo.updateStatus(
+      memberId,
+      TEAM_CONSTANTS.STATUS.DECLINED,
+    );
   }
 
-  async updateMemberRole(memberId: string, dto: UpdateMemberRoleDto): Promise<TeamMember> {
+  async updateMemberRole(
+    memberId: string,
+    dto: UpdateMemberRoleDto,
+  ): Promise<TeamMember> {
     const member = await this.getMemberById(memberId);
-    
+
     const team = await this.teamRepo.findById(member.team_id);
     if (team && team.owner_id === member.user_id) {
       throw new CannotRemoveOwnerException();
@@ -189,7 +235,7 @@ export class TeamMemberService {
 
   async removeMember(memberId: string): Promise<void> {
     const member = await this.getMemberById(memberId);
-    
+
     const team = await this.teamRepo.findById(member.team_id);
     if (team && team.owner_id === member.user_id) {
       throw new CannotRemoveOwnerException();
@@ -212,7 +258,10 @@ export class TeamMemberService {
     await this.memberRepo.delete(member.id);
   }
 
-  async getMemberIds(teamId: string, status: string = TEAM_CONSTANTS.STATUS.ACTIVE): Promise<string[]> {
+  async getMemberIds(
+    teamId: string,
+    status: string = TEAM_CONSTANTS.STATUS.ACTIVE,
+  ): Promise<string[]> {
     return await this.memberRepo.getMemberIds(teamId, status);
   }
 
@@ -230,7 +279,7 @@ export class TeamMemberService {
        LEFT JOIN users u ON t.owner_id = u.id
        WHERE tm.user_id = $1 AND tm.status = $2
        ORDER BY tm.created_at DESC`,
-      [userId, TEAM_CONSTANTS.STATUS.PENDING]
+      [userId, TEAM_CONSTANTS.STATUS.PENDING],
     );
     return result.rows;
   }
