@@ -22,6 +22,7 @@ COMMENT ON TABLE calendars IS 'Stores calendar metadata synced from Google Calen
 CREATE TABLE IF NOT EXISTS events (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     calendar_id UUID NOT NULL REFERENCES calendars(id) ON DELETE CASCADE,
+    team_id UUID,
     google_event_id VARCHAR(255), -- Nullable for local events
     title VARCHAR(500),
     description TEXT,
@@ -142,6 +143,7 @@ CREATE INDEX IF NOT EXISTS idx_calendars_google_id ON calendars(google_calendar_
 CREATE INDEX IF NOT EXISTS idx_calendars_primary ON calendars(is_primary);
 
 CREATE INDEX IF NOT EXISTS idx_events_calendar_id ON events(calendar_id);
+CREATE INDEX IF NOT EXISTS idx_events_team_id ON events(team_id);
 CREATE INDEX IF NOT EXISTS idx_events_google_id ON events(google_event_id) WHERE google_event_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_events_start_time ON events(start_time);
 CREATE INDEX IF NOT EXISTS idx_events_end_time ON events(end_time);

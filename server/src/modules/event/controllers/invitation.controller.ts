@@ -9,7 +9,12 @@
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { InvitationService } from '../services/invitation.service';
 import {
   RespondToInvitationDto,
@@ -28,7 +33,8 @@ export class InvitationController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Respond to event invitation (Authenticated)',
-    description: 'Accept, decline, or tentatively respond to event invitation. Event is automatically added to calendar when accepted.',
+    description:
+      'Accept, decline, or tentatively respond to event invitation. Event is automatically added to calendar when accepted.',
   })
   @ApiResponse({
     status: 200,
@@ -42,7 +48,7 @@ export class InvitationController {
     @Request() req: any,
   ): Promise<InvitationResponseDto> {
     const userId = req.user?.id;
-    
+
     return this.invitationService.respondToInvitation(
       eventId,
       token,
@@ -55,7 +61,8 @@ export class InvitationController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Respond to event invitation (Guest)',
-    description: 'Accept, decline, or tentatively respond to event invitation as a guest. Receives .ics file when accepted.',
+    description:
+      'Accept, decline, or tentatively respond to event invitation as a guest. Receives .ics file when accepted.',
   })
   @ApiResponse({
     status: 200,

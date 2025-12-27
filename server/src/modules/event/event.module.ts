@@ -16,7 +16,13 @@ import { RecurringEventsService } from '../../common/services/recurring-events.s
 import { VectorModule } from '../vector/vector.module';
 
 @Module({
-  imports: [DatabaseModule, GoogleModule, EmailModule, UsersModule, VectorModule],
+  imports: [
+    DatabaseModule,
+    GoogleModule,
+    EmailModule,
+    UsersModule,
+    VectorModule,
+  ],
   controllers: [EventController, CalendarSyncController, EventQueueController],
   providers: [
     EventService,
@@ -27,6 +33,12 @@ import { VectorModule } from '../vector/vector.module';
     SyncChecker,
     RecurringEventsService,
   ],
-  exports: [EventService, EventRepository, EventSyncService, CalendarSyncManagerService, EventInvitationService],
+  exports: [
+    EventService,
+    EventRepository,
+    EventSyncService,
+    CalendarSyncManagerService,
+    EventInvitationService,
+  ],
 })
-export class EventModule { }
+export class EventModule {}

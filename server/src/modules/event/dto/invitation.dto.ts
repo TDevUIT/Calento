@@ -1,4 +1,10 @@
-﻿import { IsEmail, IsEnum, IsOptional, IsUUID, IsBoolean } from 'class-validator';
+﻿import {
+  IsEmail,
+  IsEnum,
+  IsOptional,
+  IsUUID,
+  IsBoolean,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export enum InvitationResponseStatus {
@@ -55,10 +61,16 @@ export class InvitationResponseDto {
   @ApiProperty({ description: 'Whether event was added to calendar' })
   eventAddedToCalendar: boolean;
 
-  @ApiProperty({ description: 'Whether user needs to sign up', required: false })
+  @ApiProperty({
+    description: 'Whether user needs to sign up',
+    required: false,
+  })
   needsSignup?: boolean;
 
-  @ApiProperty({ description: 'Calendar file URL for guest users', required: false })
+  @ApiProperty({
+    description: 'Calendar file URL for guest users',
+    required: false,
+  })
   icsFileUrl?: string;
 }
 

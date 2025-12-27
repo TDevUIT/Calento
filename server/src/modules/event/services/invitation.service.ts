@@ -1,9 +1,9 @@
 ﻿import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { EventRepository } from '../event.repository';
-import { 
-  InvitationResponseStatus, 
-  RespondToInvitationDto, 
-  InvitationResponseDto 
+import {
+  InvitationResponseStatus,
+  RespondToInvitationDto,
+  InvitationResponseDto,
 } from '../dto/invitation.dto';
 import * as ics from 'ics';
 import { EventAttributes, EventStatus } from 'ics';
@@ -65,7 +65,9 @@ export class InvitationService {
     originalEvent: any,
     addToCalento: boolean = false,
   ): Promise<InvitationResponseDto> {
-    this.logger.log(`Authenticated user ${userId} responding to event ${eventId}`);
+    this.logger.log(
+      `Authenticated user ${userId} responding to event ${eventId}`,
+    );
 
     await this.updateAttendeeStatus(eventId, userId, responseStatus);
 
@@ -75,14 +77,22 @@ export class InvitationService {
       try {
         await this.createEventInUserCalendar(userId, originalEvent);
         eventAddedToCalendar = true;
-        this.logger.log(`âœ¨ Event added to Calento calendar for user ${userId}`);
+        this.logger.log(
+          `âœ¨ Event added to Calento calendar for user ${userId}`,
+        );
       } catch (error) {
-        this.logger.error(`Failed to add event to Calento calendar: ${error.message}`);
+        this.logger.error(
+          `Failed to add event to Calento calendar: ${error.message}`,
+        );
       }
     }
 
     if (originalEvent.organizer_id) {
-      await this.notifyOrganizer(originalEvent.organizer_id, userId, responseStatus);
+      await this.notifyOrganizer(
+        originalEvent.organizer_id,
+        userId,
+        responseStatus,
+      );
     }
 
     return {
@@ -171,7 +181,7 @@ export class InvitationService {
       SET response_status = $1, updated_at = NOW()
       WHERE event_id = $2 AND user_id = $3
     `;
-    
+
     await this.databaseService.query(query, [status, eventId, userId]);
   }
 
@@ -187,7 +197,7 @@ export class InvitationService {
       ON CONFLICT (event_id, email) 
       DO UPDATE SET response_status = $4, updated_at = NOW()
     `;
-    
+
     await this.databaseService.query(query, [
       eventId,
       guestEmail,
@@ -222,7 +232,7 @@ export class InvitationService {
     };
 
     const { error, value } = ics.createEvent(icsEvent);
-    
+
     if (error || !value) {
       this.logger.error('Error generating ICS file', error);
       throw new Error('Failed to generate calendar file');
@@ -232,7 +242,9 @@ export class InvitationService {
     return `data:text/calendar;base64,${base64}`;
   }
 
-  private parseDateTime(dateString: string): [number, number, number, number, number] {
+  private parseDateTime(
+    dateString: string,
+  ): [number, number, number, number, number] {
     const date = new Date(dateString);
     return [
       date.getFullYear(),
@@ -280,7 +292,8 @@ export class InvitationService {
       [InvitationResponseStatus.ACCEPTED]: isAuthenticated
         ? 'Event added to your calendar! You will receive reminders.'
         : 'Response recorded! Check your email for calendar invite (.ics file).',
-      [InvitationResponseStatus.DECLINED]: 'Response recorded. You will not attend this event.',
+      [InvitationResponseStatus.DECLINED]:
+        'Response recorded. You will not attend this event.',
       [InvitationResponseStatus.TENTATIVE]: isAuthenticated
         ? 'Response recorded. Event marked as tentative in your calendar.'
         : 'Response recorded as tentative.',

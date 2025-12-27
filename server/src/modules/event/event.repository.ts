@@ -6,7 +6,11 @@ import {
   PaginationOptions,
 } from '../../common/interfaces/pagination.interface';
 import { Event, EventAttendee } from './event';
-import { CreateEventDto, UpdateEventDto, PartialUpdateEventDto } from './dto/events.dto';
+import {
+  CreateEventDto,
+  UpdateEventDto,
+  PartialUpdateEventDto,
+} from './dto/events.dto';
 import { UserValidationService } from '../../common/services/user-validation.service';
 import { CalendarValidationService } from '../../common/services/calendar-validation.service';
 import { EventValidationService } from '../../common/services/event-validation.service';
@@ -47,14 +51,39 @@ export class EventRepository extends BaseRepository<Event> {
           u.email
         ) as creator_name,
         u.email as creator_email,
-        u.avatar as creator_avatar
+        u.avatar as creator_avatar,
+        t.id as team_ref_id,
+        t.name as team_ref_name
       FROM ${this.tableName} e
       LEFT JOIN users u ON e.organizer_id = u.id
+      LEFT JOIN teams t ON e.team_id = t.id
     `;
     if (!includeDeleted && this.isSoftDeletable()) {
       query += ` WHERE e.deleted_at IS NULL`;
     }
     return query;
+  }
+
+  private async validateTeamAccess(
+    teamId: string,
+    userId: string,
+  ): Promise<void> {
+    const result = await this.databaseService.query(
+      `SELECT 1
+       FROM teams t
+       LEFT JOIN team_members tm
+         ON tm.team_id = t.id
+        AND tm.user_id = $2
+        AND tm.status = 'active'
+       WHERE t.id = $1
+         AND (t.owner_id = $2 OR tm.id IS NOT NULL)
+       LIMIT 1`,
+      [teamId, userId],
+    );
+
+    if (result.rowCount === 0) {
+      throw new Error('Team not found or access denied');
+    }
   }
 
   async findById(id: string): Promise<Event | null> {
@@ -81,7 +110,10 @@ export class EventRepository extends BaseRepository<Event> {
     if (typeof value === 'string') {
       try {
         const parsed = JSON.parse(value);
-        this.logger.debug(`Parsed JSON string back to object:`, { original: value, parsed });
+        this.logger.debug(`Parsed JSON string back to object:`, {
+          original: value,
+          parsed,
+        });
         return parsed;
       } catch (error) {
         this.logger.debug(`String is not JSON, returning as-is:`, value);
@@ -128,16 +160,28 @@ export class EventRepository extends BaseRepository<Event> {
           try {
             const parsed = JSON.parse(value);
             processedData[field] = JSON.stringify(parsed);
-            this.logger.debug(`Parsed and stringified JSON field ${field}:`, { original: value, result: processedData[field] });
+            this.logger.debug(`Parsed and stringified JSON field ${field}:`, {
+              original: value,
+              result: processedData[field],
+            });
           } catch (error) {
-            this.logger.warn(`Invalid JSON in field ${field}, setting to null:`, value);
+            this.logger.warn(
+              `Invalid JSON in field ${field}, setting to null:`,
+              value,
+            );
             processedData[field] = null;
           }
         } else if (typeof value === 'object') {
           processedData[field] = JSON.stringify(value);
-          this.logger.debug(`Stringified object field ${field}:`, { original: value, result: processedData[field] });
+          this.logger.debug(`Stringified object field ${field}:`, {
+            original: value,
+            result: processedData[field],
+          });
         } else {
-          this.logger.warn(`Unexpected type for JSON field ${field}, setting to null:`, typeof value);
+          this.logger.warn(
+            `Unexpected type for JSON field ${field}, setting to null:`,
+            typeof value,
+          );
           processedData[field] = null;
         }
       }
@@ -148,7 +192,10 @@ export class EventRepository extends BaseRepository<Event> {
     return await super.create(processedData);
   }
 
-  private async updateWithJsonHandling(id: string, data: Partial<Event>): Promise<Event | null> {
+  private async updateWithJsonHandling(
+    id: string,
+    data: Partial<Event>,
+  ): Promise<Event | null> {
     const jsonFields = ['attendees', 'reminders', 'conference_data'];
     const processedData = { ...data };
 
@@ -162,16 +209,28 @@ export class EventRepository extends BaseRepository<Event> {
           try {
             const parsed = JSON.parse(value);
             processedData[field] = JSON.stringify(parsed);
-            this.logger.debug(`Parsed and stringified JSON field ${field} for update:`, { original: value, result: processedData[field] });
+            this.logger.debug(
+              `Parsed and stringified JSON field ${field} for update:`,
+              { original: value, result: processedData[field] },
+            );
           } catch (error) {
-            this.logger.warn(`Invalid JSON in field ${field} for update, setting to null:`, value);
+            this.logger.warn(
+              `Invalid JSON in field ${field} for update, setting to null:`,
+              value,
+            );
             processedData[field] = null;
           }
         } else if (typeof value === 'object') {
           processedData[field] = JSON.stringify(value);
-          this.logger.debug(`Stringified object field ${field} for update:`, { original: value, result: processedData[field] });
+          this.logger.debug(`Stringified object field ${field} for update:`, {
+            original: value,
+            result: processedData[field],
+          });
         } else {
-          this.logger.warn(`Unexpected type for JSON field ${field} in update, setting to null:`, typeof value);
+          this.logger.warn(
+            `Unexpected type for JSON field ${field} in update, setting to null:`,
+            typeof value,
+          );
           processedData[field] = null;
         }
       }
@@ -192,7 +251,9 @@ export class EventRepository extends BaseRepository<Event> {
       } else if (event.start_time) {
         start_time = new Date(event.start_time);
       } else {
-        this.logger.error(`Missing start_time for event ${event.id}, using current time`);
+        this.logger.error(
+          `Missing start_time for event ${event.id}, using current time`,
+        );
         start_time = new Date();
       }
 
@@ -201,16 +262,22 @@ export class EventRepository extends BaseRepository<Event> {
       } else if (event.end_time) {
         end_time = new Date(event.end_time);
       } else {
-        this.logger.error(`Missing end_time for event ${event.id}, using start_time + 1 hour`);
+        this.logger.error(
+          `Missing end_time for event ${event.id}, using start_time + 1 hour`,
+        );
         end_time = new Date(start_time.getTime() + 3600000);
       }
 
       if (isNaN(start_time.getTime())) {
-        this.logger.error(`Invalid start_time for event ${event.id}: ${event.start_time}`);
+        this.logger.error(
+          `Invalid start_time for event ${event.id}: ${event.start_time}`,
+        );
         start_time = new Date();
       }
       if (isNaN(end_time.getTime())) {
-        this.logger.error(`Invalid end_time for event ${event.id}: ${event.end_time}`);
+        this.logger.error(
+          `Invalid end_time for event ${event.id}: ${event.end_time}`,
+        );
         end_time = new Date(start_time.getTime() + 3600000);
       }
     } catch (error) {
@@ -246,11 +313,14 @@ export class EventRepository extends BaseRepository<Event> {
       return;
     }
 
-    this.logger.log(`ðŸ“§ Syncing ${attendees.length} attendees to database for event ${eventId}`);
+    this.logger.log(
+      `ðŸ“§ Syncing ${attendees.length} attendees to database for event ${eventId}`,
+    );
 
     try {
       for (const attendee of attendees) {
-        const isOrganizer = attendee.email.toLowerCase() === organizerEmail.toLowerCase();
+        const isOrganizer =
+          attendee.email.toLowerCase() === organizerEmail.toLowerCase();
 
         await this.databaseService.query(
           `INSERT INTO event_attendees 
@@ -278,12 +348,19 @@ export class EventRepository extends BaseRepository<Event> {
           ],
         );
 
-        this.logger.debug(`âœ… Synced attendee: ${attendee.email} (is_organizer: ${isOrganizer})`);
+        this.logger.debug(
+          `âœ… Synced attendee: ${attendee.email} (is_organizer: ${isOrganizer})`,
+        );
       }
 
-      this.logger.log(`âœ… Successfully synced ${attendees.length} attendees to database`);
+      this.logger.log(
+        `âœ… Successfully synced ${attendees.length} attendees to database`,
+      );
     } catch (error) {
-      this.logger.error(`Failed to sync attendees to database: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to sync attendees to database: ${error.message}`,
+        error.stack,
+      );
     }
   }
 
@@ -292,6 +369,9 @@ export class EventRepository extends BaseRepository<Event> {
     const creator_name = row.creator_name;
     const creator_email = row.creator_email;
     const creator_avatar = row.creator_avatar;
+
+    const team_ref_id = row.team_ref_id;
+    const team_ref_name = row.team_ref_name;
 
     this.logger.debug('normalizeEventDataWithCreator - Raw row data:', {
       event_id: row.id,
@@ -304,10 +384,20 @@ export class EventRepository extends BaseRepository<Event> {
     });
 
     if (!row.organizer_id) {
-      this.logger.warn(`Event ${row.id} has null organizer_id - creator info will be missing`);
+      this.logger.warn(
+        `Event ${row.id} has null organizer_id - creator info will be missing`,
+      );
     }
 
-    const { creator_id: _, creator_name: __, creator_email: ___, creator_avatar: ____, ...eventData } = row;
+    const {
+      creator_id: _,
+      creator_name: __,
+      creator_email: ___,
+      creator_avatar: ____,
+      team_ref_id: _____,
+      team_ref_name: ______,
+      ...eventData
+    } = row;
 
     const normalizedEvent = this.normalizeEventData(eventData as Event);
 
@@ -319,21 +409,38 @@ export class EventRepository extends BaseRepository<Event> {
         avatar: creator_avatar || undefined,
       };
 
-      this.logger.debug('normalizeEventDataWithCreator - Attaching creator:', creatorInfo);
+      this.logger.debug(
+        'normalizeEventDataWithCreator - Attaching creator:',
+        creatorInfo,
+      );
 
       return {
         ...normalizedEvent,
         creator: creatorInfo,
+        ...(team_ref_id
+          ? { team: { id: team_ref_id, name: team_ref_name || undefined } }
+          : {}),
       };
     }
 
-    this.logger.warn('normalizeEventDataWithCreator - No creator_id found, returning event without creator');
-    return normalizedEvent;
+    this.logger.warn(
+      'normalizeEventDataWithCreator - No creator_id found, returning event without creator',
+    );
+    return {
+      ...normalizedEvent,
+      ...(team_ref_id
+        ? { team: { id: team_ref_id, name: team_ref_name || undefined } }
+        : {}),
+    };
   }
 
   async createEvent(eventDto: CreateEventDto, userId: string): Promise<Event> {
     await this.userValidationService.validateUserExists(userId);
     await this.calendarValidationService.validateCalendarExists(userId);
+
+    if (eventDto.team_id) {
+      await this.validateTeamAccess(eventDto.team_id, userId);
+    }
 
     await this.eventValidationService.validateEvent(
       userId,
@@ -355,6 +462,7 @@ export class EventRepository extends BaseRepository<Event> {
 
     const eventData: Partial<Event> = {
       calendar_id: eventDto.calendar_id,
+      team_id: eventDto.team_id,
       google_event_id: undefined,
       title: eventDto.title,
       description: eventDto.description,
@@ -390,7 +498,11 @@ export class EventRepository extends BaseRepository<Event> {
       );
       const organizerEmail = userResult.rows[0]?.email;
 
-      if (eventDto.attendees && eventDto.attendees.length > 0 && organizerEmail) {
+      if (
+        eventDto.attendees &&
+        eventDto.attendees.length > 0 &&
+        organizerEmail
+      ) {
         await this.syncAttendeesToDatabase(
           event.id,
           eventDto.attendees,
@@ -417,13 +529,26 @@ export class EventRepository extends BaseRepository<Event> {
     try {
       const validatedOptions =
         this.paginationService.validatePaginationOptions(options);
-      const { page, limit, sortBy = 'created_at', sortOrder = 'DESC' } = validatedOptions;
+      const {
+        page,
+        limit,
+        sortBy = 'created_at',
+        sortOrder = 'DESC',
+      } = validatedOptions;
       const offset = (page - 1) * limit;
 
-      const { start_date, end_date, calendar_id } = options;
+      const { start_date, end_date, calendar_id, team_id } = options;
 
-      const allowedSortFields = ['created_at', 'updated_at', 'start_time', 'end_time', 'title'];
-      const safeSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'created_at';
+      const allowedSortFields = [
+        'created_at',
+        'updated_at',
+        'start_time',
+        'end_time',
+        'title',
+      ];
+      const safeSortBy = allowedSortFields.includes(sortBy)
+        ? sortBy
+        : 'created_at';
       const safeSortOrder = sortOrder === 'ASC' ? 'ASC' : 'DESC';
 
       const conditions: string[] = ['e.organizer_id = $1'];
@@ -448,6 +573,12 @@ export class EventRepository extends BaseRepository<Event> {
         paramIndex++;
       }
 
+      if (team_id) {
+        conditions.push(`e.team_id = $${paramIndex}`);
+        params.push(team_id);
+        paramIndex++;
+      }
+
       const whereClause = conditions.join(' AND ');
 
       const countQuery = `
@@ -466,9 +597,12 @@ export class EventRepository extends BaseRepository<Event> {
             u.email
           ) as creator_name,
           u.email as creator_email,
-          u.avatar as creator_avatar
+          u.avatar as creator_avatar,
+          t.id as team_ref_id,
+          t.name as team_ref_name
         FROM events e
         LEFT JOIN users u ON e.organizer_id = u.id
+        LEFT JOIN teams t ON e.team_id = t.id
         WHERE ${whereClause}
         ORDER BY e.${safeSortBy} ${safeSortOrder}
         LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
@@ -476,11 +610,17 @@ export class EventRepository extends BaseRepository<Event> {
 
       const [countResult, dataResult] = await Promise.all([
         this.databaseService.query(countQuery, params),
-        this.databaseService.query<Event>(dataQuery, [...params, limit, offset]),
+        this.databaseService.query<Event>(dataQuery, [
+          ...params,
+          limit,
+          offset,
+        ]),
       ]);
 
       const total = parseInt(countResult.rows[0].count);
-      const items = dataResult.rows.map(row => this.normalizeEventDataWithCreator(row));
+      const items = dataResult.rows.map((row) =>
+        this.normalizeEventDataWithCreator(row),
+      );
 
       return this.paginationService.createPaginatedResult(
         items,
@@ -509,10 +649,16 @@ export class EventRepository extends BaseRepository<Event> {
     const whereParams = [userId, searchPattern];
 
     try {
-      const result = await this.search(whereCondition, whereParams, paginationOptions);
+      const result = await this.search(
+        whereCondition,
+        whereParams,
+        paginationOptions,
+      );
       return {
         ...result,
-        data: result.data.map(event => this.normalizeEventDataWithCreator(event)),
+        data: result.data.map((event) =>
+          this.normalizeEventDataWithCreator(event),
+        ),
       };
     } catch (error) {
       this.logger.error('Failed to search events:', error);
@@ -587,6 +733,7 @@ export class EventRepository extends BaseRepository<Event> {
 
     const eventData: Partial<Event> = {
       calendar_id: eventDto.calendar_id,
+      team_id: eventDto.team_id,
       title: eventDto.title,
       description: eventDto.description,
       start_time: new Date(eventDto.start_time),
@@ -603,8 +750,15 @@ export class EventRepository extends BaseRepository<Event> {
       response_status: eventDto.response_status,
     };
 
+    if (eventDto.team_id) {
+      await this.validateTeamAccess(eventDto.team_id, userId);
+    }
+
     try {
-      const updatedEvent = await this.updateWithJsonHandling(actualId, eventData);
+      const updatedEvent = await this.updateWithJsonHandling(
+        actualId,
+        eventData,
+      );
       if (!updatedEvent) {
         throw new EventCreationFailedException(
           this.messageService.get('calendar.event_not_found'),
@@ -657,34 +811,57 @@ export class EventRepository extends BaseRepository<Event> {
       await this.eventValidationService.validateEvent(
         userId,
         eventDto.title || existingEvent.title,
-        eventDto.start_time ? new Date(eventDto.start_time) : existingEvent.start_time,
-        eventDto.end_time ? new Date(eventDto.end_time) : existingEvent.end_time,
+        eventDto.start_time
+          ? new Date(eventDto.start_time)
+          : existingEvent.start_time,
+        eventDto.end_time
+          ? new Date(eventDto.end_time)
+          : existingEvent.end_time,
         eventDto.description,
         eventDto.recurrence_rule,
         actualId,
       );
     }
 
+    if (eventDto.team_id) {
+      await this.validateTeamAccess(eventDto.team_id, userId);
+    }
+
     const eventData: Partial<Event> = {};
 
-    if (eventDto.calendar_id !== undefined) eventData.calendar_id = eventDto.calendar_id;
+    if (eventDto.calendar_id !== undefined)
+      eventData.calendar_id = eventDto.calendar_id;
+    if (eventDto.team_id !== undefined) eventData.team_id = eventDto.team_id;
     if (eventDto.title !== undefined) eventData.title = eventDto.title;
-    if (eventDto.description !== undefined) eventData.description = eventDto.description;
-    if (eventDto.start_time !== undefined) eventData.start_time = new Date(eventDto.start_time);
-    if (eventDto.end_time !== undefined) eventData.end_time = new Date(eventDto.end_time);
+    if (eventDto.description !== undefined)
+      eventData.description = eventDto.description;
+    if (eventDto.start_time !== undefined)
+      eventData.start_time = new Date(eventDto.start_time);
+    if (eventDto.end_time !== undefined)
+      eventData.end_time = new Date(eventDto.end_time);
     if (eventDto.location !== undefined) eventData.location = eventDto.location;
     if (eventDto.timezone !== undefined) eventData.timezone = eventDto.timezone;
-    if (eventDto.is_all_day !== undefined) eventData.is_all_day = eventDto.is_all_day;
+    if (eventDto.is_all_day !== undefined)
+      eventData.is_all_day = eventDto.is_all_day;
     if (eventDto.color !== undefined) eventData.color = eventDto.color;
-    if (eventDto.recurrence_rule !== undefined) eventData.recurrence_rule = eventDto.recurrence_rule;
-    if (eventDto.attendees !== undefined) eventData.attendees = eventDto.attendees;
-    if (eventDto.conference_data !== undefined) eventData.conference_data = eventDto.conference_data;
-    if (eventDto.reminders !== undefined) eventData.reminders = eventDto.reminders;
-    if (eventDto.visibility !== undefined) eventData.visibility = eventDto.visibility;
-    if (eventDto.response_status !== undefined) eventData.response_status = eventDto.response_status;
+    if (eventDto.recurrence_rule !== undefined)
+      eventData.recurrence_rule = eventDto.recurrence_rule;
+    if (eventDto.attendees !== undefined)
+      eventData.attendees = eventDto.attendees;
+    if (eventDto.conference_data !== undefined)
+      eventData.conference_data = eventDto.conference_data;
+    if (eventDto.reminders !== undefined)
+      eventData.reminders = eventDto.reminders;
+    if (eventDto.visibility !== undefined)
+      eventData.visibility = eventDto.visibility;
+    if (eventDto.response_status !== undefined)
+      eventData.response_status = eventDto.response_status;
 
     try {
-      const updatedEvent = await this.updateWithJsonHandling(actualId, eventData);
+      const updatedEvent = await this.updateWithJsonHandling(
+        actualId,
+        eventData,
+      );
       if (!updatedEvent) {
         throw new EventCreationFailedException(
           this.messageService.get('calendar.event_not_found'),
@@ -758,7 +935,9 @@ export class EventRepository extends BaseRepository<Event> {
       const result = await this.search(whereCondition, whereParams, options);
       return {
         ...result,
-        data: result.data.map(event => this.normalizeEventDataWithCreator(event)),
+        data: result.data.map((event) =>
+          this.normalizeEventDataWithCreator(event),
+        ),
       };
     } catch (error) {
       this.logger.error(
@@ -792,7 +971,9 @@ export class EventRepository extends BaseRepository<Event> {
       const result = await this.search(whereCondition, whereParams, options);
       return {
         ...result,
-        data: result.data.map(event => this.normalizeEventDataWithCreator(event)),
+        data: result.data.map((event) =>
+          this.normalizeEventDataWithCreator(event),
+        ),
       };
     } catch (error) {
       this.logger.error('Failed to search events by date range:', error);
@@ -819,35 +1000,41 @@ export class EventRepository extends BaseRepository<Event> {
           u.email
         ) as creator_name,
         u.email as creator_email,
-        u.avatar as creator_avatar
+        u.avatar as creator_avatar,
+        t.id as team_ref_id,
+        t.name as team_ref_name
       FROM ${this.tableName} e
       INNER JOIN calendars c ON e.calendar_id = c.id
       LEFT JOIN users u ON e.organizer_id = u.id
+      LEFT JOIN teams t ON e.team_id = t.id
       WHERE c.user_id = $1 
-        AND e.recurrence_rule IS NOT NULL 
+        AND e.is_recurring = true
+        AND e.recurrence_rule IS NOT NULL
         AND e.recurrence_rule != ''
-        AND e.start_time <= $2
+        AND e.deleted_at IS NULL
       ORDER BY e.start_time ASC
     `;
 
     try {
-      const result = await this.databaseService.query(query, [
-        userId,
-        endDate,
-      ]);
+      const result = await this.databaseService.query(query, [userId, endDate]);
 
-      this.logger.debug('findRecurringEventsForExpansion - Raw query results:', {
-        count: result.rows.length,
-        sample: result.rows[0] ? {
-          id: result.rows[0].id,
-          title: result.rows[0].title,
-          organizer_id: result.rows[0].organizer_id,
-          creator_id: result.rows[0].creator_id,
-          creator_name: result.rows[0].creator_name,
-        } : null,
-      });
+      this.logger.debug(
+        'findRecurringEventsForExpansion - Raw query results:',
+        {
+          count: result.rows.length,
+          sample: result.rows[0]
+            ? {
+                id: result.rows[0].id,
+                title: result.rows[0].title,
+                organizer_id: result.rows[0].organizer_id,
+                creator_id: result.rows[0].creator_id,
+                creator_name: result.rows[0].creator_name,
+              }
+            : null,
+        },
+      );
 
-      return result.rows.map(row => this.normalizeEventDataWithCreator(row));
+      return result.rows.map((row) => this.normalizeEventDataWithCreator(row));
     } catch (error) {
       this.logger.error(
         'Failed to find recurring events for expansion:',

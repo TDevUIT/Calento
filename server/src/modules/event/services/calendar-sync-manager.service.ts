@@ -235,7 +235,10 @@ export class CalendarSyncManagerService {
       try {
         if (conflict.googleEvent && conflict.calendoEventId) {
           const defaultCalendarId = 'temp-calendar-id';
-          const eventDto = EventMappers.googleEventToDto(conflict.googleEvent, defaultCalendarId);
+          const eventDto = EventMappers.googleEventToDto(
+            conflict.googleEvent,
+            defaultCalendarId,
+          );
           await this.eventRepository.updateEvent(
             conflict.calendoEventId,
             eventDto,
@@ -282,7 +285,10 @@ export class CalendarSyncManagerService {
     googleEvent: any,
   ): Promise<void> {
     const defaultCalendarId = 'temp-calendar-id';
-    const eventDto = EventMappers.googleEventToDto(googleEvent, defaultCalendarId);
+    const eventDto = EventMappers.googleEventToDto(
+      googleEvent,
+      defaultCalendarId,
+    );
     const event = await this.eventRepository.createEvent(eventDto, userId);
 
     if (googleEvent.id) {
@@ -295,7 +301,10 @@ export class CalendarSyncManagerService {
     googleEvent: any,
   ): Promise<void> {
     const defaultCalendarId = 'temp-calendar-id';
-    const eventDto = EventMappers.googleEventToDto(googleEvent, defaultCalendarId);
+    const eventDto = EventMappers.googleEventToDto(
+      googleEvent,
+      defaultCalendarId,
+    );
     const event = await this.eventRepository.createEvent(eventDto, userId);
 
     if (googleEvent.id) {

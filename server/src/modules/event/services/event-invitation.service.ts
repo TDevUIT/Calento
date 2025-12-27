@@ -1,4 +1,9 @@
-﻿import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
+﻿import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { randomBytes } from 'crypto';
 import { DatabaseService } from '../../../database/database.service';
 import { EmailService } from '../../email/services/email.service';
@@ -37,7 +42,9 @@ export class EventInvitationService {
       this.logger.error('âŒ DatabaseService is not injected!');
       throw new Error('DatabaseService dependency injection failed');
     }
-    this.logger.log('âœ… EventInvitationService initialized with DatabaseService');
+    this.logger.log(
+      'âœ… EventInvitationService initialized with DatabaseService',
+    );
   }
 
   private generateInvitationToken(): string {
@@ -49,8 +56,10 @@ export class EventInvitationService {
     attendeeEmail: string,
   ): Promise<string> {
     try {
-      this.logger.log(`Creating invitation token for event: ${eventId}, attendee: ${attendeeEmail}`);
-      
+      this.logger.log(
+        `Creating invitation token for event: ${eventId}, attendee: ${attendeeEmail}`,
+      );
+
       if (!this.db) {
         throw new Error('DatabaseService is undefined');
       }
@@ -112,7 +121,14 @@ export class EventInvitationService {
     options: SendInvitationOptions,
     userId: string,
   ): Promise<{ success: boolean; messageId?: string; error?: string }> {
-    const { event, attendee, organizerName, organizerEmail, organizerAvatar, showAttendees } = options;
+    const {
+      event,
+      attendee,
+      organizerName,
+      organizerEmail,
+      organizerAvatar,
+      showAttendees,
+    } = options;
 
     try {
       const token = await this.createInvitationToken(event.id, attendee.email);
@@ -122,14 +138,14 @@ export class EventInvitationService {
       const declineUrl = `${baseUrl}/invitation/respond?token=${token}&action=decline`;
       const tentativeUrl = `${baseUrl}/invitation/respond?token=${token}&action=tentative`;
       const viewEventUrl = `${baseUrl}/dashboard/calendar?event=${event.id}`;
-      
+
       const addToCalendarUrl = this.generateGoogleCalendarLink(event);
 
       let attendeesList: any[] = [];
       if (showAttendees && event.attendees) {
         attendeesList = event.attendees
-          .filter(a => a.email !== attendee.email)
-          .map(a => ({
+          .filter((a) => a.email !== attendee.email)
+          .map((a) => ({
             email: a.email,
             name: a.name,
             responseStatus: a.response_status,
@@ -143,7 +159,7 @@ export class EventInvitationService {
 
       const organizerInitials = organizerName
         .split(' ')
-        .map(n => n[0])
+        .map((n) => n[0])
         .join('')
         .toUpperCase()
         .slice(0, 2);
@@ -172,7 +188,7 @@ export class EventInvitationService {
             addToCalendarUrl,
             showAttendees,
             attendees: attendeesList,
-            attendeeCount: (event.attendees?.length || 0),
+            attendeeCount: event.attendees?.length || 0,
             appUrl: baseUrl,
           },
         },
@@ -224,7 +240,9 @@ export class EventInvitationService {
     let sent = 0;
     let failed = 0;
 
-    this.logger.log(`ðŸ“§ sendBulkInvitations - Processing ${attendees.length} attendees for event ${event.id}`);
+    this.logger.log(
+      `ðŸ“§ sendBulkInvitations - Processing ${attendees.length} attendees for event ${event.id}`,
+    );
 
     for (const attendee of attendees) {
       this.logger.debug(`ðŸ“§ Processing attendee:`, {
@@ -235,7 +253,9 @@ export class EventInvitationService {
       });
 
       if (attendee.email.toLowerCase() === organizerEmail.toLowerCase()) {
-        this.logger.debug(`â­ï¸ Skipping organizer (email match): ${attendee.email}`);
+        this.logger.debug(
+          `â­ï¸ Skipping organizer (email match): ${attendee.email}`,
+        );
         continue;
       }
 
@@ -270,7 +290,9 @@ export class EventInvitationService {
     );
 
     if (sent === 0 && attendees.length > 0) {
-      this.logger.warn(`âš ï¸ No invitations sent! All ${attendees.length} attendees may be marked as organizers`);
+      this.logger.warn(
+        `âš ï¸ No invitations sent! All ${attendees.length} attendees may be marked as organizers`,
+      );
     }
 
     return { sent, failed, results };

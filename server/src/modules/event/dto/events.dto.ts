@@ -73,7 +73,8 @@ export class EventAttendeeDto {
   })
   @IsEnum(['accepted', 'declined', 'tentative', 'needsAction'])
   @IsOptional()
-  response_status?: 'accepted' | 'declined' | 'tentative' | 'needsAction' = 'needsAction';
+  response_status?: 'accepted' | 'declined' | 'tentative' | 'needsAction' =
+    'needsAction';
 
   @ApiPropertyOptional({
     description: 'Whether the attendee is optional',
@@ -191,6 +192,15 @@ export class CreateEventDto {
   @IsNotEmpty()
   calendar_id: string;
 
+  @ApiPropertyOptional({
+    description:
+      'Optional Team ID that owns this event (null/omit for personal events)',
+    example: '123e4567-e89b-12d3-a456-426614174999',
+  })
+  @IsUUID()
+  @IsOptional()
+  team_id?: string;
+
   @ApiProperty({
     description: 'Event title',
     example: 'Team Meeting',
@@ -260,7 +270,14 @@ export class CreateEventDto {
   @ApiPropertyOptional({
     description: 'Event color for UI display (hex color code or preset name)',
     example: '#3b82f6',
-    examples: ['#3b82f6', '#10b981', '#ec4899', '#8b5cf6', '#f59e0b', '#ef4444'],
+    examples: [
+      '#3b82f6',
+      '#10b981',
+      '#ec4899',
+      '#8b5cf6',
+      '#f59e0b',
+      '#ef4444',
+    ],
   })
   @IsString()
   @IsOptional()
@@ -326,6 +343,15 @@ export class PartialUpdateEventDto {
   @IsUUID()
   @IsOptional()
   calendar_id?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Optional Team ID that owns this event (null/omit for personal events)',
+    example: '123e4567-e89b-12d3-a456-426614174999',
+  })
+  @IsUUID()
+  @IsOptional()
+  team_id?: string;
 
   @ApiPropertyOptional({
     description: 'Event title',
@@ -394,13 +420,26 @@ export class PartialUpdateEventDto {
   @ApiPropertyOptional({
     description: 'Event color for UI display (hex color code or preset name)',
     example: '#22c55e',
-    examples: ['#3b82f6', '#22c55e', '#ec4899', '#a855f7', '#f97316', '#ef4444', 'blue', 'green', 'purple'],
+    examples: [
+      '#3b82f6',
+      '#22c55e',
+      '#ec4899',
+      '#a855f7',
+      '#f97316',
+      '#ef4444',
+      'blue',
+      'green',
+      'purple',
+    ],
   })
   @IsString()
   @IsOptional()
-  @Matches(/^(#[0-9A-Fa-f]{6}|blue|green|pink|purple|orange|red|yellow|cyan|indigo|teal|default)$/, {
-    message: 'Color must be a valid hex code (e.g., #3b82f6) or preset name',
-  })
+  @Matches(
+    /^(#[0-9A-Fa-f]{6}|blue|green|pink|purple|orange|red|yellow|cyan|indigo|teal|default)$/,
+    {
+      message: 'Color must be a valid hex code (e.g., #3b82f6) or preset name',
+    },
+  )
   color?: string;
 
   @ApiPropertyOptional({
@@ -469,6 +508,15 @@ export class UpdateEventDto {
   @IsUUID()
   @IsNotEmpty()
   calendar_id: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Optional Team ID that owns this event (null/omit for personal events)',
+    example: '123e4567-e89b-12d3-a456-426614174999',
+  })
+  @IsUUID()
+  @IsOptional()
+  team_id?: string;
 
   @ApiProperty({
     description: 'Event title (required for PUT)',
@@ -540,13 +588,26 @@ export class UpdateEventDto {
   @ApiPropertyOptional({
     description: 'Event color for UI display (hex color code or preset name)',
     example: '#22c55e',
-    examples: ['#3b82f6', '#22c55e', '#ec4899', '#a855f7', '#f97316', '#ef4444', 'blue', 'green', 'purple'],
+    examples: [
+      '#3b82f6',
+      '#22c55e',
+      '#ec4899',
+      '#a855f7',
+      '#f97316',
+      '#ef4444',
+      'blue',
+      'green',
+      'purple',
+    ],
   })
   @IsString()
   @IsOptional()
-  @Matches(/^(#[0-9A-Fa-f]{6}|blue|green|pink|purple|orange|red|yellow|cyan|indigo|teal|default)$/, {
-    message: 'Color must be a valid hex code (e.g., #3b82f6) or preset name',
-  })
+  @Matches(
+    /^(#[0-9A-Fa-f]{6}|blue|green|pink|purple|orange|red|yellow|cyan|indigo|teal|default)$/,
+    {
+      message: 'Color must be a valid hex code (e.g., #3b82f6) or preset name',
+    },
+  )
   color?: string;
 
   @ApiPropertyOptional({
@@ -671,7 +732,14 @@ export class EventResponseDto {
   @ApiPropertyOptional({
     description: 'Event color (hex color code or preset name)',
     example: '#3b82f6',
-    examples: ['#3b82f6', '#10b981', '#ec4899', '#8b5cf6', '#f59e0b', '#ef4444'],
+    examples: [
+      '#3b82f6',
+      '#10b981',
+      '#ec4899',
+      '#8b5cf6',
+      '#f59e0b',
+      '#ef4444',
+    ],
   })
   color?: string;
 

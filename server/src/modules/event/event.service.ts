@@ -4,7 +4,11 @@ import {
   PaginationOptions,
 } from '../../common/interfaces/pagination.interface';
 import { Event } from './event';
-import { CreateEventDto, UpdateEventDto, PartialUpdateEventDto } from './dto/events.dto';
+import {
+  CreateEventDto,
+  UpdateEventDto,
+  PartialUpdateEventDto,
+} from './dto/events.dto';
 import { EventRepository } from './event.repository';
 import { EventSyncService } from './services/event-sync.service';
 import { EventInvitationService } from './services/event-invitation.service';
@@ -21,7 +25,7 @@ export class EventService {
     private readonly invitationService: EventInvitationService,
     private readonly userService: UserService,
     private readonly vectorService: VectorService,
-  ) { }
+  ) {}
 
   private async syncEventToVector(event: Event, userId: string): Promise<void> {
     try {
@@ -35,7 +39,7 @@ export class EventService {
         start: event.start_time,
         end: event.end_time,
         location: event.location || '',
-        attendees: event.attendees?.map(a => a.email).join(', ') || ''
+        attendees: event.attendees?.map((a) => a.email).join(', ') || '',
       };
 
       const textToEmbed = `Event: ${event.title}. 
@@ -44,10 +48,19 @@ export class EventService {
       Description: ${event.description || ''}. 
       Attendees: ${context.attendees}.`;
 
-      await this.vectorService.storeContext(userId, context, undefined, textToEmbed);
-      this.logger.log(`Synced event ${event.id} to vector store for user ${userId}`);
+      await this.vectorService.storeContext(
+        userId,
+        context,
+        undefined,
+        textToEmbed,
+      );
+      this.logger.log(
+        `Synced event ${event.id} to vector store for user ${userId}`,
+      );
     } catch (error) {
-      this.logger.warn(`Failed to sync event ${event.id} to vector store: ${error.message}`);
+      this.logger.warn(
+        `Failed to sync event ${event.id} to vector store: ${error.message}`,
+      );
     }
   }
 
@@ -105,7 +118,11 @@ export class EventService {
       }
 
       // Update vector store: delete old and add new
-      await this.vectorService.deleteContextByMetadata(userId, 'eventId', eventId);
+      await this.vectorService.deleteContextByMetadata(
+        userId,
+        'eventId',
+        eventId,
+      );
       await this.syncEventToVector(result.event, userId);
 
       return {
@@ -140,7 +157,11 @@ export class EventService {
       }
 
       // Update vector store: delete old and add new
-      await this.vectorService.deleteContextByMetadata(userId, 'eventId', eventId);
+      await this.vectorService.deleteContextByMetadata(
+        userId,
+        'eventId',
+        eventId,
+      );
       await this.syncEventToVector(result.event, userId);
 
       return {
@@ -175,7 +196,11 @@ export class EventService {
         );
       }
 
-      await this.vectorService.deleteContextByMetadata(userId, 'eventId', eventId);
+      await this.vectorService.deleteContextByMetadata(
+        userId,
+        'eventId',
+        eventId,
+      );
 
       return result.deleted;
     } catch (error) {
@@ -266,7 +291,8 @@ export class EventService {
       if (!user || !user.email) {
         throw new Error('User not found or user email is missing');
       }
-      const organizerName = `${user.first_name} ${user.last_name}`.trim() || user.email;
+      const organizerName =
+        `${user.first_name} ${user.last_name}`.trim() || user.email;
 
       this.logger.debug(`ðŸ“§ SendEventInvitations Debug:`, {
         eventId,
@@ -277,12 +303,14 @@ export class EventService {
 
       let attendeesToInvite = event.attendees || [];
       if (emails && emails.length > 0) {
-        attendeesToInvite = attendeesToInvite.filter(a => emails.includes(a.email));
+        attendeesToInvite = attendeesToInvite.filter((a) =>
+          emails.includes(a.email),
+        );
       }
 
       this.logger.debug(`ðŸ“§ Attendees to invite:`, {
         count: attendeesToInvite.length,
-        attendees: attendeesToInvite.map(a => ({
+        attendees: attendeesToInvite.map((a) => ({
           email: a.email,
           is_organizer: a.is_organizer,
         })),
@@ -298,7 +326,9 @@ export class EventService {
         showAttendees,
       );
 
-      this.logger.log(`ðŸ“§ Invitation results: sent=${result.sent}, failed=${result.failed}`);
+      this.logger.log(
+        `ðŸ“§ Invitation results: sent=${result.sent}, failed=${result.failed}`,
+      );
       return result;
     } catch (error) {
       this.logger.error(`Failed to send invitations: ${error.message}`);
@@ -329,7 +359,9 @@ export class EventService {
    * One-time migration: Sync all event attendees to event_attendees table
    * This fixes the 404 invitation token error for events created before the fix
    */
-  async syncAllEventAttendeesToDatabase(userId: string): Promise<{ synced: number; failed: number }> {
+  async syncAllEventAttendeesToDatabase(
+    userId: string,
+  ): Promise<{ synced: number; failed: number }> {
     try {
       this.logger.log(`ðŸ”„ Starting attendees sync for user ${userId}`);
 
@@ -355,15 +387,21 @@ export class EventService {
               user.email,
             );
             synced++;
-            this.logger.debug(`âœ… Synced ${event.attendees.length} attendees for event ${event.id}`);
+            this.logger.debug(
+              `âœ… Synced ${event.attendees.length} attendees for event ${event.id}`,
+            );
           }
         } catch (error) {
-          this.logger.error(`Failed to sync attendees for event ${event.id}: ${error.message}`);
+          this.logger.error(
+            `Failed to sync attendees for event ${event.id}: ${error.message}`,
+          );
           failed++;
         }
       }
 
-      this.logger.log(`âœ… Sync complete: ${synced} events synced, ${failed} failed out of ${result.data.length} events`);
+      this.logger.log(
+        `âœ… Sync complete: ${synced} events synced, ${failed} failed out of ${result.data.length} events`,
+      );
 
       return { synced, failed };
     } catch (error) {

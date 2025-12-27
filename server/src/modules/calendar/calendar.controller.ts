@@ -31,7 +31,10 @@ import {
   SuccessResponseDto,
   PaginatedResponseDto,
 } from '../../common/dto/base-response.dto';
-import { PaginationQueryDto, SearchPaginationQueryDto } from '../../common/dto/pagination.dto';
+import {
+  PaginationQueryDto,
+  SearchPaginationQueryDto,
+} from '../../common/dto/pagination.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUserId } from '../../common/decorators/current-user.decorator';
 import { CalendarNotFoundException } from './exceptions/calendar.exceptions';

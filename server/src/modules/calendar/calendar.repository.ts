@@ -79,9 +79,11 @@ export class CalendarRepository extends UserOwnedRepository<Calendar> {
     try {
       const searchOptions: Partial<SearchOptions> = {
         ...options,
-        searchFields: options.search ? ['name', 'description', 'google_calendar_id'] : undefined,
+        searchFields: options.search
+          ? ['name', 'description', 'google_calendar_id']
+          : undefined,
       };
-      
+
       return await this.findByUserId(userId, searchOptions);
     } catch (error) {
       this.logger.error('Failed to get calendars:', error);

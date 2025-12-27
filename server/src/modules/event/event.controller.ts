@@ -55,12 +55,13 @@ export class EventController {
   constructor(
     private readonly eventService: EventService,
     private readonly messageService: MessageService,
-  ) { }
+  ) {}
 
   @Get()
   @ApiOperation({
     summary: 'ðŸ“… Get user events with pagination and date filtering',
-    description: 'Retrieve paginated list of events with date range filtering, calendar filtering, and search',
+    description:
+      'Retrieve paginated list of events with date range filtering, calendar filtering, and search',
   })
   @ApiResponse({
     status: 200,
@@ -192,7 +193,12 @@ export class EventController {
     @CurrentUserId() userId: string,
     @Query() query: RecurringEventsQueryDto,
   ): Promise<PaginatedResponseDto> {
-    const { start_date, end_date, max_occurrences = 100, ...paginationOptions } = query;
+    const {
+      start_date,
+      end_date,
+      max_occurrences = 100,
+      ...paginationOptions
+    } = query;
     const result = await this.eventService.expandRecurringEvents(
       userId,
       new Date(start_date),
@@ -277,7 +283,8 @@ export class EventController {
   @Put(':id')
   @ApiOperation({
     summary: 'ðŸ”„ Replace event (PUT)',
-    description: 'Replace an existing event with new data. All fields are required except optional ones.',
+    description:
+      'Replace an existing event with new data. All fields are required except optional ones.',
   })
   @ApiResponse({
     status: 200,
@@ -345,7 +352,8 @@ export class EventController {
   @Patch(':id')
   @ApiOperation({
     summary: 'âœï¸ Update event (PATCH)',
-    description: 'Partially update an existing event. Only provided fields will be updated.',
+    description:
+      'Partially update an existing event. Only provided fields will be updated.',
   })
   @ApiResponse({
     status: 200,
@@ -469,11 +477,11 @@ export class EventController {
     );
   }
 
-
   @Post('sync-attendees')
   @ApiOperation({
     summary: 'ðŸ”„ Sync all event attendees to database',
-    description: 'One-time migration to sync attendees from events.attendees JSONB to event_attendees table',
+    description:
+      'One-time migration to sync attendees from events.attendees JSONB to event_attendees table',
   })
   @ApiResponse({
     status: 200,
@@ -482,17 +490,16 @@ export class EventController {
   async syncAllEventAttendees(
     @CurrentUserId() userId: string,
   ): Promise<SuccessResponseDto> {
-    const result = await this.eventService.syncAllEventAttendeesToDatabase(userId);
-    return new SuccessResponseDto(
-      'Attendees synced successfully',
-      result,
-    );
+    const result =
+      await this.eventService.syncAllEventAttendeesToDatabase(userId);
+    return new SuccessResponseDto('Attendees synced successfully', result);
   }
 
   @Post(':id/invitations/send')
   @ApiOperation({
     summary: 'ðŸ“§ Send invitations to event attendees',
-    description: 'Send email invitations to all or specific attendees of an event',
+    description:
+      'Send email invitations to all or specific attendees of an event',
   })
   @ApiResponse({
     status: 200,
@@ -523,7 +530,8 @@ export class EventController {
       body?.showAttendees ?? true,
     );
     return new SuccessResponseDto(
-      this.messageService.get('invitation.sent_successfully') || 'Invitations sent successfully',
+      this.messageService.get('invitation.sent_successfully') ||
+        'Invitations sent successfully',
       result,
     );
   }
@@ -531,7 +539,7 @@ export class EventController {
   @Post(':id/invitations/remind')
   @ApiOperation({
     summary: 'ðŸ”” Send reminders to pending attendees',
-    description: 'Send reminder emails to attendees who haven\'t responded yet',
+    description: "Send reminder emails to attendees who haven't responded yet",
   })
   @ApiResponse({
     status: 200,
@@ -541,9 +549,13 @@ export class EventController {
     @Param('id') eventId: string,
     @CurrentUserId() userId: string,
   ): Promise<SuccessResponseDto> {
-    const result = await this.eventService.sendInvitationReminders(eventId, userId);
+    const result = await this.eventService.sendInvitationReminders(
+      eventId,
+      userId,
+    );
     return new SuccessResponseDto(
-      this.messageService.get('invitation.reminders_sent') || 'Reminders sent successfully',
+      this.messageService.get('invitation.reminders_sent') ||
+        'Reminders sent successfully',
       result,
     );
   }
@@ -551,7 +563,8 @@ export class EventController {
   @Get('invitation/:token')
   @ApiOperation({
     summary: 'ðŸ” Get invitation details by token',
-    description: 'Retrieve event details and invitation info using invitation token',
+    description:
+      'Retrieve event details and invitation info using invitation token',
   })
   @ApiResponse({
     status: 200,
@@ -562,7 +575,8 @@ export class EventController {
   ): Promise<SuccessResponseDto> {
     const invitation = await this.eventService.getInvitationDetails(token);
     return new SuccessResponseDto(
-      this.messageService.get('invitation.details_retrieved') || 'Invitation details retrieved',
+      this.messageService.get('invitation.details_retrieved') ||
+        'Invitation details retrieved',
       invitation,
     );
   }
@@ -578,7 +592,8 @@ export class EventController {
   })
   async respondToInvitation(
     @Param('token') token: string,
-    @Body() body: { action: 'accept' | 'decline' | 'tentative'; comment?: string },
+    @Body()
+    body: { action: 'accept' | 'decline' | 'tentative'; comment?: string },
   ): Promise<SuccessResponseDto> {
     const result = await this.eventService.respondToInvitation(
       token,
@@ -586,7 +601,8 @@ export class EventController {
       body.comment,
     );
     return new SuccessResponseDto(
-      this.messageService.get('invitation.response_recorded') || 'Response recorded successfully',
+      this.messageService.get('invitation.response_recorded') ||
+        'Response recorded successfully',
       result,
     );
   }

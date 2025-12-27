@@ -25,6 +25,7 @@ export interface EventReminder {
 export interface Event {
   id: string;
   calendar_id: string;
+  team_id?: string;
   google_event_id?: string;
   title: string;
   description?: string;
@@ -37,25 +38,30 @@ export interface Event {
   recurrence_rule?: string;
   status?: 'confirmed' | 'tentative' | 'cancelled';
   color?: string;
-  
+
   organizer_id?: string;
   organizer_email?: string;
   organizer_name?: string;
-  
+
   creator?: {
     id: string;
     name?: string;
     email?: string;
     avatar?: string;
   };
-  
+
+  team?: {
+    id: string;
+    name?: string;
+  };
+
   attendees?: EventAttendee[];
   conference_data?: ConferenceData;
   reminders?: EventReminder[];
-  
+
   visibility?: 'default' | 'public' | 'private' | 'confidential';
   response_status?: 'accepted' | 'declined' | 'tentative' | 'needsAction';
-  
+
   created_at: Date;
   updated_at: Date;
   deleted_at?: Date;

@@ -234,7 +234,7 @@ export class EventSyncService {
     }
 
     const defaultCalendarId = 'temp-calendar-id'; // This needs to be fixed properly
-    
+
     const eventDtos = validEvents.map((event) =>
       EventMappers.googleEventToDto(event, defaultCalendarId),
     );
@@ -284,10 +284,7 @@ export class EventSyncService {
             RETURNING id
         `;
 
-    const result = await this.databaseService.query(
-      query,
-      params,
-    );
+    const result = await this.databaseService.query(query, params);
 
     return validEvents.map((_, index) => ({
       success: true,
@@ -310,7 +307,10 @@ export class EventSyncService {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         const defaultCalendarId = 'temp-calendar-id';
-        const eventDto = EventMappers.googleEventToDto(googleEvent, defaultCalendarId);
+        const eventDto = EventMappers.googleEventToDto(
+          googleEvent,
+          defaultCalendarId,
+        );
         const createdEvent = await this.eventRepository.createEvent(
           eventDto,
           userId,

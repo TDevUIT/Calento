@@ -2,7 +2,11 @@
 import { CalendarRepository } from './calendar.repository';
 import { Calendar } from './calendar';
 import { CreateCalendarDto, UpdateCalendarDto } from './dto/calendar.dto';
-import { PaginationOptions, PaginatedResult, SearchOptions } from '../../common/interfaces/pagination.interface';
+import {
+  PaginationOptions,
+  PaginatedResult,
+  SearchOptions,
+} from '../../common/interfaces/pagination.interface';
 
 @Injectable()
 export class CalendarService {
@@ -22,7 +26,9 @@ export class CalendarService {
     userId: string,
     options: Partial<SearchOptions>,
   ): Promise<PaginatedResult<Calendar>> {
-    this.logger.log(`Fetching calendars for user ${userId}${options.search ? ` with search: ${options.search}` : ''}`);
+    this.logger.log(
+      `Fetching calendars for user ${userId}${options.search ? ` with search: ${options.search}` : ''}`,
+    );
     return this.calendarRepository.getCalendars(userId, options);
   }
 

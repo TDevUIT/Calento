@@ -241,7 +241,8 @@ export class CalendarSyncController {
   @Get('conflicts')
   @ApiOperation({
     summary: 'Láº¥y danh sÃ¡ch conflicts chÆ°a resolve',
-    description: 'Xem cÃ¡c conflicts phÃ¡t hiá»‡n Ä‘Æ°á»£c trong quÃ¡ trÃ¬nh sync',
+    description:
+      'Xem cÃ¡c conflicts phÃ¡t hiá»‡n Ä‘Æ°á»£c trong quÃ¡ trÃ¬nh sync',
   })
   @ApiQuery({
     name: 'resolved',
@@ -291,7 +292,10 @@ export class CalendarSyncController {
     summary: 'Resolve má»™t conflict manually',
     description: 'ÄÃ¡nh dáº¥u má»™t conflict Ä‘Ã£ Ä‘Æ°á»£c xá»­ lÃ½ manually',
   })
-  @ApiParam({ name: 'conflictId', description: 'ID cá»§a conflict cáº§n resolve' })
+  @ApiParam({
+    name: 'conflictId',
+    description: 'ID cá»§a conflict cáº§n resolve',
+  })
   @ApiBody({
     schema: {
       properties: {
