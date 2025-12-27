@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { getBrowserTimezone } from '@/utils'
 import { cn } from '@/lib/utils'
 import type { RegisterFormProps, RegistrationStep } from '@/interface'
 import { 
@@ -108,7 +109,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
         username, 
         password, 
         first_name: firstName, 
-        last_name: lastName 
+        last_name: lastName,
+        timezone: getBrowserTimezone(),
       })
       onSubmitEmailPassword?.({ 
         email, 
