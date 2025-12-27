@@ -1,6 +1,12 @@
 ﻿import { Injectable } from '@nestjs/common';
 import { BaseAgent } from './base/base-agent';
-import { AgentType, AgentCapability, AgentRequest, AgentResponse, ToolCall } from './base/agent.interface';
+import {
+  AgentType,
+  AgentCapability,
+  AgentRequest,
+  AgentResponse,
+  ToolCall,
+} from './base/agent.interface';
 import { SYSTEM_PROMPTS } from '../prompts/system-prompts';
 import { ToolRegistry } from '../tools/tool-registry';
 import { LangChainService } from '../../llm/langchain.service';
@@ -35,7 +41,7 @@ export class CalendarAgent extends BaseAgent {
 
   constructor(
     private readonly toolRegistry: ToolRegistry,
-    private readonly langChainService: LangChainService
+    private readonly langChainService: LangChainService,
   ) {
     super({
       type: AgentType.CALENDAR,
@@ -54,7 +60,10 @@ export class CalendarAgent extends BaseAgent {
 
   protected async execute(request: AgentRequest): Promise<AgentResponse> {
     try {
-      const enhancedPrompt = this.buildEnhancedPrompt(this.config.systemPrompt, request.context);
+      const enhancedPrompt = this.buildEnhancedPrompt(
+        this.config.systemPrompt,
+        request.context,
+      );
 
       const tools = this.toolRegistry.getToolDescriptions('calendar');
 
@@ -65,7 +74,7 @@ export class CalendarAgent extends BaseAgent {
           systemPrompt: enhancedPrompt,
           tools,
           userId: request.context.userId,
-        }
+        },
       );
 
       const toolCalls: ToolCall[] = [];
@@ -75,7 +84,7 @@ export class CalendarAgent extends BaseAgent {
             const result = await this.toolRegistry.execute(
               funcCall.name,
               funcCall.arguments,
-              request.context
+              request.context,
             );
 
             toolCalls.push({
@@ -111,7 +120,8 @@ export class CalendarAgent extends BaseAgent {
       this.logger.error('Calendar agent execution failed', error.stack);
       return {
         success: false,
-        message: 'Sorry, I encountered an error while processing your calendar request.',
+        message:
+          'Sorry, I encountered an error while processing your calendar request.',
         error: error.message,
       };
     }

@@ -42,20 +42,22 @@ export class AIAnalysisService {
     startDate: Date,
     endDate: Date,
     durationMinutes: number = 60,
-    preferredTimeRange?: { start_hour: number; end_hour: number }
+    preferredTimeRange?: { start_hour: number; end_hour: number },
   ): Promise<AnalysisResult> {
     const analysisStartTime = Date.now();
-    this.logger.log(`Starting team availability analysis for ${memberIds.length} members`);
+    this.logger.log(
+      `Starting team availability analysis for ${memberIds.length} members`,
+    );
 
     const timeRange = preferredTimeRange || {
       start_hour: AI_CONSTANTS.WORK_HOURS.START,
       end_hour: AI_CONSTANTS.WORK_HOURS.END,
     };
-    
+
     const memberCalendars = await this.fetchMemberCalendars(
       memberIds,
       startDate,
-      endDate
+      endDate,
     );
 
     const availabilityWindows = this.findAvailabilityWindows(
@@ -63,10 +65,13 @@ export class AIAnalysisService {
       startDate,
       endDate,
       durationMinutes,
-      timeRange
+      timeRange,
     );
 
-    const conflicts = this.detectConflicts(memberCalendars, availabilityWindows);
+    const conflicts = this.detectConflicts(
+      memberCalendars,
+      availabilityWindows,
+    );
 
     const scoredWindows = this.scoreAvailabilityWindows(availabilityWindows);
 
@@ -76,7 +81,7 @@ export class AIAnalysisService {
     const duration = (Date.now() - analysisStartTime) / 1000;
 
     this.logger.log(
-      `Analysis completed in ${duration}s. Found ${availabilityWindows.length} windows, best match: ${matchScore}%`
+      `Analysis completed in ${duration}s. Found ${availabilityWindows.length} windows, best match: ${matchScore}%`,
     );
 
     return {
@@ -93,7 +98,7 @@ export class AIAnalysisService {
   private async fetchMemberCalendars(
     memberIds: string[],
     startDate: Date,
-    endDate: Date
+    endDate: Date,
   ): Promise<Map<string, any[]>> {
     const calendarMap = new Map<string, any[]>();
 
@@ -103,11 +108,14 @@ export class AIAnalysisService {
           memberId,
           startDate,
           endDate,
-          { page: 1, limit: AI_CONSTANTS.ANALYSIS.MAX_EVENTS_FETCH }
+          { page: 1, limit: AI_CONSTANTS.ANALYSIS.MAX_EVENTS_FETCH },
         );
         return { memberId, events: events.data };
       } catch (error) {
-        this.logger.warn(`Failed to fetch calendar for member ${memberId}:`, error);
+        this.logger.warn(
+          `Failed to fetch calendar for member ${memberId}:`,
+          error,
+        );
         return { memberId, events: [] };
       }
     });
@@ -125,13 +133,13 @@ export class AIAnalysisService {
     startDate: Date,
     endDate: Date,
     durationMinutes: number,
-    timeRange: { start_hour: number; end_hour: number }
+    timeRange: { start_hour: number; end_hour: number },
   ): TimeWindow[] {
     const windows: TimeWindow[] = [];
     const totalMembers = memberCalendars.size;
 
-    let currentDate = new Date(startDate);
-    
+    const currentDate = new Date(startDate);
+
     while (currentDate <= endDate) {
       if (currentDate.getDay() === 0 || currentDate.getDay() === 6) {
         currentDate.setDate(currentDate.getDate() + 1);
@@ -139,7 +147,7 @@ export class AIAnalysisService {
       }
 
       for (let hour = timeRange.start_hour; hour < timeRange.end_hour; hour++) {
-        for (let minute of [0, 30]) {
+        for (const minute of [0, 30]) {
           const slotStart = new Date(currentDate);
           slotStart.setHours(hour, minute, 0, 0);
 
@@ -167,19 +175,24 @@ export class AIAnalysisService {
             }
           }
 
-          if (availableMembers >= totalMembers * AI_CONSTANTS.ANALYSIS.MIN_AVAILABILITY_THRESHOLD) {
+          if (
+            availableMembers >=
+            totalMembers * AI_CONSTANTS.ANALYSIS.MIN_AVAILABILITY_THRESHOLD
+          ) {
             windows.push({
               start: slotStart,
               end: slotEnd,
               day: slotStart.toLocaleDateString('en-US', { weekday: 'long' }),
-              time: slotStart.toLocaleTimeString('en-US', { 
-                hour: 'numeric', 
-                minute: '2-digit', 
-                hour12: true 
+              time: slotStart.toLocaleTimeString('en-US', {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true,
               }),
               available_members: availableMembers,
               total_members: totalMembers,
-              availability_percentage: Math.round((availableMembers / totalMembers) * 100),
+              availability_percentage: Math.round(
+                (availableMembers / totalMembers) * 100,
+              ),
             });
           }
         }
@@ -193,7 +206,7 @@ export class AIAnalysisService {
 
   private detectConflicts(
     memberCalendars: Map<string, any[]>,
-    windows: TimeWindow[]
+    windows: TimeWindow[],
   ): Conflict[] {
     const conflicts: Conflict[] = [];
 
@@ -213,8 +226,16 @@ export class AIAnalysisService {
           conflicts.push({
             member_id: memberId,
             member_name: `Member ${memberId.substring(0, 8)}`,
-            day: eventStart.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }),
-            time: eventStart.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+            day: eventStart.toLocaleDateString('en-US', {
+              weekday: 'short',
+              month: 'short',
+              day: 'numeric',
+            }),
+            time: eventStart.toLocaleTimeString('en-US', {
+              hour: 'numeric',
+              minute: '2-digit',
+              hour12: true,
+            }),
             reason: this.getConflictReason(event, eventStart),
             event_title: event.title,
           });
@@ -227,11 +248,11 @@ export class AIAnalysisService {
 
   private getConflictReason(event: any, eventStart: Date): string {
     const hour = eventStart.getHours();
-    
+
     if (hour < 9) return 'Early morning conflict';
     if (hour >= 12 && hour < 13) return 'Lunch time conflict';
     if (hour >= 17) return 'End of day conflict';
-    
+
     return event.title ? `Busy - ${event.title}` : 'Back-to-back meetings';
   }
 
@@ -242,7 +263,10 @@ export class AIAnalysisService {
 
         const hour = window.start.getHours();
         const { MORNING, AFTERNOON } = AI_CONSTANTS.ANALYSIS.PRODUCTIVITY_HOURS;
-        if ((hour >= MORNING.START && hour < MORNING.END) || (hour >= AFTERNOON.START && hour < AFTERNOON.END)) {
+        if (
+          (hour >= MORNING.START && hour < MORNING.END) ||
+          (hour >= AFTERNOON.START && hour < AFTERNOON.END)
+        ) {
           score += 10;
         }
 

@@ -1,5 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { IAgent, AgentRequest, AgentResponse, AgentType } from './base/agent.interface';
+import {
+  IAgent,
+  AgentRequest,
+  AgentResponse,
+  AgentType,
+} from './base/agent.interface';
 import { CalendarAgent } from './calendar-agent';
 import { TaskAgent } from './task-agent';
 import { AnalysisAgent } from './analysis-agent';
@@ -13,7 +18,7 @@ export class AgentOrchestrator {
   constructor(
     private readonly calendarAgent: CalendarAgent,
     private readonly taskAgent: TaskAgent,
-    private readonly analysisAgent: AnalysisAgent
+    private readonly analysisAgent: AnalysisAgent,
   ) {
     this.registerAgents();
   }
@@ -28,7 +33,9 @@ export class AgentOrchestrator {
 
   async process(request: AgentRequest): Promise<AgentResponse> {
     try {
-      this.logger.log(`Orchestrating request: "${request.message.substring(0, 50)}..."`);
+      this.logger.log(
+        `Orchestrating request: "${request.message.substring(0, 50)}..."`,
+      );
 
       const selectedAgents = await this.selectAgents(request);
 
@@ -66,21 +73,29 @@ export class AgentOrchestrator {
         const confidence = this.calculateAgentConfidence(request, agent);
 
         candidates.push({ agent, confidence });
-        this.logger.debug(`Agent ${type} can handle request (confidence: ${confidence}%)`);
+        this.logger.debug(
+          `Agent ${type} can handle request (confidence: ${confidence}%)`,
+        );
       }
     }
 
     candidates.sort((a, b) => b.confidence - a.confidence);
 
-    const selected = candidates.filter((c) => c.confidence > AGENT_CONSTANTS.CONFIDENCE.MIN_THRESHOLD).map((c) => c.agent);
+    const selected = candidates
+      .filter((c) => c.confidence > AGENT_CONSTANTS.CONFIDENCE.MIN_THRESHOLD)
+      .map((c) => c.agent);
 
     if (selected.length > 1) {
       const topConfidence = candidates[0].confidence;
       const similarAgents = candidates.filter(
-        (c) => c.confidence >= topConfidence - AGENT_CONSTANTS.CONFIDENCE.SIMILARITY_THRESHOLD
+        (c) =>
+          c.confidence >=
+          topConfidence - AGENT_CONSTANTS.CONFIDENCE.SIMILARITY_THRESHOLD,
       );
 
-      const hasAnalysis = similarAgents.find((c) => c.agent.config.type === AgentType.ANALYSIS);
+      const hasAnalysis = similarAgents.find(
+        (c) => c.agent.config.type === AgentType.ANALYSIS,
+      );
       if (hasAnalysis && request.message.toLowerCase().includes('team')) {
         return [hasAnalysis.agent];
       }
@@ -91,7 +106,10 @@ export class AgentOrchestrator {
     return selected;
   }
 
-  private calculateAgentConfidence(request: AgentRequest, agent: IAgent): number {
+  private calculateAgentConfidence(
+    request: AgentRequest,
+    agent: IAgent,
+  ): number {
     const message = request.message.toLowerCase();
     let confidence = 0;
 
@@ -122,15 +140,17 @@ export class AgentOrchestrator {
 
     return Math.min(
       (matches.length / keywords.length) * AGENT_CONSTANTS.CONFIDENCE.MAX_SCORE,
-      AGENT_CONSTANTS.CONFIDENCE.KEYWORD_MATCH_WEIGHT
+      AGENT_CONSTANTS.CONFIDENCE.KEYWORD_MATCH_WEIGHT,
     );
   }
 
   private async handleMultiAgent(
     agents: IAgent[],
-    request: AgentRequest
+    request: AgentRequest,
   ): Promise<AgentResponse> {
-    this.logger.log(`Multi-agent workflow: ${agents.map((a) => a.config.type).join(', ')}`);
+    this.logger.log(
+      `Multi-agent workflow: ${agents.map((a) => a.config.type).join(', ')}`,
+    );
 
     const responses: AgentResponse[] = [];
 
@@ -171,10 +191,12 @@ export class AgentOrchestrator {
   }
 
   getStatus() {
-    const agentStatuses = Array.from(this.agents.entries()).map(([type, agent]) => ({
-      type,
-      status: agent.getStatus(),
-    }));
+    const agentStatuses = Array.from(this.agents.entries()).map(
+      ([type, agent]) => ({
+        type,
+        status: agent.getStatus(),
+      }),
+    );
 
     return {
       total_agents: this.agents.size,

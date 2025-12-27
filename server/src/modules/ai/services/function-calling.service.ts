@@ -11,19 +11,20 @@ import { AI_CONSTANTS, ERROR_MESSAGES } from '../constants/ai.constants';
 export class AIFunctionCallingService {
   private readonly logger = new Logger(AIFunctionCallingService.name);
 
-
   constructor(
     private readonly eventService: EventService,
     private readonly taskService: TaskService,
     private readonly calendarService: CalendarService,
     private readonly aiAnalysisService: AIAnalysisService,
-  ) { }
+  ) {}
 
   async executeFunctionCall(
     functionCall: AIFunctionCall,
-    userId: string
+    userId: string,
   ): Promise<{ success: boolean; result?: any; error?: string }> {
-    this.logger.log(`Executing function: ${functionCall.name} for user: ${userId}`);
+    this.logger.log(
+      `Executing function: ${functionCall.name} for user: ${userId}`,
+    );
 
     try {
       switch (functionCall.name) {
@@ -31,7 +32,10 @@ export class AIFunctionCallingService {
           return await this.handleCreateEvent(functionCall.arguments, userId);
 
         case 'checkAvailability':
-          return await this.handleCheckAvailability(functionCall.arguments, userId);
+          return await this.handleCheckAvailability(
+            functionCall.arguments,
+            userId,
+          );
 
         case 'createTask':
           return await this.handleCreateTask(functionCall.arguments, userId);
@@ -46,34 +50,46 @@ export class AIFunctionCallingService {
           return await this.handleDeleteEvent(functionCall.arguments, userId);
 
         case 'createLearningPlan':
-          return await this.handleCreateLearningPlan(functionCall.arguments, userId);
+          return await this.handleCreateLearningPlan(
+            functionCall.arguments,
+            userId,
+          );
 
         case 'analyzeTeamAvailability':
-          return await this.handleAnalyzeTeamAvailability(functionCall.arguments, userId);
+          return await this.handleAnalyzeTeamAvailability(
+            functionCall.arguments,
+            userId,
+          );
 
         default:
-          this.logger.warn(`Invalid function call attempted: ${functionCall.name}`);
+          this.logger.warn(
+            `Invalid function call attempted: ${functionCall.name}`,
+          );
           return {
             success: false,
-            error: `${ERROR_MESSAGES.INVALID_FUNCTION}: ${functionCall.name}`
+            error: `${ERROR_MESSAGES.INVALID_FUNCTION}: ${functionCall.name}`,
           };
       }
     } catch (error) {
-      this.logger.error(`Function execution failed: ${functionCall.name}`, error);
+      this.logger.error(
+        `Function execution failed: ${functionCall.name}`,
+        error,
+      );
       return {
         success: false,
-        error: `Failed to execute ${functionCall.name}: ${error.message}`
+        error: `Failed to execute ${functionCall.name}: ${error.message}`,
       };
     }
   }
 
   private async handleCreateEvent(args: any, userId: string) {
     try {
-      const primaryCalendar = await this.calendarService.getPrimaryCalendar(userId);
+      const primaryCalendar =
+        await this.calendarService.getPrimaryCalendar(userId);
       if (!primaryCalendar) {
         return {
           success: false,
-          error: `Unable to create event: ${ERROR_MESSAGES.NO_PRIMARY_CALENDAR}`
+          error: `Unable to create event: ${ERROR_MESSAGES.NO_PRIMARY_CALENDAR}`,
         };
       }
 
@@ -90,7 +106,7 @@ export class AIFunctionCallingService {
             response_status: 'needsAction',
           })),
         },
-        userId
+        userId,
       );
 
       return {
@@ -101,12 +117,12 @@ export class AIFunctionCallingService {
           start_time: event.start_time,
           end_time: event.end_time,
           message: `Successfully created event "${event.title}"`,
-        }
+        },
       };
     } catch (error) {
       return {
         success: false,
-        error: `Unable to create event: ${error.message}`
+        error: `Unable to create event: ${error.message}`,
       };
     }
   }
@@ -117,14 +133,14 @@ export class AIFunctionCallingService {
         userId,
         new Date(args.start_date),
         new Date(args.end_date),
-        { page: 1, limit: 1000 }
+        { page: 1, limit: 1000 },
       );
 
       const freeSlots = this.calculateFreeSlots(
         eventsResult.data,
         new Date(args.start_date),
         new Date(args.end_date),
-        args.duration_minutes || AI_CONSTANTS.EVENT.DEFAULT_DURATION
+        args.duration_minutes || AI_CONSTANTS.EVENT.DEFAULT_DURATION,
       );
 
       return {
@@ -132,15 +148,16 @@ export class AIFunctionCallingService {
         result: {
           free_slots: freeSlots,
           total_events: eventsResult.data.length,
-          message: freeSlots.length > 0
-            ? `Found ${freeSlots.length} free time slot(s)`
-            : 'No free time slots in this time range',
-        }
+          message:
+            freeSlots.length > 0
+              ? `Found ${freeSlots.length} free time slot(s)`
+              : 'No free time slots in this time range',
+        },
       };
     } catch (error) {
       return {
         success: false,
-        error: `Unable to check availability: ${error.message}`
+        error: `Unable to check availability: ${error.message}`,
       };
     }
   }
@@ -148,14 +165,17 @@ export class AIFunctionCallingService {
   private async handleCreateTask(args: any, userId: string) {
     try {
       const dueDate = args.due_date || new Date().toISOString();
-      const estimatedDuration = args.estimated_duration || AI_CONSTANTS.TASK.DEFAULT_DURATION;
+      const estimatedDuration =
+        args.estimated_duration || AI_CONSTANTS.TASK.DEFAULT_DURATION;
 
       const task = await this.taskService.createTask(userId, {
         title: args.title,
         description: args.description,
         due_date: dueDate,
         estimated_duration: estimatedDuration,
-        priority: args.priority ? (args.priority as TaskPriority) : TaskPriority.MEDIUM,
+        priority: args.priority
+          ? (args.priority as TaskPriority)
+          : TaskPriority.MEDIUM,
         status: TaskStatus.TODO,
       });
 
@@ -168,12 +188,12 @@ export class AIFunctionCallingService {
           estimated_duration: task.estimated_duration,
           priority: task.priority,
           message: `Successfully created task "${task.title}" (${estimatedDuration} minutes)`,
-        }
+        },
       };
     } catch (error) {
       return {
         success: false,
-        error: `Unable to create task: ${error.message}`
+        error: `Unable to create task: ${error.message}`,
       };
     }
   }
@@ -203,7 +223,9 @@ export class AIFunctionCallingService {
       const query = args.query || '';
 
       this.logger.log(`Searching events for user ${userId}`);
-      this.logger.log(`   Date range: ${startDate.toISOString()} to ${endDate.toISOString()}`);
+      this.logger.log(
+        `   Date range: ${startDate.toISOString()} to ${endDate.toISOString()}`,
+      );
       this.logger.log(`   Query: "${query}"`);
 
       const eventsResult = await this.eventService.searchEventsByDateRange(
@@ -211,12 +233,12 @@ export class AIFunctionCallingService {
         startDate,
         endDate,
         query,
-        { page: 1, limit: 100 }
+        { page: 1, limit: 100 },
       );
 
       this.logger.log(`   Found ${eventsResult.data.length} total events`);
 
-      const events = eventsResult.data.slice(0, 20).map(e => ({
+      const events = eventsResult.data.slice(0, 20).map((e) => ({
         id: e.id,
         title: e.title,
         start_time: e.start_time,
@@ -238,16 +260,20 @@ export class AIFunctionCallingService {
             start: startDate.toISOString(),
             end: endDate.toISOString(),
           },
-          message: events.length > 0
-            ? `Found ${events.length} event(s) ${periodDescription}`
-            : `No events found ${periodDescription}`,
+          message:
+            events.length > 0
+              ? `Found ${events.length} event(s) ${periodDescription}`
+              : `No events found ${periodDescription}`,
         },
       };
     } catch (error) {
-      this.logger.error(`Error searching events: ${error.message}`, error.stack);
+      this.logger.error(
+        `Error searching events: ${error.message}`,
+        error.stack,
+      );
       return {
         success: false,
-        error: `Unable to search events: ${error.message}`
+        error: `Unable to search events: ${error.message}`,
       };
     }
   }
@@ -257,7 +283,7 @@ export class AIFunctionCallingService {
       const event = await this.eventService.updateEvent(
         args.event_id,
         args.updates,
-        userId
+        userId,
       );
 
       return {
@@ -266,12 +292,12 @@ export class AIFunctionCallingService {
           event_id: event.id,
           title: event.title,
           message: `Successfully updated event`,
-        }
+        },
       };
     } catch (error) {
       return {
         success: false,
-        error: `Unable to update event: ${error.message}`
+        error: `Unable to update event: ${error.message}`,
       };
     }
   }
@@ -284,12 +310,12 @@ export class AIFunctionCallingService {
         success: true,
         result: {
           message: `Successfully deleted event`,
-        }
+        },
       };
     } catch (error) {
       return {
         success: false,
-        error: `Unable to delete event: ${error.message}`
+        error: `Unable to delete event: ${error.message}`,
       };
     }
   }
@@ -310,7 +336,9 @@ export class AIFunctionCallingService {
       for (let i = 0; i < phases; i++) {
         const phaseStartDay = Math.floor((totalDays / phases) * i);
         const dueDate = new Date(startDate);
-        dueDate.setDate(dueDate.getDate() + phaseStartDay + Math.floor(totalDays / phases));
+        dueDate.setDate(
+          dueDate.getDate() + phaseStartDay + Math.floor(totalDays / phases),
+        );
 
         const task = await this.taskService.createTask(userId, {
           title: `${topic} - Phase ${i + 1}/${phases}`,
@@ -329,7 +357,7 @@ export class AIFunctionCallingService {
           plan_topic: topic,
           duration_weeks,
           tasks_created: tasks.length,
-          tasks: tasks.map(t => ({
+          tasks: tasks.map((t) => ({
             id: t.id,
             title: t.title,
             due_date: t.due_date,
@@ -347,7 +375,9 @@ export class AIFunctionCallingService {
 
   private async handleAnalyzeTeamAvailability(args: any, userId: string) {
     try {
-      this.logger.log(`Analyzing team availability for ${args.member_ids?.length || 0} members`);
+      this.logger.log(
+        `Analyzing team availability for ${args.member_ids?.length || 0} members`,
+      );
 
       const memberIds = args.member_ids || [];
       const startDate = new Date(args.start_date);
@@ -360,19 +390,19 @@ export class AIFunctionCallingService {
         startDate,
         endDate,
         meetingDuration,
-        preferredTimeRange
+        preferredTimeRange,
       );
 
       const bestMatch = analysis.best_match
         ? {
-          day: analysis.best_match.day,
-          time: analysis.best_match.time,
-          date: analysis.best_match.start.toISOString(),
-          available_members: analysis.best_match.available_members,
-          total_members: analysis.best_match.total_members,
-          availability: `${analysis.best_match.available_members}/${analysis.best_match.total_members} members available`,
-          reason: this.getBestMatchReason(analysis.best_match),
-        }
+            day: analysis.best_match.day,
+            time: analysis.best_match.time,
+            date: analysis.best_match.start.toISOString(),
+            available_members: analysis.best_match.available_members,
+            total_members: analysis.best_match.total_members,
+            availability: `${analysis.best_match.available_members}/${analysis.best_match.total_members} members available`,
+            reason: this.getBestMatchReason(analysis.best_match),
+          }
         : null;
 
       return {
@@ -436,12 +466,14 @@ export class AIFunctionCallingService {
     events: any[],
     startDate: Date,
     endDate: Date,
-    durationMinutes: number
+    durationMinutes: number,
   ): Array<{ start: Date; end: Date }> {
     const freeSlots: Array<{ start: Date; end: Date }> = [];
 
-    const sortedEvents = events
-      .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime());
+    const sortedEvents = events.sort(
+      (a, b) =>
+        new Date(a.start_time).getTime() - new Date(b.start_time).getTime(),
+    );
 
     const currentDate = new Date(startDate);
     while (currentDate <= endDate) {
@@ -457,12 +489,17 @@ export class AIFunctionCallingService {
       const dayEnd = new Date(currentDate);
       dayEnd.setHours(AI_CONSTANTS.WORK_HOURS.END, 0, 0, 0);
 
-      let currentTime = new Date(dayStart);
+      const currentTime = new Date(dayStart);
 
-      while (currentTime.getTime() + durationMinutes * 60000 <= dayEnd.getTime()) {
-        const slotEnd = new Date(currentTime.getTime() + durationMinutes * 60000);
+      while (
+        currentTime.getTime() + durationMinutes * 60000 <=
+        dayEnd.getTime()
+      ) {
+        const slotEnd = new Date(
+          currentTime.getTime() + durationMinutes * 60000,
+        );
 
-        const hasConflict = sortedEvents.some(event => {
+        const hasConflict = sortedEvents.some((event) => {
           const eventStart = new Date(event.start_time);
           const eventEnd = new Date(event.end_time);
           return (
@@ -479,7 +516,9 @@ export class AIFunctionCallingService {
           });
         }
 
-        currentTime.setMinutes(currentTime.getMinutes() + AI_CONSTANTS.TIME_SLOTS.INTERVAL_MINUTES);
+        currentTime.setMinutes(
+          currentTime.getMinutes() + AI_CONSTANTS.TIME_SLOTS.INTERVAL_MINUTES,
+        );
       }
 
       currentDate.setDate(currentDate.getDate() + 1);

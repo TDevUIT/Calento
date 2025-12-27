@@ -8,14 +8,17 @@ export class AIConversationRepository {
 
   constructor(private readonly db: DatabaseService) {}
 
-  async create(userId: string, context?: Record<string, any>): Promise<AIConversation> {
+  async create(
+    userId: string,
+    context?: Record<string, any>,
+  ): Promise<AIConversation> {
     this.logger.log(`Creating new conversation for user: ${userId}`);
-    
+
     const result = await this.db.query(
       `INSERT INTO ai_conversations (user_id, messages, context)
        VALUES ($1, $2, $3)
        RETURNING *`,
-      [userId, JSON.stringify([]), context ? JSON.stringify(context) : null]
+      [userId, JSON.stringify([]), context ? JSON.stringify(context) : null],
     );
 
     return this.normalizeConversation(result.rows[0]);
@@ -24,7 +27,7 @@ export class AIConversationRepository {
   async findById(id: string): Promise<AIConversation | null> {
     const result = await this.db.query(
       `SELECT * FROM ai_conversations WHERE id = $1`,
-      [id]
+      [id],
     );
 
     return result.rows[0] ? this.normalizeConversation(result.rows[0]) : null;
@@ -36,15 +39,15 @@ export class AIConversationRepository {
        WHERE user_id = $1 
        ORDER BY created_at DESC 
        LIMIT $2`,
-      [userId, limit]
+      [userId, limit],
     );
 
-    return result.rows.map(row => this.normalizeConversation(row));
+    return result.rows.map((row) => this.normalizeConversation(row));
   }
 
   async addMessage(
     conversationId: string,
-    message: AIMessage
+    message: AIMessage,
   ): Promise<AIConversation> {
     this.logger.log(`Adding message to conversation: ${conversationId}`);
 
@@ -54,7 +57,7 @@ export class AIConversationRepository {
            updated_at = NOW()
        WHERE id = $2
        RETURNING *`,
-      [JSON.stringify(message), conversationId]
+      [JSON.stringify(message), conversationId],
     );
 
     return this.normalizeConversation(result.rows[0]);
@@ -62,7 +65,7 @@ export class AIConversationRepository {
 
   async updateMessages(
     conversationId: string,
-    messages: AIMessage[]
+    messages: AIMessage[],
   ): Promise<AIConversation> {
     const result = await this.db.query(
       `UPDATE ai_conversations 
@@ -70,7 +73,7 @@ export class AIConversationRepository {
            updated_at = NOW()
        WHERE id = $2
        RETURNING *`,
-      [JSON.stringify(messages), conversationId]
+      [JSON.stringify(messages), conversationId],
     );
 
     return this.normalizeConversation(result.rows[0]);
@@ -78,7 +81,7 @@ export class AIConversationRepository {
 
   async updateContext(
     conversationId: string,
-    context: Record<string, any>
+    context: Record<string, any>,
   ): Promise<AIConversation> {
     const result = await this.db.query(
       `UPDATE ai_conversations 
@@ -86,7 +89,7 @@ export class AIConversationRepository {
            updated_at = NOW()
        WHERE id = $2
        RETURNING *`,
-      [JSON.stringify(context), conversationId]
+      [JSON.stringify(context), conversationId],
     );
 
     return this.normalizeConversation(result.rows[0]);
@@ -95,7 +98,7 @@ export class AIConversationRepository {
   async delete(id: string): Promise<boolean> {
     const result = await this.db.query(
       `DELETE FROM ai_conversations WHERE id = $1`,
-      [id]
+      [id],
     );
 
     return (result.rowCount ?? 0) > 0;
@@ -104,7 +107,7 @@ export class AIConversationRepository {
   async deleteByUserId(userId: string): Promise<number> {
     const result = await this.db.query(
       `DELETE FROM ai_conversations WHERE user_id = $1`,
-      [userId]
+      [userId],
     );
 
     return result.rowCount ?? 0;

@@ -15,7 +15,6 @@ import { AgentOrchestrator } from './agent.orchestrator';
 export class AIConversationService {
   private readonly logger = new Logger(AIConversationService.name);
 
-
   constructor(
     private readonly langChainService: LangChainService,
     private readonly functionCallingService: AIFunctionCallingService,
@@ -25,13 +24,13 @@ export class AIConversationService {
     private readonly ragService: RagService,
     private readonly toolRegistry: ToolRegistry,
     private readonly orchestrator: AgentOrchestrator,
-  ) { }
+  ) {}
 
   async chat(
     message: string,
     userId: string,
     conversationId?: string,
-    context?: Record<string, any>
+    context?: Record<string, any>,
   ) {
     this.logger.log(`Processing chat for user: ${userId}`);
 
@@ -54,7 +53,10 @@ export class AIConversationService {
     // RAG: Retrieve similar contexts from long-term memory
     let longTermMemory: any[] | null = null;
     try {
-      longTermMemory = await this.ragService.retrieveConsolidatedContext(userId, message);
+      longTermMemory = await this.ragService.retrieveConsolidatedContext(
+        userId,
+        message,
+      );
     } catch (error) {
       this.logger.warn(`RAG: Failed to retrieve contexts`, error);
     }
@@ -68,7 +70,10 @@ export class AIConversationService {
     await this.conversationRepo.addMessage(conversation.id, userMessage);
 
     let aiResponse;
-    const systemPrompt = this.buildSystemPrompt(conversation.context, longTermMemory);
+    const systemPrompt = this.buildSystemPrompt(
+      conversation.context,
+      longTermMemory,
+    );
 
     try {
       const result = await this.orchestrator.chat(
@@ -78,13 +83,16 @@ export class AIConversationService {
         conversation.id,
         {
           systemPrompt,
-          long_term_memory: longTermMemory
-        }
+          long_term_memory: longTermMemory,
+        },
       );
 
       aiResponse = {
         text: result.response,
-        functionCalls: result.actions.map(a => ({ name: a.type, arguments: a.result || {} }))
+        functionCalls: result.actions.map((a) => ({
+          name: a.type,
+          arguments: a.result || {},
+        })),
       };
 
       const assistantMessage: AIMessage = {
@@ -102,7 +110,6 @@ export class AIConversationService {
         actions: result.actions,
         timestamp: new Date(),
       };
-
     } catch (error) {
       this.logger.error('AI chat failed:', error);
       return {
@@ -115,22 +122,23 @@ export class AIConversationService {
     }
   }
 
-  async * chatStream(
+  async *chatStream(
     message: string,
     userId: string,
     conversationId?: string,
-    context?: Record<string, any>
+    context?: Record<string, any>,
   ) {
     this.logger.log(`Processing chat stream for user: ${userId}`);
 
     yield { type: 'status', content: 'initializing' };
 
-    let conversationPromise = conversationId
+    const conversationPromise = conversationId
       ? this.conversationRepo.findById(conversationId)
       : Promise.resolve(null);
 
-    const longTermMemoryPromise = this.ragService.retrieveConsolidatedContext(userId, message)
-      .catch(error => {
+    const longTermMemoryPromise = this.ragService
+      .retrieveConsolidatedContext(userId, message)
+      .catch((error) => {
         this.logger.warn(`RAG: Failed to retrieve contexts`, error);
         return null;
       });
@@ -159,13 +167,18 @@ export class AIConversationService {
 
     yield { type: 'status', content: 'searching_memory' };
     const longTermMemory = await longTermMemoryPromise;
-    this.logger.log(`RAG: Memory retrieval completed. Found ${longTermMemory?.length || 0} contexts.`);
+    this.logger.log(
+      `RAG: Memory retrieval completed. Found ${longTermMemory?.length || 0} contexts.`,
+    );
 
     yield { type: 'status', content: 'thinking' };
 
     let fullResponseText = '';
     const actions: any[] = [];
-    const systemPrompt = this.buildSystemPrompt(conversation.context, longTermMemory);
+    const systemPrompt = this.buildSystemPrompt(
+      conversation.context,
+      longTermMemory,
+    );
 
     try {
       const stream = this.orchestrator.chatStream(
@@ -176,7 +189,7 @@ export class AIConversationService {
         {
           systemPrompt,
           long_term_memory: longTermMemory,
-        }
+        },
       );
 
       for await (const chunk of stream) {
@@ -187,13 +200,13 @@ export class AIConversationService {
           // Optional: yield start info
           yield {
             type: 'action_start',
-            action: chunk.action
+            action: chunk.action,
           };
         } else if (chunk.type === 'action_result') {
           actions.push(chunk.action);
           yield {
             type: 'action_result',
-            action: chunk.action
+            action: chunk.action,
           };
         }
       }
@@ -208,15 +221,13 @@ export class AIConversationService {
 
       yield {
         type: 'done',
-        conversation_id: conversation.id
+        conversation_id: conversation.id,
       };
-
     } catch (error) {
       this.logger.error('AI chat stream failed:', error);
       yield { type: 'error', error: error.message };
     }
   }
-
 
   async getConversation(conversationId: string, userId: string) {
     const conversation = await this.conversationRepo.findById(conversationId);
@@ -262,11 +273,14 @@ export class AIConversationService {
     modifiedParameters?: Record<string, any>,
     conversationId?: string,
   ) {
-    this.logger.log(`Confirming action ${actionId}: ${confirmed ? 'Approved' : 'Rejected'}`);
+    this.logger.log(
+      `Confirming action ${actionId}: ${confirmed ? 'Approved' : 'Rejected'}`,
+    );
 
     if (!confirmed) {
       return {
-        response: 'Action cancelled. Let me know if you\'d like to try something else.',
+        response:
+          "Action cancelled. Let me know if you'd like to try something else.",
         conversation_id: conversationId || '',
         function_calls: [],
         actions: [],
@@ -278,19 +292,23 @@ export class AIConversationService {
       response: 'Action confirmed and executed successfully!',
       conversation_id: conversationId || '',
       function_calls: [],
-      actions: [{
-        type: 'actionConfirmed',
-        status: 'completed',
-        result: {
-          action_id: actionId,
-          message: 'Meeting scheduled and invites sent to all participants.'
-        }
-      }],
+      actions: [
+        {
+          type: 'actionConfirmed',
+          status: 'completed',
+          result: {
+            action_id: actionId,
+            message: 'Meeting scheduled and invites sent to all participants.',
+          },
+        },
+      ],
       timestamp: new Date(),
     };
   }
 
-  private getDefaultContext(userId: string): Omit<AICalendarContext, 'upcoming_events' | 'preferences'> {
+  private getDefaultContext(
+    userId: string,
+  ): Omit<AICalendarContext, 'upcoming_events' | 'preferences'> {
     const now = new Date();
     return {
       user_id: userId,
@@ -300,24 +318,28 @@ export class AIConversationService {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
-        day: 'numeric'
+        day: 'numeric',
       }),
     };
   }
 
-  private async buildCalendarContext(userId: string): Promise<AICalendarContext> {
+  private async buildCalendarContext(
+    userId: string,
+  ): Promise<AICalendarContext> {
     const defaultContext = this.getDefaultContext(userId);
 
     try {
       const startDate = new Date();
       const endDate = new Date();
-      endDate.setDate(endDate.getDate() + AI_CONSTANTS.ANALYSIS.UPCOMING_EVENTS_DAYS);
+      endDate.setDate(
+        endDate.getDate() + AI_CONSTANTS.ANALYSIS.UPCOMING_EVENTS_DAYS,
+      );
 
       const upcomingEvents = await this.eventService.getEventsByDateRange(
         userId,
         startDate,
         endDate,
-        { page: 1, limit: 10 }
+        { page: 1, limit: 10 },
       );
 
       return {
@@ -329,12 +351,14 @@ export class AIConversationService {
             end: `${AI_CONSTANTS.WORK_HOURS.END.toString().padStart(2, '0')}:00`,
           },
         },
-        upcoming_events: upcomingEvents.data.slice(0, AI_CONSTANTS.ANALYSIS.UPCOMING_EVENTS_LIMIT).map(e => ({
-          id: e.id,
-          title: e.title,
-          start_time: e.start_time,
-          end_time: e.end_time,
-        })),
+        upcoming_events: upcomingEvents.data
+          .slice(0, AI_CONSTANTS.ANALYSIS.UPCOMING_EVENTS_LIMIT)
+          .map((e) => ({
+            id: e.id,
+            title: e.title,
+            start_time: e.start_time,
+            end_time: e.end_time,
+          })),
       };
     } catch (error) {
       this.logger.warn('Failed to build calendar context:', error);
@@ -348,14 +372,14 @@ export class AIConversationService {
     const normalized = response.replace(/\r\n/g, '\n');
     const parts = normalized
       .split(/\n{2,}/)
-      .map(p => p.trim())
+      .map((p) => p.trim())
       .filter(Boolean);
 
     if (parts.length >= 2) {
-      const hasConfirm = parts.some(p => /xác nhận/i.test(p));
-      const hasSuccess = parts.some(p => /đã\s+.*thành công/i.test(p));
+      const hasConfirm = parts.some((p) => /xác nhận/i.test(p));
+      const hasSuccess = parts.some((p) => /đã\s+.*thành công/i.test(p));
       if (hasConfirm && hasSuccess) {
-        const filtered = parts.filter(p => !/xác nhận/i.test(p));
+        const filtered = parts.filter((p) => !/xác nhận/i.test(p));
         response = filtered.join('\n\n');
       }
     }
@@ -364,11 +388,11 @@ export class AIConversationService {
       return response;
     }
 
-    const failedActions = actions.filter(a => a.status === 'failed');
+    const failedActions = actions.filter((a) => a.status === 'failed');
 
     if (failedActions.length > 0) {
       response += '\n\n**ERROR:**\n';
-      failedActions.forEach(action => {
+      failedActions.forEach((action) => {
         response += `- ${action.error}\n`;
       });
     }
@@ -376,7 +400,10 @@ export class AIConversationService {
     return response;
   }
 
-  private buildSystemPrompt(context: any, longTermMemory: any[] | null): string {
+  private buildSystemPrompt(
+    context: any,
+    longTermMemory: any[] | null,
+  ): string {
     const { PROMPT_TEMPLATES } = require('../prompts/system-prompts');
     const { SYSTEM_PROMPTS } = require('../prompts/system-prompts');
 
@@ -387,7 +414,7 @@ export class AIConversationService {
 
     return PROMPT_TEMPLATES.WITH_CONTEXT(
       SYSTEM_PROMPTS.CALENTO_MAIN,
-      enrichedContext
+      enrichedContext,
     );
   }
 }

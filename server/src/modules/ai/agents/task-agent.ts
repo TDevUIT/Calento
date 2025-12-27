@@ -1,6 +1,12 @@
 ﻿import { Injectable } from '@nestjs/common';
 import { BaseAgent } from './base/base-agent';
-import { AgentType, AgentCapability, AgentRequest, AgentResponse, ToolCall } from './base/agent.interface';
+import {
+  AgentType,
+  AgentCapability,
+  AgentRequest,
+  AgentResponse,
+  ToolCall,
+} from './base/agent.interface';
 import { SYSTEM_PROMPTS } from '../prompts/system-prompts';
 import { ToolRegistry } from '../tools/tool-registry';
 import { LangChainService } from '../../llm/langchain.service';
@@ -33,20 +39,26 @@ export class TaskAgent extends BaseAgent {
 
   constructor(
     private readonly toolRegistry: ToolRegistry,
-    private readonly langChainService: LangChainService
+    private readonly langChainService: LangChainService,
   ) {
     super({
       type: AgentType.TASK,
       name: 'Task',
       description: 'Manages tasks and learning plans',
-      capabilities: [AgentCapability.CREATE_TASK, AgentCapability.CREATE_LEARNING_PLAN],
+      capabilities: [
+        AgentCapability.CREATE_TASK,
+        AgentCapability.CREATE_LEARNING_PLAN,
+      ],
       systemPrompt: SYSTEM_PROMPTS.TASK_AGENT,
     });
   }
 
   protected async execute(request: AgentRequest): Promise<AgentResponse> {
     try {
-      const enhancedPrompt = this.buildEnhancedPrompt(this.config.systemPrompt, request.context);
+      const enhancedPrompt = this.buildEnhancedPrompt(
+        this.config.systemPrompt,
+        request.context,
+      );
       const tools = this.toolRegistry.getToolDescriptions('task');
 
       const aiResponse = await this.langChainService.chat(
@@ -56,7 +68,7 @@ export class TaskAgent extends BaseAgent {
           systemPrompt: enhancedPrompt,
           tools,
           userId: request.context.userId,
-        }
+        },
       );
 
       const toolCalls: ToolCall[] = [];
@@ -66,7 +78,7 @@ export class TaskAgent extends BaseAgent {
             const result = await this.toolRegistry.execute(
               funcCall.name,
               funcCall.arguments,
-              request.context
+              request.context,
             );
 
             toolCalls.push({
@@ -102,7 +114,8 @@ export class TaskAgent extends BaseAgent {
       this.logger.error('Task agent execution failed', error.stack);
       return {
         success: false,
-        message: 'Sorry, I encountered an error while processing your task request.',
+        message:
+          'Sorry, I encountered an error while processing your task request.',
         error: error.message,
       };
     }

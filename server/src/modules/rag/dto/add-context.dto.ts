@@ -1,3 +1,3 @@
 export class AddContextDto {
-    context: Record<string, any>;
+  context: Record<string, any>;
 }

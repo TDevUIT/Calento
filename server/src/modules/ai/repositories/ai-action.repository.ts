@@ -11,15 +11,17 @@ export class AIActionRepository {
   async create(
     conversationId: string,
     actionType: string,
-    parameters: Record<string, any>
+    parameters: Record<string, any>,
   ): Promise<AIAction> {
-    this.logger.log(`Creating action: ${actionType} for conversation: ${conversationId}`);
+    this.logger.log(
+      `Creating action: ${actionType} for conversation: ${conversationId}`,
+    );
 
     const result = await this.db.query(
       `INSERT INTO ai_actions (conversation_id, action_type, parameters, status)
        VALUES ($1, $2, $3, $4)
        RETURNING *`,
-      [conversationId, actionType, JSON.stringify(parameters), 'pending']
+      [conversationId, actionType, JSON.stringify(parameters), 'pending'],
     );
 
     return this.normalizeAction(result.rows[0]);
@@ -28,7 +30,7 @@ export class AIActionRepository {
   async findById(id: string): Promise<AIAction | null> {
     const result = await this.db.query(
       `SELECT * FROM ai_actions WHERE id = $1`,
-      [id]
+      [id],
     );
 
     return result.rows[0] ? this.normalizeAction(result.rows[0]) : null;
@@ -39,17 +41,17 @@ export class AIActionRepository {
       `SELECT * FROM ai_actions 
        WHERE conversation_id = $1 
        ORDER BY created_at ASC`,
-      [conversationId]
+      [conversationId],
     );
 
-    return result.rows.map(row => this.normalizeAction(row));
+    return result.rows.map((row) => this.normalizeAction(row));
   }
 
   async updateStatus(
     id: string,
     status: 'pending' | 'completed' | 'failed',
     result?: Record<string, any>,
-    error?: string
+    error?: string,
   ): Promise<AIAction> {
     this.logger.log(`Updating action ${id} status to: ${status}`);
 
@@ -67,7 +69,7 @@ export class AIActionRepository {
       status,
       result ? JSON.stringify(result) : null,
       error || null,
-      id
+      id,
     ]);
 
     return this.normalizeAction(queryResult.rows[0]);
@@ -79,17 +81,16 @@ export class AIActionRepository {
        WHERE status = 'pending' 
        ORDER BY created_at ASC 
        LIMIT $1`,
-      [limit]
+      [limit],
     );
 
-    return result.rows.map(row => this.normalizeAction(row));
+    return result.rows.map((row) => this.normalizeAction(row));
   }
 
   async delete(id: string): Promise<boolean> {
-    const result = await this.db.query(
-      `DELETE FROM ai_actions WHERE id = $1`,
-      [id]
-    );
+    const result = await this.db.query(`DELETE FROM ai_actions WHERE id = $1`, [
+      id,
+    ]);
 
     return (result.rowCount ?? 0) > 0;
   }

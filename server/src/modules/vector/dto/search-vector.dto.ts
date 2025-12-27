@@ -1,5 +1,5 @@
 export class SearchVectorDto {
-    userId: string;
-    queryText: string;
-    limit?: number;
+  userId: string;
+  queryText: string;
+  limit?: number;
 }

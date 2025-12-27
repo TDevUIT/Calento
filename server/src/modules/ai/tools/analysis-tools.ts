@@ -9,19 +9,33 @@ import { FUNCTION_DESCRIPTIONS } from '../prompts/function-prompts';
 export class AnalyzeTeamAvailabilityTool extends BaseTool {
   constructor(private readonly aiAnalysisService: AIAnalysisService) {
     const funcDef = FUNCTION_DESCRIPTIONS.ANALYZE_TEAM_AVAILABILITY;
-    super(funcDef.name, funcDef.description, funcDef.category, funcDef.parameters);
+    super(
+      funcDef.name,
+      funcDef.description,
+      funcDef.category,
+      funcDef.parameters,
+    );
   }
 
   getZodSchema(): ZodObject<ZodRawShape> {
     return z.object({
-      member_ids: z.array(z.string()).optional().describe('List of team member IDs'),
+      member_ids: z
+        .array(z.string())
+        .optional()
+        .describe('List of team member IDs'),
       start_date: z.string().describe('Start date in ISO format'),
       end_date: z.string().describe('End date in ISO format'),
-      meeting_duration: z.number().optional().describe('Meeting duration in minutes'),
-      preferred_time_range: z.object({
-        start: z.string(),
-        end: z.string(),
-      }).optional().describe('Preferred time range'),
+      meeting_duration: z
+        .number()
+        .optional()
+        .describe('Meeting duration in minutes'),
+      preferred_time_range: z
+        .object({
+          start: z.string(),
+          end: z.string(),
+        })
+        .optional()
+        .describe('Preferred time range'),
     });
   }
 
@@ -37,19 +51,19 @@ export class AnalyzeTeamAvailabilityTool extends BaseTool {
       startDate,
       endDate,
       meetingDuration,
-      preferredTimeRange
+      preferredTimeRange,
     );
 
     const bestMatch = analysis.best_match
       ? {
-        day: analysis.best_match.day,
-        time: analysis.best_match.time,
-        date: analysis.best_match.start.toISOString(),
-        available_members: analysis.best_match.available_members,
-        total_members: analysis.best_match.total_members,
-        availability: `${analysis.best_match.available_members}/${analysis.best_match.total_members} members available`,
-        reason: this.getBestMatchReason(analysis.best_match),
-      }
+          day: analysis.best_match.day,
+          time: analysis.best_match.time,
+          date: analysis.best_match.start.toISOString(),
+          available_members: analysis.best_match.available_members,
+          total_members: analysis.best_match.total_members,
+          availability: `${analysis.best_match.available_members}/${analysis.best_match.total_members} members available`,
+          reason: this.getBestMatchReason(analysis.best_match),
+        }
       : null;
 
     return {

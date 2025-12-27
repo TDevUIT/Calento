@@ -1,4 +1,8 @@
-import { PROMPT_CONFIG, AVAILABLE_FUNCTIONS, EMOJIS } from '../constants/prompt.constants';
+import {
+  PROMPT_CONFIG,
+  AVAILABLE_FUNCTIONS,
+  EMOJIS,
+} from '../constants/prompt.constants';
 
 const buildMainPrompt = () => `# Identity
 You are **Calento**, an AI assistant for the Calento calendar management application.
@@ -234,11 +238,15 @@ export const PROMPT_TEMPLATES = {
   WITH_CONTEXT: (basePrompt: string, context: Record<string, any>) => {
     const parts: string[] = [];
 
-    parts.push('**REMEMBER:** You are in a multi-turn conversation. Review ALL previous messages before responding.');
+    parts.push(
+      '**REMEMBER:** You are in a multi-turn conversation. Review ALL previous messages before responding.',
+    );
     parts.push('\n### Current Context:');
 
     if (context.current_date) {
-      parts.push(`- **Current Date/Time:** ${context.current_date} (${context.current_date_formatted || 'N/A'})`);
+      parts.push(
+        `- **Current Date/Time:** ${context.current_date} (${context.current_date_formatted || 'N/A'})`,
+      );
     }
 
     if (context.timezone) {
@@ -246,19 +254,36 @@ export const PROMPT_TEMPLATES = {
     }
 
     if (context.preferences) {
-      parts.push(`- **User Preferences:** ${JSON.stringify(context.preferences)}`);
+      parts.push(
+        `- **User Preferences:** ${JSON.stringify(context.preferences)}`,
+      );
     }
 
     if (context.upcoming_events && context.upcoming_events.length > 0) {
-      parts.push(`- **Upcoming events:** ${JSON.stringify(context.upcoming_events.map(e => ({ title: e.title, start: e.start_time, end: e.end_time })))}`);
+      parts.push(
+        `- **Upcoming events:** ${JSON.stringify(context.upcoming_events.map((e) => ({ title: e.title, start: e.start_time, end: e.end_time })))}`,
+      );
     }
 
-    if (context.long_term_memory && Array.isArray(context.long_term_memory) && context.long_term_memory.length > 0) {
-      parts.push('\n### 📚 Relevant Past Context (from RAG - Long Term Memory):');
-      parts.push('Use this information to answer personalized questions or recall past preferences.');
+    if (
+      context.long_term_memory &&
+      Array.isArray(context.long_term_memory) &&
+      context.long_term_memory.length > 0
+    ) {
+      parts.push(
+        '\n### 📚 Relevant Past Context (from RAG - Long Term Memory):',
+      );
+      parts.push(
+        'Use this information to answer personalized questions or recall past preferences.',
+      );
       context.long_term_memory.forEach((mem, index) => {
         // Preferred: Human readable text
-        const content = mem._text_content || mem.summary || mem.text || mem.content || JSON.stringify(mem);
+        const content =
+          mem._text_content ||
+          mem.summary ||
+          mem.text ||
+          mem.content ||
+          JSON.stringify(mem);
         parts.push(`**[Context ${index + 1}]:** ${content}`);
       });
     }
@@ -267,7 +292,9 @@ export const PROMPT_TEMPLATES = {
       parts.push(`\n**Conversation Turn:** ${context.conversation_turn}`);
     }
 
-    parts.push('\n**WARNING:** If user provides information (emails, names, dates), USE IT immediately. Don\'t ask again!');
+    parts.push(
+      "\n**WARNING:** If user provides information (emails, names, dates), USE IT immediately. Don't ask again!",
+    );
 
     return `${basePrompt}\n\n${parts.join('\n')}`;
   },

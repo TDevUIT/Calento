@@ -3,7 +3,6 @@ import { StructuredTool } from '@langchain/core/tools';
 import { z, ZodObject, ZodRawShape } from 'zod';
 import { AgentContext } from '../agents/base/agent.interface';
 
-
 export interface ITool {
   readonly name: string;
   readonly description: string;
@@ -12,7 +11,6 @@ export interface ITool {
   execute(args: Record<string, any>, context: AgentContext): Promise<any>;
 }
 
-
 export abstract class BaseTool implements ITool {
   protected readonly logger: Logger;
 
@@ -20,13 +18,15 @@ export abstract class BaseTool implements ITool {
     public readonly name: string,
     public readonly description: string,
     public readonly category: 'calendar' | 'task' | 'analysis',
-    public readonly parameters: any
+    public readonly parameters: any,
   ) {
     this.logger = new Logger(`Tool:${name}`);
   }
 
-
-  async execute(args: Record<string, any>, context: AgentContext): Promise<any> {
+  async execute(
+    args: Record<string, any>,
+    context: AgentContext,
+  ): Promise<any> {
     this.logger.log(`Executing tool: ${this.name} for user: ${context.userId}`);
 
     try {
@@ -48,9 +48,10 @@ export abstract class BaseTool implements ITool {
     }
   }
 
-
-  protected abstract run(args: Record<string, any>, context: AgentContext): Promise<any>;
-
+  protected abstract run(
+    args: Record<string, any>,
+    context: AgentContext,
+  ): Promise<any>;
 
   abstract getZodSchema(): ZodObject<ZodRawShape>;
 

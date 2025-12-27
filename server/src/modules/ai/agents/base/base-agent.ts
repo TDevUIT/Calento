@@ -36,7 +36,9 @@ export abstract class BaseAgent implements IAgent {
     this.incrementStat('total_requests');
 
     try {
-      this.logger.log(`Processing request: "${request.message.substring(0, 50)}..."`);
+      this.logger.log(
+        `Processing request: "${request.message.substring(0, 50)}..."`,
+      );
 
       this.validateRequest(request);
 
@@ -53,13 +55,16 @@ export abstract class BaseAgent implements IAgent {
       }
 
       this.logger.log(
-        `Request processed: ${response.success ? 'SUCCESS' : 'FAILED'} | Tools: ${response.toolCalls?.length || 0}`
+        `Request processed: ${response.success ? 'SUCCESS' : 'FAILED'} | Tools: ${response.toolCalls?.length || 0}`,
       );
 
       return response;
     } catch (error) {
       this.incrementStat('failed_requests');
-      this.logger.error(`Request processing failed: ${error.message}`, error.stack);
+      this.logger.error(
+        `Request processing failed: ${error.message}`,
+        error.stack,
+      );
 
       return {
         success: false,
@@ -89,19 +94,19 @@ export abstract class BaseAgent implements IAgent {
     }
   }
 
-
   protected updateActivity() {
     this.lastActivity = new Date();
   }
-
 
   protected incrementStat(key: string, value: number = 1) {
     const current = this.stats.get(key) || 0;
     this.stats.set(key, current + value);
   }
 
-
-  protected buildEnhancedPrompt(basePrompt: string, context: AgentContext): string {
+  protected buildEnhancedPrompt(
+    basePrompt: string,
+    context: AgentContext,
+  ): string {
     const contextParts: string[] = [basePrompt];
 
     if (context.timezone) {
@@ -109,7 +114,9 @@ export abstract class BaseAgent implements IAgent {
     }
 
     if (context.userPreferences) {
-      contextParts.push(`\nUser preferences: ${JSON.stringify(context.userPreferences)}`);
+      contextParts.push(
+        `\nUser preferences: ${JSON.stringify(context.userPreferences)}`,
+      );
     }
 
     if (context.metadata) {
@@ -121,7 +128,6 @@ export abstract class BaseAgent implements IAgent {
 
     return contextParts.join('');
   }
-
 
   protected formatToolCalls(toolCalls: ToolCall[]): string {
     if (toolCalls.length === 0) return '';
@@ -154,7 +160,6 @@ export abstract class BaseAgent implements IAgent {
       .split(/\s+/)
       .filter((word) => word.length > 2);
   }
-
 
   protected calculateConfidence(message: string, keywords: string[]): number {
     const messageKeywords = this.extractKeywords(message);

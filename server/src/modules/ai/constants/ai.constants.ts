@@ -43,7 +43,8 @@ export const AI_CONSTANTS = {
 export const WEEKEND_DAYS = [0, 6];
 
 export const ERROR_MESSAGES = {
-  NO_PRIMARY_CALENDAR: 'You do not have a calendar yet. Please connect Google Calendar first.',
+  NO_PRIMARY_CALENDAR:
+    'You do not have a calendar yet. Please connect Google Calendar first.',
   EMPTY_AI_RESPONSE: 'Empty AI response',
   API_KEY_NOT_CONFIGURED: 'Gemini API key not configured',
   INVALID_FUNCTION: 'Function is not available',

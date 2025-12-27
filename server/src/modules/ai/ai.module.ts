@@ -91,7 +91,7 @@ export class AIModule implements OnModuleInit {
   constructor(
     private readonly toolRegistry: ToolRegistry,
     private readonly moduleRef: ModuleRef,
-  ) { }
+  ) {}
 
   onModuleInit() {
     this.tools.forEach((ToolClass) => {

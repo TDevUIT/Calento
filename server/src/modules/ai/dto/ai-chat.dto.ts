@@ -1,4 +1,11 @@
-﻿import { IsString, IsNotEmpty, IsArray, IsOptional, ValidateNested, IsObject } from 'class-validator';
+﻿import {
+  IsString,
+  IsNotEmpty,
+  IsArray,
+  IsOptional,
+  ValidateNested,
+  IsObject,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { AIMessage } from '../interfaces/ai.interface';
@@ -24,7 +31,10 @@ export class MessageDto {
 }
 
 export class ChatRequestDto {
-  @ApiProperty({ description: 'User message', example: 'Schedule a team meeting on Monday at 10am' })
+  @ApiProperty({
+    description: 'User message',
+    example: 'Schedule a team meeting on Monday at 10am',
+  })
   @IsString()
   @IsNotEmpty()
   message: string;
@@ -54,7 +64,10 @@ export class ChatResponseDto {
   @ApiProperty({ description: 'Conversation ID' })
   conversation_id: string;
 
-  @ApiPropertyOptional({ description: 'Function calls to execute', type: [Object] })
+  @ApiPropertyOptional({
+    description: 'Function calls to execute',
+    type: [Object],
+  })
   function_calls?: Array<{
     name: string;
     arguments: Record<string, any>;
@@ -68,7 +81,10 @@ export class ChatResponseDto {
     result?: any;
   }>;
 
-  @ApiPropertyOptional({ description: 'Pending actions awaiting confirmation', type: [Object] })
+  @ApiPropertyOptional({
+    description: 'Pending actions awaiting confirmation',
+    type: [Object],
+  })
   pending_actions?: Array<{
     id: string;
     type: string;
@@ -79,7 +95,10 @@ export class ChatResponseDto {
     requires_confirmation: boolean;
   }>;
 
-  @ApiPropertyOptional({ description: 'Thinking process steps', type: [Object] })
+  @ApiPropertyOptional({
+    description: 'Thinking process steps',
+    type: [Object],
+  })
   thinking_steps?: Array<{
     id: string;
     status: string;
@@ -90,7 +109,6 @@ export class ChatResponseDto {
   @ApiProperty({ description: 'Timestamp' })
   timestamp: Date;
 }
-
 
 export class FunctionExecutionDto {
   @ApiProperty({ description: 'Function name' })

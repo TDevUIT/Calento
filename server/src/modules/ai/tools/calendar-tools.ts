@@ -10,10 +10,15 @@ import { FUNCTION_DESCRIPTIONS } from '../prompts/function-prompts';
 export class CreateEventTool extends BaseTool {
   constructor(
     private readonly eventService: EventService,
-    private readonly calendarService: CalendarService
+    private readonly calendarService: CalendarService,
   ) {
     const funcDef = FUNCTION_DESCRIPTIONS.CREATE_EVENT;
-    super(funcDef.name, funcDef.description, funcDef.category as 'calendar', funcDef.parameters);
+    super(
+      funcDef.name,
+      funcDef.description,
+      funcDef.category as 'calendar',
+      funcDef.parameters,
+    );
   }
 
   getZodSchema(): ZodObject<ZodRawShape> {
@@ -24,14 +29,21 @@ export class CreateEventTool extends BaseTool {
       description: z.string().optional().describe('Event description'),
       location: z.string().optional().describe('Event location'),
       timezone: z.string().optional().describe('Timezone'),
-      attendees: z.array(z.string()).optional().describe('List of attendee emails'),
+      attendees: z
+        .array(z.string())
+        .optional()
+        .describe('List of attendee emails'),
     });
   }
 
   protected async run(args: any, context: AgentContext): Promise<any> {
-    const primaryCalendar = await this.calendarService.getPrimaryCalendar(context.userId);
+    const primaryCalendar = await this.calendarService.getPrimaryCalendar(
+      context.userId,
+    );
     if (!primaryCalendar) {
-      throw new Error('You do not have a calendar yet. Please connect Google Calendar first.');
+      throw new Error(
+        'You do not have a calendar yet. Please connect Google Calendar first.',
+      );
     }
 
     const event = await this.eventService.createEvent(
@@ -48,7 +60,7 @@ export class CreateEventTool extends BaseTool {
           response_status: 'needsAction',
         })),
       },
-      context.userId
+      context.userId,
     );
 
     return {
@@ -68,7 +80,12 @@ export class CreateEventTool extends BaseTool {
 export class CheckAvailabilityTool extends BaseTool {
   constructor(private readonly eventService: EventService) {
     const funcDef = FUNCTION_DESCRIPTIONS.CHECK_AVAILABILITY;
-    super(funcDef.name, funcDef.description, funcDef.category as 'calendar', funcDef.parameters);
+    super(
+      funcDef.name,
+      funcDef.description,
+      funcDef.category as 'calendar',
+      funcDef.parameters,
+    );
   }
 
   getZodSchema(): ZodObject<ZodRawShape> {
@@ -88,11 +105,16 @@ export class CheckAvailabilityTool extends BaseTool {
       context.userId,
       startDate,
       endDate,
-      { page: 1, limit: 1000 }
+      { page: 1, limit: 1000 },
     );
 
     const events = eventsResult.data;
-    const freeSlots = this.calculateFreeSlots(events, startDate, endDate, durationMinutes);
+    const freeSlots = this.calculateFreeSlots(
+      events,
+      startDate,
+      endDate,
+      durationMinutes,
+    );
 
     return {
       total_events: events.length,
@@ -106,14 +128,15 @@ export class CheckAvailabilityTool extends BaseTool {
     events: any[],
     startDate: Date,
     endDate: Date,
-    durationMinutes: number
+    durationMinutes: number,
   ) {
     const freeSlots: Array<{ start: Date; end: Date }> = [];
     const workStart = 9;
     const workEnd = 18;
 
     const sortedEvents = events.sort(
-      (a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime()
+      (a, b) =>
+        new Date(a.start_time).getTime() - new Date(b.start_time).getTime(),
     );
 
     const currentDate = new Date(startDate);
@@ -129,10 +152,15 @@ export class CheckAvailabilityTool extends BaseTool {
       const dayEnd = new Date(currentDate);
       dayEnd.setHours(workEnd, 0, 0, 0);
 
-      let currentTime = new Date(dayStart);
+      const currentTime = new Date(dayStart);
 
-      while (currentTime.getTime() + durationMinutes * 60000 <= dayEnd.getTime()) {
-        const slotEnd = new Date(currentTime.getTime() + durationMinutes * 60000);
+      while (
+        currentTime.getTime() + durationMinutes * 60000 <=
+        dayEnd.getTime()
+      ) {
+        const slotEnd = new Date(
+          currentTime.getTime() + durationMinutes * 60000,
+        );
 
         const hasConflict = sortedEvents.some((event) => {
           const eventStart = new Date(event.start_time);
@@ -161,15 +189,21 @@ export class CheckAvailabilityTool extends BaseTool {
   }
 }
 
-
 @Injectable()
 export class SearchEventsTool extends BaseTool {
   constructor(private readonly eventService: EventService) {
     const funcDef = FUNCTION_DESCRIPTIONS.SEARCH_EVENTS;
-    super(funcDef.name, funcDef.description, funcDef.category as 'calendar', funcDef.parameters);
+    super(
+      funcDef.name,
+      funcDef.description,
+      funcDef.category as 'calendar',
+      funcDef.parameters,
+    );
   }
 
-  private inferDateRangeFromQuery(query: string): { start: Date; end: Date } | null {
+  private inferDateRangeFromQuery(
+    query: string,
+  ): { start: Date; end: Date } | null {
     const match = query.match(/\b(\d{1,2})[\/-](\d{1,2})(?:[\/-](\d{2,4}))?\b/);
     if (!match) return null;
 
@@ -189,13 +223,17 @@ export class SearchEventsTool extends BaseTool {
     const start = new Date(year, month - 1, day, 0, 0, 0, 0);
     const end = new Date(year, month - 1, day, 23, 59, 59, 999);
 
-    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return null;
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()))
+      return null;
     return { start, end };
   }
 
   getZodSchema(): ZodObject<ZodRawShape> {
     return z.object({
-      query: z.string().optional().describe('Search query for title or description'),
+      query: z
+        .string()
+        .optional()
+        .describe('Search query for title or description'),
       start_date: z.string().optional().describe('Start date filter'),
       end_date: z.string().optional().describe('End date filter'),
     });
@@ -212,23 +250,47 @@ export class SearchEventsTool extends BaseTool {
     const startDate = args.start_date ? new Date(args.start_date) : undefined;
     const endDate = args.end_date ? new Date(args.end_date) : undefined;
 
-    const inferred = !startDate && !endDate && query ? this.inferDateRangeFromQuery(query) : null;
+    const inferred =
+      !startDate && !endDate && query
+        ? this.inferDateRangeFromQuery(query)
+        : null;
 
     let eventsResult;
 
     if (startDate && endDate) {
-      eventsResult = await this.eventService.searchEventsByDateRange(context.userId, startDate, endDate, query, options);
+      eventsResult = await this.eventService.searchEventsByDateRange(
+        context.userId,
+        startDate,
+        endDate,
+        query,
+        options,
+      );
     } else if (inferred) {
-      eventsResult = await this.eventService.searchEventsByDateRange(context.userId, inferred.start, inferred.end, query, options);
+      eventsResult = await this.eventService.searchEventsByDateRange(
+        context.userId,
+        inferred.start,
+        inferred.end,
+        query,
+        options,
+      );
     } else if (query) {
-      eventsResult = await this.eventService.searchEvents(context.userId, query, options);
+      eventsResult = await this.eventService.searchEvents(
+        context.userId,
+        query,
+        options,
+      );
     } else {
       // Fallback: if no query and no dates, maybe return upcoming events?
       // Or just return empty to avoid error.
       const now = new Date();
       const nextWeek = new Date();
       nextWeek.setDate(now.getDate() + 7);
-      eventsResult = await this.eventService.getEventsByDateRange(context.userId, now, nextWeek, options);
+      eventsResult = await this.eventService.getEventsByDateRange(
+        context.userId,
+        now,
+        nextWeek,
+        options,
+      );
     }
 
     return {
@@ -252,22 +314,32 @@ export class SearchEventsTool extends BaseTool {
 export class UpdateEventTool extends BaseTool {
   constructor(private readonly eventService: EventService) {
     const funcDef = FUNCTION_DESCRIPTIONS.UPDATE_EVENT;
-    super(funcDef.name, funcDef.description, funcDef.category as 'calendar', funcDef.parameters);
+    super(
+      funcDef.name,
+      funcDef.description,
+      funcDef.category as 'calendar',
+      funcDef.parameters,
+    );
   }
 
   getZodSchema(): ZodObject<ZodRawShape> {
     return z.object({
       event_id: z.string().describe('Event ID to update'),
-      updates: z.object({
-        title: z.string().optional(),
-        start_time: z.string().optional(),
-        end_time: z.string().optional(),
-        description: z.string().optional(),
-        note: z.string().optional().describe('Alias for description'),
-        location: z.string().optional(),
-        timezone: z.string().optional(),
-        attendees: z.array(z.string()).optional().describe('List of attendee emails'),
-      }).describe('Fields to update'),
+      updates: z
+        .object({
+          title: z.string().optional(),
+          start_time: z.string().optional(),
+          end_time: z.string().optional(),
+          description: z.string().optional(),
+          note: z.string().optional().describe('Alias for description'),
+          location: z.string().optional(),
+          timezone: z.string().optional(),
+          attendees: z
+            .array(z.string())
+            .optional()
+            .describe('List of attendee emails'),
+        })
+        .describe('Fields to update'),
     });
   }
 
@@ -288,7 +360,7 @@ export class UpdateEventTool extends BaseTool {
     const event = await this.eventService.updateEvent(
       args.event_id,
       updates,
-      context.userId
+      context.userId,
     );
 
     return {
@@ -303,7 +375,12 @@ export class UpdateEventTool extends BaseTool {
 export class DeleteEventTool extends BaseTool {
   constructor(private readonly eventService: EventService) {
     const funcDef = FUNCTION_DESCRIPTIONS.DELETE_EVENT;
-    super(funcDef.name, funcDef.description, funcDef.category as 'calendar', funcDef.parameters);
+    super(
+      funcDef.name,
+      funcDef.description,
+      funcDef.category as 'calendar',
+      funcDef.parameters,
+    );
   }
 
   getZodSchema(): ZodObject<ZodRawShape> {

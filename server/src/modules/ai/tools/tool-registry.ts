@@ -9,7 +9,9 @@ export class ToolRegistry {
 
   register(tool: ITool) {
     if (this.tools.has(tool.name)) {
-      this.logger.warn(`Tool ${tool.name} is already registered. Overwriting...`);
+      this.logger.warn(
+        `Tool ${tool.name} is already registered. Overwriting...`,
+      );
     }
 
     this.tools.set(tool.name, tool);
@@ -35,7 +37,7 @@ export class ToolRegistry {
   async execute(
     toolName: string,
     args: Record<string, any>,
-    context: AgentContext
+    context: AgentContext,
   ): Promise<any> {
     const tool = this.getTool(toolName);
 
@@ -62,7 +64,9 @@ export class ToolRegistry {
   }
 
   getToolDescriptions(category?: 'calendar' | 'task' | 'analysis'): any[] {
-    const tools = category ? this.getToolsByCategory(category) : this.getAllTools();
+    const tools = category
+      ? this.getToolsByCategory(category)
+      : this.getAllTools();
 
     return tools.map((tool) => ({
       name: tool.name,

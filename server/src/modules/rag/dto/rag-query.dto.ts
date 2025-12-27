@@ -1,4 +1,4 @@
 export class RagQueryDto {
-    userId: string;
-    message: string;
+  userId: string;
+  message: string;
 }

@@ -1,5 +1,5 @@
 export interface VectorSearchResult {
-    id: string;
-    context: any;
-    similarity: number;
+  id: string;
+  context: any;
+  similarity: number;
 }

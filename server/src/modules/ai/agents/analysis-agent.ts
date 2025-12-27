@@ -1,6 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { BaseAgent } from './base/base-agent';
-import { AgentType, AgentCapability, AgentRequest, AgentResponse, ToolCall } from './base/agent.interface';
+import {
+  AgentType,
+  AgentCapability,
+  AgentRequest,
+  AgentResponse,
+  ToolCall,
+} from './base/agent.interface';
 import { SYSTEM_PROMPTS, RESPONSE_FORMATS } from '../prompts/system-prompts';
 import { ToolRegistry } from '../tools/tool-registry';
 import { LangChainService } from '../../llm/langchain.service';
@@ -36,12 +42,13 @@ export class AnalysisAgent extends BaseAgent {
 
   constructor(
     private readonly toolRegistry: ToolRegistry,
-    private readonly langChainService: LangChainService
+    private readonly langChainService: LangChainService,
   ) {
     super({
       type: AgentType.ANALYSIS,
       name: 'Analysis',
-      description: 'Performs calendar intelligence and team availability analysis',
+      description:
+        'Performs calendar intelligence and team availability analysis',
       capabilities: [AgentCapability.ANALYZE_TEAM],
       systemPrompt: SYSTEM_PROMPTS.ANALYSIS_AGENT,
     });
@@ -49,7 +56,10 @@ export class AnalysisAgent extends BaseAgent {
 
   protected async execute(request: AgentRequest): Promise<AgentResponse> {
     try {
-      const enhancedPrompt = this.buildEnhancedPrompt(this.config.systemPrompt, request.context);
+      const enhancedPrompt = this.buildEnhancedPrompt(
+        this.config.systemPrompt,
+        request.context,
+      );
       const tools = this.toolRegistry.getToolDescriptions('analysis');
 
       const aiResponse = await this.langChainService.chat(
@@ -59,7 +69,7 @@ export class AnalysisAgent extends BaseAgent {
           systemPrompt: enhancedPrompt + '\n\n' + RESPONSE_FORMATS.ANALYSIS,
           tools,
           userId: request.context.userId,
-        }
+        },
       );
 
       const toolCalls: ToolCall[] = [];
@@ -69,7 +79,7 @@ export class AnalysisAgent extends BaseAgent {
             const result = await this.toolRegistry.execute(
               funcCall.name,
               funcCall.arguments,
-              request.context
+              request.context,
             );
 
             toolCalls.push({
@@ -88,7 +98,10 @@ export class AnalysisAgent extends BaseAgent {
         }
       }
 
-      const formattedResponse = this.formatAnalysisResponse(aiResponse.text, toolCalls);
+      const formattedResponse = this.formatAnalysisResponse(
+        aiResponse.text,
+        toolCalls,
+      );
 
       return {
         success: true,
@@ -105,7 +118,8 @@ export class AnalysisAgent extends BaseAgent {
       this.logger.error('Analysis agent execution failed', error.stack);
       return {
         success: false,
-        message: 'Sorry, I encountered an error while analyzing your team calendar.',
+        message:
+          'Sorry, I encountered an error while analyzing your team calendar.',
         error: error.message,
       };
     }
@@ -146,7 +160,12 @@ export class AnalysisAgent extends BaseAgent {
     }
 
     if (best_match) {
-      const scoreLabel = match_score >= 90 ? 'EXCELLENT' : match_score >= 70 ? 'GOOD' : 'ACCEPTABLE';
+      const scoreLabel =
+        match_score >= 90
+          ? 'EXCELLENT'
+          : match_score >= 70
+            ? 'GOOD'
+            : 'ACCEPTABLE';
       formatted += `\n**Best Match (Score: ${match_score}% - ${scoreLabel})**\n`;
       formatted += `${best_match.day} • ${best_match.time}\n`;
       formatted += `Availability: ${best_match.availability}\n`;

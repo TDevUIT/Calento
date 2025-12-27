@@ -13,7 +13,12 @@ import { FUNCTION_DESCRIPTIONS } from '../prompts/function-prompts';
 export class CreateTaskTool extends BaseTool {
   constructor(private readonly taskService: TaskService) {
     const funcDef = FUNCTION_DESCRIPTIONS.CREATE_TASK;
-    super(funcDef.name, funcDef.description, funcDef.category, funcDef.parameters);
+    super(
+      funcDef.name,
+      funcDef.description,
+      funcDef.category,
+      funcDef.parameters,
+    );
   }
 
   getZodSchema(): ZodObject<ZodRawShape> {
@@ -21,7 +26,10 @@ export class CreateTaskTool extends BaseTool {
       title: z.string().describe('Task title'),
       description: z.string().optional().describe('Task description'),
       due_date: z.string().optional().describe('Due date in ISO format'),
-      priority: z.enum(['low', 'medium', 'high', 'critical']).optional().describe('Task priority'),
+      priority: z
+        .enum(['low', 'medium', 'high', 'critical'])
+        .optional()
+        .describe('Task priority'),
     });
   }
 
@@ -33,16 +41,15 @@ export class CreateTaskTool extends BaseTool {
       critical: TaskPriority.CRITICAL,
     };
 
-    const task = await this.taskService.createTask(
-      context.userId,
-      {
-        title: args.title,
-        description: args.description,
-        due_date: args.due_date,
-        priority: args.priority ? priorityMap[args.priority] : TaskPriority.MEDIUM,
-        status: TaskStatus.TODO,
-      }
-    );
+    const task = await this.taskService.createTask(context.userId, {
+      title: args.title,
+      description: args.description,
+      due_date: args.due_date,
+      priority: args.priority
+        ? priorityMap[args.priority]
+        : TaskPriority.MEDIUM,
+      status: TaskStatus.TODO,
+    });
 
     return {
       task_id: task.id,
@@ -61,7 +68,12 @@ export class CreateTaskTool extends BaseTool {
 export class CreateLearningPlanTool extends BaseTool {
   constructor(private readonly taskService: TaskService) {
     const funcDef = FUNCTION_DESCRIPTIONS.CREATE_LEARNING_PLAN;
-    super(funcDef.name, funcDef.description, funcDef.category, funcDef.parameters);
+    super(
+      funcDef.name,
+      funcDef.description,
+      funcDef.category,
+      funcDef.parameters,
+    );
   }
 
   getZodSchema(): ZodObject<ZodRawShape> {
@@ -89,16 +101,13 @@ export class CreateLearningPlanTool extends BaseTool {
       const phaseEnd = new Date(phaseStart);
       phaseEnd.setDate(phaseEnd.getDate() + weeksPerPhase * 7);
 
-      const task = await this.taskService.createTask(
-        context.userId,
-        {
-          title: `${topic} - Phase ${i + 1}/${phases}`,
-          description: `Study ${hours_per_day} hours/day for ${weeksPerPhase} weeks`,
-          due_date: phaseEnd.toISOString(),
-          priority: TaskPriority.HIGH,
-          status: TaskStatus.TODO,
-        }
-      );
+      const task = await this.taskService.createTask(context.userId, {
+        title: `${topic} - Phase ${i + 1}/${phases}`,
+        description: `Study ${hours_per_day} hours/day for ${weeksPerPhase} weeks`,
+        due_date: phaseEnd.toISOString(),
+        priority: TaskPriority.HIGH,
+        status: TaskStatus.TODO,
+      });
 
       tasks.push({
         id: task.id,
