@@ -5,12 +5,22 @@ import {
   BOOKING_STATUS_COLORS,
   BOOKING_LINK_COLORS,
   DURATION_OPTIONS,
+  BOOKING_DEFAULTS,
 } from '../../constants/booking.constants';
 import type { BookingLink, Booking } from '../../interface';
 import { formatDuration } from '../formatting/formatters';
 
 // Re-export formatters for backward compatibility
 export { formatTimeSlot, formatDateDisplay } from '../formatting/formatters';
+
+export function getBrowserTimezone(): string {
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return tz && tz.trim().length > 0 ? tz : BOOKING_DEFAULTS.TIMEZONE;
+  } catch {
+    return BOOKING_DEFAULTS.TIMEZONE;
+  }
+}
 
 
 

@@ -4,6 +4,7 @@ import { format, startOfDay } from 'date-fns';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCreatePublicBooking } from '@/hook/booking';
 import { BOOKING_QUERY_KEYS } from '@/hook/booking/use-bookings';
+import { getBrowserTimezone } from '@/utils';
 
 export const useBookingForm = (slug: string) => {
   const queryClient = useQueryClient();
@@ -52,7 +53,7 @@ export const useBookingForm = (slug: string) => {
         data: {
           ...bookingData,
           start_time: selectedSlot,
-          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          timezone: getBrowserTimezone(),
         },
       });
       setStep('confirmation');

@@ -6,6 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BookingTimeSlot } from '@/interface';
 import { format, addDays, parseISO, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay } from 'date-fns';
+import { getBrowserTimezone } from '@/utils';
 
 interface TimeSelectionStepProps {
   bookingLink: BookingLink;
@@ -71,11 +72,11 @@ export const TimeSelectionStep = ({
             <div className="relative">
               <select
                 className="w-full appearance-none bg-white dark:bg-gray-900 border border-gray-200 rounded-md px-3 py-2 pr-8 text-sm"
-                value={Intl.DateTimeFormat().resolvedOptions().timeZone}
+                value={getBrowserTimezone()}
                 onChange={() => {}}
               >
-                <option value={Intl.DateTimeFormat().resolvedOptions().timeZone}>
-                  {Intl.DateTimeFormat().resolvedOptions().timeZone}
+                <option value={getBrowserTimezone()}>
+                  {getBrowserTimezone()}
                 </option>
               </select>
             </div>
@@ -143,7 +144,7 @@ export const TimeSelectionStep = ({
                 <div>
                   <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">Select a time</div>
                   <div className="mt-1 inline-flex items-center rounded-full border border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-2 py-0.5 text-[11px] font-medium text-gray-600 dark:text-gray-300">
-                    {Intl.DateTimeFormat().resolvedOptions().timeZone}
+                    {getBrowserTimezone()}
                   </div>
                 </div>
                 {availableSlots && availableSlots.filter((s) => s.available).slice(0, 3).length > 0 && (

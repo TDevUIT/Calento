@@ -8,6 +8,7 @@ import { usePublicBookingLink, useAvailableSlots } from "@/hook/booking";
 import { useAuthStore } from "@/store/auth.store";
 import { CreateBookingLinkDialog } from "@/components/booking/CreateBookingLinkDialog";
 import { BOOKING_QUERY_KEYS } from '@/hook/booking/use-bookings';
+import { getBrowserTimezone } from '@/utils';
 import {
   LoadingState,
   ErrorState,
@@ -47,7 +48,7 @@ export default function PublicBookingPage() {
   const { data: availableSlots, isLoading: isLoadingSlotsData } = useAvailableSlots(slug, {
     start_date: selectedDate,
     end_date: selectedDate,
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    timezone: getBrowserTimezone(),
   });
 
   const isSelectedSlotStillAvailable = !!availableSlots?.some(

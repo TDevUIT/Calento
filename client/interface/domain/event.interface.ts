@@ -26,6 +26,7 @@ export interface Event {
   id: string;
   user_id: string;
   calendar_id: string;
+  team_id?: string;
   title: string;
   description?: string;
   start_time: Date | string;
@@ -40,6 +41,11 @@ export interface Event {
     name?: string;
     email?: string;
     avatar?: string;
+  };
+
+  team?: {
+    id: string;
+    name?: string;
   };
   
   organizer_id?: string;
@@ -64,6 +70,7 @@ export interface Event {
 
 export interface CreateEventRequest {
   calendar_id: string;
+  team_id?: string;
   title: string;
   description?: string;
   start_time: string; // ISO 8601 format
@@ -80,6 +87,7 @@ export interface CreateEventRequest {
 
 export interface UpdateEventRequest {
   calendar_id: string; // Required for PUT
+  team_id?: string;
   title: string;       // Required for PUT
   description?: string;
   start_time: string;  // Required for PUT
@@ -97,6 +105,7 @@ export interface UpdateEventRequest {
 
 export interface PartialUpdateEventRequest {
   calendar_id?: string; // Allow moving event to different calendar
+  team_id?: string;
   title?: string;
   description?: string;
   start_time?: string;
@@ -120,6 +129,7 @@ export interface EventQueryParams {
   search?: string;
   location?: string;
   is_all_day?: boolean;
+  team_id?: string;
 }
 
 export interface RecurringEventsQueryParams {
