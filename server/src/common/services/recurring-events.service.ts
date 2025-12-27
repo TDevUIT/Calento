@@ -159,9 +159,9 @@ export class RecurringEventsService {
         event.recurrence_rule!,
         event.start_time,
       );
-      
+
       const allOccurrences = rrule.all();
-      
+
       if (occurrenceIndex < 0 || occurrenceIndex >= allOccurrences.length) {
         return null;
       }
@@ -169,7 +169,12 @@ export class RecurringEventsService {
       const occurrenceDate = allOccurrences[occurrenceIndex];
       const duration = this.calculateDuration(event);
 
-      return this.createOccurrence(event, occurrenceDate, duration, occurrenceIndex);
+      return this.createOccurrence(
+        event,
+        occurrenceDate,
+        duration,
+        occurrenceIndex,
+      );
     } catch (error) {
       this.logger.error(
         `Failed to get occurrence ${occurrenceIndex} for event ${event.id}:`,

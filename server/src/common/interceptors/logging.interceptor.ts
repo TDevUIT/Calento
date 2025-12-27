@@ -11,7 +11,7 @@ import { Request, Response } from 'express';
 
 /**
  * Logging Interceptor
- * 
+ *
  * Provides structured request/response logging with:
  * - Request details (method, url, user, ip)
  * - Response status and duration
@@ -26,24 +26,22 @@ export class LoggingInterceptor implements NestInterceptor {
     const ctx = context.switchToHttp();
     const request = ctx.getRequest<Request>();
     const response = ctx.getResponse<Response>();
-    
+
     const { method, originalUrl, ip, headers } = request;
     const userAgent = headers['user-agent'] || 'Unknown';
     const userId = (request as any).user?.id || 'Anonymous';
-    
+
     const startTime = Date.now();
 
     // Log incoming request
-    this.logger.log(
-      `→ ${method} ${originalUrl} | User: ${userId} | IP: ${ip}`,
-    );
+    this.logger.log(`→ ${method} ${originalUrl} | User: ${userId} | IP: ${ip}`);
 
     return next.handle().pipe(
       tap({
         next: () => {
           const duration = Date.now() - startTime;
           const { statusCode } = response;
-          
+
           // Log successful response
           if (statusCode >= 400) {
             this.logger.warn(
@@ -58,7 +56,7 @@ export class LoggingInterceptor implements NestInterceptor {
         error: (error) => {
           const duration = Date.now() - startTime;
           const statusCode = error.status || 500;
-          
+
           // Log error response
           this.logger.error(
             `← ${statusCode} ${method} ${originalUrl} | ${duration}ms | User: ${userId}`,

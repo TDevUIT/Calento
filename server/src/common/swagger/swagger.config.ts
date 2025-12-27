@@ -5,8 +5,8 @@ import { SERVER_URL_CONSTANTS } from '../constants';
 
 export function setupSwagger(app: INestApplication): void {
   const isDevelopment = env.NODE_ENV === 'development';
-  const serverUrl = isDevelopment 
-    ? SERVER_URL_CONSTANTS.DEVELOPMENT.BACKEND 
+  const serverUrl = isDevelopment
+    ? SERVER_URL_CONSTANTS.DEVELOPMENT.BACKEND
     : SERVER_URL_CONSTANTS.PRODUCTION.BACKEND;
 
   const config = new DocumentBuilder()

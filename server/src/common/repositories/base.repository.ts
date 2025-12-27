@@ -332,22 +332,26 @@ export abstract class UserOwnedRepository<
 
     const baseQuery = this.buildSelectQuery(options?.includeDeleted);
     let whereCondition = 'user_id = $1';
-    let whereParams: any[] = [userId];
-    
+    const whereParams: any[] = [userId];
+
     // Handle search if provided
     const searchOptions = paginationOptions as Partial<SearchOptions>;
-    if (searchOptions.search && searchOptions.searchFields && searchOptions.searchFields.length > 0) {
+    if (
+      searchOptions.search &&
+      searchOptions.searchFields &&
+      searchOptions.searchFields.length > 0
+    ) {
       const searchConditions = searchOptions.searchFields.map(
-        (field, index) => `${field} ILIKE $${index + 2}`
+        (field, index) => `${field} ILIKE $${index + 2}`,
       );
       whereCondition += ` AND (${searchConditions.join(' OR ')})`;
-      
+
       // Add search parameter for each field
       searchOptions.searchFields.forEach(() => {
         whereParams.push(`%${searchOptions.search}%`);
       });
     }
-    
+
     const allowedSortFields = this.getAllowedSortFields();
 
     const { countQuery, dataQuery, countParams, dataParams } =

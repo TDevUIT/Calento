@@ -7,9 +7,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { Reflector } from '@nestjs/core';
 import { Request, Response } from 'express';
-import {
-  InvalidTokenException,
-} from '../../modules/auth/exceptions/auth.exceptions';
+import { InvalidTokenException } from '../../modules/auth/exceptions/auth.exceptions';
 import { CookieAuthService } from '../../modules/auth/services/cookie-auth.service';
 
 @Injectable()
@@ -54,17 +52,17 @@ export class JwtAuthGuard extends AuthGuard(['jwt', 'jwt-cookie']) {
     } catch (error) {
       const request = context.switchToHttp().getRequest<Request>();
       const response = context.switchToHttp().getResponse<Response>();
-      
-      const shouldRefresh = 
-        error.name === 'TokenExpiredError' || 
+
+      const shouldRefresh =
+        error.name === 'TokenExpiredError' ||
         error.message?.includes('expired') ||
         error.message?.includes('jwt malformed') ||
         error.message?.includes('invalid token') ||
-        (error instanceof InvalidTokenException);
-      
+        error instanceof InvalidTokenException;
+
       if (shouldRefresh) {
         const refreshToken = request.cookies?.refresh_token;
-        
+
         if (!refreshToken) {
           this.logger.warn('❌ No refresh token available');
           throw new UnauthorizedException({
@@ -75,20 +73,30 @@ export class JwtAuthGuard extends AuthGuard(['jwt', 'jwt-cookie']) {
             requiresLogin: true,
           });
         }
-        
-        this.logger.log('🔄 Access token invalid/missing, attempting automatic refresh');
-        
-        const tokens = await this.cookieAuthService.refreshTokenFromCookies(request, response);
-        
+
+        this.logger.log(
+          '🔄 Access token invalid/missing, attempting automatic refresh',
+        );
+
+        const tokens = await this.cookieAuthService.refreshTokenFromCookies(
+          request,
+          response,
+        );
+
         if (tokens) {
-          this.logger.log('✅ Token refreshed successfully, retrying authentication');
+          this.logger.log(
+            '✅ Token refreshed successfully, retrying authentication',
+          );
           request.cookies.access_token = tokens.access_token;
-          
+
           try {
             const retryResult = await super.canActivate(context);
             return retryResult as boolean;
           } catch (retryError) {
-            this.logger.error('❌ Authentication failed after token refresh', retryError);
+            this.logger.error(
+              '❌ Authentication failed after token refresh',
+              retryError,
+            );
             throw retryError;
           }
         } else {
@@ -102,7 +110,7 @@ export class JwtAuthGuard extends AuthGuard(['jwt', 'jwt-cookie']) {
           });
         }
       }
-      
+
       throw error;
     }
   }
@@ -121,13 +129,13 @@ export class JwtAuthGuard extends AuthGuard(['jwt', 'jwt-cookie']) {
       const hasAccessToken = !!request.cookies?.access_token;
       const hasRefreshToken = !!request.cookies?.refresh_token;
       const hasAuthHeader = !!request.headers.authorization;
-      
+
       this.logger.debug(
         `Auth Debug - err: ${err?.name || 'none'} (${err?.message || 'N/A'}), ` +
-        `info: ${info?.name || 'none'} (${info?.message || 'N/A'}), ` +
-        `user: ${!!user}, accessToken: ${hasAccessToken}, refreshToken: ${hasRefreshToken}, authHeader: ${hasAuthHeader}`
+          `info: ${info?.name || 'none'} (${info?.message || 'N/A'}), ` +
+          `user: ${!!user}, accessToken: ${hasAccessToken}, refreshToken: ${hasRefreshToken}, authHeader: ${hasAuthHeader}`,
       );
-      
+
       this.logger.warn(
         `Authentication failed for ${endpoint} from ${ip}: ${err?.message || info?.message || 'Unknown error'}`,
       );
@@ -153,22 +161,22 @@ export class JwtAuthGuard extends AuthGuard(['jwt', 'jwt-cookie']) {
         this.logger.debug('Token expired (from info)');
         throw new Error('jwt expired'); // Let canActivate handle this
       }
-      
+
       if (info?.name === 'JsonWebTokenError') {
         this.logger.warn('Invalid JWT token format (from info)');
         throw new InvalidTokenException();
       }
-      
+
       if (info?.message) {
         this.logger.warn(`Authentication info: ${info.message}`);
-        
+
         // Check if message indicates token expiration
         if (info.message.toLowerCase().includes('expired')) {
           this.logger.debug('Token expired detected from message');
           throw new Error('jwt expired'); // Let canActivate handle this
         }
       }
-      
+
       // No token provided or invalid
       throw new InvalidTokenException();
     }

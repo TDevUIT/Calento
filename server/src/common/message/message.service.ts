@@ -125,7 +125,8 @@ export class MessageService {
         slots_retrieved: 'Available slots retrieved successfully',
         bulk_created: '{{count}} availability rules created successfully',
         bulk_deleted: '{{count}} availability rules deleted successfully',
-        default_rules_created: 'Default availability rules created successfully (Mon-Fri, 9 AM - 5 PM)',
+        default_rules_created:
+          'Default availability rules created successfully (Mon-Fri, 9 AM - 5 PM)',
       },
       google: {
         auth_url_generated: 'Google OAuth URL generated successfully',

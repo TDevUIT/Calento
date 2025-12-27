@@ -2,7 +2,7 @@ import { Injectable, Logger, LoggerService } from '@nestjs/common';
 
 /**
  * Enhanced Application Logger Service
- * 
+ *
  * Provides structured logging with additional context and features:
  * - Component/context-based logging
  * - Structured log data
@@ -73,11 +73,7 @@ export class AppLoggerService implements LoggerService {
   /**
    * Log performance metrics
    */
-  logPerformance(
-    operation: string,
-    duration: number,
-    context?: string,
-  ): void {
+  logPerformance(operation: string, duration: number, context?: string): void {
     this.logger.log(`⏱️  ${operation} completed in ${duration}ms`, context);
   }
 
@@ -100,11 +96,7 @@ export class AppLoggerService implements LoggerService {
   /**
    * Log database query
    */
-  logDatabaseQuery(
-    query: string,
-    duration: number,
-    context?: string,
-  ): void {
+  logDatabaseQuery(query: string, duration: number, context?: string): void {
     this.logger.debug(`🗄️  Query: ${query} | ${duration}ms`, context);
   }
 
@@ -118,10 +110,7 @@ export class AppLoggerService implements LoggerService {
     duration: number,
     context?: string,
   ): void {
-    this.logger.log(
-      `📡 ${method} ${url} | ${status} | ${duration}ms`,
-      context,
-    );
+    this.logger.log(`📡 ${method} ${url} | ${status} | ${duration}ms`, context);
   }
 
   /**
@@ -136,10 +125,10 @@ export class AppLoggerService implements LoggerService {
       operation === 'hit'
         ? '✅'
         : operation === 'miss'
-        ? '❌'
-        : operation === 'set'
-        ? '💾'
-        : '🗑️';
+          ? '❌'
+          : operation === 'set'
+            ? '💾'
+            : '🗑️';
     this.logger.debug(`${emoji} Cache ${operation}: ${key}`, context);
   }
 

@@ -36,11 +36,11 @@ export class ResponseInterceptor<T>
         const requestId = request.headers['x-request-id'] as string;
 
         // Check if controller already returned a standard response format
-        const isStandardResponse = 
-          data && 
-          typeof data === 'object' && 
-          'success' in data && 
-          'message' in data && 
+        const isStandardResponse =
+          data &&
+          typeof data === 'object' &&
+          'success' in data &&
+          'message' in data &&
           'data' in data;
 
         if (isStandardResponse) {
@@ -56,7 +56,11 @@ export class ResponseInterceptor<T>
         }
 
         // Legacy check for old response format
-        const isResponseDto = data && typeof data === 'object' && 'status' in data && 'message' in data;
+        const isResponseDto =
+          data &&
+          typeof data === 'object' &&
+          'status' in data &&
+          'message' in data;
 
         if (isResponseDto) {
           return {

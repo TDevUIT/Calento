@@ -24,8 +24,10 @@ export class AutoRefreshTokenInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       catchError((error) => {
-        this.logger.debug(`Interceptor caught error: ${error.constructor.name} - ${error.message}`);
-        
+        this.logger.debug(
+          `Interceptor caught error: ${error.constructor.name} - ${error.message}`,
+        );
+
         if (!(error instanceof TokenExpiredException)) {
           this.logger.debug('Not a TokenExpiredException, passing through');
           return throwError(() => error);
@@ -60,13 +62,15 @@ export class AutoRefreshTokenInterceptor implements NestInterceptor {
                 message: 'Session expired. Please login again.',
                 errors: ['Refresh token invalid or expired'],
                 timestamp: new Date().toISOString(),
-                requiresLogin: true, 
+                requiresLogin: true,
               }),
             );
             return;
           }
 
-          this.logger.log('Access token refreshed successfully via interceptor');
+          this.logger.log(
+            'Access token refreshed successfully via interceptor',
+          );
 
           request.cookies.access_token = tokens.access_token;
 

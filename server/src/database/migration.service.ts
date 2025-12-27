@@ -17,7 +17,7 @@ export class MigrationService {
   private readonly migrationsPath = path.join(__dirname, '../../migrations');
   private readonly schemaFile = 'schema.sql';
 
-  constructor(private readonly databaseService: DatabaseService) { }
+  constructor(private readonly databaseService: DatabaseService) {}
 
   async initializeMigrationsTable(): Promise<void> {
     const createTableQuery = `
@@ -86,10 +86,7 @@ export class MigrationService {
 
       this.logger.log(`✅ Executed schema file: ${this.schemaFile}`);
     } catch (error) {
-      this.logger.error(
-        `❌ Failed to execute schema file:`,
-        error.message,
-      );
+      this.logger.error(`❌ Failed to execute schema file:`, error.message);
       throw error;
     }
   }
@@ -238,8 +235,12 @@ export class MigrationService {
 
     // Cannot rollback schema.sql
     if (lastMigrationId === 'schema') {
-      this.logger.warn('⚠️ Cannot rollback schema.sql - this is the base schema');
-      this.logger.warn('To reset database, drop and recreate the database instead');
+      this.logger.warn(
+        '⚠️ Cannot rollback schema.sql - this is the base schema',
+      );
+      this.logger.warn(
+        'To reset database, drop and recreate the database instead',
+      );
       return;
     }
 

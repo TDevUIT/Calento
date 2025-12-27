@@ -79,4 +79,11 @@ export class EventQueryDto extends PaginationQueryDto {
   })
   @IsOptional()
   calendar_id?: string;
+
+  @ApiPropertyOptional({
+    description: 'Filter by team ID (team-owned events)',
+    example: '123e4567-e89b-12d3-a456-426614174999',
+  })
+  @IsOptional()
+  team_id?: string;
 }
