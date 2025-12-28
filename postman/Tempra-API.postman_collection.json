@@ -18,7 +18,7 @@
   "variable": [
     {
       "key": "base_url",
-      "value": "http://localhost:3001/api",
+      "value": "http://localhost:8000/api/v1",
       "type": "string"
     },
     {
@@ -40,6 +40,11 @@
       "key": "event_id",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "calendar_id",
+      "value": "",
+      "type": "string"
     }
   ],
   "item": [
@@ -57,14 +62,14 @@
                   "if (pm.response.code === 201) {",
                   "    const response = pm.response.json();",
                   "    if (response.data && response.data.tokens) {",
-                  "        pm.collectionVariables.set('access_token', response.data.tokens.accessToken);",
-                  "        pm.collectionVariables.set('refresh_token', response.data.tokens.refreshToken);",
+                  "        pm.collectionVariables.set('access_token', response.data.tokens.access_token);",
+                  "        pm.collectionVariables.set('refresh_token', response.data.tokens.refresh_token);",
                   "    }",
                   "    if (response.data && response.data.user) {",
                   "        pm.collectionVariables.set('user_id', response.data.user.id);",
                   "    }",
                   "    pm.test('✅ Status code is 201', () => pm.response.to.have.status(201));",
-                  "    pm.test('✅ Response contains access token', () => pm.expect(response.data.tokens.accessToken).to.exist);",
+                  "    pm.test('✅ Response contains access token', () => pm.expect(response.data.tokens.access_token).to.exist);",
                   "    pm.test('✅ User data is returned', () => pm.expect(response.data.user).to.exist);",
                   "} else if (pm.response.code === 409) {",
                   "    pm.test('⚠️ User already exists', () => pm.response.to.have.status(409));",
@@ -87,7 +92,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"test@example.com\",\n  \"username\": \"testuser\",\n  \"password\": \"Test123!@#\",\n  \"full_name\": \"Test User\"\n}"
+              "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"username\": \"testuser\",\n  \"password\": \"{{test_password}}\",\n  \"first_name\": \"Test\",\n  \"last_name\": \"User\",\n  \"timezone\": \"Asia/Ho_Chi_Minh\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/auth/register",
@@ -109,14 +114,14 @@
                   "if (pm.response.code === 200) {",
                   "    const response = pm.response.json();",
                   "    if (response.data && response.data.tokens) {",
-                  "        pm.collectionVariables.set('access_token', response.data.tokens.accessToken);",
-                  "        pm.collectionVariables.set('refresh_token', response.data.tokens.refreshToken);",
+                  "        pm.collectionVariables.set('access_token', response.data.tokens.access_token);",
+                  "        pm.collectionVariables.set('refresh_token', response.data.tokens.refresh_token);",
                   "    }",
                   "    if (response.data && response.data.user) {",
                   "        pm.collectionVariables.set('user_id', response.data.user.id);",
                   "    }",
                   "    pm.test('✅ Login successful', () => pm.response.to.have.status(200));",
-                  "    pm.test('✅ Access token received', () => pm.expect(response.data.tokens.accessToken).to.exist);",
+                  "    pm.test('✅ Access token received', () => pm.expect(response.data.tokens.access_token).to.exist);",
                   "} else {",
                   "    pm.test('❌ Invalid credentials', () => pm.response.to.have.status(401));",
                   "}"
@@ -138,7 +143,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"Test123!@#\"\n}"
+              "raw": "{\n  \"email\": \"{{test_email}}\",\n  \"password\": \"{{test_password}}\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/auth/login",
@@ -170,7 +175,7 @@
             }
           ],
           "request": {
-            "method": "POST",
+            "method": "GET",
             "header": [],
             "url": {
               "raw": "{{base_url}}/auth/me",
@@ -191,8 +196,8 @@
                   "if (pm.response.code === 200) {",
                   "    const response = pm.response.json();",
                   "    if (response.data && response.data.tokens) {",
-                  "        pm.collectionVariables.set('access_token', response.data.tokens.accessToken);",
-                  "        pm.collectionVariables.set('refresh_token', response.data.tokens.refreshToken);",
+                  "        pm.collectionVariables.set('access_token', response.data.tokens.access_token);",
+                  "        pm.collectionVariables.set('refresh_token', response.data.tokens.refresh_token);",
                   "    }",
                   "    pm.test('✅ Token refreshed successfully', () => pm.response.to.have.status(200));",
                   "}"
@@ -248,6 +253,45 @@
       "description": "Authentication endpoints for user registration, login, and token management"
     },
     {
+      "name": "🗓️ Calendars",
+      "item": [
+        {
+          "name": "Get Primary Calendar",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.test('✅ Primary calendar retrieved', () => pm.response.to.have.status(200));",
+                  "    pm.test('✅ Response has data', () => pm.expect(response.data).to.exist);",
+                  "    pm.test('✅ Calendar has id', () => pm.expect(response.data.id).to.exist);",
+                  "    pm.collectionVariables.set('calendar_id', response.data.id);",
+                  "} else {",
+                  "    pm.test('❌ Unauthorized', () => pm.response.to.have.status(401));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/calendars/primary",
+              "host": ["{{base_url}}"],
+              "path": ["calendars", "primary"]
+            },
+            "description": "⭐ Get the authenticated user's primary calendar"
+          },
+          "response": []
+        }
+      ],
+      "description": "Calendar management endpoints"
+    },
+    {
       "name": "📅 Events",
       "item": [
         {
@@ -260,16 +304,16 @@
                   "if (pm.response.code === 200) {",
                   "    const response = pm.response.json();",
                   "    pm.test('✅ Events retrieved successfully', () => pm.response.to.have.status(200));",
-                  "    pm.test('✅ Data array exists', () => pm.expect(response.data).to.be.an('array'));",
-                  "    pm.test('✅ Pagination metadata exists', () => pm.expect(response.meta).to.exist);",
+                  "    pm.test('✅ Data items array exists', () => pm.expect(response.data.items).to.be.an('array'));",
+                  "    pm.test('✅ Pagination metadata exists', () => pm.expect(response.data.meta).to.exist);",
                   "    pm.test('✅ Meta has page info', () => {",
-                  "        pm.expect(response.meta.page).to.exist;",
-                  "        pm.expect(response.meta.limit).to.exist;",
-                  "        pm.expect(response.meta.total).to.exist;",
+                  "        pm.expect(response.data.meta.page).to.exist;",
+                  "        pm.expect(response.data.meta.limit).to.exist;",
+                  "        pm.expect(response.data.meta.total).to.exist;",
                   "    });",
                   "    // Save first event ID for other requests",
-                  "    if (response.data.length > 0) {",
-                  "        pm.collectionVariables.set('event_id', response.data[0].id);",
+                  "    if (response.data.items.length > 0) {",
+                  "        pm.collectionVariables.set('event_id', response.data.items[0].id);",
                   "    }",
                   "}"
                 ],
@@ -281,9 +325,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/calendar?page=1&limit=10",
+              "raw": "{{base_url}}/events?page=1&limit=10",
               "host": ["{{base_url}}"],
-              "path": ["calendar"],
+              "path": ["events"],
               "query": [
                 {
                   "key": "page",
@@ -339,12 +383,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Team Meeting\",\n  \"description\": \"Weekly team sync meeting\",\n  \"start_time\": \"2024-10-15T10:00:00Z\",\n  \"end_time\": \"2024-10-15T11:00:00Z\",\n  \"location\": \"Conference Room A\",\n  \"calendar_id\": \"primary\"\n}"
+              "raw": "{\n  \"calendar_id\": \"{{calendar_id}}\",\n  \"title\": \"Team Meeting\",\n  \"description\": \"Weekly team sync meeting\",\n  \"start_time\": \"2024-10-15T10:00:00Z\",\n  \"end_time\": \"2024-10-15T11:00:00Z\",\n  \"location\": \"Conference Room A\",\n  \"timezone\": \"Asia/Ho_Chi_Minh\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/calendar",
+              "raw": "{{base_url}}/events",
               "host": ["{{base_url}}"],
-              "path": ["calendar"]
+              "path": ["events"]
             },
             "description": "➕ Create a new calendar event"
           },
@@ -378,12 +422,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Daily Standup\",\n  \"description\": \"Daily team standup meeting\",\n  \"start_time\": \"2024-10-01T09:00:00Z\",\n  \"end_time\": \"2024-10-01T09:15:00Z\",\n  \"recurrence_rule\": \"FREQ=DAILY;COUNT=30\",\n  \"location\": \"Zoom\",\n  \"calendar_id\": \"primary\"\n}"
+              "raw": "{\n  \"calendar_id\": \"{{calendar_id}}\",\n  \"title\": \"Daily Standup\",\n  \"description\": \"Daily team standup meeting\",\n  \"start_time\": \"2024-10-01T09:00:00Z\",\n  \"end_time\": \"2024-10-01T09:15:00Z\",\n  \"recurrence_rule\": \"FREQ=DAILY;COUNT=30\",\n  \"location\": \"Zoom\",\n  \"timezone\": \"Asia/Ho_Chi_Minh\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/calendar",
+              "raw": "{{base_url}}/events",
               "host": ["{{base_url}}"],
-              "path": ["calendar"]
+              "path": ["events"]
             },
             "description": "🔄 Create a recurring event with RRULE"
           },
@@ -415,12 +459,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Weekly Team Meeting\",\n  \"description\": \"Every Monday team meeting\",\n  \"start_time\": \"2024-10-07T10:00:00Z\",\n  \"end_time\": \"2024-10-07T11:00:00Z\",\n  \"recurrence_rule\": \"FREQ=WEEKLY;BYDAY=MO\",\n  \"location\": \"Conference Room\",\n  \"calendar_id\": \"primary\"\n}"
+              "raw": "{\n  \"calendar_id\": \"{{calendar_id}}\",\n  \"title\": \"Weekly Team Meeting\",\n  \"description\": \"Every Monday team meeting\",\n  \"start_time\": \"2024-10-07T10:00:00Z\",\n  \"end_time\": \"2024-10-07T11:00:00Z\",\n  \"recurrence_rule\": \"FREQ=WEEKLY;BYDAY=MO\",\n  \"location\": \"Conference Room\",\n  \"timezone\": \"Asia/Ho_Chi_Minh\"\n}"
             },
             "url": {
-              "raw": "{{base_url}}/calendar",
+              "raw": "{{base_url}}/events",
               "host": ["{{base_url}}"],
-              "path": ["calendar"]
+              "path": ["events"]
             },
             "description": "📆 Create a weekly recurring event (every Monday)"
           },
@@ -436,13 +480,13 @@
                   "if (pm.response.code === 200) {",
                   "    const response = pm.response.json();",
                   "    pm.test('✅ Recurring events expanded', () => pm.response.to.have.status(200));",
-                  "    pm.test('✅ Data is array', () => pm.expect(response.data).to.be.an('array'));",
-                  "    pm.test('✅ Has pagination', () => pm.expect(response.meta).to.exist);",
-                  "    if (response.data.length > 0) {",
+                  "    pm.test('✅ Data items array exists', () => pm.expect(response.data.items).to.be.an('array'));",
+                  "    pm.test('✅ Has pagination meta', () => pm.expect(response.data.meta).to.exist);",
+                  "    if (response.data.items.length > 0) {",
                   "        pm.test('✅ Has occurrence info', () => {",
-                  "            pm.expect(response.data[0].original_event_id).to.exist;",
-                  "            pm.expect(response.data[0].occurrence_index).to.exist;",
-                  "            pm.expect(response.data[0].is_recurring_instance).to.be.true;",
+                  "            pm.expect(response.data.items[0].original_event_id).to.exist;",
+                  "            pm.expect(response.data.items[0].occurrence_index).to.exist;",
+                  "            pm.expect(response.data.items[0].is_recurring_instance).to.be.true;",
                   "        });",
                   "    }",
                   "}"
@@ -455,9 +499,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/calendar/recurring/expand?start_date=2024-10-01T00:00:00Z&end_date=2024-10-31T23:59:59Z&max_occurrences=100&page=1&limit=20",
+              "raw": "{{base_url}}/events/recurring/expand?start_date=2024-10-01T00:00:00Z&end_date=2024-10-31T23:59:59Z&max_occurrences=100&page=1&limit=20",
               "host": ["{{base_url}}"],
-              "path": ["calendar", "recurring", "expand"],
+              "path": ["events", "recurring", "expand"],
               "query": [
                 {
                   "key": "start_date",
@@ -523,7 +567,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"newuser@example.com\",\n  \"username\": \"newuser\",\n  \"password\": \"SecurePass123!@#\",\n  \"full_name\": \"New User\",\n  \"timezone\": \"Asia/Ho_Chi_Minh\"\n}"
+              "raw": "{\n  \"email\": \"newuser@example.com\",\n  \"username\": \"newuser\",\n  \"password_hash\": \"SecurePass123!@#\",\n  \"first_name\": \"New\",\n  \"last_name\": \"User\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/users",
@@ -544,11 +588,11 @@
                   "if (pm.response.code === 200) {",
                   "    const response = pm.response.json();",
                   "    pm.test('✅ Users retrieved', () => pm.response.to.have.status(200));",
-                  "    pm.test('✅ Data is array', () => pm.expect(response.data).to.be.an('array'));",
-                  "    pm.test('✅ Has pagination', () => pm.expect(response.meta).to.exist);",
-                  "    if (response.data.length > 0) {",
+                  "    pm.test('✅ Data is array', () => pm.expect(response.data.items).to.be.an('array'));",
+                  "    pm.test('✅ Has pagination', () => pm.expect(response.data.meta).to.exist);",
+                  "    if (response.data.items.length > 0) {",
                   "        pm.test('❌ No password hash in response', () => {",
-                  "            pm.expect(response.data[0].password_hash).to.not.exist;",
+                  "            pm.expect(response.data.items[0].password_hash).to.not.exist;",
                   "        });",
                   "    }",
                   "}"
@@ -589,7 +633,7 @@
                   "if (pm.response.code === 200) {",
                   "    const response = pm.response.json();",
                   "    pm.test('✅ Search results received', () => pm.response.to.have.status(200));",
-                  "    pm.test('✅ Data is array', () => pm.expect(response.data).to.be.an('array'));",
+                  "    pm.test('✅ Data is array', () => pm.expect(response.data.items).to.be.an('array'));",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -757,7 +801,9 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('✅ Server is healthy', () => pm.response.to.have.status(200));"
+                  "pm.test('✅ Server is healthy', () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test('✅ Health status ok', () => pm.expect(body.status).to.eql('ok'));"
                 ],
                 "type": "text/javascript"
               }
