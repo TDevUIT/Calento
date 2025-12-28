@@ -148,7 +148,8 @@ export default function Page() {
     const calendarOk = visibleCalendarIds.size === 0 || visibleCalendarIds.has(event.calendarId || '');
     const teamOk =
       visibleTeamIds.size === 0 ||
-      (event.teamId ? visibleTeamIds.has(event.teamId) : false);
+      !event.teamId ||
+      visibleTeamIds.has(event.teamId);
 
     // If team filter is active, only show events that belong to a selected team.
     return calendarOk && teamOk;
