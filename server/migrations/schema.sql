@@ -541,9 +541,14 @@ CREATE TABLE IF NOT EXISTS teams (
 COMMENT ON TABLE teams IS 'Stores team information for collaborative scheduling';
 
 -- Link events to teams (optional)
-ALTER TABLE events
-    ADD CONSTRAINT IF NOT EXISTS fk_events_team_id
-    FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE SET NULL;
+DO $$
+BEGIN
+    ALTER TABLE events
+        ADD CONSTRAINT fk_events_team_id
+        FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE SET NULL;
+EXCEPTION
+    WHEN duplicate_object THEN NULL;
+END $$;
 
 -- Team members table
 CREATE TABLE IF NOT EXISTS team_members (

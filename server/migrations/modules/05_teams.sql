@@ -79,9 +79,14 @@ CREATE TABLE IF NOT EXISTS team_meeting_rotations (
 );
 
 -- Link events to teams (optional)
-ALTER TABLE events
-    ADD CONSTRAINT IF NOT EXISTS fk_events_team_id
-    FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE SET NULL;
+DO $$
+BEGIN
+    ALTER TABLE events
+        ADD CONSTRAINT fk_events_team_id
+        FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE SET NULL;
+EXCEPTION
+    WHEN duplicate_object THEN NULL;
+END $$;
 
 COMMENT ON TABLE team_meeting_rotations IS 'Tracks meeting rotation assignments';
 
