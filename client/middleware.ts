@@ -13,9 +13,9 @@ async function verifyAuthFromCookies(request: NextRequest): Promise<boolean> {
     const allCookies = request.cookies.getAll();
     log('[Middleware] All cookies:', allCookies.map(c => ({ name: c.name, hasValue: Boolean(c.value) })));
 
-    const isAuthenticated: boolean = Boolean(accessToken || refreshToken);
+    const hasTokens: boolean = Boolean(accessToken || refreshToken);
 
-    if (!isAuthenticated) {
+    if (!hasTokens) {
       log('[Middleware] No authentication tokens found in cookies');
       return false;
     }
@@ -34,7 +34,7 @@ async function verifyAuthFromCookies(request: NextRequest): Promise<boolean> {
 
 async function verifyAuthFromAPI(request: NextRequest): Promise<boolean> {
   try {
-    const verifyUrl = `${API_BASE_URL}/${API_PREFIX}/auth/verify`;
+    const verifyUrl = `${API_BASE_URL}/${API_PREFIX}/auth/me`;
 
     log('[Middleware] Attempting API verification:', verifyUrl);
 
@@ -54,14 +54,11 @@ async function verifyAuthFromAPI(request: NextRequest): Promise<boolean> {
       return false;
     }
 
-    const data = await response.json();
-    const isAuthenticated = data?.data?.authenticated === true;
-
     log('[Middleware] API verification result:', {
-      authenticated: isAuthenticated
+      authenticated: true
     });
 
-    return isAuthenticated;
+    return true;
   } catch (error) {
     log('[Middleware] API verification error:', error instanceof Error ? error.message : 'Unknown error');
     return false;
@@ -81,12 +78,12 @@ export async function middleware(request: NextRequest) {
 
   const guestOnlyRoutes = ['/login', '/register', '/forgot-password', '/'];
 
-  let isAuthenticated = await verifyAuthFromCookies(request);
+  const hasTokens = await verifyAuthFromCookies(request);
+  const shouldVerifyAuth = hasTokens;
 
-  if (!isAuthenticated) {
-    log('[Middleware] Cookie auth failed, trying API verification...');
-    isAuthenticated = await verifyAuthFromAPI(request);
-  }
+  const isAuthenticated = shouldVerifyAuth
+    ? await verifyAuthFromAPI(request)
+    : false;
 
   const requiresAuth = protectedPrefixes.some(
     (prefix) => pathname === prefix || pathname.startsWith(prefix + '/')

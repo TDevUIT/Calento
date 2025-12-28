@@ -3,12 +3,16 @@ import { JwtService } from '@nestjs/jwt';
 import type { Response, Request, CookieOptions } from 'express';
 import env from '../../../config/env';
 import { AuthTokens, JwtPayload } from '../interfaces/auth.interface';
+import { UserValidationService } from '../../../common/services/user-validation.service';
 
 @Injectable()
 export class CookieAuthService {
   private readonly logger = new Logger(CookieAuthService.name);
 
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly userValidationService: UserValidationService,
+  ) {}
 
   setAuthCookies(response: Response, tokens: AuthTokens): void {
     const isProd = env.NODE_ENV === 'production';
@@ -136,11 +140,21 @@ export class CookieAuthService {
         return null;
       }
 
+      const user = await this.userValidationService.findUserById(decoded.sub);
+
+      if (!user) {
+        this.logger.warn(
+          `Refresh token belongs to non-existent or inactive user: ${decoded.sub}`,
+        );
+        this.clearAuthCookies(response);
+        return null;
+      }
+
       this.logger.debug('Generating new tokens...');
       const newTokens = await this.generateTokens({
-        id: decoded.sub,
-        email: decoded.email,
-        username: decoded.username,
+        id: user.id,
+        email: user.email,
+        username: user.username,
       });
 
       this.logger.debug('Setting new auth cookies...');
