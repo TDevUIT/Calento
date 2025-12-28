@@ -1011,12 +1011,11 @@ export class EventRepository extends BaseRepository<Event> {
         AND e.is_recurring = true
         AND e.recurrence_rule IS NOT NULL
         AND e.recurrence_rule != ''
-        AND e.deleted_at IS NULL
       ORDER BY e.start_time ASC
     `;
 
     try {
-      const result = await this.databaseService.query(query, [userId, endDate]);
+      const result = await this.databaseService.query(query, [userId]);
 
       this.logger.debug(
         'findRecurringEventsForExpansion - Raw query results:',
