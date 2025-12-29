@@ -39,17 +39,6 @@ import type { Task } from '@/interface';
 import { calculateEventLayouts, getEventLayoutStyles, getEventTextClasses } from '@/utils';
 import { getStoredCalendarView, saveCalendarView } from '@/utils';
 
-const fixEmojiText = (text: string): string => {
-  if (!text) return '';
-  return text
-    .replace(/\u00F0\u009F"\u008B/g, String.fromCodePoint(0x1f4cb)) // Clipboard
-    .replace(/\u00F0\u009F"\u0085/g, String.fromCodePoint(0x1f4c5)) // Calendar
-    .replace(/\u00E2\u009C\u0085/g, String.fromCodePoint(0x2705)) // Checkmark
-    .replace(/\u00F0\u009F\u009A\u0080/g, String.fromCodePoint(0x1f680)) // Rocket
-    .replace(/\u00F0\u009F\u008E\u0089/g, String.fromCodePoint(0x1f389)) // Party
-    .replace(/\u00F0\u009F'\u00A1/g, String.fromCodePoint(0x1f4a1)) // Bulb
-    .replace(/\u00E2\u00AD/g, String.fromCodePoint(0x2b50)); // Star
-};
 
 type View = 'day' | 'week' | 'month' | 'year';
 
@@ -267,7 +256,7 @@ const HourEvents = ({
           >
             <div
               className={cn(
-                'absolute mx-0.5 font-medium p-2 text-xs cursor-pointer transition-all border event-column',
+                'absolute mx-0.5 font-medium p-2 text-xs cursor-pointer transition-all border event-column flex flex-col',
                 layout.isStacked && 'hover:z-[1000]',
                 isHovered && 'shadow-xl z-[999]',
                 !isHovered && 'shadow-sm hover:shadow-lg'
@@ -293,7 +282,7 @@ const HourEvents = ({
                   event.type === 'task' ? 'text-gray-900' : titleClass
                 }`}
               >
-                {fixEmojiText(event.title)}
+                {(event.title)}
               </div>
               {layout.width > 30 && (
                 <div
@@ -311,6 +300,19 @@ const HourEvents = ({
                   }`}
                 >
                   {format(event.start, 'HH:mm')}
+                </div>
+              )}
+
+              {event.type !== 'task' && (
+                <div className="mt-auto pt-1">
+                  <span className={cn(
+                    'inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-semibold border',
+                    event.teamId
+                      ? 'bg-white/90 text-gray-800 border-black/10'
+                      : 'bg-white/80 text-gray-800 border-black/10'
+                  )}>
+                    {event.teamId ? `Team${event.team?.name ? `: ${event.team.name}` : ''}` : 'Personal'}
+                  </span>
                 </div>
               )}
 
@@ -556,7 +558,6 @@ export {
   HourEvents,
   TimeTable,
   convertToFullEvent,
-  fixEmojiText,
   generateWeekdays,
   getDaysInMonth,
   getWeekendIndices,

@@ -74,6 +74,10 @@ function EventsSectionByVisibility({ config, events, onEditEvent, isLoading }: E
                 'Default';
               
               const isRecurring = !!event.recurrence_rule;
+
+              const expandedEvent = event as ExpandedEvent;
+              const creatorLabel =
+                expandedEvent.creator?.name || expandedEvent.creator?.email || expandedEvent.organizer_name;
               
               return (
                 <div 
@@ -89,6 +93,14 @@ function EventsSectionByVisibility({ config, events, onEditEvent, isLoading }: E
                           <Repeat className="h-3.5 w-3.5 text-purple-600 flex-shrink-0" />
                         )}
                       </div>
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                        {event.team_id ? `Team${(event as ExpandedEvent).team?.name ? `: ${(event as ExpandedEvent).team?.name}` : ''}` : 'Personal'}
+                      </span>
+                      {creatorLabel && (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 max-w-[12rem] truncate">
+                          {creatorLabel}
+                        </span>
+                      )}
                       <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${visibilityColor}`}>
                         <VisibilityIcon className="h-3 w-3" />
                         {visibilityLabel}
@@ -115,8 +127,8 @@ function EventsSectionByVisibility({ config, events, onEditEvent, isLoading }: E
                       variant="ghost" 
                       size="icon" 
                       className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => {
-                        localStorage.stopPropagation();
+                      onClick={(e) => {
+                        e.stopPropagation();
                         onEditEvent(event);
                       }}
                     >
@@ -133,7 +145,12 @@ function EventsSectionByVisibility({ config, events, onEditEvent, isLoading }: E
   );
 }
 
-export function EventsList() {
+export type EventsListProps = {
+  visibleCalendarIds?: Set<string>;
+  visibleTeamIds?: Set<string>;
+};
+
+export function EventsList({ visibleCalendarIds, visibleTeamIds }: EventsListProps) {
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   
@@ -143,9 +160,20 @@ export function EventsList() {
     const apiEvents = eventsData?.data?.items || [];
     return apiEvents.filter((event) => {
       const expandedEvent = event as ExpandedEvent;
-      return !expandedEvent.is_recurring_instance && !expandedEvent.original_event_id;
+
+      if (expandedEvent.is_recurring_instance || expandedEvent.original_event_id) return false;
+
+      const calendarOk =
+        !visibleCalendarIds || visibleCalendarIds.size === 0 || visibleCalendarIds.has(event.calendar_id || '');
+      const teamOk =
+        !visibleTeamIds ||
+        visibleTeamIds.size === 0 ||
+        !event.team_id ||
+        visibleTeamIds.has(event.team_id);
+
+      return calendarOk && teamOk;
     });
-  }, [eventsData?.data?.items]);
+  }, [eventsData?.data?.items, visibleCalendarIds, visibleTeamIds]);
 
   const visibilitySections: VisibilitySectionConfig[] = [
     {

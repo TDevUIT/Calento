@@ -20,7 +20,7 @@ export function SidebarHeader({
   onClose,
 }: SidebarHeaderProps) {
   return (
-    <div className="flex-shrink-0 bg-white z-10 border-b">
+    <div className="relative flex-shrink-0 bg-white z-50 border-b">
       <div className="flex items-center justify-between p-4 pb-0">
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center">

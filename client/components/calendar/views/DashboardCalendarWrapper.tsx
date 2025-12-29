@@ -112,10 +112,10 @@ export function DashboardCalendarWrapper({
     return createPortal(
       <div className="flex items-center w-full min-w-0">
         <div className="flex items-center gap-2 min-w-0">
-          <div className="hidden md:flex items-center gap-2 min-w-0">
+          {/* <div className="hidden md:flex items-center gap-2 min-w-0">
             <CalendarDays className="h-5 w-5 text-muted-foreground" />
             <span className="font-semibold truncate">Calendar</span>
-          </div>
+          </div> */}
 
           <div className="hidden sm:block h-6 w-px bg-border" />
 
@@ -200,7 +200,7 @@ export function DashboardCalendarWrapper({
           </div>
 
           {expandedCalendarSidebar && (
-            <div className="absolute inset-y-0 right-0 z-50 w-[460px] animate-in slide-in-from-right duration-300">
+            <div className="absolute inset-y-0 right-0 z-[5000] w-[460px] animate-in slide-in-from-right duration-300">
               <CalendarSidebar
                 selectedDate={selectedDate}
                 onDateSelect={setSelectedDate}

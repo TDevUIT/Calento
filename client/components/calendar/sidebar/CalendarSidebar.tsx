@@ -132,7 +132,7 @@ export function CalendarSidebar({
             )}
           </div>
         ) : (
-          <EventsList />
+          <EventsList visibleCalendarIds={visibleCalendarIds} visibleTeamIds={effectiveVisibleTeamIds} />
         )}
       </div>
 

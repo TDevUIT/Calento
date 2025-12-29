@@ -44,21 +44,15 @@ export function CalendarListWithAPI({
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [selectedCalendar, setSelectedCalendar] = useState<Calendar | null>(null);
 
-  React.useEffect(() => {
-    if (calendars.length > 0 && visibleCalendarIds.size === 0) {
-      const allIds = calendars.map((cal: Calendar) => cal.id);
-      setVisibleCalendarIds(new Set(allIds));
-    }
-  }, [calendars, visibleCalendarIds.size, setVisibleCalendarIds]);
-
   const toggleCalendar = (id: string) => {
-    const newSet = new Set(visibleCalendarIds);
-    if (newSet.has(id)) {
-      newSet.delete(id);
-    } else {
-      newSet.add(id);
-    }
-    setVisibleCalendarIds(newSet);
+    const base = visibleCalendarIds.size === 0
+      ? new Set(calendars.map((cal: Calendar) => cal.id))
+      : new Set(visibleCalendarIds);
+
+    if (base.has(id)) base.delete(id);
+    else base.add(id);
+
+    setVisibleCalendarIds(base);
   };
   const getCalendarIcon = (name: string) => {
     const lowerName = name.toLowerCase();
@@ -183,7 +177,7 @@ export function CalendarListWithAPI({
       <div className="space-y-1">
         {calendars.map((calendar: Calendar) => {
           const Icon = getCalendarIcon(calendar.name || 'Calendar');
-          const isVisible = visibleCalendarIds.has(calendar.id);
+          const isVisible = visibleCalendarIds.size === 0 || visibleCalendarIds.has(calendar.id);
 
           return (
             <div

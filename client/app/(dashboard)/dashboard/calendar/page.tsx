@@ -151,7 +151,6 @@ export default function Page() {
       !event.teamId ||
       visibleTeamIds.has(event.teamId);
 
-    // If team filter is active, only show events that belong to a selected team.
     return calendarOk && teamOk;
   });
 

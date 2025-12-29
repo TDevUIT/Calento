@@ -19,41 +19,41 @@ interface GuestItemProps {
 }
 
 const responseStatusConfig = {
-  accepted: { 
-    label: 'Going', 
-    icon: Check, 
+  accepted: {
+    label: 'Going',
+    icon: Check,
     color: 'bg-green-100 text-green-800 border-green-200',
     iconColor: 'text-green-600'
   },
-  declined: { 
-    label: 'Not going', 
-    icon: X, 
+  declined: {
+    label: 'Not going',
+    icon: X,
     color: 'bg-red-100 text-red-800 border-red-200',
     iconColor: 'text-red-600'
   },
-  tentative: { 
-    label: 'Maybe', 
-    icon: AlertCircle, 
+  tentative: {
+    label: 'Maybe',
+    icon: AlertCircle,
     color: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     iconColor: 'text-yellow-600'
   },
-  needsAction: { 
-    label: 'Pending', 
-    icon: Clock, 
+  needsAction: {
+    label: 'Pending',
+    icon: Clock,
     color: 'bg-gray-100 text-gray-800 border-gray-200',
     iconColor: 'text-gray-600'
   },
 };
 
-export function GuestItem({ 
-  attendee, 
-  index, 
-  onRemove, 
-  onUpdate, 
+export function GuestItem({
+  attendee,
+  index,
+  onRemove,
+  onUpdate,
   isOrganizer = false
 }: GuestItemProps) {
   const [showDetails, setShowDetails] = useState(false);
-  
+
   const responseStatus = attendee.response_status || 'needsAction';
   const statusConfig = responseStatusConfig[responseStatus];
   const StatusIcon = statusConfig.icon;
@@ -114,8 +114,8 @@ export function GuestItem({
 
         {/* Response Status */}
         <div className="flex items-center gap-2">
-          <Badge 
-            variant="outline" 
+          <Badge
+            variant="outline"
             className={`text-xs ${statusConfig.color} border`}
           >
             <StatusIcon className={`h-3 w-3 mr-1 ${statusConfig.iconColor}`} />
@@ -148,58 +148,15 @@ export function GuestItem({
         </div>
       </div>
 
-      {/* Expanded Details */}
       {showDetails && (
         <div className="mt-3 pt-3 border-t space-y-3">
-          {/* Response Status Selector */}
-          <div className="space-y-2">
-            <label className="text-xs font-medium text-muted-foreground">
-              Response Status
-            </label>
-            <Select 
-              value={responseStatus} 
-              onValueChange={handleResponseStatusChange}
-            >
-              <SelectTrigger className="h-8 text-xs">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="accepted">
-                  <div className="flex items-center gap-2">
-                    <Check className="h-3 w-3 text-green-600" />
-                    Going
-                  </div>
-                </SelectItem>
-                <SelectItem value="declined">
-                  <div className="flex items-center gap-2">
-                    <X className="h-3 w-3 text-red-600" />
-                    Not going
-                  </div>
-                </SelectItem>
-                <SelectItem value="tentative">
-                  <div className="flex items-center gap-2">
-                    <AlertCircle className="h-3 w-3 text-yellow-600" />
-                    Maybe
-                  </div>
-                </SelectItem>
-                <SelectItem value="needsAction">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-3 w-3 text-gray-600" />
-                    Pending
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Optional Checkbox */}
           <div className="flex items-center space-x-2">
             <Checkbox
               id={`optional-${index}`}
               checked={attendee.is_optional || false}
               onCheckedChange={handleOptionalChange}
             />
-            <label 
+            <label
               htmlFor={`optional-${index}`}
               className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
