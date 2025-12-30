@@ -84,10 +84,10 @@ const NewBlogPage = () => {
     immediatelyRender: false,
   });
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    
-    if (field === 'title' && !formData.slug) {
+
+    if (field === 'title' && typeof value === 'string' && !formData.slug) {
       const slug = value
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
@@ -256,46 +256,45 @@ const NewBlogPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="border-b border-gray-200 bg-white sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/admin/blog">
-                <Button variant="ghost" size="sm">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back
-                </Button>
-              </Link>
-              <h1 className="text-2xl font-bold text-gray-900">Create New Post</h1>
-            </div>
-            <div className="flex items-center gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => handleInputChange('status', BlogPostStatus.DRAFT)}
-                disabled={createMutation.isPending}
-              >
-                <Save className="h-4 w-4 mr-2" />
-                Save Draft
-              </Button>
-              <Button
-                type="submit"
-                form="blog-form"
-                className="bg-gray-900 hover:bg-gray-800"
-                disabled={createMutation.isPending}
-              >
-                Publish
-              </Button>
-            </div>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <Button asChild variant="ghost" size="sm">
+            <Link href="/admin/blog">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
+            </Link>
+          </Button>
+          <div>
+            <h1 className="text-2xl font-semibold tracking-tight">Create post</h1>
+            <p className="text-sm text-muted-foreground">Write and publish a new article.</p>
           </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => handleInputChange('status', BlogPostStatus.DRAFT)}
+            disabled={createMutation.isPending}
+          >
+            <Save className="h-4 w-4 mr-2" />
+            Save draft
+          </Button>
+          <Button
+            type="submit"
+            form="blog-form"
+            disabled={createMutation.isPending}
+          >
+            Publish
+          </Button>
         </div>
       </div>
 
-      <form id="blog-form" onSubmit={handleSubmit} className="max-w-7xl mx-auto px-6 py-8">
+      <form id="blog-form" onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            <Card className="border-gray-200">
+            <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Post Details</CardTitle>
               </CardHeader>
@@ -310,7 +309,7 @@ const NewBlogPage = () => {
                     value={formData.title}
                     onChange={(e) => handleInputChange('title', e.target.value)}
                     placeholder="Enter post title..."
-                    className="mt-1.5 bg-gray-50 border-gray-300"
+                    className="mt-1.5"
                   />
                 </div>
 
@@ -324,7 +323,7 @@ const NewBlogPage = () => {
                     value={formData.slug}
                     onChange={(e) => handleInputChange('slug', e.target.value)}
                     placeholder="post-url-slug"
-                    className="mt-1.5 bg-gray-50 border-gray-300"
+                    className="mt-1.5"
                   />
                   <p className="text-xs text-gray-500 mt-1">
                     URL: /blog/{formData.slug || 'post-url-slug'}
@@ -341,13 +340,13 @@ const NewBlogPage = () => {
                     onChange={(e) => handleInputChange('excerpt', e.target.value)}
                     placeholder="Brief summary of your post..."
                     rows={3}
-                    className="mt-1.5 bg-gray-50 border-gray-300"
+                    className="mt-1.5"
                   />
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border-gray-200">
+            <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -361,18 +360,18 @@ const NewBlogPage = () => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <div className="border border-gray-300 rounded-lg overflow-hidden bg-white">
+                  <div className="border border-border rounded-lg overflow-hidden bg-background">
                     <MenuBar />
                     <EditorContent editor={editor} />
                   </div>
                   <p className="text-xs text-gray-500">
                     💡 Use the toolbar above for formatting: headings, bold, lists, alignment, and more
                   </p>
-                  
+
                   {formData.content && formData.content.trim() !== '<p></p>' && formData.content.trim() !== '' && (
                     <div className="mt-6 pt-6 border-t border-gray-200">
                       <h4 className="text-sm font-semibold text-gray-900 mb-3">Preview:</h4>
-                      <article className="prose prose-sm max-w-none p-4 bg-gray-50 rounded-lg border border-gray-200">
+                      <article className="prose prose-sm max-w-none p-4 bg-muted rounded-lg border border-border">
                         <div dangerouslySetInnerHTML={{ __html: formData.content }} />
                       </article>
                     </div>
@@ -381,7 +380,7 @@ const NewBlogPage = () => {
               </CardContent>
             </Card>
 
-            <Card className="border-gray-200">
+            <Card>
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <Settings className="h-5 w-5 text-gray-600" />
@@ -389,6 +388,7 @@ const NewBlogPage = () => {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
+
                 <div>
                   <Label htmlFor="seo_title" className="text-gray-900 font-medium">
                     SEO Title
@@ -398,7 +398,7 @@ const NewBlogPage = () => {
                     value={formData.seo_title}
                     onChange={(e) => handleInputChange('seo_title', e.target.value)}
                     placeholder="SEO optimized title"
-                    className="mt-1.5 bg-gray-50 border-gray-300"
+                    className="mt-1.5"
                   />
                 </div>
 
@@ -412,7 +412,7 @@ const NewBlogPage = () => {
                     onChange={(e) => handleInputChange('seo_description', e.target.value)}
                     placeholder="SEO meta description"
                     rows={3}
-                    className="mt-1.5 bg-gray-50 border-gray-300"
+                    className="mt-1.5"
                   />
                 </div>
 
@@ -425,7 +425,7 @@ const NewBlogPage = () => {
                     value={formData.seo_keywords}
                     onChange={(e) => handleInputChange('seo_keywords', e.target.value)}
                     placeholder="keyword1, keyword2, keyword3"
-                    className="mt-1.5 bg-gray-50 border-gray-300"
+                    className="mt-1.5"
                   />
                 </div>
               </CardContent>
@@ -433,11 +433,12 @@ const NewBlogPage = () => {
           </div>
 
           <div className="space-y-6">
-            <Card className="border-gray-200">
+            <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Publish Settings</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+
                 <div>
                   <Label htmlFor="status" className="text-gray-900 font-medium">
                     Status
@@ -446,7 +447,7 @@ const NewBlogPage = () => {
                     value={formData.status}
                     onValueChange={(value) => handleInputChange('status', value)}
                   >
-                    <SelectTrigger className="mt-1.5 bg-gray-50 border-gray-300">
+                    <SelectTrigger className="mt-1.5">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -464,7 +465,7 @@ const NewBlogPage = () => {
                   <Switch
                     id="is_featured"
                     checked={formData.is_featured}
-                    onCheckedChange={(checked) => handleInputChange('is_featured', checked.toString())}
+                    onCheckedChange={(checked) => handleInputChange('is_featured', checked)}
                   />
                 </div>
 
@@ -477,13 +478,13 @@ const NewBlogPage = () => {
                     type="datetime-local"
                     value={formData.published_at}
                     onChange={(e) => handleInputChange('published_at', e.target.value)}
-                    className="mt-1.5 bg-gray-50 border-gray-300"
+                    className="mt-1.5"
                   />
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border-gray-200">
+            <Card>
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <ImageIcon className="h-5 w-5 text-gray-600" />
@@ -491,6 +492,7 @@ const NewBlogPage = () => {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
+
                 <div>
                   <Label htmlFor="featured_image" className="text-gray-900 font-medium">
                     Image URL
@@ -501,17 +503,18 @@ const NewBlogPage = () => {
                     value={formData.featured_image}
                     onChange={(e) => handleInputChange('featured_image', e.target.value)}
                     placeholder="https://example.com/image.jpg"
-                    className="mt-1.5 bg-gray-50 border-gray-300"
+                    className="mt-1.5"
                   />
                 </div>
 
                 {formData.featured_image && (
-                  <div className="relative w-full h-48 rounded-lg overflow-hidden bg-gray-100">
+                  <div className="relative w-full h-48 rounded-lg overflow-hidden bg-muted">
                     <Image
                       fill
                       src={formData.featured_image}
                       alt="Preview"
                       className="w-full h-full object-cover"
+
                       onError={(e) => {
                         e.currentTarget.src = '';
                         e.currentTarget.alt = 'Invalid image URL';
@@ -529,13 +532,13 @@ const NewBlogPage = () => {
                     value={formData.alt_text}
                     onChange={(e) => handleInputChange('alt_text', e.target.value)}
                     placeholder="Image description for accessibility"
-                    className="mt-1.5 bg-gray-50 border-gray-300"
+                    className="mt-1.5"
                   />
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border-gray-200">
+            <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Category</CardTitle>
               </CardHeader>
@@ -548,7 +551,7 @@ const NewBlogPage = () => {
                   value={formData.category_id}
                   onChange={(e) => handleInputChange('category_id', e.target.value)}
                   placeholder="Category ID"
-                  className="mt-1.5 bg-gray-50 border-gray-300"
+                  className="mt-1.5"
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Enter category ID or select from list

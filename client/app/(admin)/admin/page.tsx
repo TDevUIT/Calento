@@ -1,18 +1,12 @@
 'use client'
-import { usePathname, useRouter } from "next/navigation";
 
 const AdminDashboardPage = () => {
-    const router = useRouter()
-
-    const pathname = usePathname()
-
-    if(pathname.startsWith('/admin') && pathname.endsWith('/')) {
-        return router.push('/admin/blog')
-    }
-    return (
-        <></>
-    )
-}
-
+   return (
+     <div className="space-y-2">
+       <h2 className="text-lg font-semibold">Admin dashboard</h2>
+       <p className="text-sm text-muted-foreground">Choose a section from the sidebar.</p>
+     </div>
+   );
+ };
 
 export default AdminDashboardPage;

@@ -8,12 +8,32 @@ import {
 @Injectable()
 export class PaginationService {
   private detectPrimaryTableAlias(baseQuery: string): string | null {
-    // Try to detect the alias in a query like: FROM table_name t
-    // Keep it intentionally simple and conservative.
     const match = baseQuery.match(
       /\bFROM\s+[^\s]+\s+([a-zA-Z_][a-zA-Z0-9_]*)\b/i,
     );
-    return match?.[1] ?? null;
+    const candidate = match?.[1] ?? null;
+    if (!candidate) return null;
+
+    const keyword = candidate.toUpperCase();
+    const reserved = new Set([
+      'WHERE',
+      'JOIN',
+      'INNER',
+      'LEFT',
+      'RIGHT',
+      'FULL',
+      'CROSS',
+      'OUTER',
+      'ON',
+      'GROUP',
+      'ORDER',
+      'LIMIT',
+      'OFFSET',
+      'HAVING',
+      'UNION',
+    ]);
+
+    return reserved.has(keyword) ? null : candidate;
   }
 
   createPaginationMeta(
@@ -55,7 +75,6 @@ export class PaginationService {
     allowedSortFields: string[] = ['created_at', 'updated_at', 'id'],
     tableAlias?: string,
   ): string {
-    // Validate sort field to prevent SQL injection
     const safeSortBy =
       sortBy && allowedSortFields.includes(sortBy) ? sortBy : 'created_at';
 
