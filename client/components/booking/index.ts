@@ -4,7 +4,6 @@ export { DraggableBookingLinkCard } from './DraggableBookingLinkCard';
 export { DraggableBookingLinkList } from './DraggableBookingLinkList';
 export { DragDropHint } from './DragDropHint';
 export { BookingNotification, BookingNotificationContainer } from './BookingNotification';
-export { BookingNotificationDemo } from './BookingNotificationDemo';
 
 export { BookingCard } from './BookingCard';
 export { BookingStatsCard } from './BookingStatsCard';
