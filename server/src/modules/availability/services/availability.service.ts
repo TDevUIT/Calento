@@ -285,15 +285,13 @@ export class AvailabilityService {
     const currentDate = new Date(startDate);
 
     while (currentDate <= endDate) {
-      const dayOfWeek = currentDate.getDay() as DayOfWeek;
+      const currentDateInTz = toZonedTime(currentDate, timezone);
+      const dayOfWeek = currentDateInTz.getDay() as DayOfWeek;
       const dayRules = availabilityRules.filter(
         (rule) => rule.day_of_week === dayOfWeek,
       );
 
       for (const rule of dayRules) {
-        // Convert currentDate to user's timezone for slot generation
-        const currentDateInTz = toZonedTime(currentDate, timezone);
-
         const daySlots = await this.generateSlotsForDay(
           currentDateInTz,
           rule,

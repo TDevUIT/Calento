@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import { Plus } from "lucide-react";
 import {
   Dialog,
@@ -35,6 +36,11 @@ export const AddAvailabilityDialog = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (endTime <= startTime) {
+      toast.error("End time must be after start time");
+      return;
+    }
 
     createMutation.mutate(
       {

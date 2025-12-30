@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -54,6 +55,11 @@ export const EditAvailabilityDialog = ({
     e.preventDefault();
 
     if (!availability) return;
+
+    if (endTime <= startTime) {
+      toast.error("End time must be after start time");
+      return;
+    }
 
     updateMutation.mutate(
       {
