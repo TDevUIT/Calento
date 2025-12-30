@@ -13,6 +13,8 @@ import {
 export class BookingLinkRepository extends BaseRepository<BookingLink> {
   protected readonly logger = new Logger(BookingLinkRepository.name);
 
+  private static readonly columnExistsCache = new Map<string, boolean>();
+
   constructor(
     protected readonly databaseService: DatabaseService,
     protected readonly paginationService: PaginationService,
@@ -23,6 +25,43 @@ export class BookingLinkRepository extends BaseRepository<BookingLink> {
 
   protected getAllowedSortFields(): string[] {
     return ['title', 'slug', 'created_at', 'updated_at', 'is_active'];
+  }
+
+  private async columnExists(columnName: string): Promise<boolean> {
+    const cacheKey = `${this.tableName}:${columnName}`;
+    const cached = BookingLinkRepository.columnExistsCache.get(cacheKey);
+    if (cached !== undefined) return cached;
+
+    try {
+      const query = `
+        SELECT 1
+        FROM information_schema.columns
+        WHERE table_schema = 'public'
+          AND table_name = $1
+          AND column_name = $2
+        LIMIT 1
+      `;
+      const result = await this.databaseService.query(query, [
+        this.tableName,
+        columnName,
+      ]);
+      const exists = (result.rows?.length || 0) > 0;
+      BookingLinkRepository.columnExistsCache.set(cacheKey, exists);
+      return exists;
+    } catch (error) {
+      this.logger.warn(
+        `Failed to check column existence for ${this.tableName}.${columnName}: ${error?.message || error}`,
+      );
+      BookingLinkRepository.columnExistsCache.set(cacheKey, false);
+      return false;
+    }
+  }
+
+  private async filterExistingColumns(columns: string[]): Promise<string[]> {
+    const checks = await Promise.all(
+      columns.map(async (c) => ({ c, ok: await this.columnExists(c) })),
+    );
+    return checks.filter((x) => x.ok).map((x) => x.c);
   }
 
   async findByUserId(userId: string): Promise<BookingLink[]> {
@@ -130,14 +169,14 @@ export class BookingLinkRepository extends BaseRepository<BookingLink> {
       'booking_window_days',
       'timezone',
     ];
-    const optionalFields = [
+    const optionalFields = await this.filterExistingColumns([
       'description',
       'location',
       'location_link',
       'max_bookings_per_day',
       'color',
       'is_active',
-    ];
+    ]);
 
     const columns: string[] = [...fields];
     const values: any[] = [
@@ -186,7 +225,7 @@ export class BookingLinkRepository extends BaseRepository<BookingLink> {
       }
     }
 
-    const allowedFields = [
+    const allowedFields = await this.filterExistingColumns([
       'slug',
       'title',
       'description',
@@ -200,7 +239,7 @@ export class BookingLinkRepository extends BaseRepository<BookingLink> {
       'color',
       'timezone',
       'is_active',
-    ];
+    ]);
     const updates: string[] = [];
     const values: any[] = [];
     let paramIndex = 1;

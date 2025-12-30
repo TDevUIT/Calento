@@ -107,7 +107,11 @@ export function CreateBookingLinkDialog({
   const createMutation = useCreateBookingLink();
   const updateMutation = useUpdateBookingLink();
 
-  const { isConnected, isLoading: isCheckingGoogleConnection } = useGoogleAuth();
+  const {
+    isConnected,
+    isLoading: isCheckingGoogleConnection,
+    checkConnectionStatus,
+  } = useGoogleAuth();
 
   const isEditing = !!bookingLink;
 
@@ -149,6 +153,13 @@ export function CreateBookingLinkDialog({
   };
 
   const handleCreateGoogleMeet = async () => {
+    if (isCheckingGoogleConnection) {
+      try {
+        await checkConnectionStatus();
+      } catch {
+      }
+    }
+
     if (!isConnected) {
       toast.error('Google account connection required', {
         description: 'Please connect your Google account to create a Google Meet link',

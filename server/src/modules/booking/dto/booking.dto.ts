@@ -1,4 +1,5 @@
 ﻿import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform, Type } from 'class-transformer';
 import {
   IsString,
   IsInt,
@@ -58,6 +59,14 @@ export class CreateBookingLinkDto {
     example: 'https://meet.google.com/abc-defg-hij',
   })
   @IsOptional()
+  @Transform(({ value }) => {
+    if (value === '' || value === null) return undefined;
+    if (typeof value !== 'string') return value;
+    const trimmed = value.trim();
+    if (!trimmed) return undefined;
+    if (!trimmed.includes('://')) return `https://${trimmed}`;
+    return trimmed;
+  })
   @IsUrl(
     { require_protocol: true },
     { message: 'location_link must be a valid URL' },
@@ -68,6 +77,7 @@ export class CreateBookingLinkDto {
     description: 'Duration of the booking in minutes',
     example: 30,
   })
+  @Type(() => Number)
   @IsInt()
   @Min(15)
   @Max(480)
@@ -79,6 +89,7 @@ export class CreateBookingLinkDto {
     default: 0,
   })
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   @Min(0)
   @Max(120)
@@ -89,6 +100,7 @@ export class CreateBookingLinkDto {
     example: 5,
   })
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   @Min(1)
   @Max(50)
@@ -100,6 +112,7 @@ export class CreateBookingLinkDto {
     default: 24,
   })
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   @Min(0)
   @Max(720)
@@ -111,6 +124,7 @@ export class CreateBookingLinkDto {
     default: 60,
   })
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   @Min(1)
   @Max(365)
@@ -141,6 +155,11 @@ export class CreateBookingLinkDto {
     default: true,
   })
   @IsOptional()
+  @Transform(({ value }) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') return value === 'true';
+    return value;
+  })
   @IsBoolean()
   is_active?: boolean;
 }
@@ -173,6 +192,14 @@ export class UpdateBookingLinkDto {
     description: 'Location URL',
   })
   @IsOptional()
+  @Transform(({ value }) => {
+    if (value === '' || value === null) return undefined;
+    if (typeof value !== 'string') return value;
+    const trimmed = value.trim();
+    if (!trimmed) return undefined;
+    if (!trimmed.includes('://')) return `https://${trimmed}`;
+    return trimmed;
+  })
   @IsUrl(
     { require_protocol: true },
     { message: 'location_link must be a valid URL' },
@@ -183,6 +210,7 @@ export class UpdateBookingLinkDto {
     description: 'Duration in minutes',
   })
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   @Min(15)
   @Max(480)
@@ -192,6 +220,7 @@ export class UpdateBookingLinkDto {
     description: 'Buffer time in minutes',
   })
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   @Min(0)
   @Max(120)
@@ -201,6 +230,7 @@ export class UpdateBookingLinkDto {
     description: 'Max bookings per day',
   })
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   @Min(1)
   @Max(50)
@@ -210,6 +240,7 @@ export class UpdateBookingLinkDto {
     description: 'Advance notice in hours',
   })
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   @Min(0)
   @Max(720)
@@ -219,6 +250,7 @@ export class UpdateBookingLinkDto {
     description: 'Booking window in days',
   })
   @IsOptional()
+  @Type(() => Number)
   @IsInt()
   @Min(1)
   @Max(365)
