@@ -1,11 +1,15 @@
 import { Controller, Get } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import env from './config/env';
 import { Public } from './common/decorators/public.decorator';
+import { ApiGetCorsConfig } from './debug-cors.swagger';
 
+@ApiTags('Debug')
 @Controller('debug')
 export class DebugController {
   @Public()
   @Get('cors')
+  @ApiGetCorsConfig()
   getCorsConfig() {
     return {
       corsOrigins: env.CORS_ORIGIN,

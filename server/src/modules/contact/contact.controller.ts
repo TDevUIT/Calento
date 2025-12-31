@@ -1,20 +1,21 @@
 ﻿import { Controller, Post, Get, Body, Param, HttpStatus } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { ContactService } from './contact.service';
 import { CreateContactDto, ContactResponseDto } from './dto/contact.dto';
 import { SuccessResponseDto } from '../../common/dto/base-response.dto';
+import {
+  ApiCreateContact,
+  ApiGetAllContacts,
+  ApiGetContactById,
+} from './contact.swagger';
 
 @ApiTags('Contact')
 @Controller('contact')
 export class ContactController {
-  constructor(private readonly contactService: ContactService) {}
+  constructor(private readonly contactService: ContactService) { }
 
   @Post()
-  @ApiOperation({ summary: 'Submit contact form' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'Contact form submitted successfully',
-  })
+  @ApiCreateContact()
   async createContact(
     @Body() dto: CreateContactDto,
   ): Promise<SuccessResponseDto<ContactResponseDto>> {
@@ -28,11 +29,7 @@ export class ContactController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all contacts' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Contacts retrieved successfully',
-  })
+  @ApiGetAllContacts()
   async getAllContacts(): Promise<SuccessResponseDto<ContactResponseDto[]>> {
     const contacts = await this.contactService.getAllContacts();
 
@@ -40,11 +37,7 @@ export class ContactController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get contact by ID' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Contact retrieved successfully',
-  })
+  @ApiGetContactById()
   async getContactById(
     @Param('id') id: string,
   ): Promise<SuccessResponseDto<ContactResponseDto | null>> {

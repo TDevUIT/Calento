@@ -7,13 +7,7 @@ import {
   UseGuards,
   Logger,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-  ApiQuery,
-} from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import {
   CurrentUser,
@@ -22,6 +16,14 @@ import {
 import { WebhookSchedulerService } from '../services/webhook-scheduler.service';
 import { SyncErrorRecoveryService } from '../../../common/services/sync-error-recovery.service';
 import { SuccessResponseDto } from '../../../common/dto/base-response.dto';
+import {
+  ApiGetWebhookStats,
+  ApiRenewUserWebhook,
+  ApiGetErrorStats,
+  ApiGetUserErrors,
+  ApiRetryError,
+  ApiGetHealthStatus,
+} from './webhook-monitoring.swagger';
 
 @ApiTags('Webhook Monitoring')
 @Controller('api/webhook/monitoring')
@@ -33,30 +35,10 @@ export class WebhookMonitoringController {
   constructor(
     private readonly webhookScheduler: WebhookSchedulerService,
     private readonly syncErrorRecovery: SyncErrorRecoveryService,
-  ) {}
+  ) { }
 
   @Get('webhook/stats')
-  @ApiOperation({
-    summary: 'Get webhook renewal statistics',
-    description:
-      'Get statistics about active webhooks and their renewal status',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Webhook statistics retrieved successfully',
-    schema: {
-      example: {
-        success: true,
-        message: 'Webhook statistics retrieved',
-        data: {
-          totalActive: 15,
-          expiringWithin24h: 2,
-          expiringWithin7d: 5,
-          expired: 1,
-        },
-      },
-    },
-  })
+  @ApiGetWebhookStats()
   async getWebhookStats(): Promise<SuccessResponseDto<any>> {
     try {
       const stats = await this.webhookScheduler.getRenewalStats();
@@ -72,14 +54,7 @@ export class WebhookMonitoringController {
   }
 
   @Post('webhook/renew/:calendarId')
-  @ApiOperation({
-    summary: 'Manually renew webhook for user calendar',
-    description: 'Force renewal of webhook for a specific user calendar',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Webhook renewal triggered successfully',
-  })
+  @ApiRenewUserWebhook()
   async renewUserWebhook(
     @CurrentUserId() userId: string,
     @Param('calendarId') calendarId: string,
@@ -104,30 +79,7 @@ export class WebhookMonitoringController {
   }
 
   @Get('errors/stats')
-  @ApiOperation({
-    summary: 'Get sync error statistics',
-    description: 'Get overall statistics about sync errors in the system',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Error statistics retrieved successfully',
-    schema: {
-      example: {
-        success: true,
-        message: 'Error statistics retrieved',
-        data: {
-          totalErrors: 45,
-          unresolvedErrors: 8,
-          errorsByType: {
-            event_sync: 5,
-            webhook_delivery: 2,
-            token_refresh: 1,
-          },
-          recentErrors: 3,
-        },
-      },
-    },
-  })
+  @ApiGetErrorStats()
   async getErrorStats(): Promise<SuccessResponseDto<any>> {
     try {
       const stats = await this.syncErrorRecovery.getErrorStats();
@@ -143,20 +95,7 @@ export class WebhookMonitoringController {
   }
 
   @Get('errors/user')
-  @ApiOperation({
-    summary: 'Get sync errors for current user',
-    description: 'Get recent sync errors for the authenticated user',
-  })
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-    type: Number,
-    description: 'Maximum number of errors to return (default: 10)',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'User errors retrieved successfully',
-  })
+  @ApiGetUserErrors()
   async getUserErrors(
     @CurrentUserId() userId: string,
     @Query('limit') limit?: string,
@@ -182,14 +121,7 @@ export class WebhookMonitoringController {
   }
 
   @Post('errors/:errorId/retry')
-  @ApiOperation({
-    summary: 'Force retry a specific error',
-    description: 'Manually trigger retry for a specific sync error',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Error retry triggered successfully',
-  })
+  @ApiRetryError()
   async retryError(
     @Param('errorId') errorId: string,
   ): Promise<SuccessResponseDto<{ retried: boolean }>> {
@@ -207,33 +139,7 @@ export class WebhookMonitoringController {
   }
 
   @Get('health')
-  @ApiOperation({
-    summary: 'Get overall sync health status',
-    description: 'Get combined health status of webhooks and sync operations',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Health status retrieved successfully',
-    schema: {
-      example: {
-        success: true,
-        message: 'Health status retrieved',
-        data: {
-          webhooks: {
-            totalActive: 15,
-            expiringWithin24h: 2,
-            health: 'good',
-          },
-          syncErrors: {
-            unresolvedErrors: 8,
-            recentErrors: 3,
-            health: 'warning',
-          },
-          overallHealth: 'warning',
-        },
-      },
-    },
-  })
+  @ApiGetHealthStatus()
   async getHealthStatus(): Promise<SuccessResponseDto<any>> {
     try {
       const [webhookStats, errorStats] = await Promise.all([

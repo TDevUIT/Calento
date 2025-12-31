@@ -1,47 +1,17 @@
 ﻿import { Controller, Get } from '@nestjs/common';
 import * as v8 from 'v8';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { DatabaseService } from '../../database/database.service';
 import { Public } from '../../common/decorators/public.decorator';
+import { ApiHealthCheck, ApiDatabaseHealthCheck } from './health.swagger';
 
 @ApiTags('Health')
 @Controller('health')
 export class HealthController {
-  constructor(private readonly databaseService: DatabaseService) {}
+  constructor(private readonly databaseService: DatabaseService) { }
   @Public()
   @Get()
-  @ApiOperation({
-    summary: 'ðŸ’š System health check',
-    description: 'System health check with database, memory, and uptime info',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'âœ… System health information',
-    schema: {
-      example: {
-        status: 'ok',
-        timestamp: '2024-01-15T10:30:00Z',
-        uptime: 3600.5,
-        database: {
-          connected: true,
-          stats: {
-            totalConnections: 10,
-            activeConnections: 2,
-            idleConnections: 8,
-          },
-        },
-        memory: {
-          rss: 45678592,
-          heapTotal: 20971520,
-          heapUsed: 18874368,
-
-          external: 1089024,
-          heapLimit: 4294967296,
-        },
-        version: 'v18.17.0',
-      },
-    },
-  })
+  @ApiHealthCheck()
   async check() {
     const dbHealth = await this.databaseService.healthCheck();
     const dbStats = await this.databaseService.getStats();
@@ -64,35 +34,7 @@ export class HealthController {
 
   @Public()
   @Get('db')
-  @ApiOperation({
-    summary: 'ðŸ—„ï¸ Database health check',
-    description: 'Check database connection status and statistics',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'âœ… Database health information',
-    schema: {
-      example: {
-        status: 'healthy',
-        stats: {
-          totalConnections: 10,
-          activeConnections: 2,
-          idleConnections: 8,
-        },
-        timestamp: '2024-01-15T10:30:00Z',
-      },
-    },
-  })
-  @ApiResponse({
-    status: 503,
-    description: 'âŒ Database unhealthy',
-    schema: {
-      example: {
-        status: 'unhealthy',
-        timestamp: '2024-01-15T10:30:00Z',
-      },
-    },
-  })
+  @ApiDatabaseHealthCheck()
   async database() {
     const isHealthy = await this.databaseService.healthCheck();
     const stats = await this.databaseService.getStats();

@@ -10,12 +10,7 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { AvailabilityService } from './services/availability.service';
 import {
   CreateAvailabilityDto,
@@ -23,16 +18,24 @@ import {
   CheckAvailabilityDto,
   GetAvailableSlotsDto,
   BulkCreateAvailabilityDto,
-  AvailabilityResponseDto,
-  TimeSlotResponseDto,
-  CheckAvailabilityResponseDto,
 } from './dto/availability.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
-import {
-  CurrentUser,
-  CurrentUserId,
-} from '../../common/decorators/current-user.decorator';
+import { CurrentUserId } from '../../common/decorators/current-user.decorator';
 import { MessageService } from '../../common/message/message.service';
+import {
+  ApiCreateAvailability,
+  ApiBulkCreateAvailability,
+  ApiGetAvailabilities,
+  ApiGetActiveAvailabilities,
+  ApiGetWeeklySchedule,
+  ApiGetAvailabilityById,
+  ApiUpdateAvailability,
+  ApiDeleteAvailability,
+  ApiDeleteAllAvailabilities,
+  ApiCheckAvailability,
+  ApiInitializeDefaultRules,
+  ApiGetAvailableSlots,
+} from './availability.swagger';
 
 @ApiTags('Availability')
 @ApiBearerAuth()
@@ -42,24 +45,10 @@ export class AvailabilityController {
   constructor(
     private readonly availabilityService: AvailabilityService,
     private readonly messageService: MessageService,
-  ) {}
+  ) { }
 
   @Post()
-  @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({
-    summary: 'Create availability rule',
-    description: 'Create a new availability rule for the current user',
-  })
-  @ApiResponse({
-    status: 201,
-    description: 'Availability rule created successfully',
-    type: AvailabilityResponseDto,
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Invalid input or overlapping time',
-  })
-  @ApiResponse({ status: 409, description: 'Overlapping availability rule' })
+  @ApiCreateAvailability()
   async create(
     @CurrentUserId() userId: string,
     @Body() dto: CreateAvailabilityDto,
@@ -74,16 +63,7 @@ export class AvailabilityController {
   }
 
   @Post('bulk')
-  @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({
-    summary: 'Bulk create availability rules',
-    description: 'Create multiple availability rules at once',
-  })
-  @ApiResponse({
-    status: 201,
-    description: 'Availability rules created successfully',
-    type: [AvailabilityResponseDto],
-  })
+  @ApiBulkCreateAvailability()
   async bulkCreate(
     @CurrentUserId() userId: string,
     @Body() dto: BulkCreateAvailabilityDto,
@@ -103,15 +83,7 @@ export class AvailabilityController {
   }
 
   @Get()
-  @ApiOperation({
-    summary: 'Get all availability rules',
-    description: 'Retrieve all availability rules for the current user',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Availability rules retrieved successfully',
-    type: [AvailabilityResponseDto],
-  })
+  @ApiGetAvailabilities()
   async findAll(@CurrentUserId() userId: string) {
     const availabilities = await this.availabilityService.findAll(userId);
 
@@ -126,15 +98,7 @@ export class AvailabilityController {
   }
 
   @Get('active')
-  @ApiOperation({
-    summary: 'Get active availability rules',
-    description: 'Retrieve only active availability rules',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Active availability rules retrieved successfully',
-    type: [AvailabilityResponseDto],
-  })
+  @ApiGetActiveAvailabilities()
   async findActive(@CurrentUserId() userId: string) {
     const availabilities = await this.availabilityService.findActive(userId);
 
@@ -149,14 +113,7 @@ export class AvailabilityController {
   }
 
   @Get('schedule')
-  @ApiOperation({
-    summary: 'Get weekly schedule',
-    description: 'Get availability rules organized by day of week',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Weekly schedule retrieved successfully',
-  })
+  @ApiGetWeeklySchedule()
   async getWeeklySchedule(@CurrentUserId() userId: string) {
     const schedule = await this.availabilityService.getWeeklySchedule(userId);
 
@@ -168,16 +125,7 @@ export class AvailabilityController {
   }
 
   @Get(':id')
-  @ApiOperation({
-    summary: 'Get availability rule by ID',
-    description: 'Retrieve a specific availability rule',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Availability rule retrieved successfully',
-    type: AvailabilityResponseDto,
-  })
-  @ApiResponse({ status: 404, description: 'Availability rule not found' })
+  @ApiGetAvailabilityById()
   async findOne(@Param('id') id: string, @CurrentUserId() userId: string) {
     const availability = await this.availabilityService.findById(id, userId);
 
@@ -189,17 +137,7 @@ export class AvailabilityController {
   }
 
   @Patch(':id')
-  @ApiOperation({
-    summary: 'Update availability rule',
-    description: 'Update an existing availability rule',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Availability rule updated successfully',
-    type: AvailabilityResponseDto,
-  })
-  @ApiResponse({ status: 404, description: 'Availability rule not found' })
-  @ApiResponse({ status: 409, description: 'Overlapping availability rule' })
+  @ApiUpdateAvailability()
   async update(
     @Param('id') id: string,
     @CurrentUserId() userId: string,
@@ -215,30 +153,13 @@ export class AvailabilityController {
   }
 
   @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({
-    summary: 'Delete availability rule',
-    description: 'Delete a specific availability rule',
-  })
-  @ApiResponse({
-    status: 204,
-    description: 'Availability rule deleted successfully',
-  })
-  @ApiResponse({ status: 404, description: 'Availability rule not found' })
+  @ApiDeleteAvailability()
   async delete(@Param('id') id: string, @CurrentUserId() userId: string) {
     await this.availabilityService.delete(id, userId);
   }
 
   @Delete()
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'Delete all availability rules',
-    description: 'Delete all availability rules for the current user',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'All availability rules deleted successfully',
-  })
+  @ApiDeleteAllAvailabilities()
   async deleteAll(@CurrentUserId() userId: string) {
     const count = await this.availabilityService.deleteAll(userId);
 
@@ -252,17 +173,7 @@ export class AvailabilityController {
   }
 
   @Post('check')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'Check availability',
-    description: 'Check if a user is available at a specific time',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Availability check completed',
-    type: CheckAvailabilityResponseDto,
-  })
-  @ApiResponse({ status: 400, description: 'Invalid date range' })
+  @ApiCheckAvailability()
   async checkAvailability(
     @CurrentUserId() userId: string,
     @Body() dto: CheckAvailabilityDto,
@@ -281,20 +192,7 @@ export class AvailabilityController {
   }
 
   @Post('initialize-defaults')
-  @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({
-    summary: 'Initialize default availability rules',
-    description:
-      'Create default availability rules (Mon-Fri, 9 AM - 5 PM) for the current user',
-  })
-  @ApiResponse({
-    status: 201,
-    description: 'Default availability rules created successfully',
-  })
-  @ApiResponse({
-    status: 409,
-    description: 'User already has availability rules',
-  })
+  @ApiInitializeDefaultRules()
   async initializeDefaultRules(@CurrentUserId() userId: string) {
     const existingRules = await this.availabilityService.findActive(userId);
 
@@ -318,18 +216,7 @@ export class AvailabilityController {
   }
 
   @Post('slots')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'Get available time slots',
-    description: 'Get all available time slots in a date range',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Available slots retrieved successfully',
-    type: [TimeSlotResponseDto],
-  })
-  @ApiResponse({ status: 400, description: 'Invalid date range' })
-  @ApiResponse({ status: 404, description: 'No availability rules found' })
+  @ApiGetAvailableSlots()
   async getAvailableSlots(
     @CurrentUserId() userId: string,
     @Body() dto: GetAvailableSlotsDto,

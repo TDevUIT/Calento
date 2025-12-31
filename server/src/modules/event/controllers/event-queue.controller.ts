@@ -1,16 +1,22 @@
-﻿import { Controller, Post, Body, Param, Get, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+﻿import { Controller, Post, Body, Param, Get } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { EventSyncQueueService } from '../../../common/queue/services/event-sync-queue.service';
 import { JobPriority } from '../../../common/queue/types/queue.types';
+import {
+  ApiQueueEventPull,
+  ApiQueueEventPush,
+  ApiQueueBatchSync,
+  ApiQueueFullSync,
+  ApiGetJobStatus,
+} from './event-queue.swagger';
 
 @ApiTags('Event Queue')
 @Controller('api/events/queue')
 export class EventQueueController {
-  constructor(private readonly eventSyncQueue: EventSyncQueueService) {}
+  constructor(private readonly eventSyncQueue: EventSyncQueueService) { }
 
   @Post('pull')
-  @ApiOperation({ summary: 'Queue event pull from Google Calendar' })
-  @ApiResponse({ status: 201, description: 'Job queued successfully' })
+  @ApiQueueEventPull()
   async queueEventPull(
     @Body()
     body: {
@@ -42,8 +48,7 @@ export class EventQueueController {
   }
 
   @Post('push')
-  @ApiOperation({ summary: 'Queue event push to Google Calendar' })
-  @ApiResponse({ status: 201, description: 'Job queued successfully' })
+  @ApiQueueEventPush()
   async queueEventPush(
     @Body()
     body: {
@@ -74,8 +79,7 @@ export class EventQueueController {
   }
 
   @Post('batch')
-  @ApiOperation({ summary: 'Queue batch event synchronization' })
-  @ApiResponse({ status: 201, description: 'Batch job queued successfully' })
+  @ApiQueueBatchSync()
   async queueBatchSync(
     @Body()
     body: {
@@ -109,11 +113,7 @@ export class EventQueueController {
   }
 
   @Post('full-sync')
-  @ApiOperation({ summary: 'Queue full calendar synchronization' })
-  @ApiResponse({
-    status: 201,
-    description: 'Full sync job queued successfully',
-  })
+  @ApiQueueFullSync()
   async queueFullSync(
     @Body()
     body: {
@@ -136,8 +136,7 @@ export class EventQueueController {
   }
 
   @Get('jobs/:jobId')
-  @ApiOperation({ summary: 'Get job status by ID' })
-  @ApiResponse({ status: 200, description: 'Job status retrieved' })
+  @ApiGetJobStatus()
   async getJobStatus(@Param('jobId') jobId: string) {
     const job = await this.eventSyncQueue.getJob(jobId);
 

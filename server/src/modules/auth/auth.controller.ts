@@ -12,14 +12,7 @@ import {
   UnauthorizedException,
   Logger,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiCookieAuth,
-  ApiExtraModels,
-  ApiQuery,
-} from '@nestjs/swagger';
+import { ApiTags, ApiExtraModels } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
@@ -37,6 +30,19 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { SuccessResponseDto } from '../../common/dto/base-response.dto';
 import { MessageService } from '../../common/message/message.service';
 import { GoogleAuthService } from '../google/services/google-auth.service';
+import {
+  ApiRegister,
+  ApiLogin,
+  ApiLogout,
+  ApiRefreshToken,
+  ApiGetCurrentUser,
+  ApiVerifyAuth,
+  ApiGetGoogleAuthUrl,
+  ApiGoogleCallback,
+  ApiGoogleLogin,
+  ApiRequestPasswordReset,
+  ApiResetPassword,
+} from './auth.swagger';
 
 @ApiTags('Authentication')
 @ApiExtraModels(AuthResponseDto, AuthUserResponseDto, SuccessResponseDto)
@@ -48,24 +54,14 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly cookieAuthService: CookieAuthService,
     private readonly messageService: MessageService,
-    private readonly googleAuthService: GoogleAuthService,
+    private readonly GoogleAuthService: GoogleAuthService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   @Public()
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({
-    summary: 'ðŸ” Register new user',
-    description: 'Create a new user account with secure authentication',
-  })
-  @ApiResponse({
-    status: 201,
-    description: 'User successfully registered',
-    type: SuccessResponseDto<AuthResponseDto>,
-  })
-  @ApiResponse({ status: 409, description: 'Email already registered' })
-  @ApiResponse({ status: 400, description: 'Validation failed' })
+  @ApiRegister()
   async register(
     @Body() registerDto: RegisterDto,
     @Res({ passthrough: true }) response: Response,
@@ -84,17 +80,7 @@ export class AuthController {
   @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'Login user',
-    description: 'Authenticate user and return JWT tokens',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'User successfully logged in',
-    type: SuccessResponseDto<AuthResponseDto>,
-  })
-  @ApiResponse({ status: 401, description: 'Invalid credentials' })
-  @ApiResponse({ status: 400, description: 'Validation failed' })
+  @ApiLogin()
   async login(
     @Body() loginDto: LoginDto,
     @Res({ passthrough: true }) response: Response,
@@ -109,12 +95,7 @@ export class AuthController {
 
   @Post('logout')
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({
-    summary: 'Logout user',
-    description: 'Clear authentication cookies and invalidate session',
-  })
-  @ApiCookieAuth()
-  @ApiResponse({ status: 200, description: 'User successfully logged out' })
+  @ApiLogout()
   async logout(
     @Res({ passthrough: true }) response: Response,
   ): Promise<SuccessResponseDto<null>> {
@@ -127,17 +108,7 @@ export class AuthController {
 
   @Public()
   @Post('refresh')
-  @ApiOperation({
-    summary: 'Refresh access token',
-    description: 'Refresh access token using refresh token from cookies',
-  })
-  @ApiCookieAuth()
-  @ApiResponse({
-    status: 200,
-    description: 'Token refreshed successfully',
-    type: SuccessResponseDto<AuthResponseDto>,
-  })
-  @ApiResponse({ status: 401, description: 'Invalid or expired refresh token' })
+  @ApiRefreshToken()
   async refreshToken(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
@@ -159,15 +130,7 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({
-    summary: 'Get current user profile',
-    description: 'Get current authenticated user information',
-  })
-  @ApiCookieAuth()
-  @ApiResponse({
-    status: 200,
-    description: 'User profile retrieved successfully',
-  })
+  @ApiGetCurrentUser()
   async getCurrentUser(
     @Req() request: Request,
   ): Promise<SuccessResponseDto<any>> {
@@ -181,42 +144,7 @@ export class AuthController {
   @Public()
   @Get('verify')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'Verify authentication status',
-    description: 'Check if user is authenticated via cookies (for middleware)',
-  })
-  @ApiCookieAuth()
-  @ApiResponse({
-    status: 200,
-    description: 'Authentication status verified',
-    schema: {
-      example: {
-        status: 200,
-        message: 'Authentication verified',
-        data: {
-          authenticated: true,
-          user: {
-            id: 'user-id',
-            email: 'user@example.com',
-            username: 'username',
-          },
-        },
-      },
-    },
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Not authenticated',
-    schema: {
-      example: {
-        status: 200,
-        message: 'Not authenticated',
-        data: {
-          authenticated: false,
-        },
-      },
-    },
-  })
+  @ApiVerifyAuth()
   async verifyAuth(
     @Req() request: Request,
   ): Promise<SuccessResponseDto<{ authenticated: boolean; user?: any }>> {
@@ -261,26 +189,9 @@ export class AuthController {
 
   @Public()
   @Get('google/url')
-  @ApiOperation({
-    summary: 'ðŸ”— Get Google OAuth URL for Login',
-    description:
-      'Generate OAuth URL for Google login (no authentication required)',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'âœ… OAuth URL generated',
-    schema: {
-      example: {
-        status: 200,
-        message: 'OAuth URL generated',
-        data: {
-          auth_url: 'https://accounts.google.com/o/oauth2/v2/auth?...',
-        },
-      },
-    },
-  })
+  @ApiGetGoogleAuthUrl()
   async getGoogleAuthUrl(): Promise<SuccessResponseDto> {
-    const authUrl = this.googleAuthService.getAuthUrl();
+    const authUrl = this.GoogleAuthService.getAuthUrl();
 
     return new SuccessResponseDto(
       this.messageService.get('google.auth_url_generated'),
@@ -290,21 +201,7 @@ export class AuthController {
 
   @Public()
   @Get('google/callback')
-  @ApiOperation({
-    summary: 'ðŸ”„ Google OAuth Callback for Login',
-    description: 'Handle OAuth callback from Google and redirect to frontend',
-  })
-  @ApiQuery({ name: 'code', description: 'Authorization code from Google' })
-  @ApiQuery({ name: 'state', description: 'State parameter', required: false })
-  @ApiQuery({
-    name: 'error',
-    description: 'Error from Google',
-    required: false,
-  })
-  @ApiResponse({
-    status: 302,
-    description: 'âœ… Redirects to frontend callback page',
-  })
+  @ApiGoogleCallback()
   async handleGoogleCallback(
     @Query('code') code: string,
     @Query('state') state: string,
@@ -338,17 +235,7 @@ export class AuthController {
   @Public()
   @Post('google/login')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'ðŸ” Complete Google Login',
-    description: 'Complete Google OAuth login flow and create user session',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Google login successful',
-    type: SuccessResponseDto<AuthResponseDto>,
-  })
-  @ApiResponse({ status: 400, description: 'Invalid authorization code' })
-  @ApiResponse({ status: 401, description: 'Google authentication failed' })
+  @ApiGoogleLogin()
   async googleLogin(
     @Body() body: { code: string; state?: string },
     @Res({ passthrough: true }) response: Response,
@@ -366,16 +253,7 @@ export class AuthController {
   @Public()
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: '🔑 Request password reset',
-    description: 'Send password reset email to user',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Password reset email sent if account exists',
-    type: SuccessResponseDto,
-  })
-  @ApiResponse({ status: 400, description: 'Invalid email format' })
+  @ApiRequestPasswordReset()
   async requestPasswordReset(
     @Body() dto: PasswordResetRequestDto,
   ): Promise<SuccessResponseDto<null>> {
@@ -390,16 +268,7 @@ export class AuthController {
   @Public()
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: '🔐 Reset password',
-    description: 'Reset user password with token',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Password reset successfully',
-    type: SuccessResponseDto,
-  })
-  @ApiResponse({ status: 400, description: 'Invalid or expired token' })
+  @ApiResetPassword()
   async resetPassword(
     @Body() dto: PasswordResetDto,
   ): Promise<SuccessResponseDto<null>> {

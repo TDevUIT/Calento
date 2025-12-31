@@ -5,26 +5,26 @@ import {
   Delete,
   Body,
   Param,
-  Query,
-  HttpCode,
-  HttpStatus,
   UseGuards,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-  ApiCookieAuth,
-} from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiCookieAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { CurrentUserId } from '../../../common/decorators/current-user.decorator';
 import { PriorityService } from '../services/priority.service';
 import {
   UpdatePriorityDto,
   BulkUpdatePriorityDto,
-  PriorityResponseDto,
 } from '../dto/priority.dto';
+import {
+  ApiGetUserPriorities,
+  ApiGetItemPriority,
+  ApiGetPrioritiesByLevel,
+  ApiGetPrioritiesByType,
+  ApiUpdatePriority,
+  ApiBulkUpdatePriorities,
+  ApiDeletePriority,
+  ApiResetPriorities,
+} from './priority.swagger';
 
 @ApiTags('priorities')
 @Controller('priorities')
@@ -32,15 +32,10 @@ import {
 @ApiBearerAuth('bearer')
 @ApiCookieAuth('cookie')
 export class PriorityController {
-  constructor(private readonly priorityService: PriorityService) {}
+  constructor(private readonly priorityService: PriorityService) { }
 
   @Get()
-  @ApiOperation({ summary: 'Get all priorities for the current user' })
-  @ApiResponse({
-    status: 200,
-    description: 'Returns all user priorities',
-    type: [PriorityResponseDto],
-  })
+  @ApiGetUserPriorities()
   async getUserPriorities(@CurrentUserId() userId: string) {
     const priorities = await this.priorityService.getUserPriorities(userId);
 
@@ -52,13 +47,7 @@ export class PriorityController {
   }
 
   @Get('item/:itemId/:itemType')
-  @ApiOperation({ summary: 'Get priority for a specific item' })
-  @ApiResponse({
-    status: 200,
-    description: 'Returns priority for the specified item',
-    type: PriorityResponseDto,
-  })
-  @ApiResponse({ status: 404, description: 'Priority not found' })
+  @ApiGetItemPriority()
   async getItemPriority(
     @CurrentUserId() userId: string,
     @Param('itemId') itemId: string,
@@ -78,12 +67,7 @@ export class PriorityController {
   }
 
   @Get('level/:priority')
-  @ApiOperation({ summary: 'Get all items with a specific priority level' })
-  @ApiResponse({
-    status: 200,
-    description: 'Returns all items with the specified priority',
-    type: [PriorityResponseDto],
-  })
+  @ApiGetPrioritiesByLevel()
   async getPrioritiesByLevel(
     @CurrentUserId() userId: string,
     @Param('priority') priority: string,
@@ -101,12 +85,7 @@ export class PriorityController {
   }
 
   @Get('type/:itemType')
-  @ApiOperation({ summary: 'Get all priorities for a specific item type' })
-  @ApiResponse({
-    status: 200,
-    description: 'Returns all priorities for the specified item type',
-    type: [PriorityResponseDto],
-  })
+  @ApiGetPrioritiesByType()
   async getPrioritiesByType(
     @CurrentUserId() userId: string,
     @Param('itemType') itemType: string,
@@ -124,13 +103,7 @@ export class PriorityController {
   }
 
   @Post('update')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Update priority for a single item' })
-  @ApiResponse({
-    status: 200,
-    description: 'Priority updated successfully',
-    type: PriorityResponseDto,
-  })
+  @ApiUpdatePriority()
   async updatePriority(
     @CurrentUserId() userId: string,
     @Body() updateDto: UpdatePriorityDto,
@@ -148,13 +121,7 @@ export class PriorityController {
   }
 
   @Post('bulk-update')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Bulk update priorities for multiple items' })
-  @ApiResponse({
-    status: 200,
-    description: 'Priorities updated successfully',
-    type: [PriorityResponseDto],
-  })
+  @ApiBulkUpdatePriorities()
   async bulkUpdatePriorities(
     @CurrentUserId() userId: string,
     @Body() bulkUpdateDto: BulkUpdatePriorityDto,
@@ -172,10 +139,7 @@ export class PriorityController {
   }
 
   @Delete('item/:itemId/:itemType')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Delete priority for a specific item' })
-  @ApiResponse({ status: 200, description: 'Priority deleted successfully' })
-  @ApiResponse({ status: 404, description: 'Priority not found' })
+  @ApiDeletePriority()
   async deletePriority(
     @CurrentUserId() userId: string,
     @Param('itemId') itemId: string,
@@ -190,12 +154,7 @@ export class PriorityController {
   }
 
   @Delete('reset')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Reset all priorities for the current user' })
-  @ApiResponse({
-    status: 200,
-    description: 'All priorities reset successfully',
-  })
+  @ApiResetPriorities()
   async resetPriorities(@CurrentUserId() userId: string) {
     await this.priorityService.resetUserPriorities(userId);
 

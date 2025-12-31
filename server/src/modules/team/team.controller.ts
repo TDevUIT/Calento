@@ -2,21 +2,14 @@ import {
   Controller,
   Get,
   Post,
-  Put,
-  Delete,
   Body,
+  Patch,
   Param,
-  Query,
+  Delete,
   UseGuards,
-  Req,
+  Query,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiBearerAuth,
-  ApiOperation,
-  ApiResponse as SwaggerApiResponse,
-} from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { TeamService } from './services/team.service';
 import { TeamMemberService } from './services/team-member.service';
 import { TeamRitualService } from './services/team-ritual.service';
@@ -31,272 +24,245 @@ import {
   GetAvailabilityHeatmapDto,
   FindOptimalTimeDto,
 } from './dto/team.dto';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { CurrentUserId } from '../../common/decorators/current-user.decorator';
+import {
+  ApiCreateTeam,
+  ApiGetMyTeams,
+  ApiGetMyPendingInvitations,
+  ApiGetOwnedTeams,
+  ApiGetTeamById,
+  ApiUpdateTeam,
+  ApiDeleteTeam,
+  ApiInviteMember,
+  ApiGetMembers,
+  ApiAcceptInvitation,
+  ApiDeclineInvitation,
+  ApiUpdateMemberRole,
+  ApiRemoveMember,
+  ApiLeaveTeam,
+  ApiCreateRitual,
+  ApiGetRituals,
+  ApiUpdateRitual,
+  ApiDeleteRitual,
+  ApiGetRotationHistory,
+  ApiGetAvailabilityHeatmap,
+  ApiFindOptimalTimes,
+} from './team.swagger';
 
 @ApiTags('Teams')
 @ApiBearerAuth()
-@Controller('teams')
 @UseGuards(JwtAuthGuard)
+@Controller('teams')
 export class TeamController {
   constructor(
     private readonly teamService: TeamService,
     private readonly memberService: TeamMemberService,
     private readonly ritualService: TeamRitualService,
     private readonly availabilityService: TeamAvailabilityService,
-  ) {}
-
-  private getUserId = (req: any): string => req.user?.id || req.user?.sub;
+  ) { }
 
   @Post()
-  @ApiOperation({ summary: 'Create a new team' })
-  async createTeam(@Req() req, @Body() dto: CreateTeamDto) {
-    return await this.teamService.createTeam(this.getUserId(req), dto);
+  @ApiCreateTeam()
+  create(@CurrentUserId() userId: string, @Body() createTeamDto: CreateTeamDto) {
+    return this.teamService.createTeam(userId, createTeamDto);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get my teams' })
-  async getMyTeams(@Req() req) {
-    return await this.teamService.getMyTeams(this.getUserId(req));
+  @ApiGetMyTeams()
+  getMyTeams(@CurrentUserId() userId: string) {
+    return this.teamService.getMyTeams(userId);
   }
 
   @Get('invitations/pending')
-  @ApiOperation({
-    summary: 'Get my pending team invitations',
-    description:
-      'Get all pending invitations for the current user where they can accept/decline',
-  })
-  async getMyPendingInvitations(@Req() req) {
-    return await this.memberService.getMyPendingInvitations(
-      this.getUserId(req),
-    );
+  @ApiGetMyPendingInvitations()
+  getMyPendingInvitations(@CurrentUserId() userId: string) {
+    return this.memberService.getMyPendingInvitations(userId);
   }
 
   @Get('owned')
-  @ApiOperation({ summary: 'Get teams I own' })
-  async getOwnedTeams(@Req() req) {
-    return await this.teamService.getOwnedTeams(this.getUserId(req));
+  @ApiGetOwnedTeams()
+  getOwnedTeams(@CurrentUserId() userId: string) {
+    return this.teamService.getOwnedTeams(userId);
   }
 
-  @Get(':teamId')
-  @ApiOperation({ summary: 'Get team by ID' })
-  async getTeam(@Req() req, @Param('teamId') teamId: string) {
-    return await this.teamService.getTeamById(teamId, this.getUserId(req));
+  @Get(':id')
+  @ApiGetTeamById()
+  findOne(@Param('id') id: string, @CurrentUserId() userId: string) {
+    return this.teamService.getTeamById(id, userId);
   }
 
-  @Put(':teamId')
-  @ApiOperation({ summary: 'Update team' })
-  async updateTeam(
-    @Req() req,
-    @Param('teamId') teamId: string,
-    @Body() dto: UpdateTeamDto,
+  @Patch(':id')
+  @ApiUpdateTeam()
+  update(
+    @Param('id') id: string,
+    @CurrentUserId() userId: string,
+    @Body() updateTeamDto: UpdateTeamDto,
   ) {
-    return await this.teamService.updateTeam(teamId, this.getUserId(req), dto);
+    return this.teamService.updateTeam(id, userId, updateTeamDto);
   }
 
-  @Delete(':teamId')
-  @ApiOperation({ summary: 'Delete team' })
-  async deleteTeam(@Req() req, @Param('teamId') teamId: string) {
-    await this.teamService.deleteTeam(teamId, this.getUserId(req));
-    return { success: true };
+  @Delete(':id')
+  @ApiDeleteTeam()
+  remove(@Param('id') id: string, @CurrentUserId() userId: string) {
+    return this.teamService.deleteTeam(id, userId);
   }
 
-  @Post(':teamId/members')
-  @ApiOperation({ summary: 'Invite team member' })
+  @Post(':id/members')
+  @ApiInviteMember()
   async inviteMember(
-    @Req() req,
-    @Param('teamId') teamId: string,
-    @Body() dto: InviteMemberDto,
+    @Param('id') id: string,
+    @CurrentUserId() userId: string,
+    @Body() inviteMemberDto: InviteMemberDto,
   ) {
-    await this.teamService.validateAdminAccess(teamId, this.getUserId(req));
-    return await this.memberService.inviteMember(teamId, dto);
+    await this.teamService.validateAdminAccess(id, userId);
+    return this.memberService.inviteMember(id, inviteMemberDto);
   }
 
-  @Get(':teamId/members')
-  @ApiOperation({ summary: 'Get team members' })
+  @Get(':id/members')
+  @ApiGetMembers()
   async getMembers(
-    @Req() req,
-    @Param('teamId') teamId: string,
+    @Param('id') id: string,
+    @CurrentUserId() userId: string,
     @Query('status') status?: string,
   ) {
-    await this.teamService.validateMemberAccess(teamId, this.getUserId(req));
-    return await this.memberService.getTeamMembers(teamId, status);
+    await this.teamService.validateMemberAccess(id, userId);
+    return this.memberService.getTeamMembers(id, status);
   }
 
-  @Put(':teamId/members/:memberId/accept')
-  @ApiOperation({
-    summary: 'Accept team invitation',
-    description:
-      'Accept a team invitation. Only the invited user can accept their own invitation.',
-  })
-  @SwaggerApiResponse({
-    status: 200,
-    description: 'Invitation accepted successfully',
-  })
-  @SwaggerApiResponse({
-    status: 403,
-    description: 'Not authorized to accept this invitation',
-  })
-  @SwaggerApiResponse({ status: 400, description: 'Invitation is not pending' })
-  async acceptInvitation(
-    @Req() req,
-    @Param('teamId') teamId: string,
-    @Param('memberId') memberId: string,
+  @Post('invitations/:token/accept')
+  @ApiAcceptInvitation()
+  acceptInvitation(
+    @Param('token') token: string,
+    @CurrentUserId() userId: string,
   ) {
-    return await this.memberService.acceptInvitation(
-      memberId,
-      this.getUserId(req),
-      teamId,
-    );
+    // Calling memberService with token as memberId
+    return this.memberService.acceptInvitation(token, userId);
   }
 
-  @Put(':teamId/members/:memberId/decline')
-  @ApiOperation({
-    summary: 'Decline team invitation',
-    description:
-      'Decline a team invitation. Only the invited user can decline their own invitation.',
-  })
-  @SwaggerApiResponse({
-    status: 200,
-    description: 'Invitation declined successfully',
-  })
-  @SwaggerApiResponse({
-    status: 403,
-    description: 'Not authorized to decline this invitation',
-  })
-  @SwaggerApiResponse({ status: 400, description: 'Invitation is not pending' })
-  async declineInvitation(
-    @Req() req,
-    @Param('teamId') teamId: string,
-    @Param('memberId') memberId: string,
+  @Post('invitations/:token/decline')
+  @ApiDeclineInvitation()
+  declineInvitation(
+    @Param('token') token: string,
+    @CurrentUserId() userId: string,
   ) {
-    await this.memberService.declineInvitation(
-      memberId,
-      this.getUserId(req),
-      teamId,
-    );
-    return { success: true };
+    return this.memberService.declineInvitation(token, userId);
   }
 
-  @Put(':teamId/members/:memberId/role')
-  @ApiOperation({ summary: 'Update member role' })
+  @Patch(':id/members/:memberId/role')
+  @ApiUpdateMemberRole()
   async updateMemberRole(
-    @Req() req,
-    @Param('teamId') teamId: string,
+    @Param('id') id: string,
     @Param('memberId') memberId: string,
-    @Body() dto: UpdateMemberRoleDto,
+    @CurrentUserId() userId: string,
+    @Body() updateMemberRoleDto: UpdateMemberRoleDto,
   ) {
-    await this.teamService.validateAdminAccess(teamId, this.getUserId(req));
-    return await this.memberService.updateMemberRole(memberId, dto);
+    await this.teamService.validateAdminAccess(id, userId);
+    return this.memberService.updateMemberRole(memberId, updateMemberRoleDto);
   }
 
-  @Delete(':teamId/members/:memberId')
-  @ApiOperation({ summary: 'Remove team member' })
+  @Delete(':id/members/:memberId')
+  @ApiRemoveMember()
   async removeMember(
-    @Req() req,
-    @Param('teamId') teamId: string,
+    @Param('id') id: string,
     @Param('memberId') memberId: string,
+    @CurrentUserId() userId: string,
   ) {
-    await this.teamService.validateAdminAccess(teamId, this.getUserId(req));
-    await this.memberService.removeMember(memberId);
-    return { success: true };
+    await this.teamService.validateAdminAccess(id, userId);
+    return this.memberService.removeMember(memberId);
   }
 
-  @Post(':teamId/leave')
-  @ApiOperation({ summary: 'Leave team' })
-  async leaveTeam(@Req() req, @Param('teamId') teamId: string) {
-    await this.memberService.leaveTeam(teamId, this.getUserId(req));
-    return { success: true };
+  @Post(':id/leave')
+  @ApiLeaveTeam()
+  leaveTeam(@Param('id') id: string, @CurrentUserId() userId: string) {
+    return this.memberService.leaveTeam(id, userId);
   }
 
-  @Post(':teamId/rituals')
-  @ApiOperation({ summary: 'Create team ritual' })
+  @Post(':id/rituals')
+  @ApiCreateRitual()
   async createRitual(
-    @Req() req,
-    @Param('teamId') teamId: string,
-    @Body() dto: CreateRitualDto,
+    @Param('id') id: string,
+    @CurrentUserId() userId: string,
+    @Body() createRitualDto: CreateRitualDto,
   ) {
-    await this.teamService.validateAdminAccess(teamId, this.getUserId(req));
-    return await this.ritualService.createRitual(teamId, dto);
+    await this.teamService.validateAdminAccess(id, userId);
+    return this.ritualService.createRitual(id, createRitualDto);
   }
 
-  @Get(':teamId/rituals')
-  @ApiOperation({ summary: 'Get team rituals' })
-  async getRituals(
-    @Req() req,
-    @Param('teamId') teamId: string,
-    @Query('active') active?: string,
-  ) {
-    await this.teamService.validateMemberAccess(teamId, this.getUserId(req));
-    return await this.ritualService.getTeamRituals(teamId, active === 'true');
+  @Get(':id/rituals')
+  @ApiGetRituals()
+  async getRituals(@Param('id') id: string, @CurrentUserId() userId: string) {
+    await this.teamService.validateMemberAccess(id, userId);
+    return this.ritualService.getTeamRituals(id);
   }
 
-  @Put(':teamId/rituals/:ritualId')
-  @ApiOperation({ summary: 'Update team ritual' })
+  @Patch(':id/rituals/:ritualId')
+  @ApiUpdateRitual()
   async updateRitual(
-    @Req() req,
-    @Param('teamId') teamId: string,
+    @Param('id') id: string,
     @Param('ritualId') ritualId: string,
-    @Body() dto: UpdateRitualDto,
+    @CurrentUserId() userId: string,
+    @Body() updateRitualDto: UpdateRitualDto,
   ) {
-    await this.teamService.validateAdminAccess(teamId, this.getUserId(req));
-    return await this.ritualService.updateRitual(ritualId, dto);
+    await this.teamService.validateAdminAccess(id, userId);
+    return this.ritualService.updateRitual(ritualId, updateRitualDto);
   }
 
-  @Delete(':teamId/rituals/:ritualId')
-  @ApiOperation({ summary: 'Delete team ritual' })
+  @Delete(':id/rituals/:ritualId')
+  @ApiDeleteRitual()
   async deleteRitual(
-    @Req() req,
-    @Param('teamId') teamId: string,
+    @Param('id') id: string,
     @Param('ritualId') ritualId: string,
+    @CurrentUserId() userId: string,
   ) {
-    await this.teamService.validateAdminAccess(teamId, this.getUserId(req));
-    await this.ritualService.deleteRitual(ritualId);
-    return { success: true };
+    await this.teamService.validateAdminAccess(id, userId);
+    return this.ritualService.deleteRitual(ritualId);
   }
 
-  @Get(':teamId/rituals/:ritualId/rotation')
-  @ApiOperation({ summary: 'Get ritual rotation history' })
+  @Get(':id/rituals/:ritualId/rotation')
+  @ApiGetRotationHistory()
   async getRotationHistory(
-    @Req() req,
-    @Param('teamId') teamId: string,
+    @Param('id') id: string,
     @Param('ritualId') ritualId: string,
+    @CurrentUserId() userId: string,
   ) {
-    await this.teamService.validateMemberAccess(teamId, this.getUserId(req));
-    return await this.ritualService.getRotationHistory(ritualId);
+    await this.teamService.validateMemberAccess(id, userId);
+    return this.ritualService.getRotationHistory(ritualId);
   }
 
-  @Post(':teamId/availability/heatmap')
-  @ApiOperation({ summary: 'Generate team availability heatmap' })
+  @Get(':id/heatmap')
+  @ApiGetAvailabilityHeatmap()
   async getAvailabilityHeatmap(
-    @Req() req,
-    @Param('teamId') teamId: string,
-    @Body() dto: GetAvailabilityHeatmapDto,
+    @Param('id') id: string,
+    @CurrentUserId() userId: string,
+    @Query() query: GetAvailabilityHeatmapDto,
   ) {
-    await this.teamService.validateMemberAccess(teamId, this.getUserId(req));
-    return await this.availabilityService.generateHeatmap(
-      teamId,
-      this.getUserId(req),
-      new Date(dto.start_date),
-      new Date(dto.end_date),
-      dto.timezone,
+    await this.teamService.validateMemberAccess(id, userId);
+    return this.availabilityService.generateHeatmap(
+      id,
+      userId,
+      new Date(query.start_date),
+      new Date(query.end_date),
+      query.timezone,
     );
   }
 
-  @Post(':teamId/availability/optimal')
-  @ApiOperation({ summary: 'Find optimal meeting times' })
+  @Get(':id/optimal-times')
+  @ApiFindOptimalTimes()
   async findOptimalTimes(
-    @Req() req,
-    @Param('teamId') teamId: string,
-    @Body() dto: FindOptimalTimeDto,
+    @Param('id') id: string,
+    @CurrentUserId() userId: string,
+    @Query() query: FindOptimalTimeDto,
   ) {
-    await this.teamService.validateMemberAccess(teamId, this.getUserId(req));
-    return await this.availabilityService.findOptimalTimes(
-      teamId,
-      this.getUserId(req),
-      new Date(dto.start_date),
-      new Date(dto.end_date),
-      dto.duration_minutes,
-      dto.required_members,
-      dto.timezone,
+    await this.teamService.validateMemberAccess(id, userId);
+    return this.availabilityService.findOptimalTimes(
+      id,
+      userId,
+      new Date(query.start_date),
+      new Date(query.end_date),
+      query.duration_minutes,
+      query.required_members,
+      query.timezone,
     );
   }
 }

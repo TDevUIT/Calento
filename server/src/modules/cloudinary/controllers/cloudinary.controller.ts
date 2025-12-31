@@ -13,44 +13,28 @@ import {
   Param,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-  ApiConsumes,
-  ApiBody,
-} from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../../common/guards/jwt-auth.guard';
 import { CloudinaryService } from '../services/cloudinary.service';
-import {
-  CloudinaryUploadResponseDto,
-  UploadAvatarDto,
-} from '../dto/cloudinary.dto';
+import { CloudinaryUploadResponseDto } from '../dto/cloudinary.dto';
 import { SuccessResponseDto } from '../../../common/dto/base-response.dto';
+import {
+  ApiUploadAvatar,
+  ApiUploadImage,
+  ApiDeleteImage,
+  ApiGetAvatarUrl,
+} from './cloudinary.swagger';
 
 @ApiTags('Cloudinary')
 @Controller('cloudinary')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth()
 export class CloudinaryController {
-  constructor(private readonly cloudinaryService: CloudinaryService) {}
+  constructor(private readonly cloudinaryService: CloudinaryService) { }
 
   @Post('upload/avatar')
   @UseInterceptors(FileInterceptor('file'))
-  @ApiOperation({ summary: 'Upload user avatar' })
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    description: 'Avatar image file',
-    type: UploadAvatarDto,
-  })
-  @ApiResponse({
-    status: 201,
-    description: 'Avatar uploaded successfully',
-    type: CloudinaryUploadResponseDto,
-  })
-  @ApiResponse({ status: 400, description: 'Bad request - Invalid file' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiUploadAvatar()
   async uploadAvatar(
     @UploadedFile() file: any,
     @Request() req: any,
@@ -77,17 +61,7 @@ export class CloudinaryController {
 
   @Post('upload/image')
   @UseInterceptors(FileInterceptor('file'))
-  @ApiOperation({ summary: 'Upload image' })
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    description: 'Image file',
-    type: UploadAvatarDto,
-  })
-  @ApiResponse({
-    status: 201,
-    description: 'Image uploaded successfully',
-    type: CloudinaryUploadResponseDto,
-  })
+  @ApiUploadImage()
   async uploadImage(
     @UploadedFile() file: any,
     @Request() req: any,
@@ -113,9 +87,7 @@ export class CloudinaryController {
 
   @Delete('image/:publicId')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Delete image by public ID' })
-  @ApiResponse({ status: 200, description: 'Image deleted successfully' })
-  @ApiResponse({ status: 404, description: 'Image not found' })
+  @ApiDeleteImage()
   async deleteImage(
     @Param('publicId') publicId: string,
   ): Promise<SuccessResponseDto<null>> {
@@ -126,11 +98,7 @@ export class CloudinaryController {
   }
 
   @Get('avatar/:publicId')
-  @ApiOperation({ summary: 'Get optimized avatar URL' })
-  @ApiResponse({
-    status: 200,
-    description: 'Returns optimized avatar URL',
-  })
+  @ApiGetAvatarUrl()
   async getAvatarUrl(
     @Param('publicId') publicId: string,
   ): Promise<SuccessResponseDto<{ url: string }>> {

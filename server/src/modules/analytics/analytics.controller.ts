@@ -1,10 +1,5 @@
-﻿import { Controller, Get, Query, HttpStatus, UseGuards } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
+﻿import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { AnalyticsService } from './analytics.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { CurrentUserId } from '../../common/decorators/current-user.decorator';
@@ -22,6 +17,16 @@ import {
   BookingAnalyticsResponseDto,
   AttendeeAnalyticsResponseDto,
 } from './dto/analytics.dto';
+import {
+  ApiGetOverview,
+  ApiGetDetailedAnalytics,
+  ApiGetEventAnalytics,
+  ApiGetTimeUtilization,
+  ApiGetCategoryAnalytics,
+  ApiGetTimeDistribution,
+  ApiGetAttendeeAnalytics,
+  ApiGetBookingAnalytics,
+} from './analytics.swagger';
 
 @ApiTags('Analytics')
 @Controller('analytics')
@@ -31,15 +36,10 @@ export class AnalyticsController {
   constructor(
     private analyticsService: AnalyticsService,
     private messageService: MessageService,
-  ) {}
+  ) { }
 
   @Get('overview')
-  @ApiOperation({ summary: 'Get analytics overview' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Analytics overview retrieved successfully',
-    type: AnalyticsOverviewResponseDto,
-  })
+  @ApiGetOverview()
   async getOverview(
     @CurrentUserId() userId: string,
     @Query() query: AnalyticsQueryDto,
@@ -54,16 +54,11 @@ export class AnalyticsController {
     return new SuccessResponseDto(
       this.messageService.get('analytics.overview_retrieved'),
       result,
-      HttpStatus.OK,
     );
   }
 
   @Get('detailed')
-  @ApiOperation({ summary: 'Get detailed analytics' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Detailed analytics retrieved successfully',
-  })
+  @ApiGetDetailedAnalytics()
   async getDetailedAnalytics(
     @CurrentUserId() userId: string,
     @Query() query: AnalyticsQueryDto,
@@ -78,17 +73,11 @@ export class AnalyticsController {
     return new SuccessResponseDto(
       this.messageService.get('analytics.detailed_retrieved'),
       result,
-      HttpStatus.OK,
     );
   }
 
   @Get('events')
-  @ApiOperation({ summary: 'Get event analytics' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Event analytics retrieved successfully',
-    type: EventAnalyticsResponseDto,
-  })
+  @ApiGetEventAnalytics()
   async getEventAnalytics(
     @CurrentUserId() userId: string,
     @Query() query: AnalyticsQueryDto,
@@ -103,17 +92,11 @@ export class AnalyticsController {
     return new SuccessResponseDto(
       this.messageService.get('analytics.events_retrieved'),
       result,
-      HttpStatus.OK,
     );
   }
 
   @Get('time-utilization')
-  @ApiOperation({ summary: 'Get time utilization analytics' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Time utilization retrieved successfully',
-    type: TimeUtilizationResponseDto,
-  })
+  @ApiGetTimeUtilization()
   async getTimeUtilization(
     @CurrentUserId() userId: string,
     @Query() query: AnalyticsQueryDto,
@@ -128,17 +111,11 @@ export class AnalyticsController {
     return new SuccessResponseDto(
       this.messageService.get('analytics.time_utilization_retrieved'),
       result,
-      HttpStatus.OK,
     );
   }
 
   @Get('categories')
-  @ApiOperation({ summary: 'Get category analytics' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Category analytics retrieved successfully',
-    type: [CategoryAnalyticsItemDto],
-  })
+  @ApiGetCategoryAnalytics()
   async getCategoryAnalytics(
     @CurrentUserId() userId: string,
     @Query() query: CategoryAnalyticsQueryDto,
@@ -153,17 +130,11 @@ export class AnalyticsController {
     return new SuccessResponseDto(
       this.messageService.get('analytics.categories_retrieved'),
       result,
-      HttpStatus.OK,
     );
   }
 
   @Get('time-distribution')
-  @ApiOperation({ summary: 'Get time distribution analytics' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Time distribution retrieved successfully',
-    type: [TimeDistributionItemDto],
-  })
+  @ApiGetTimeDistribution()
   async getTimeDistribution(
     @CurrentUserId() userId: string,
     @Query() query: TimeDistributionQueryDto,
@@ -179,17 +150,11 @@ export class AnalyticsController {
     return new SuccessResponseDto(
       this.messageService.get('analytics.time_distribution_retrieved'),
       result,
-      HttpStatus.OK,
     );
   }
 
   @Get('attendees')
-  @ApiOperation({ summary: 'Get attendee analytics' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Attendee analytics retrieved successfully',
-    type: AttendeeAnalyticsResponseDto,
-  })
+  @ApiGetAttendeeAnalytics()
   async getAttendeeAnalytics(
     @CurrentUserId() userId: string,
     @Query() query: AnalyticsQueryDto,
@@ -204,17 +169,11 @@ export class AnalyticsController {
     return new SuccessResponseDto(
       this.messageService.get('analytics.attendees_retrieved'),
       result,
-      HttpStatus.OK,
     );
   }
 
   @Get('bookings')
-  @ApiOperation({ summary: 'Get booking analytics' })
-  @ApiResponse({
-    status: HttpStatus.OK,
-    description: 'Booking analytics retrieved successfully',
-    type: BookingAnalyticsResponseDto,
-  })
+  @ApiGetBookingAnalytics()
   async getBookingAnalytics(
     @CurrentUserId() userId: string,
     @Query() query: AnalyticsQueryDto,
@@ -228,7 +187,6 @@ export class AnalyticsController {
     return new SuccessResponseDto(
       this.messageService.get('analytics.bookings_retrieved'),
       result,
-      HttpStatus.OK,
     );
   }
 }

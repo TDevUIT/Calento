@@ -14,9 +14,6 @@
 } from '@nestjs/common';
 import {
   ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiParam,
   ApiBearerAuth,
   ApiCookieAuth,
   ApiExtraModels,
@@ -35,8 +32,18 @@ import {
 import { Public } from '../../common/decorators/public.decorator';
 import { CurrentUserId } from '../../common/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
-import { SwaggerExamples } from '../../common/swagger/swagger-examples';
 import { UpdateUserSettingsDto } from './dto/user-settings.dto';
+import {
+  ApiCreateUser,
+  ApiGetUsers,
+  ApiSearchUsers,
+  ApiGetUserSettings,
+  ApiUpdateUserSettings,
+  ApiGetUserById,
+  ApiUpdateUserById,
+  ApiDeactivateUser,
+  ApiDeleteUser,
+} from './user.swagger';
 
 @ApiTags('Users')
 @ApiExtraModels(
@@ -57,37 +64,7 @@ export class UserController {
 
   @Post()
   @Public()
-  @ApiOperation({
-    summary: 'ðŸ‘¤ Create a new user',
-    description:
-      'Create a new user account - Public endpoint for initial setup',
-  })
-  @ApiResponse({
-    status: 201,
-    description: 'âœ… User created successfully',
-    schema: {
-      example: SwaggerExamples.Users.Create.response,
-    },
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'âŒ Validation failed - Invalid input data',
-    schema: {
-      example: SwaggerExamples.Errors.ValidationError,
-    },
-  })
-  @ApiResponse({
-    status: 409,
-    description: 'âŒ Conflict - Email or username already exists',
-    schema: {
-      example: {
-        success: false,
-        error: 'Conflict',
-        message: 'Email already exists',
-        statusCode: 409,
-      },
-    },
-  })
+  @ApiCreateUser()
   async createUser(
     @Body() createUserDto: CreateUserDto,
   ): Promise<SuccessResponseDto<UserResponseDto>> {
@@ -103,24 +80,7 @@ export class UserController {
   }
 
   @Get()
-  @ApiOperation({
-    summary: 'ðŸ‘¥ Get all users with pagination',
-    description: 'Retrieve paginated list of users with search and filtering',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'âœ… Users retrieved successfully with pagination',
-    schema: {
-      example: SwaggerExamples.Users.List.response,
-    },
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'âŒ Unauthorized - Invalid or expired token',
-    schema: {
-      example: SwaggerExamples.Errors.Unauthorized,
-    },
-  })
+  @ApiGetUsers()
   async getUsers(
     @Query() query: PaginationQueryDto,
   ): Promise<PaginatedResponseDto<UserResponseDto>> {
@@ -139,8 +99,7 @@ export class UserController {
   }
 
   @Get('search')
-  @ApiOperation({ summary: 'Search users by email or username' })
-  @ApiResponse({ status: 200, description: 'Users found successfully' })
+  @ApiSearchUsers()
   async searchUsers(
     @Query() query: SearchPaginationQueryDto,
   ): Promise<PaginatedResponseDto<UserResponseDto>> {
@@ -164,11 +123,7 @@ export class UserController {
 
   @Get('settings')
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Get current user settings' })
-  @ApiResponse({
-    status: 200,
-    description: 'User settings retrieved successfully',
-  })
+  @ApiGetUserSettings()
   async getUserSettings(
     @CurrentUserId() userId: string,
   ): Promise<SuccessResponseDto<Record<string, any>>> {
@@ -193,11 +148,7 @@ export class UserController {
 
   @Patch('settings')
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Update current user settings' })
-  @ApiResponse({
-    status: 200,
-    description: 'User settings updated successfully',
-  })
+  @ApiUpdateUserSettings()
   async updateUserSettings(
     @CurrentUserId() userId: string,
     @Body() dto: UpdateUserSettingsDto,
@@ -225,14 +176,7 @@ export class UserController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get user by ID' })
-  @ApiParam({ name: 'id', description: 'User ID' })
-  @ApiResponse({
-    status: 200,
-    description: 'User found successfully',
-    type: UserResponseDto,
-  })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiGetUserById()
   async getUserById(
     @Param('id') id: string,
   ): Promise<SuccessResponseDto<UserResponseDto | null>> {
@@ -255,14 +199,7 @@ export class UserController {
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Update user' })
-  @ApiParam({ name: 'id', description: 'User ID' })
-  @ApiResponse({
-    status: 200,
-    description: 'User updated successfully',
-    type: UserResponseDto,
-  })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiUpdateUserById()
   async updateUser(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
@@ -286,10 +223,7 @@ export class UserController {
   }
 
   @Delete(':id/deactivate')
-  @ApiOperation({ summary: 'Deactivate user (soft delete)' })
-  @ApiParam({ name: 'id', description: 'User ID' })
-  @ApiResponse({ status: 200, description: 'User deactivated successfully' })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiDeactivateUser()
   async deactivateUser(
     @Param('id') id: string,
   ): Promise<SuccessResponseDto<boolean>> {
@@ -305,10 +239,7 @@ export class UserController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete user permanently' })
-  @ApiParam({ name: 'id', description: 'User ID' })
-  @ApiResponse({ status: 200, description: 'User deleted successfully' })
-  @ApiResponse({ status: 404, description: 'User not found' })
+  @ApiDeleteUser()
   async deleteUser(
     @Param('id') id: string,
   ): Promise<SuccessResponseDto<boolean>> {

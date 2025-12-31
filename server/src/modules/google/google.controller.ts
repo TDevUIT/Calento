@@ -10,14 +10,7 @@ import {
   Res,
 } from '@nestjs/common';
 import express from 'express';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-  ApiCookieAuth,
-  ApiQuery,
-} from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiCookieAuth } from '@nestjs/swagger';
 import { GoogleAuthService } from './services/google-auth.service';
 import { GoogleCalendarService } from './services/google-calendar.service';
 import { MessageService } from '../../common/message/message.service';
@@ -34,6 +27,19 @@ import { CalendarSyncManagerService } from '../event/services/calendar-sync-mana
 import { EventSyncService } from '../event/services/event-sync.service';
 import { SyncStrategy } from '../event/types/sync.types';
 import { WebhookService } from '../webhook/services/webhook.service';
+import {
+  ApiGetAuthUrl,
+  ApiHandleCallback,
+  ApiGetConnectionStatus,
+  ApiDisconnect,
+  ApiSyncCalendars,
+  ApiListGoogleCalendars,
+  ApiRefreshToken,
+  ApiCreateGoogleMeet,
+  ApiManualSyncFromGoogle,
+  ApiManualInitialSync,
+  ApiGetSyncStatus,
+} from './google.swagger';
 
 @ApiTags('Google Calendar Integration')
 @Controller('google')
@@ -45,29 +51,13 @@ export class GoogleController {
     private readonly syncManager: CalendarSyncManagerService,
     private readonly eventSyncService: EventSyncService,
     private readonly webhookService: WebhookService,
-  ) {}
+  ) { }
 
   @Get('auth/url')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('bearer')
   @ApiCookieAuth('cookie')
-  @ApiOperation({
-    summary: 'ðŸ”— Get Google OAuth URL',
-    description: 'Generate OAuth URL for Google Calendar connection',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'âœ… OAuth URL generated',
-    schema: {
-      example: {
-        status: 200,
-        message: 'OAuth URL generated',
-        data: {
-          auth_url: 'https://accounts.google.com/o/oauth2/v2/auth?...',
-        },
-      },
-    },
-  })
+  @ApiGetAuthUrl()
   async getAuthUrl(
     @CurrentUserId() userId: string,
   ): Promise<SuccessResponseDto> {
@@ -80,21 +70,7 @@ export class GoogleController {
   }
 
   @Get('auth/callback')
-  @ApiOperation({
-    summary: '🔄 OAuth Callback Handler',
-    description:
-      'Handle OAuth callback from Google and save credentials. Automatically triggers initial sync and webhook setup.',
-  })
-  @ApiQuery({ name: 'code', description: 'Authorization code from Google' })
-  @ApiQuery({
-    name: 'state',
-    description: 'User ID passed as state',
-    required: false,
-  })
-  @ApiResponse({
-    status: 302,
-    description: '✅ Redirects to frontend with success/error',
-  })
+  @ApiHandleCallback()
   async handleCallback(
     @Query('code') code: string,
     @Query('state') state: string,
@@ -151,8 +127,8 @@ export class GoogleController {
 
       this.messageService['logger'].log(
         `✅ Initial sync completed for user ${userId}: ` +
-          `${syncResult.imported} events imported, ` +
-          `${syncResult.conflicts.length} conflicts detected`,
+        `${syncResult.imported} events imported, ` +
+        `${syncResult.conflicts.length} conflicts detected`,
       );
 
       // Step 2: Setup webhook for real-time sync
@@ -182,15 +158,7 @@ export class GoogleController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('bearer')
   @ApiCookieAuth('cookie')
-  @ApiOperation({
-    summary: '📊 Get Connection Status',
-    description: 'Check if user is connected to Google Calendar',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'âœ… Status retrieved',
-    type: SuccessResponseDto,
-  })
+  @ApiGetConnectionStatus()
   async getConnectionStatus(
     @CurrentUserId() userId: string,
   ): Promise<SuccessResponseDto> {
@@ -218,15 +186,7 @@ export class GoogleController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('bearer')
   @ApiCookieAuth('cookie')
-  @ApiOperation({
-    summary: 'ðŸ”Œ Disconnect Google Calendar',
-    description: 'Revoke access and delete stored credentials',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'âœ… Disconnected successfully',
-    type: SuccessResponseDto,
-  })
+  @ApiDisconnect()
   async disconnect(
     @CurrentUserId() userId: string,
   ): Promise<SuccessResponseDto> {
@@ -242,15 +202,7 @@ export class GoogleController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('bearer')
   @ApiCookieAuth('cookie')
-  @ApiOperation({
-    summary: 'ðŸ”„ Sync Calendars from Google',
-    description: 'Fetch and sync all calendars from Google Calendar',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'âœ… Calendars synced',
-    type: SuccessResponseDto,
-  })
+  @ApiSyncCalendars()
   async syncCalendars(
     @CurrentUserId() userId: string,
   ): Promise<SuccessResponseDto> {
@@ -274,15 +226,7 @@ export class GoogleController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('bearer')
   @ApiCookieAuth('cookie')
-  @ApiOperation({
-    summary: 'ðŸ“… List Google Calendars',
-    description: 'Get list of all calendars from Google Calendar',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'âœ… Calendars retrieved',
-    type: SuccessResponseDto,
-  })
+  @ApiListGoogleCalendars()
   async listGoogleCalendars(
     @CurrentUserId() userId: string,
   ): Promise<SuccessResponseDto> {
@@ -298,15 +242,7 @@ export class GoogleController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('bearer')
   @ApiCookieAuth('cookie')
-  @ApiOperation({
-    summary: 'ðŸ”„ Refresh Access Token',
-    description: 'Manually refresh Google OAuth access token',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'âœ… Token refreshed',
-    type: SuccessResponseDto,
-  })
+  @ApiRefreshToken()
   async refreshToken(
     @CurrentUserId() userId: string,
   ): Promise<SuccessResponseDto> {
@@ -323,20 +259,7 @@ export class GoogleController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('bearer')
   @ApiCookieAuth('cookie')
-  @ApiOperation({
-    summary: 'ðŸ“¹ Create Google Meet Link',
-    description:
-      'Generate a Google Meet conference link for an event. Requires Google Calendar connection.',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'âœ… Google Meet link created',
-    type: SuccessResponseDto,
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'âŒ Not connected to Google Calendar',
-  })
+  @ApiCreateGoogleMeet()
   async createGoogleMeet(
     @CurrentUserId() userId: string,
     @Body() createMeetDto: CreateGoogleMeetDto,
@@ -379,28 +302,7 @@ export class GoogleController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('bearer')
   @ApiCookieAuth('cookie')
-  @ApiOperation({
-    summary: '🔄 Manual Sync - Pull Events from Google',
-    description:
-      'Manually pull and sync events from Google Calendar to Calento. ' +
-      'Use this to refresh events after the initial connection or if you notice missing events.',
-  })
-  @ApiResponse({
-    status: 200,
-    description: '✅ Events synced successfully',
-    schema: {
-      example: {
-        status: 200,
-        message: 'Successfully synced 150 events from Google Calendar',
-        data: {
-          synced: 150,
-          failed: 0,
-          duration: 2500,
-          throughput: 60,
-        },
-      },
-    },
-  })
+  @ApiManualSyncFromGoogle()
   async manualSyncFromGoogle(
     @CurrentUserId() userId: string,
     @Body()
@@ -439,29 +341,7 @@ export class GoogleController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('bearer')
   @ApiCookieAuth('cookie')
-  @ApiOperation({
-    summary: '🔄 Initial Sync with Conflict Resolution',
-    description:
-      'Perform initial sync with conflict detection and resolution strategy. ' +
-      'Use this after first connection or to resolve sync conflicts.',
-  })
-  @ApiResponse({
-    status: 200,
-    description: '✅ Initial sync completed',
-    schema: {
-      example: {
-        status: 200,
-        message: 'Initial sync completed',
-        data: {
-          totalGoogleEvents: 200,
-          totalCalentoEvents: 50,
-          imported: 180,
-          conflicts: [],
-          errors: [],
-        },
-      },
-    },
-  })
+  @ApiManualInitialSync()
   async manualInitialSync(
     @CurrentUserId() userId: string,
     @Body() body?: { strategy?: SyncStrategy },
@@ -477,14 +357,7 @@ export class GoogleController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('bearer')
   @ApiCookieAuth('cookie')
-  @ApiOperation({
-    summary: '📊 Get Sync Status',
-    description: 'Check the status of Google Calendar synchronization',
-  })
-  @ApiResponse({
-    status: 200,
-    description: '✅ Sync status retrieved',
-  })
+  @ApiGetSyncStatus()
   async getSyncStatus(
     @CurrentUserId() userId: string,
   ): Promise<SuccessResponseDto> {

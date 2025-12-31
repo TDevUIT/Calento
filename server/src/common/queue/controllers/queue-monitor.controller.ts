@@ -1,9 +1,20 @@
 import { Controller, Get, Post, Param, Query, Delete } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { EventSyncQueueService } from '../services/event-sync-queue.service';
 import { EmailQueueService } from '../services/email-queue.service';
 import { WebhookQueueService } from '../services/webhook-queue.service';
 import { QueueMonitor } from '../utils/queue-monitor.util';
+import {
+  ApiGetQueuesHealth,
+  ApiGetQueueMetrics,
+  ApiGetFailedJobs,
+  ApiGetJobDetails,
+  ApiRetryJob,
+  ApiCleanQueue,
+  ApiPauseQueue,
+  ApiResumeQueue,
+  ApiRemoveJob,
+} from './queue-monitor.swagger';
 
 /**
  * Queue monitoring and management controller
@@ -16,14 +27,13 @@ export class QueueMonitorController {
     private readonly eventSyncQueue: EventSyncQueueService,
     private readonly emailQueue: EmailQueueService,
     private readonly webhookQueue: WebhookQueueService,
-  ) {}
+  ) { }
 
   /**
    * Get health status of all queues
    */
   @Get('health')
-  @ApiOperation({ summary: 'Get health status of all queues' })
-  @ApiResponse({ status: 200, description: 'Queue health metrics' })
+  @ApiGetQueuesHealth()
   async getQueuesHealth() {
     const [eventSyncHealth, emailHealth, webhookHealth] = await Promise.all([
       QueueMonitor.getQueueHealth(this.eventSyncQueue['queue']),
@@ -49,8 +59,7 @@ export class QueueMonitorController {
    * Get metrics for a specific queue
    */
   @Get(':queueName/metrics')
-  @ApiOperation({ summary: 'Get metrics for a specific queue' })
-  @ApiResponse({ status: 200, description: 'Queue metrics' })
+  @ApiGetQueueMetrics()
   async getQueueMetrics(@Param('queueName') queueName: string) {
     const queue = this.getQueueByName(queueName);
     const health = await QueueMonitor.getQueueHealth(queue);
@@ -65,8 +74,7 @@ export class QueueMonitorController {
    * Get failed jobs for a queue
    */
   @Get(':queueName/failed')
-  @ApiOperation({ summary: 'Get failed jobs for a queue' })
-  @ApiResponse({ status: 200, description: 'List of failed jobs' })
+  @ApiGetFailedJobs()
   async getFailedJobs(
     @Param('queueName') queueName: string,
     @Query('limit') limit = 10,
@@ -87,8 +95,7 @@ export class QueueMonitorController {
    * Get job details by ID
    */
   @Get(':queueName/jobs/:jobId')
-  @ApiOperation({ summary: 'Get job details by ID' })
-  @ApiResponse({ status: 200, description: 'Job details' })
+  @ApiGetJobDetails()
   async getJobDetails(
     @Param('queueName') queueName: string,
     @Param('jobId') jobId: string,
@@ -113,8 +120,7 @@ export class QueueMonitorController {
    * Retry a failed job
    */
   @Post(':queueName/jobs/:jobId/retry')
-  @ApiOperation({ summary: 'Retry a failed job' })
-  @ApiResponse({ status: 200, description: 'Job retried successfully' })
+  @ApiRetryJob()
   async retryJob(
     @Param('queueName') queueName: string,
     @Param('jobId') jobId: string,
@@ -132,8 +138,7 @@ export class QueueMonitorController {
    * Clean old jobs from a queue
    */
   @Post(':queueName/clean')
-  @ApiOperation({ summary: 'Clean old jobs from a queue' })
-  @ApiResponse({ status: 200, description: 'Jobs cleaned successfully' })
+  @ApiCleanQueue()
   async cleanQueue(
     @Param('queueName') queueName: string,
     @Query('completedAge') completedAge = 24,
@@ -156,8 +161,7 @@ export class QueueMonitorController {
    * Pause a queue
    */
   @Post(':queueName/pause')
-  @ApiOperation({ summary: 'Pause a queue' })
-  @ApiResponse({ status: 200, description: 'Queue paused successfully' })
+  @ApiPauseQueue()
   async pauseQueue(@Param('queueName') queueName: string) {
     const queueService = this.getQueueServiceByName(queueName);
     await queueService.pause();
@@ -172,8 +176,7 @@ export class QueueMonitorController {
    * Resume a queue
    */
   @Post(':queueName/resume')
-  @ApiOperation({ summary: 'Resume a paused queue' })
-  @ApiResponse({ status: 200, description: 'Queue resumed successfully' })
+  @ApiResumeQueue()
   async resumeQueue(@Param('queueName') queueName: string) {
     const queueService = this.getQueueServiceByName(queueName);
     await queueService.resume();
@@ -188,8 +191,7 @@ export class QueueMonitorController {
    * Remove a specific job
    */
   @Delete(':queueName/jobs/:jobId')
-  @ApiOperation({ summary: 'Remove a specific job' })
-  @ApiResponse({ status: 200, description: 'Job removed successfully' })
+  @ApiRemoveJob()
   async removeJob(
     @Param('queueName') queueName: string,
     @Param('jobId') jobId: string,

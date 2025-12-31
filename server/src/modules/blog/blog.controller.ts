@@ -9,40 +9,44 @@
   Query,
   UseGuards,
   Request,
-  HttpCode,
-  HttpStatus,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { BlogService } from './blog.service';
 import {
   CreateBlogPostDto,
   UpdateBlogPostDto,
   BlogPostQueryDto,
-  BlogPostResponseDto,
 } from './dto/blog.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { PaginationOptions } from '../../common/interfaces/pagination.interface';
+import {
+  ApiCreateBlogPost,
+  ApiUpdateBlogPost,
+  ApiDeleteBlogPost,
+  ApiGetPublishedPosts,
+  ApiGetFeaturedPosts,
+  ApiGetPopularPosts,
+  ApiSearchBlogPosts,
+  ApiGetBlogPostsByCategory,
+  ApiGetBlogPostsByTag,
+  ApiGetBlogPostsByAuthor,
+  ApiGetBlogPostBySlug,
+  ApiGetRelatedPosts,
+  ApiGetBlogPostById,
+  ApiGetBlogPosts,
+  ApiPublishPost,
+  ApiUnpublishPost,
+} from './blog.swagger';
 
 @ApiTags('Blog')
 @Controller('blog')
 export class BlogController {
-  constructor(private readonly blogService: BlogService) {}
+  constructor(private readonly blogService: BlogService) { }
 
   @Post()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Create a new blog post' })
-  @ApiResponse({
-    status: 201,
-    description: 'Blog post created successfully',
-    type: BlogPostResponseDto,
-  })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiCreateBlogPost()
   async createBlogPost(@Body() dto: CreateBlogPostDto, @Request() req: any) {
     const authorId = req.user.id;
     return await this.blogService.createBlogPost(dto, authorId);
@@ -51,14 +55,7 @@ export class BlogController {
   @Put(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update a blog post' })
-  @ApiResponse({
-    status: 200,
-    description: 'Blog post updated successfully',
-    type: BlogPostResponseDto,
-  })
-  @ApiResponse({ status: 404, description: 'Blog post not found' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Not the author' })
+  @ApiUpdateBlogPost()
   async updateBlogPost(
     @Param('id') id: string,
     @Body() dto: UpdateBlogPostDto,
@@ -71,19 +68,14 @@ export class BlogController {
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Delete a blog post' })
-  @ApiResponse({ status: 204, description: 'Blog post deleted successfully' })
-  @ApiResponse({ status: 404, description: 'Blog post not found' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Not the author' })
+  @ApiDeleteBlogPost()
   async deleteBlogPost(@Param('id') id: string, @Request() req: any) {
     const authorId = req.user.id;
     return await this.blogService.deleteBlogPost(id, authorId);
   }
 
   @Get('public/published')
-  @ApiOperation({ summary: 'Get published blog posts for landing page' })
-  @ApiResponse({ status: 200, description: 'Published blog posts retrieved' })
+  @ApiGetPublishedPosts()
   async getPublishedPosts(
     @Query('page') page?: number,
     @Query('limit') limit?: number,
@@ -96,22 +88,19 @@ export class BlogController {
   }
 
   @Get('public/featured')
-  @ApiOperation({ summary: 'Get featured blog posts' })
-  @ApiResponse({ status: 200, description: 'Featured blog posts retrieved' })
+  @ApiGetFeaturedPosts()
   async getFeaturedPosts(@Query('limit') limit?: number) {
     return await this.blogService.getFeaturedPosts(limit || 3);
   }
 
   @Get('public/popular')
-  @ApiOperation({ summary: 'Get popular blog posts' })
-  @ApiResponse({ status: 200, description: 'Popular blog posts retrieved' })
+  @ApiGetPopularPosts()
   async getPopularPosts(@Query('limit') limit?: number) {
     return await this.blogService.getPopularPosts(limit || 5);
   }
 
   @Get('search')
-  @ApiOperation({ summary: 'Search blog posts' })
-  @ApiResponse({ status: 200, description: 'Search results' })
+  @ApiSearchBlogPosts()
   async searchBlogPosts(
     @Query('q') searchTerm: string,
     @Query('page') page?: number,
@@ -125,8 +114,7 @@ export class BlogController {
   }
 
   @Get('category/:categoryId')
-  @ApiOperation({ summary: 'Get blog posts by category' })
-  @ApiResponse({ status: 200, description: 'Blog posts by category retrieved' })
+  @ApiGetBlogPostsByCategory()
   async getBlogPostsByCategory(
     @Param('categoryId') categoryId: string,
     @Query('page') page?: number,
@@ -140,8 +128,7 @@ export class BlogController {
   }
 
   @Get('tag/:tagId')
-  @ApiOperation({ summary: 'Get blog posts by tag' })
-  @ApiResponse({ status: 200, description: 'Blog posts by tag retrieved' })
+  @ApiGetBlogPostsByTag()
   async getBlogPostsByTag(
     @Param('tagId') tagId: string,
     @Query('page') page?: number,
@@ -155,8 +142,7 @@ export class BlogController {
   }
 
   @Get('author/:authorId')
-  @ApiOperation({ summary: 'Get blog posts by author' })
-  @ApiResponse({ status: 200, description: 'Blog posts by author retrieved' })
+  @ApiGetBlogPostsByAuthor()
   async getBlogPostsByAuthor(
     @Param('authorId') authorId: string,
     @Query('page') page?: number,
@@ -170,16 +156,13 @@ export class BlogController {
   }
 
   @Get('slug/:slug')
-  @ApiOperation({ summary: 'Get blog post by slug' })
-  @ApiResponse({ status: 200, description: 'Blog post found' })
-  @ApiResponse({ status: 404, description: 'Blog post not found' })
+  @ApiGetBlogPostBySlug()
   async getBlogPostBySlug(@Param('slug') slug: string) {
     return await this.blogService.getBlogPostBySlug(slug);
   }
 
   @Get(':id/related')
-  @ApiOperation({ summary: 'Get related blog posts' })
-  @ApiResponse({ status: 200, description: 'Related posts retrieved' })
+  @ApiGetRelatedPosts()
   async getRelatedPosts(
     @Param('id') id: string,
     @Query('limit') limit?: number,
@@ -188,23 +171,13 @@ export class BlogController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get blog post by ID' })
-  @ApiResponse({
-    status: 200,
-    description: 'Blog post found',
-    type: BlogPostResponseDto,
-  })
-  @ApiResponse({ status: 404, description: 'Blog post not found' })
+  @ApiGetBlogPostById()
   async getBlogPostById(@Param('id') id: string) {
     return await this.blogService.getBlogPostById(id);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all blog posts with filters' })
-  @ApiResponse({
-    status: 200,
-    description: 'Blog posts retrieved successfully',
-  })
+  @ApiGetBlogPosts()
   async getBlogPosts(
     @Query() query: BlogPostQueryDto,
     @Query('page') page?: number,
@@ -220,8 +193,7 @@ export class BlogController {
   @Post(':id/publish')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Publish a blog post' })
-  @ApiResponse({ status: 200, description: 'Blog post published' })
+  @ApiPublishPost()
   async publishPost(@Param('id') id: string, @Request() req: any) {
     const authorId = req.user.id;
     return await this.blogService.publishPost(id, authorId);
@@ -230,8 +202,7 @@ export class BlogController {
   @Post(':id/unpublish')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Unpublish a blog post' })
-  @ApiResponse({ status: 200, description: 'Blog post unpublished' })
+  @ApiUnpublishPost()
   async unpublishPost(@Param('id') id: string, @Request() req: any) {
     const authorId = req.user.id;
     return await this.blogService.unpublishPost(id, authorId);

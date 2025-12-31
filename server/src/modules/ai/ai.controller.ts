@@ -11,12 +11,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import type { Response } from 'express';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-} from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { AIConversationService } from './services/conversation.service';
 import {
   ChatRequestDto,
@@ -24,6 +19,15 @@ import {
   ConfirmActionDto,
 } from './dto/ai-chat.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import {
+  ApiHealthCheck,
+  ApiChat,
+  ApiChatStream,
+  ApiGetConversations,
+  ApiGetConversation,
+  ApiDeleteConversation,
+  ApiConfirmAction,
+} from './ai.swagger';
 
 @ApiTags('AI Assistant')
 @ApiBearerAuth()
@@ -32,13 +36,12 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 export class AIController {
   private readonly logger = new Logger(AIController.name);
 
-  constructor(private readonly conversationService: AIConversationService) {}
+  constructor(private readonly conversationService: AIConversationService) { }
 
   private getUserId = (req: any): string => req.user?.id || req.user?.sub;
 
   @Get('health')
-  @ApiOperation({ summary: 'Check AI service health' })
-  @ApiResponse({ status: 200, description: 'Service is healthy' })
+  @ApiHealthCheck()
   async healthCheck() {
     return {
       status: 'ok',
@@ -49,16 +52,7 @@ export class AIController {
   }
 
   @Post('chat')
-  @ApiOperation({
-    summary: 'Chat with AI assistant',
-    description:
-      'Send a message to the AI assistant for calendar management tasks',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'AI response with optional function calls',
-    type: ChatResponseDto,
-  })
+  @ApiChat()
   async chat(
     @Body() dto: ChatRequestDto,
     @Req() req: any,
@@ -83,11 +77,9 @@ export class AIController {
       throw error;
     }
   }
+
   @Post('chat/stream')
-  @ApiOperation({
-    summary: 'Stream chat with AI assistant',
-    description: 'Stream AI response using Server-Sent Events',
-  })
+  @ApiChatStream()
   async chatStream(
     @Body() dto: ChatRequestDto,
     @Req() req: any,
@@ -165,44 +157,21 @@ export class AIController {
   }
 
   @Get('conversations')
-  @ApiOperation({
-    summary: 'Get user conversations',
-    description: 'Retrieve conversation history for the current user',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'List of conversations',
-    type: [Object],
-  })
+  @ApiGetConversations()
   async getConversations(@Req() req: any) {
     const userId = this.getUserId(req);
     return this.conversationService.getUserConversations(userId);
   }
 
   @Get('conversations/:id')
-  @ApiOperation({
-    summary: 'Get conversation details',
-    description:
-      'Retrieve a specific conversation with all messages and actions',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Conversation details',
-  })
+  @ApiGetConversation()
   async getConversation(@Param('id') conversationId: string, @Req() req: any) {
     const userId = this.getUserId(req);
     return this.conversationService.getConversation(conversationId, userId);
   }
 
   @Delete('conversations/:id')
-  @ApiOperation({
-    summary: 'Delete conversation',
-    description: 'Delete a conversation and all its messages',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Conversation deleted successfully',
-  })
+  @ApiDeleteConversation()
   async deleteConversation(
     @Param('id') conversationId: string,
     @Req() req: any,
@@ -216,16 +185,7 @@ export class AIController {
   }
 
   @Post('actions/confirm')
-  @ApiOperation({
-    summary: 'Confirm pending action',
-    description:
-      'User confirms or rejects a pending action that requires confirmation',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Action confirmed and executed',
-    type: ChatResponseDto,
-  })
+  @ApiConfirmAction()
   async confirmAction(
     @Body() dto: ConfirmActionDto,
     @Req() req: any,

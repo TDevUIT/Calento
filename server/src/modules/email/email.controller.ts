@@ -9,15 +9,9 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-  ApiQuery,
-} from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { EmailService } from './services/email.service';
-import { SendEmailDto, EmailLogResponseDto } from './dto/send-email.dto';
+import { SendEmailDto } from './dto/send-email.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import {
   CurrentUser,
@@ -29,6 +23,13 @@ import {
 } from '../../common/dto/base-response.dto';
 import { MessageService } from '../../common/message/message.service';
 import { TIME_CONSTANTS } from '../../common/constants';
+import {
+  ApiSendEmail,
+  ApiGetEmailLogs,
+  ApiGetEmailLogById,
+  ApiSendTestWelcomeEmail,
+  ApiSendTestReminderEmail,
+} from './email.swagger';
 
 @ApiTags('Email')
 @ApiBearerAuth()
@@ -38,30 +39,11 @@ export class EmailController {
   constructor(
     private readonly emailService: EmailService,
     private readonly messageService: MessageService,
-  ) {}
+  ) { }
 
   @Post('send')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'Send email',
-    description: 'Send email using Nodemailer with optional template support',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Email sent successfully',
-    schema: {
-      example: {
-        success: true,
-        message: 'Email sent successfully',
-        data: {
-          messageId: '<message-id@smtp.example.com>',
-          logId: 'uuid-here',
-        },
-      },
-    },
-  })
-  @ApiResponse({ status: 400, description: 'Invalid email data' })
-  @ApiResponse({ status: 500, description: 'Failed to send email' })
+  @ApiSendEmail()
   async sendEmail(
     @Body() sendEmailDto: SendEmailDto,
     @CurrentUserId() userId: string,
@@ -96,17 +78,7 @@ export class EmailController {
   }
 
   @Get('logs')
-  @ApiOperation({
-    summary: 'Get email logs',
-    description: 'Retrieve email sending history for current user',
-  })
-  @ApiQuery({ name: 'limit', required: false, type: Number, example: 50 })
-  @ApiQuery({ name: 'offset', required: false, type: Number, example: 0 })
-  @ApiResponse({
-    status: 200,
-    description: 'Email logs retrieved successfully',
-    type: [EmailLogResponseDto],
-  })
+  @ApiGetEmailLogs()
   async getEmailLogs(
     @CurrentUserId() userId: string,
     @Query('limit') limit = 50,
@@ -131,16 +103,7 @@ export class EmailController {
   }
 
   @Get('logs/:id')
-  @ApiOperation({
-    summary: 'Get email log by ID',
-    description: 'Retrieve specific email log details',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Email log retrieved successfully',
-    type: EmailLogResponseDto,
-  })
-  @ApiResponse({ status: 404, description: 'Email log not found' })
+  @ApiGetEmailLogById()
   async getEmailLogById(
     @Param('id') logId: string,
     @CurrentUserId() userId: string,
@@ -163,11 +126,7 @@ export class EmailController {
 
   @Post('test/welcome')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'Send test welcome email',
-    description: 'Send a test welcome email to verify configuration',
-  })
-  @ApiResponse({ status: 200, description: 'Test email sent successfully' })
+  @ApiSendTestWelcomeEmail()
   async sendTestWelcomeEmail(
     @CurrentUserId() userId: string,
     @CurrentUser('email') email: string,
@@ -189,11 +148,7 @@ export class EmailController {
 
   @Post('test/reminder')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'Send test event reminder email',
-    description: 'Send a test event reminder email to verify configuration',
-  })
-  @ApiResponse({ status: 200, description: 'Test email sent successfully' })
+  @ApiSendTestReminderEmail()
   async sendTestReminderEmail(
     @CurrentUserId() userId: string,
     @CurrentUser('email') email: string,
