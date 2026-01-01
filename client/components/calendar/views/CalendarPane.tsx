@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { Loader2 } from 'lucide-react';
-import { startOfMonth, endOfMonth } from 'date-fns';
+import { startOfMonth, endOfMonth, subWeeks, addWeeks } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 
 import type { CalendarEvent } from '@/components/calendar/views';
@@ -51,8 +51,9 @@ export default function CalendarPane() {
     enabled: enableKeyboardShortcuts,
   });
 
-  const startDate = useMemo(() => startOfMonth(currentMonth).toISOString(), [currentMonth]);
-  const endDate = useMemo(() => endOfMonth(currentMonth).toISOString(), [currentMonth]);
+  // Add 1 week padding before and after to ensure events are fetched for edge days visible on calendar
+  const startDate = useMemo(() => subWeeks(startOfMonth(currentMonth), 1).toISOString(), [currentMonth]);
+  const endDate = useMemo(() => addWeeks(endOfMonth(currentMonth), 1).toISOString(), [currentMonth]);
 
   const queryParams = useMemo(
     () => ({

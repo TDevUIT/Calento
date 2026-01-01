@@ -5,7 +5,9 @@ import { useMemo } from 'react';
 
 import { cn } from '@/lib/utils';
 import { useCalendarSettings } from '../shared/CalendarSettingsProvider';
-import { HourEvents, TimeTable, useCalendar, getWeekendIndices } from './CalendarCore';
+import { DayTimelineEvents, TimeTable, useCalendar, getWeekendIndices } from './CalendarCore';
+
+const HOUR_HEIGHT = 80; // pixels per hour
 
 const CalendarWeekView = () => {
   const { view, date, locale, events } = useCalendar();
@@ -16,25 +18,16 @@ const CalendarWeekView = () => {
 
   const weekDates = useMemo(() => {
     const start = startOfWeek(date, { weekStartsOn: weekStartsOnDay });
-    const weekDates = [];
+    const dates = [];
 
     for (let i = 0; i < 7; i++) {
-      const day = addDays(start, i);
-      const hours = [...Array(24)].map((_, i) => setHours(day, i));
-      weekDates.push(hours);
+      dates.push(addDays(start, i));
     }
 
-    return weekDates;
+    return dates;
   }, [date, weekStartsOnDay]);
 
-  const headerDays = useMemo(() => {
-    const daysOfWeek = [];
-    for (let i = 0; i < 7; i++) {
-      const result = addDays(startOfWeek(date, { weekStartsOn: weekStartsOnDay }), i);
-      daysOfWeek.push(result);
-    }
-    return daysOfWeek;
-  }, [date, weekStartsOnDay]);
+  const hours = useMemo(() => [...Array(24)].map((_, i) => i), []);
 
   if (view !== 'week') return null;
 
@@ -42,26 +35,26 @@ const CalendarWeekView = () => {
     <div className="flex flex-col relative overflow-hidden h-full border-b border-r bg-[#F7F8FC] shadow-sm">
       <div className="flex sticky top-0 bg-[#F7F8FC] z-10 border-b">
         <div className="w-12"></div>
-        {headerDays.map((date, i) => (
+        {weekDates.map((dayDate, i) => (
           <div
-            key={date.toString()}
+            key={dayDate.toString()}
             className={cn(
               'text-center flex-1 gap-2 py-3 text-sm font-medium flex flex-col items-center justify-center transition-colors',
               highlightWeekends && weekendIndices.includes(i) && 'bg-accent/5 weekend'
             )}
           >
             <div className="text-xs text-muted-foreground uppercase tracking-wider">
-              {format(date, 'E', { locale })}
+              {format(dayDate, 'E', { locale })}
             </div>
             <span
               className={cn(
                 'h-8 w-8 grid place-content-center rounded-full font-semibold transition-all',
-                isToday(date)
+                isToday(dayDate)
                   ? 'bg-primary text-primary-foreground shadow-md scale-110'
                   : 'group-hover:bg-accent'
               )}
             >
-              {format(date, 'd')}
+              {format(dayDate, 'd')}
             </span>
           </div>
         ))}
@@ -71,18 +64,24 @@ const CalendarWeekView = () => {
           <TimeTable />
         </div>
         <div className="grid grid-cols-7 flex-1 min-w-0">
-          {weekDates.map((hours, i) => {
+          {weekDates.map((dayDate, i) => {
             return (
               <div
                 className={cn(
-                  'h-full text-sm text-muted-foreground border-l first:border-l-0',
+                  'h-full text-sm text-muted-foreground border-l first:border-l-0 relative',
                   highlightWeekends && weekendIndices.includes(i) && 'bg-accent/5 weekend'
                 )}
-                key={hours[0].toString()}
+                key={dayDate.toString()}
               >
+                {/* Hour grid lines */}
                 {hours.map((hour) => (
-                  <HourEvents key={hour.toString()} hour={hour} events={events} />
+                  <div
+                    key={hour}
+                    className="h-20 border-b border-border/50 hover:bg-accent/5 transition-colors"
+                  />
                 ))}
+                {/* Events overlay */}
+                <DayTimelineEvents events={events} dayDate={dayDate} hourHeight={HOUR_HEIGHT} />
               </div>
             );
           })}

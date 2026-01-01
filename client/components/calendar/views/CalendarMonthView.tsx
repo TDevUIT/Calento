@@ -96,45 +96,34 @@ const CalendarMonthView = () => {
                       side="right"
                       align="start"
                       onEdit={() => onEventClick?.(event)}
-                      onDelete={() => {}}
+                      onDelete={() => { }}
                     >
                       <div
-                        className="px-2 py-1.5 text-xs flex flex-col gap-1 transition-all cursor-pointer hover:shadow-md relative border"
+                        className="px-1.5 py-1 text-xs flex items-center gap-1.5 transition-all cursor-pointer hover:shadow-md relative rounded-sm"
                         style={{
                           backgroundColor: event.type === 'task' ? 'white' : eventColor,
                           borderColor: event.type === 'task' ? eventColor : 'rgba(0,0,0,0.1)',
-                          borderWidth: event.type === 'task' ? '2px' : '1px',
-                          borderLeftWidth: event.type === 'task' ? '4px' : '1px',
+                          borderWidth: event.type === 'task' ? '1px' : '1px',
+                          borderLeftWidth: event.type === 'task' ? '3px' : '3px',
+                          borderLeftColor: eventColor,
                           borderStyle: event.type === 'task' ? 'dashed' : 'solid',
                           zIndex: 150 + eventIndex,
                         }}
                         onClick={() => onEventClick?.(event)}
                       >
-                        <div className="flex items-center gap-2 min-w-0">
-                          <span
-                            className={`flex-1 truncate font-bold ${
-                              event.type === 'task' ? 'text-gray-900' : titleClass
+                        <time
+                          className={`tabular-nums text-[10px] font-medium shrink-0 ${event.type === 'task' ? 'text-gray-500' : timeClass
                             }`}
-                          >
-                            {(event.title)}
-                          </span>
-                          <time
-                            className={`tabular-nums text-[10px] font-semibold ${
-                              event.type === 'task' ? 'text-gray-600' : timeClass
+                          suppressHydrationWarning
+                        >
+                          {format(event.start, 'HH:mm')}
+                        </time>
+                        <span
+                          className={`flex-1 truncate font-medium text-[11px] ${event.type === 'task' ? 'text-gray-900' : titleClass
                             }`}
-                            suppressHydrationWarning
-                          >
-                            {format(event.start, 'HH:mm')}
-                          </time>
-                        </div>
-
-                        {event.type !== 'task' && (
-                          <div className="mt-auto">
-                            <span className="inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-semibold border bg-white/85 text-gray-800 border-black/10">
-                              {event.teamId ? `Team${event.team?.name ? `: ${event.team.name}` : ''}` : 'Personal'}
-                            </span>
-                          </div>
-                        )}
+                        >
+                          {event.title}
+                        </span>
                       </div>
                     </EventOrTaskCard>
                   );

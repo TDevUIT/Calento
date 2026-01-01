@@ -10,8 +10,10 @@ import {
   addYears,
   differenceInMinutes,
   format,
+  isSameDay,
   isSameHour,
   setHours,
+  startOfDay,
   startOfMonth,
   startOfWeek,
   subDays,
@@ -252,7 +254,7 @@ const HourEvents = ({
             side="right"
             align="start"
             onEdit={() => onEventClick?.(event)}
-            onDelete={() => {}}
+            onDelete={() => { }}
           >
             <div
               className={cn(
@@ -278,26 +280,23 @@ const HourEvents = ({
               onMouseLeave={() => setHoveredEventId(null)}
             >
               <div
-                className={`font-bold truncate leading-tight ${
-                  event.type === 'task' ? 'text-gray-900' : titleClass
-                }`}
+                className={`font-bold truncate leading-tight ${event.type === 'task' ? 'text-gray-900' : titleClass
+                  }`}
               >
                 {(event.title)}
               </div>
               {layout.width > 30 && (
                 <div
-                  className={`text-[10px] mt-0.5 font-medium leading-tight ${
-                    event.type === 'task' ? 'text-gray-600' : timeClass
-                  }`}
+                  className={`text-[10px] mt-0.5 font-medium leading-tight ${event.type === 'task' ? 'text-gray-600' : timeClass
+                    }`}
                 >
                   {format(event.start, 'HH:mm')} - {format(event.end, 'HH:mm')}
                 </div>
               )}
               {layout.width <= 30 && (
                 <div
-                  className={`text-[9px] mt-0.5 font-medium leading-tight ${
-                    event.type === 'task' ? 'text-gray-600' : timeClass
-                  }`}
+                  className={`text-[9px] mt-0.5 font-medium leading-tight ${event.type === 'task' ? 'text-gray-600' : timeClass
+                    }`}
                 >
                   {format(event.start, 'HH:mm')}
                 </div>
@@ -331,6 +330,119 @@ const HourEvents = ({
           {eventLayouts.length} events
         </div>
       )}
+    </div>
+  );
+};
+
+
+const DayTimelineEvents = ({
+  events,
+  dayDate,
+  hourHeight = 80,
+}: {
+  events: CalendarEvent[];
+  dayDate: Date;
+  hourHeight?: number;
+}) => {
+  const { onEventClick } = useCalendar();
+  const [hoveredEventId, setHoveredEventId] = useState<string | null>(null);
+
+  const dayEvents = useMemo(() => {
+    return events.filter((event) => isSameDay(event.start, dayDate));
+  }, [events, dayDate]);
+
+  const eventLayouts = useMemo(() => {
+    return calculateEventLayouts(dayEvents);
+  }, [dayEvents]);
+
+  const getEventPosition = (event: CalendarEvent) => {
+    const dayStart = startOfDay(dayDate);
+    const startMinutes = differenceInMinutes(event.start, dayStart);
+    const durationMinutes = differenceInMinutes(event.end, event.start);
+
+    const top = (startMinutes / 60) * hourHeight;
+    const height = Math.max((durationMinutes / 60) * hourHeight, 20);
+
+    return { top, height };
+  };
+
+  if (dayEvents.length === 0) return null;
+
+  return (
+    <div className="absolute inset-0 pointer-events-none">
+      {eventLayouts.map((layout) => {
+        const { event } = layout;
+        const { top, height } = getEventPosition(event);
+        const layoutStyles = getEventLayoutStyles(layout);
+
+        const eventColor = event.color || '#3b82f6';
+        const { titleClass, timeClass } = getEventTextClasses(eventColor);
+        const isHovered = hoveredEventId === event.id;
+
+        return (
+          <EventOrTaskCard
+            key={event.id}
+            event={event}
+            fullEvent={event.type !== 'task' ? convertToFullEvent(event) : undefined}
+            fullTask={event.taskData}
+            side="right"
+            align="start"
+            onEdit={() => onEventClick?.(event)}
+            onDelete={() => { }}
+          >
+            <div
+              className={cn(
+                'absolute mx-0.5 font-medium p-1.5 text-xs cursor-pointer transition-all border rounded-sm pointer-events-auto flex flex-col',
+                layout.isStacked && 'hover:z-[1000]',
+                isHovered && 'shadow-xl z-[999]',
+                !isHovered && 'shadow-sm hover:shadow-lg'
+              )}
+              style={{
+                top: `${top}px`,
+                height: `${height}px`,
+                backgroundColor: event.type === 'task' ? 'white' : eventColor,
+                borderColor: event.type === 'task' ? eventColor : 'rgba(0,0,0,0.1)',
+                borderWidth: event.type === 'task' ? '1px' : '1px',
+                borderLeftWidth: '3px',
+                borderLeftColor: eventColor,
+                borderStyle: event.type === 'task' ? 'dashed' : 'solid',
+                ...layoutStyles,
+                opacity: layout.isStacked && !isHovered ? 0.95 : 1,
+              }}
+              onClick={() => onEventClick?.(event)}
+              onMouseEnter={() => setHoveredEventId(event.id)}
+              onMouseLeave={() => setHoveredEventId(null)}
+            >
+              <div
+                className={`font-semibold truncate leading-tight text-[11px] ${event.type === 'task' ? 'text-gray-900' : titleClass
+                  }`}
+              >
+                {event.title}
+              </div>
+              {height > 35 && (
+                <div
+                  className={`text-[10px] mt-0.5 font-medium leading-tight ${event.type === 'task' ? 'text-gray-600' : timeClass
+                    }`}
+                >
+                  {format(event.start, 'HH:mm')} - {format(event.end, 'HH:mm')}
+                </div>
+              )}
+              {height > 55 && event.type !== 'task' && (
+                <div className="mt-auto pt-0.5">
+                  <span className={cn(
+                    'inline-flex items-center rounded px-1 py-0.5 text-[8px] font-semibold border',
+                    event.teamId
+                      ? 'bg-white/90 text-gray-800 border-black/10'
+                      : 'bg-white/80 text-gray-800 border-black/10'
+                  )}>
+                    {event.teamId ? `Team${event.team?.name ? `: ${event.team.name}` : ''}` : 'Personal'}
+                  </span>
+                </div>
+              )}
+            </div>
+          </EventOrTaskCard>
+        );
+      })}
     </div>
   );
 };
@@ -555,6 +667,7 @@ export {
   CalendarPrevTrigger,
   CalendarTodayTrigger,
   CalendarViewTrigger,
+  DayTimelineEvents,
   HourEvents,
   TimeTable,
   convertToFullEvent,
