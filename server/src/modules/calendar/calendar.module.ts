@@ -3,16 +3,8 @@ import { CalendarController } from './calendar.controller';
 import { CalendarService } from './calendar.service';
 import { CalendarRepository } from './calendar.repository';
 
-/**
- * Calendar Module - Manages user calendars and Google Calendar integration
- *
- * Features:
- * - CRUD operations for calendars
- * - Google Calendar synchronization
- * - Primary calendar management
- * - Timezone support
- * - Search and filtering
- */
+// Calendar Module - Manages user calendars and Google Calendar integration
+
 @Module({
   imports: [],
   controllers: [CalendarController],
