@@ -2,122 +2,98 @@
 
 ## **3.1. Kiến trúc hệ thống**
 
-Hệ thống Calento được thiết kế theo mô hình Micro-modular Monolith, chia tách rõ ràng giữa các tầng nhưng vẫn giữ được sự thống nhất trong triển khai.
+Hệ thống Calento tuân thủ kiến trúc **Micro-modular Monolith**, giúp cân bằng giữa sự đơn giản của Monolith khi phát triển và khả năng tách module của Microservices khi mở rộng.
 
-### **3.1.1. Sơ đồ kiến trúc tổng thể**
+### **3.1.1. Sơ đồ kiến trúc tổng thể (Cập nhật)**
 
 ```mermaid
 graph TB
     subgraph "Client Layer"
-        A[Web Browser]
-        B[Next.js Client]
-        C[Mobile Web View]
+        A[Next.js App Router]
+        B[Tiptap Editor]
+        C[Chat Stream Client]
     end
   
     subgraph "API Gateway Layer"
-        D[NestJS API Server]
-        E[Auth Guard]
-        F[Validation Pipe]
+        D[NestJS Server]
+        E[Auth & Role Guard]
     end
   
-    subgraph "Service Layer"
-        G[Core Services]
-        H[AI & RAG Services]
-        I[Worker Services]
+    subgraph "Business Service Layer"
+        F[Core Services]
+        G[Content Services]
+        H[AI & Smart Services]
     end
 
     subgraph "Data Layer"
-        J[(PostgreSQL + pgvector)]
-        K[(Redis Cache)]
-    end
-
-    subgraph "External Factory"
-        L[Google Calendar API]
-        M[Gemini AI API]
-        N[Mail Server]
+        I[PostgreSQL + pgvector]
+        K[Redis Queue]
     end
 
     A --> D
     B --> D
     C --> D
     D --> E --> F
-    F --> G
-    F --> H
+    D --> E --> G
+    D --> E --> H
     
-    G --> J
-    G --> K
-    H --> J
-    H --> M
-    
-    I --> L
-    I --> N
-    I -.-> J
+    F -- Users, Calendar --- I
+    G -- Blog, Contact --- I
+    H -- RAG, Context --- I
 ```
 
 ## **3.2. Mô tả các thành phần trong hệ thống**
 
-Hệ thống được chia thành các nhóm module chính sau:
+Hệ thống được tổ chức thành 3 nhóm dịch vụ nghiệp vụ chính:
 
-### **3.2.1. Core Modules**
-*   **Auth Module:** Xử lý đăng ký, đăng nhập, JWT management, Google OAuth strategy.
-*   **User Module:** Quản lý thông tin người dùng, profile.
-*   **Calendar & Event Module:** Core logic của hệ thống. Quản lý lịch, sự kiện, RRULE engine cho sự kiện lặp lại, đồng bộ dữ liệu.
-*   **Booking Module:** Xử lý logic đặt lịch, tạo booking links, kiểm tra khung giờ rảnh (Availability checking).
+### **3.2.1. Core Operation Services**
+Nhóm module vận hành cốt lõi, đảm bảo chức năng cơ bản của ứng dụng:
+*   **Calendar Module:** Quản lý logic thời gian, xử lý xung đột lịch (Conflict Detection).
+*   **Booking Module:** Tính toán `Available Slots` dựa trên lịch rảnh của user và settings của booking link.
+*   **Sync Module:** Đồng bộ sự kiện từ Google Calendar thông qua cơ chế Push Notification (Webhooks) và Pull định kỳ.
 
-### **3.2.2. AI & RAG Modules (Cập nhật mới)**
-Đây là nhóm module mới được nâng cấp để hỗ trợ các tính năng thông minh:
-*   **LLM Module:** Wrapper cho Google Gemini API, quản lý model config và prompts.
-*   **Vector Module:**
-    *   **VectorService:** Chịu trách nhiệm tương tác với `pgvector` trong PostgreSQL.
-    *   **Functions:** `generateEmbedding` (tạo vector từ text), `searchSimilar` (tìm kiếm context tương đồng), `storeContext` (lưu trữ vector).
-*   **RAG Module (Retrieval-Augmented Generation):**
-    *   Kết hợp LLM và Vector Database.
-    *   Khi user chat, module này sẽ tìm kiếm các ngữ cảnh liên quan (sự kiện quá khứ, ghi chú) từ Vector DB và gửi kèm vào prompt cho Gemini để câu trả lời chính xác hơn.
+### **3.2.2. Content & Growth Services (MỚI)**
+Nhóm module phục vụ việc phát triển thương hiệu cá nhân của người dùng:
+*   **Blog Module (CMS):** Cung cấp API cho việc tạo, chỉnh sửa bài viết Markdown. Quản lý metadata SEO (slug, description, tags).
+*   **Contact Module:** Xử lý các form liên hệ từ trang public profile của người dùng, lưu trữ thông tin leads.
 
-### **3.2.3. Worker & Infrastructure**
-*   **Queue Module:** Cấu hình BullMQ.
-*   **Email Module:** Worker xử lý việc gửi email notification bất đồng bộ.
-*   **Sync Worker:** Worker chạy định kỳ để đồng bộ lịch từ Google Calendar về database nội bộ.
+### **3.2.3. AI Intelligence Services**
+Trái tim thông minh của hệ thống:
+*   **RAG Module:** Orchestrator điều phối luồng dữ liệu giữa User query -> Vector Search -> LLM -> Response.
+*   **Vector Service:** Wrapper cho `pgvector`, tối ưu hóa việc đánh index (IVFFlat) cho tốc độ tìm kiếm nhanh trên vector 768 chiều.
 
-## **3.3. Thiết kế dữ liệu**
+## **3.3. Thiết kế dữ liệu (Database Schema)**
 
-Cơ sở dữ liệu PostgreSQL được thiết kế chuẩn hóa và bổ sung khả năng lưu trữ Vector.
+Cơ sở dữ liệu PostgreSQL gồm **hơn 35 bảng**, được chuẩn hóa mức 3NF.
 
-### **3.3.1. Schema cập nhật cho RAG**
+### **3.3.1. Nhóm bảng Content & CMS (MỚI)**
+Phục vụ tính năng Blog và quản lý nội dung:
 
-Bên cạnh các bảng cơ bản như `users`, `events`, `calendars`, hệ thống bổ sung bảng phục vụ cho AI context.
+**Table: `blog_posts`**
+*   `id`: UUID (PK)
+*   `slug`: VARCHAR (Unique, Indexed) - Đường dẫn thân thiện SEO.
+*   `title`, `content`: TEXT - Nội dung bài viết (Markdown).
+*   `published_at`: TIMESTAMP - Thời gian xuất bản (Hỗ trợ lên lịch đăng bài).
+*   `seo_metadata`: JSONB - Chứa meta title, description, keywords.
+
+**Table: `contacts`**
+*   `email`, `name`, `message`: Thôn tin người liên hệ.
+*   `status`: ENUM ('new', 'read', 'replied').
+
+### **3.3.2. Nhóm bảng AI & Context**
 
 **Table: `user_context_summary`**
-Lưu trữ thông tin ngữ cảnh và vector embeddings của người dùng.
+Bảng quan trọng nhất cho tính năng "Bộ nhớ AI":
+*   `embedding`: **VECTOR(768)** - Chứa vector đại diện cho nội dung.
+*   `text_search_vector`: **TSVECTOR** - Chứa token từ vựng phục vụ tìm kiếm từ khóa.
+*   `metadata`: JSONB - Lưu nguồn gốc context (từ email, calendar, hay ghi chú thủ công).
 
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `id` | UUID (PK) | Unique Identifier |
-| `user_id` | UUID (FK) | Liên kết với bảng Users |
-| `context` | JSONB | Dữ liệu văn bản gốc hoặc metadata (VD: tóm tắt cuộc họp) |
-| `embedding` | VECTOR(768) | **[MỚI]** Vector embedding 768 chiều (text-embedding-004) |
-| `text_search_vector` | TSVECTOR | Hỗ trợ Full-text search cho tìm kiếm lai (Hybrid Search) |
-| `created_at` | TIMESTAMP | Thời gian tạo |
+### **3.3.3. Nhóm bảng Core (Event & Booking)**
+*   **`events`**: Lưu trữ sự kiện lịch. Sử dụng cột `recurrence_rule` (TEXT) để lưu chuỗi RRULE chuẩn iCalendar cho sự kiện lặp lại.
+*   **`availabilities`**: Lưu cấu hình giờ làm việc (Working hours) của user.
+*   **`event_attendees`**: Tách riêng từ JSONB trước đây để dễ dàng query và join dữ liệu người tham dự.
 
-*Ghi chú: Migration `z_fix-embedding-dimension.sql` đã cập nhật dimension từ 1536 xuống 768 để tối ưu và đồng bộ với model mới.*
-
-### **3.3.2. Các bảng chính (Core Tables)**
-
-**Table: `events`**
-*   `id`: UUID
-*   `title`: VARCHAR
-*   `start_time`, `end_time`: TIMESTAMP
-*   `recurrence_rule`: TEXT (Lưu chuỗi RRULE cho lịch lặp lại)
-*   `description`: TEXT
-*   `vector_id`: UUID (FK - Optional linkage to context)
-
-**Table: `booking_links`**
-*   `slug`: VARCHAR (Unique URL cho trang booking)
-*   `availability_config`: JSONB (Cấu hình giờ rảnh chi tiết)
-
-### **3.3.3. Mối quan hệ dữ liệu (ERD rút gọn)**
-
-*   **1 User** có nhiều **Calendars**.
-*   **1 Calendar** chứa nhiều **Events**.
-*   **1 User** có nhiều **Context Summaries** (cho RAG).
-*   **1 User** tạo nhiều **Booking Links**.
+## **3.4. Mô hình quan hệ (Key Relationships)**
+*   **User --(1:n)--> BlogPosts:** Một user có thể viết nhiều bài blog.
+*   **User --(1:n)--> ContextSummaries:** Một user có vector space riêng biệt (đảm bảo bảo mật dữ liệu AI).
+*   **Calendar --(1:n)--> Events --(1:n)--> Attendees:** Cấu trúc phân cấp của dữ liệu lịch.

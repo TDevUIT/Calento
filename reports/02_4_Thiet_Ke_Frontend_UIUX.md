@@ -10,11 +10,11 @@ Hệ thống Frontend được tổ chức theo cấu trúc phân tầng rõ rà
 
 **Core Layouts**
 
-Các layouts chính định hình khung sườn của ứng dụng. `RootLayout` là layout gốc bao bọc toàn bộ ứng dụng, chứa các cấu hình global như font chữ và theme. `DashboardLayout` dành cho phần quản trị sau khi đăng nhập, bao gồm Sidebar điều hướng và Header chứa thông tin user. `AuthLayout` được thiết kế riêng cho các trang xác thực như Login và Register với giao diện tập trung. `PublicBookingLayout` tối ưu hóa cho khách vãng lai đặt lịch, loại bỏ các thành phần điều hướng không cần thiết để tăng tỷ lệ chuyển đổi.
+Các layouts chính định hình khung sườn của ứng dụng. `RootLayout` là layout gốc bao bọc toàn bộ ứng dụng, chứa các cấu hình global như font chữ và theme. `DashboardLayout` dành cho phần quản trị sau khi đăng nhập, bao gồm Sidebar điều hướng và Header chứa thông tin user. `AuthLayout` được thiết kế riêng cho các trang xác thực như Login và Register với giao diện tập trung. `PublicBookingLayout` tối ưu hóa cho khách vãng lai đặt lịch. `MarketingLayout` dùng cho các trang giới thiệu sản phẩm (Landing, Blog, Contact).
 
 **Page Components**
 
-Các components cấp trang đại diện cho các màn hình chính. `DashboardPage` hiển thị tổng quan hoạt động và lịch trình sắp tới. `CalendarPage` là màn hình chính quản lý lịch với các chế độ xem ngày, tuần, tháng. `EventsPage` liệt kê và cho phép lọc, tìm kiếm sự kiện. `BookingPage` là giao diện cho khách chọn giờ và điền thông tin đặt lịch. `SettingsPage` cho phép người dùng cấu hình tài khoản và ứng dụng.
+Các components cấp trang đại diện cho các màn hình chính. `DashboardPage` hiển thị tổng quan hoạt động và lịch trình sắp tới. `CalendarPage` là màn hình chính quản lý lịch với các chế độ xem ngày, tuần, tháng. `EventsPage` liệt kê và cho phép lọc, tìm kiếm sự kiện. `BookingPage` là giao diện cho khách chọn giờ và điền thông tin đặt lịch. `SettingsPage` cho phép người dùng cấu hình tài khoản và ứng dụng. `BlogPage` và `ContactPage` phục vụ nội dung tiếp thị và hỗ trợ.
 
 **Feature Components**
 
@@ -30,51 +30,34 @@ Hệ thống sử dụng bộ UI components cơ bản được xây dựng nhấ
 
 ```mermaid
 graph TB
-    A[🏠 Root /] --> B[Login Page]
-    A --> C[Register Page]
-    A --> Dashboard[Dashboard /dashboard]
+    A[🏠 Root /] --> Auth[Auth Routes]
+    A --> App[Dashboard Routes]
+    A --> Marketing[Marketing Routes]
+    A --> Public[Public Routes]
 
+    Auth --> Login[Login /auth/login]
+    Auth --> Register[Register /auth/register]
+    Auth --> Forgot[Forgot Password]
+
+    App --> Dashboard[Dashboard /dashboard]
     Dashboard --> Calendar[📅 Calendar /calendar]
     Dashboard --> Tasks[Tasks /tasks]
     Dashboard --> Priorities[📊 Priorities /schedule]
-    Dashboard --> SchedulingLinks[🔗 Scheduling Links /scheduling-links]
+    Dashboard --> SchedulingLinks[🔗 Scheduling Links]
     Dashboard --> Chat[💬 AI Chat /chat]
-    Dashboard --> Settings[⚙️ Settings /settings]
+    Dashboard --> Settings[⚙️ Settings]
+    Dashboard --> Admin[Admin /admin]
 
-    Calendar --> DayView[Day View]
-    Calendar --> WeekView[Week View]
-    Calendar --> MonthView[Month View]
-    Calendar --> YearView[Year View]
-    Calendar --> EventDetail[Event Detail Modal]
-    Calendar --> EventForm[Event Form Modal]
+    Marketing --> About[About /about]
+    Marketing --> Pricing[Pricing /pricing]
+    Marketing --> Blog[📝 Blog /blog]
+    Marketing --> Contact[Contact /contact]
+    Marketing --> Features[Features /features]
 
-    Tasks --> AllTasks[All Tasks]
-    Tasks --> Today[Today]
-    Tasks --> Upcoming[Upcoming]
-    Tasks --> Completed[Completed]
+    Blog --> PostDetail[Post Detail /blog/:slug]
+    Blog --> Category[Category /blog/category/:id]
 
-    Priorities --> Critical[Critical Priority]
-    Priorities --> High[High Priority]
-    Priorities --> Medium[Medium Priority]
-    Priorities --> Low[Low Priority]
-    Priorities --> Disabled[Disabled Items]
-
-    SchedulingLinks --> MyLinks[My Links]
-    SchedulingLinks --> CreateLink[Create Link Modal]
-    SchedulingLinks --> EditLink[Edit Link Modal]
-    SchedulingLinks --> LinkAnalytics[Link Analytics]
-
-    Chat --> NewChat[New Conversation]
-    Chat --> History[Conversation History]
-    Chat --> AI_FnCalls[AI Function Calls]
-
-    Settings --> Profile[Profile Settings]
-    Settings --> CalSettings[Calendar Settings]
-    Settings --> Notify[Notification Settings]
-    Settings --> GoogleSync[Google Calendar Sync]
-    Settings --> Security[Security Settings]
-
-    PublicRoutes[Public Routes] --> BookingPage["📆 Booking Page<br>/book/:username/:slug"]
+    Public --> BookingPage["📆 Booking Page<br>/book/:username/:slug"]
     BookingPage --> DateSelection[Date Selection]
     BookingPage --> TimeSlotSelection[Time Slot Selection]
     BookingPage --> GuestInfo[Guest Information Form]
@@ -82,8 +65,7 @@ graph TB
 
     style A fill:#60a5fa,color:#fff
     style Dashboard fill:#8b5cf6,color:#fff
-    style Calendar fill:#10b981,color:#fff
-    style Chat fill:#f59e0b,color:#fff
+    style Marketing fill:#f59e0b,color:#fff
     style BookingPage fill:#ec4899,color:#fff
 ```
 
@@ -95,11 +77,16 @@ graph TB
 client/
 ├── app/                    # Next.js App Router
 │   ├── (auth)/            # Auth pages
-│   ├── (dashboard)/       # Protected pages
+│   ├── (dashboard)/       # Protected pages (Dashboard, Calendar...)
+│   ├── (admin)/           # Admin pages
+│   ├── blog/              # Blog pages
+│   ├── contact/           # Contact pages
+│   ├── book/              # Public booking pages
 │   └── api/               # API routes
 ├── components/            # React components
 │   ├── calendar/         # Calendar UI
 │   ├── chat/             # AI chatbot
+│   ├── marketing/        # Landing page components
 │   └── ui/               # Reusable UI
 ├── hook/                 # Custom React hooks
 ├── service/              # API services
@@ -356,6 +343,12 @@ Hệ thống hỗ trợ các breakpoints chuẩn: Mobile (< 640px), Tablet (640p
 
 **Flow** người dùng chọn ngày, chọn giờ, điền thông tin, xác nhận đặt lịch, và cuối cùng nhận email xác nhận.
 
+### **7.4. Blog & Marketing Pages** (NEW)
+
+**Blog Layout**: Dạng Grid Card Layout, hiển thị danh sách bài viết với Featured Post ở trên cùng. Sidebar bên phải chứa Categories, Popular Posts, và Newsletter form.
+
+**Contact Page**: Layout 2 cột. Bên trái là thông tin liên hệ (Email, Social). Bên phải là Contact Form (Name, Email, Message) với validation.
+
 ## **8. Animations & Transitions**
 
 ### **8.1. Micro-interactions**
@@ -429,6 +422,8 @@ Tuân thủ chuẩn WCAG AAA với tỷ lệ tương phản Text là 7:1 và Int
 **Forms** đã có đầy đủ Input fields, Selects, Checkboxes, và Date/time pickers.
 
 **Feedback** đã triển khai Toast notifications, Loading states, và Error boundaries.
+
+**Public Pages** đã hoàn thiện Booking page, Login/Register pages. Blog và Contact pages đang được phát triển.
 
 ### **11.2. Planned Components**
 

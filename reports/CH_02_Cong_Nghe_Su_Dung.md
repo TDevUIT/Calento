@@ -2,57 +2,53 @@
 
 ## **2.1. Kiến trúc tổng quan (Tech Stack)**
 
-Hệ thống Calento được xây dựng trên nền tảng công nghệ hiện đại, đảm bảo hiệu năng cao, khả năng mở rộng tốt và trải nghiệm người dùng mượt mà.
+Hệ thống Calento được xây dựng trên nền tảng công nghệ "Bleeding Edge", ưu tiên tốc độ phát triển và hiệu suất cao.
 
-| Thành phần | Công nghệ chính |
-| :--- | :--- |
-| **Frontend** | Next.js 15, React 18, Tailwind CSS, TanStack Query |
-| **Backend** | NestJS, TypeScript, Node.js |
-| **Database** | PostgreSQL (với pgvector extension), Redis |
-| **AI & ML** | Google Gemini Pro, LangChain, Gecko Embeddings |
-| **Infrastructure** | Docker, BullMQ, Google Cloud Platform |
+| Thành phần | Công nghệ chính | Phiên bản / Đặc điểm |
+| :--- | :--- | :--- |
+| **Frontend** | Next.js 15 (App Router) | React 19 RC, Server Actions, Streaming |
+| **State Mngt** | TanStack Query + Zustand | Server State & Client State separation |
+| **Backend** | NestJS 10 | Modular Architecture, Dependency Injection |
+| **Database** | PostgreSQL 16 + Redis | **pgvector** enabled, BullMQ for queues |
+| **AI Core** | **Google Gemini 1.5 Flash** | Model mới nhất tối ưu độ trễ thấp |
+| **CMS** | Custom Markdown Editor | Tiptap based, hỗ trợ SEO |
 
 ## **2.2. Công nghệ Backend**
 
-### **2.2.1. NestJS Framework**
-NestJS là framework Node.js được chọn làm nền tảng cho Backend vì kiến trúc module hóa rõ ràng, hỗ trợ TypeScript toàn diện và tuân thủ các nguyên tắc SOLID.
-*   **Module System:** Giúp tổ chức code thành các khối độc lập (AuthModule, UserModule, AIModule, VectorModule...), dễ bảo trì và mở rộng.
-*   **Dependency Injection:** Quản lý sự phụ thuộc giữa các thành phần hiệu quả.
-*   **Decorators:** Đơn giản hóa việc khai báo route, middleware và validation.
+### **2.2.1. NestJS: Modular Architecture**
+Backend không chỉ là API server mà là một hệ thống phân tán logic (Modular Monolith):
+*   **Domain-Driven Modules:** Các module được chia theo nghiệp vụ: `BlogModule`, `ContactModule`, `RagModule`, `CalendarModule`.
+*   **Custom Decorators:** Tự xây dựng các decorators như `@CurrentUser()` để lấy thông tin user từ JWT, hay `@Roles()` để phân quyền.
 
-### **2.2.2. PostgreSQL & pgvector**
-Hệ thống sử dụng PostgreSQL làm cơ sở dữ liệu chính (Relational Database) kết hợp với extension `pgvector` để hỗ trợ lưu trữ và tìm kiếm vector.
-*   **Relational Data:** Lưu trữ thông tin structured như User, Event, Calendar, Booking.
-*   **Vector Data:** Lưu trữ embeddings của ngữ cảnh người dùng và lịch sử hội thoại trong bảng `user_context_summary` với kích thước 768 chiều (tương thích với model embedding mới của Google).
-*   **Hybrid Search:** Kết hợp tìm kiếm từ khóa (Full-text search) và tìm kiếm ngữ nghĩa (Vector similarity search) để tăng độ chính xác.
+### **2.2.2. Database & Advanced Search (RAG)**
+Sự kết hợp giữa Relational và Vector Database là điểm nhấn kỹ thuật:
+*   **PostgreSQL + pgvector:** Thay vì dùng Vector DB rời rạc (như Pinecone), nhóm tích hợp trực tiếp `pgvector` vào Postgres. Điều này cho phép thực hiện **Hybrid Search** (kết hợp vector similarity và SQL filters) trong một câu lệnh truy vấn duy nhất, giảm độ trễ mạng.
+*   **Vector Embeddings:** Sử dụng model `text-embedding-004` của Google (768 dimensions) để mã hóa ngữ cảnh người dùng.
 
-### **2.2.3. Redis & BullMQ**
-*   **Redis:** Sử dụng làm bộ nhớ đệm (Caching) để tăng tốc độ truy xuất dữ liệu thường dùng và lưu trữ session/temp data.
-*   **BullMQ:** Thư viện quản lý hàng đợi (Message Queue) dựa trên Redis, dùng để xử lý các tác vụ nền (background jobs) như gửi email, đồng bộ lịch Google, xử lý embeddings mà không làm chặn luồng chính của ứng dụng.
+### **2.2.3. Asynchronous Processing**
+*   **BullMQ (Redis):** Xử lý các tác vụ nặng:
+    *   *Email Queue:* Gửi email xác nhận, nhắc hẹn (có cơ chế retry exponential backoff).
+    *   *Sync Worker:* Đồng bộ nền lịch Google (tránh chặn request của user).
 
 ## **2.3. Công nghệ Frontend**
 
-### **2.3.1. Next.js 15 & React 18**
-Sử dụng Next.js phiên bản mới nhất với App Router để tận dụng các tính năng:
-*   **Server Components (RSC):** Render giao diện trên server, giảm dung lượng JavaScript gửi xuống client.
-*   **Server Actions:** Xử lý logic form và mutation trực tiếp trên server mà không cần tạo API route riêng biệt.
-*   **Streaming & Suspense:** Hiển thị từng phần của trang web ngay khi sẵn sàng, đặc biệt hữu ích cho tính năng AI Chat streaming.
+### **2.3.1. Next.js 15 & Server Actions**
+Tiên phong sử dụng các tính năng mới nhất của Next.js:
+*   **Server Component (RSC):** Render 90% giao diện trên server để tối ưu LCP (Largest Contentful Paint).
+*   **Server Actions:** Gọi hàm backend trực tiếp từ frontend component, loại bỏ sự cần thiết của các file API route trung gian cho các tác vụ đơn giản.
 
-### **2.3.2. Tailwind CSS & UI Libraries**
-*   **Tailwind CSS:** Framework CSS utility-first giúp xây dựng giao diện nhanh chóng, dễ tùy biến và tối ưu dung lượng.
-*   **Radix UI / Shadcn UI:** Bộ component headless đảm bảo tính truy cập (accessibility) và dễ dàng tùy chỉnh style.
+### **2.3.2. Rich Text & CMS**
+*   **Tiptap Editor:** Xây dựng bộ soạn thảo Blog mạnh mẽ, hỗ trợ Markdown shortcuts, image upload và code highlighting.
+*   **SEO Optimization:** Tự động tạo `sitemap.xml`, `robots.txt` và thẻ Meta động cho từng bài viết Blog và trang Booking.
 
-### **2.3.3. AI Chat Integration**
-*   **React Markdown:** Hỗ trợ render nội dung phản hồi từ AI (Markdown) thành HTML đẹp mắt.
-*   **Event Source API:** Sử dụng Server-Sent Events (SSE) để nhận phản hồi từ AI theo thời gian thực (streaming response), mang lại cảm giác hội thoại tự nhiên.
+## **2.4. Công nghệ AI & LLM Integration**
 
-## **2.4. Công nghệ AI & LLM**
+### **2.4.1. Google Gemini 1.5 Flash**
+Lựa chọn model **Gemini 1.5 Flash** thay vì Pro để tối ưu chi phí và độ trễ phản hồi (Latency), yếu tố sống còn của Chatbot.
+*   **Function Calling:** AI được cung cấp "bộ công cụ" (Tools) gồm: `createEvent`, `searchEvents`, `checkAvailability`. AI tự động quyết định gọi công cụ nào dựa trên hội thoại.
+*   **Structured Output:** Ép kiểu dữ liệu trả về từ AI thành JSON thuần túy để Frontend dễ dàng render thành UI (Action Cards).
 
-### **2.4.1. Google Gemini Pro**
-Calento tích hợp mô hình ngôn ngữ lớn (LLM) Gemini Pro của Google để xử lý logic hội thoại và function calling.
-*   **Natural Language Processing:** Hiểu ý định người dùng từ câu chat tự nhiên (VD: "Đặt lịch họp team vào sáng thứ 2").
-*   **Function Calling:** AI tự động xác định và gọi các hàm nghiệp vụ (createEvent, findSlot, summary) dựa trên yêu cầu.
-
-### **2.4.2. LangChain & Embeddings**
-*   **LangChain:** Framework giúp kết nối LLM với dữ liệu của ứng dụng và quản lý luồng hội thoại.
-*   **Embeddings (text-embedding-004):** Chuyển đổi văn bản (ghi chú, ngữ cảnh) thành các vector 768 chiều để lưu trữ và tìm kiếm tương đồng, phục vụ cho tính năng RAG (nhớ lại thông tin cũ).
+### **2.4.2. RAG Pipeline (Quy trình nhớ lại)**
+1.  **Ingestion:** Mọi ghi chú, sự kiện mới đều được "vector hóa" và lưu vào DB.
+2.  **Retrieval:** Khi user hỏi, hệ thống tìm 5 đoạn thông tin liên quan nhất (Top-K retrieval).
+3.  **Synthesis:** Gửi câu hỏi + thông tin tìm được cho Gemini để tổng hợp câu trả lời chính xác.

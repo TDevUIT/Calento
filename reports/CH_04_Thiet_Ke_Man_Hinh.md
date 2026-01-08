@@ -2,58 +2,72 @@
 
 ## **4.1. Sơ đồ liên kết màn hình (Screen Flow)**
 
-Hệ thống được tổ chức với luồng di chuyển logic, tập trung vào Dashboard làm trung tâm.
+Luồng người dùng được chia thành 2 phân hệ rõ rệt: Dashboard (App) và Public Pages (Marketing).
 
 ```mermaid
 graph TD
-    Login[Đăng nhập / Đăng ký] -->|Success| Dashboard
+    User([End User]) --> Auth{Authenticated?}
     
-    Dashboard --> CalendarView[Màn hình Lịch (Ngày/Tuần/Tháng)]
-    Dashboard --> EventDetail[Chi tiết sự kiện]
-    Dashboard --> BookingMan[Quản lý Booking Links]
-    Dashboard --> Settings[Cài đặt & Profile]
-    
-    CalendarView --"Click (+)"--> CreateEventModal[Tạo sự kiện mới]
-    
-    Dashboard --"Toggle Chat"--> AIChatPanel[AI Assistant Chat]
-    AIChatPanel --"Open Action"--> EventDetail
-    
-    PublicUser[Khách vãng lai] --> BookingPage[Trang Booking Public]
-    BookingPage --> ConfirmPage[Xác nhận đặt lịch]
+    Auth -- No --> PublicFlow
+    Auth -- Yes --> DashboardFlow
+
+    subgraph "Public / Marketing Pages"
+        PublicFlow --> Home[Landing Page]
+        Home --> Pricing[Pricing Page]
+        Home --> BlogPublic[Blog List] --> PostDetail[Blog Detail]
+        Home --> Contact[Contact Page]
+        Home --> BookingPublic[Booking Page] --> Confirm[Confirm Booking]
+    end
+
+    subgraph "Dashboard / App"
+        DashboardFlow --> CalendarView[Calendar Main]
+        CalendarView --> EventDetail[Event Modal]
+        CalendarView --> AIChat[AI Chat Overlay]
+        
+        DashboardFlow --> Settings[Settings]
+        DashboardFlow --> BlogCMS[Blog CMS]
+        BlogCMS --> Editor[Markdown Editor]
+        
+        DashboardFlow --> ContactsMan[Contact Manager]
+    end
 ```
 
 ## **4.2. Danh sách các màn hình chính**
 
-### **4.2.1. Màn hình Dashboard & Calendar (Chính)**
-Đây là màn hình trung tâm nơi người dùng quản lý thời gian của mình.
-*   **Thành phần:**
-    *   **Sidebar:** Điều hướng nhanh giữa các module (Lịch, Tasks, Booking).
-    *   **Main Calendar:** Hiển thị lịch dạng lưới (FullCalendar), hỗ trợ Drag & Drop.
-    *   **Mini Calendar:** Chọn ngày nhanh.
-    *   **Upcoming List:** Danh sách sự kiện sắp tới bên phải (có thể thu gọn).
-*   **Cải thiện:** Tối ưu hóa hiệu năng render khi có nhiều sự kiện, load dữ liệu theo range ngày.
+### **4.2.1. Màn hình Dashboard (Trái tim của ứng dụng)**
+Đây là nơi người dùng dành 80% thời gian sử dụng.
+*   **Calendar View:**
+    *   Hiển thị lịch dạng lưới (FullCalendar) với 4 chế độ: Ngày, Tuần, Tháng, Năm.
+    *   Hỗ trợ Drag & Drop để dời lịch nhanh.
+    *   Màu sắc sự kiện được mã hóa theo loại (Họp, Công việc, Cá nhân).
+*   **Sidebar Navigation:** Menu điều hướng collapsible, tự động thu gọn trên Mobile.
+*   **Quick Actions:** Nút Floating Action Button (+) để tạo sự kiện nhanh.
 
-### **4.2.2. Màn hình AI Assistant Chat (Cập nhật lớn)**
-Giao diện giao tiếp với trợ lý ảo, được thiết kế lại để hỗ trợ rich content.
-*   **Vị trí:** Panel trượt từ bên phải (Drawer) hoặc Popover, có thể mở từ bất kỳ đâu.
-*   **Tính năng UI mới:**
-    *   **Streaming Typography:** Hiệu ứng chữ chạy khi AI đang trả lời (giống ChatGPT) giúp giảm cảm giác chờ đợi.
-    *   **Markdown Rendering:** Hiển thị văn bản định dạng đậm, nghiêng, list, và code block đẹp mắt thay vì plain text.
-    *   **Action Cards:** Khi AI đề xuất tạo lịch hay tìm thấy lịch trống, hiển thị dưới dạng thẻ tương tác (Card) thay vì chỉ văn bản. Người dùng có thể bấm "Confirm" hoặc "Edit" ngay trên đoạn chat.
-    *   **Thinking State:** Hiển thị trạng thái "AI đang suy nghĩ..." hoặc "Đang tra cứu dữ liệu..." khi RAG đang hoạt động.
+### **4.2.2. Màn hình AI Chatbot & RAG (Điểm nhấn)**
+Giao diện không chỉ là Text Chat mà là "Interactive Canvas".
+*   **Streaming UI:** Hiển thị từng từ (word-by-word) khi AI đang suy nghĩ, tạo cảm giác real-time.
+*   **RAG Thinking Indicator:** Khi AI cần tra cứu ngữ cảnh, hiển thị badge *"Đang tìm kiếm trong ghi chú..."* hoặc *"Đang kiểm tra lịch tuần sau..."* để user hiểu hệ thống đang làm việc.
+*   **Action Cards:**
+    *   *Event Preview Card:* Hiển thị tóm tắt sự kiện trước khi tạo. Nút "Confirm" và "Edit" cho phép chốt lịch ngay trong khung chat.
+    *   *Slot Suggestion Grid:* Hiển thị lưới các khung giờ rảnh khi user hỏi "Khi nào tôi rảnh?".
 
-### **4.2.3. Màn hình Quản lý Booking Link**
-*   Cho phép người dùng tạo các trang đặt lịch (tương tự Calendly).
-*   **Form Config:** Cài đặt thời lượng, thời gian đệm (buffer time), và giới hạn số booking trong ngày.
-*   **Preview:** Xem trước giao diện mà khách sẽ thấy.
+### **4.2.3. Phân hệ Blog & CMS (MỚI)**
+Giao diện quản lý nội dung chuyên nghiệp cho người dùng.
+*   **Màn hình Blog List (Admin):**
+    *   Bảng danh sách bài viết với các cột: Tiêu đề, Trạng thái (Draft/Published), Lượt xem, Ngày đăng.
+    *   Bộ lọc theo Category và Tag.
+*   **Màn hình Editor (Soạn thảo):**
+    *   Giao diện viết Markdown trực quan (WYSIWYG) sử dụng Tiptap.
+    *   Thanh công cụ format nổi (Floating Menu).
+    *   Panel bên phải để cài đặt SEO (Slug, Meta description, Featured Image).
 
-### **4.2.4. Màn hình Public Booking (Cho khách)**
-*   Giao diện tối giản, tập trung vào việc chọn giờ.
-*   Mobile-first design để khách dễ dàng đặt lịch trên điện thoại.
-*   Flow: Chọn Ngày -> Chọn Giờ -> Nhập Info -> Hoàn tất.
+### **4.2.4. Màn hình Public Pages (MỚI)**
+Giao diện dành cho khách (Guest) truy cập profile của người dùng.
+*   **Blog Public Page:** Thiết kế dạng lưới card hiện đại, tối ưu cho việc đọc (Typography focus).
+*   **Contact Page:** Layout chia đôi: bên trái là thông tin liên hệ, bên phải là Form gửi tin nhắn với Validation real-time.
+*   **Public Booking Page:** Giao diện tối giản, loại bỏ các yếu tố gây xao nhãng để tối ưu tỷ lệ chuyển đổi (Conversion rate). Chọn ngày -> Chọn giờ -> Điền tên -> Xong.
 
-### **4.2.5. Modal Tạo/Sửa Sự kiện**
-*   Form nhập liệu chi tiết: Tiêu đề, Thời gian, Location, Description.
-*   **Attendees:** Input autocomplete để thêm email người tham dự.
-*   **Recurrence:** Giao diện tùy chỉnh lặp lại (Hàng ngày, Hàng tuần, Tùy chỉnh).
-*   **AI Suggestion:** (Tính năng mới) Button "Suggest Time" bên cạnh ô chọn giờ để AI đề xuất giờ rảnh của cả team.
+### **4.2.5. Màn hình Cài đặt (Settings)**
+*   **Profile:** Cập nhật thông tin cá nhân.
+*   **Integrations:** Quản lý kết nối Google Calendar (Connect/Disconnect button).
+*   **AI Knowledge Base:** (Admin only) Giao diện xem và quản lý các "Context" đã được vector hóa. Cho phép xóa các ghi nhớ sai của AI.

@@ -6,7 +6,7 @@ Phần này trình bày chi tiết về thiết kế API của hệ thống Cale
 
 **Base URL:** `https://api.calento.space/docs`
 
-**Tổng số endpoints:** 78 endpoints
+**Tổng số endpoints:** ~102 endpoints
 
 | Module          | Số endpoints | Mô tả                         |
 | --------------- | ------------- | ------------------------------- |
@@ -17,6 +17,9 @@ Phần này trình bày chi tiết về thiết kế API của hệ thống Cale
 | Booking Links   | 8             | Scheduling links system         |
 | Bookings        | 6             | Guest bookings                  |
 | AI Chatbot      | 6             | AI conversations                |
+| **Blog (CMS)**  | **16**        | Quản lý bài viết, categories    |
+| **Contact**     | **3**         | Form liên hệ                    |
+| **RAG/Context** | **3**         | Quản lý context AI              |
 | Google Calendar | 8             | Sync, webhooks                  |
 | Email           | 10            | Email notifications             |
 
@@ -117,7 +120,40 @@ Phần này trình bày chi tiết về thiết kế API của hệ thống Cale
 | GET    | `/ai/conversations/:id/actions` | Get conversation actions | Yes           |
 | POST   | `/ai/conversations/:id/clear`   | Clear conversation       | Yes           |
 
-### **2.8. Google Calendar Endpoints (8)**
+### **2.8. Blog CMS Endpoints (16)**
+
+| Method | Endpoint                     | Mô tả                         | Auth Required |
+| ------ | ---------------------------- | ----------------------------- | ------------- |
+| POST   | `/blog`                      | Create blog post              | Yes           |
+| GET    | `/blog`                      | List/Filter posts (Admin)     | Yes           |
+| GET    | `/blog/:id`                  | Get post details (Admin)      | Yes           |
+| PUT    | `/blog/:id`                  | Update blog post              | Yes           |
+| DELETE | `/blog/:id`                  | Delete blog post              | Yes           |
+| POST   | `/blog/:id/publish`          | Publish post                  | Yes           |
+| POST   | `/blog/:id/unpublish`        | Unpublish post                | Yes           |
+| GET    | `/blog/public/published`     | List published posts          | No            |
+| GET    | `/blog/public/featured`      | Get featured posts            | No            |
+| GET    | `/blog/public/popular`       | Get popular posts             | No            |
+| GET    | `/blog/search`               | Search posts                  | No            |
+| GET    | `/blog/slug/:slug`           | Get post by slug              | No            |
+| GET    | `/blog/category/:categoryId` | Get posts by category         | No            |
+| GET    | `/blog/tag/:tagId`           | Get posts by tag              | No            |
+| GET    | `/blog/author/:authorId`     | Get posts by author           | No            |
+| GET    | `/blog/:id/related`          | Get related posts             | No            |
+
+### **2.9. Contact & RAG Endpoints (6)**
+
+| Method | Endpoint              | Mô tả                         | Auth Required |
+| ------ | --------------------- | ----------------------------- | ------------- |
+| POST   | `/contact`            | Submit contact form           | No            |
+| GET    | `/contact`            | List all submissions (Admin)  | Yes           |
+| GET    | `/contact/:id`        | Get submission detail (Admin) | Yes           |
+| POST   | `/rag/context`        | Add user context (RAG)        | Yes           |
+| GET    | `/rag/contexts`       | Get user contexts             | Yes           |
+| DELETE | `/rag/context/:id`    | Delete context                | Yes           |
+
+
+### **2.10. Google Calendar Endpoints (8)**
 
 | Method | Endpoint                  | Mô tả                 | Auth Required |
 | ------ | ------------------------- | ----------------------- | ------------- |
@@ -130,7 +166,7 @@ Phần này trình bày chi tiết về thiết kế API của hệ thống Cale
 | POST   | `/webhook/google`       | Google webhook callback | No            |
 | POST   | `/webhook/google/watch` | Setup webhook           | Yes           |
 
-### **2.9. Email Endpoints (10)**
+### **2.11. Email Endpoints (10)**
 
 | Method | Endpoint                 | Mô tả              | Auth Required |
 | ------ | ------------------------ | -------------------- | ------------- |
