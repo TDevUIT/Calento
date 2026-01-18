@@ -97,17 +97,35 @@
 
 [Hình 8: Kiến trúc tổng thể	12](#hình-8:-kiến-trúc-tổng-thể)
 
-[Hình 9: Auth Module	13](#hình-9:-auth-module)
+[Hình 9: Sơ đồ Use Case tổng quan	13](#hình-9:-sơ-đồ-use-case-tổng-quan)
 
-[Hình 10: Calendar & Event Module	14](#hình-10:-calendar-&-event-module)
+[Hình 10: Auth Module	13](#hình-10:-auth-module)
 
-[Hình 11: Booking Module	15](#hình-11:-booking-module)
+[Hình 11: Calendar & Event Module	14](#hình-11:-calendar-&-event-module)
 
-[Hình 12: LLM Module	15](#hình-12:-llm-module)
+[Hình 12: Booking Module	15](#hình-12:-booking-module)
 
-[Hình 13: RAG Module	16](#hình-13:-rag-module)
+[Hình 13: LLM Module Architecture	15](#hình-13:-llm-module-architecture)
 
-[Hình 14: Worker & Infrastructure	17](#hình-14:-worker-&-infrastructure)
+[Hình 14: Vector Similarity Search Process	16](#hình-14:-vector-similarity-search-process)
+
+[Hình 15: RAG Sequence Flow	16](#hình-15:-rag-sequence-flow)
+
+[Hình 16: Google Calendar Sync Flow	17](#hình-16:-google-calendar-sync-flow)
+
+[Hình 17: Notification Multi-channel System	18](#hình-17:-notification-multi-channel-system)
+
+[Hình 18: Webhook Delivery Flow	18](#hình-18:-webhook-delivery-flow)
+
+[Hình 19: Worker & Infrastructure	19](#hình-19:-worker-&-infrastructure)
+
+[Hình 20: Database Entity Relationship Diagram	20](#hình-20:-database-entity-relationship-diagram)
+
+[Hình 21: VM Instance Google Cloud Platform	21](#hình-21:-vm-instance-google-cloud-platform)
+
+[Hình 22: CloudFlare DNS Record	22](#hình-22:-cloudflare-dns-record)
+
+[Hình 23: Google Search Console	23](#hình-23:-google-search-console)
 
 # **Chương I. TỔNG QUAN.** {#chương-i.-tổng-quan.}
 
@@ -161,7 +179,7 @@ Báo cáo được chia thành 4 chương chính. Chương 1 giới thiệu tổ
 
 ## **2.1. Kiến trúc tổng quan (Tech Stack)**
 
-Hệ thống Calento được xây dựng trên nền tảng công nghệ hiện đại, đảm bảo hiệu năng cao, khả năng mở rộng tốt và trải nghiệm người dùng mượt mà.
+Hệ thống Calento được xây dựng trên nền tảng công nghệ hiện đại, tuân theo mô hình Micro-modular Monolith. Kiến trúc này cho phép chia tách rõ ràng giữa các tầng nghiệp vụ (Domain Layer) và tầng ứng dụng (Application Layer), giúp giữ được sự thống nhất trong triển khai (Monolithic Deployment) nhưng vẫn đảm bảo tính linh hoạt và dễ bảo trì của Microservices.
 
 | Thành phần | Công nghệ chính |
 | ----- | ----- |
@@ -177,7 +195,7 @@ Hệ thống Calento được xây dựng trên nền tảng công nghệ hiện
 
 NestJS là framework Node.js được chọn làm nền tảng cho Backend vì kiến trúc module hóa rõ ràng, hỗ trợ TypeScript toàn diện và tuân thủ các nguyên tắc SOLID.
 
-NestJS là framework Node.js được chọn làm nền tảng cho Backend vì kiến trúc module hóa rõ ràng, hỗ trợ TypeScript toàn diện và tuân thủ các nguyên tắc SOLID. Hệ thống Module của NestJS giúp tổ chức code thành các khối độc lập (AuthModule, UserModule, AIModule...), giúp việc bảo trì và mở rộng trở nên dễ dàng. Cơ chế Dependency Injection quản lý sự phụ thuộc giữa các thành phần một cách hiệu quả, trong khi các Decorators đơn giản hóa việc khai báo route, middleware và validation, giúp code trở nên gọn gàng và dễ đọc hơn.
+NestJS là framework Node.js được chọn làm nền tảng cho Backend. Trong dự án Calento, NestJS đóng vai trò là xương sống xử lý toàn bộ logic nghiệp vụ và API. Hệ thống tận dụng triệt để kiến trúc Modular của NestJS để phân tách các tính năng thành các module chuyên biệt: `AuthModule` xử lý xác thực JWT, `EventModule` quản lý lịch và sự kiện, `AIModule` điều phối tương tác với Gemini. Các Decorators và Guards được sử dụng rộng rãi để bảo vệ endpoints và validate dữ liệu đầu vào, đảm bảo tính an toàn và chặt chẽ của hệ thống.
 
 
   ##### Hình 1: NestJS  {#hình-1:-nestjs}
@@ -186,7 +204,7 @@ NestJS là framework Node.js được chọn làm nền tảng cho Backend vì k
 
 Hệ thống sử dụng PostgreSQL làm cơ sở dữ liệu chính (Relational Database) kết hợp với extension pgvector để hỗ trợ lưu trữ và tìm kiếm vector.
 
-Hệ thống sử dụng PostgreSQL làm cơ sở dữ liệu chính, kết hợp với extension pgvector để hỗ trợ lưu trữ và tìm kiếm vector. PostgreSQL đảm nhiệm vai trò lưu trữ các dữ liệu có cấu trúc (Relational Data) như User, Event, Calendar và Booking. Phần dữ liệu vector (embeddings của ngữ cảnh người dùng và lịch sử hội thoại) được lưu trữ trong bảng `user_context_summary` với kích thước 768 chiều, tương thích với model embedding mới của Google. Giải pháp Hybrid Search kết hợp giữa tìm kiếm từ khóa (Full-text search) và tìm kiếm ngữ nghĩa (Vector similarity search) giúp tăng đáng kể độ chính xác khi truy xuất thông tin.
+PostgreSQL là trái tim lưu trữ dữ liệu của Calento. Ngoài việc lưu trữ các bảng quan hệ (relational tables) như `users` (người dùng), `events` (sự kiện), `bookings` (lịch hẹn), hệ thống còn khai thác sức mạnh của extension `pgvector` để phục vụ tính năng AI RAG. Cụ thể, bảng `user_context_summary` lưu trữ các vector embeddings 768 chiều đại diện cho ngữ cảnh lịch sử của người dùng, cho phép thực hiện các truy vấn tìm kiếm ngữ nghĩa (semantic search) nhanh chóng và chính xác.
 
   ![][image2]
 
@@ -194,7 +212,7 @@ Hệ thống sử dụng PostgreSQL làm cơ sở dữ liệu chính, kết hợ
 
 ### **2.2.3. Redis & BullMQ**
 
-Redis được sử dụng làm bộ nhớ đệm (Caching) để tăng tốc độ truy xuất dữ liệu thường dùng và lưu trữ dữ liệu phiên làm việc tạm thời. Kết hợp với đó là BullMQ, thư viện quản lý hàng đợi dựa trên Redis, đảm nhiệm việc xử lý các tác vụ nền (background jobs) như gửi email, đồng bộ lịch Google hay xử lý embeddings, giúp tránh tình trạng chặn luồng chính của ứng dụng.
+Redis và BullMQ đóng vai trò quan trọng trong việc xử lý các tác vụ nền (background processing) và tối ưu hiệu năng. Redis được dùng để cache các truy vấn thường xuyên như thông tin User Profile, giúp giảm tải cho Database. BullMQ, chạy trên nền Redis, quản lý các hàng đợi công việc (queues) quan trọng: `mail-queue` để gửi email thông báo bất đồng bộ, và `sync-calendar-queue` để thực hiện đồng bộ lịch Google định kỳ 5 phút/lần cho từng user mà không làm chậm trải nghiệm sử dụng trực tiếp.
 
   ![][image3]
 
@@ -208,7 +226,7 @@ Redis được sử dụng làm bộ nhớ đệm (Caching) để tăng tốc đ
 
 Sử dụng Next.js phiên bản mới nhất với App Router để tận dụng các tính năng:
 
-Hệ thống sử dụng Next.js phiên bản mới nhất với App Router để tận dụng tối đa các tính năng hiện đại. Server Components (RSC) cho phép render giao diện ngay trên server, giúp giảm dung lượng JavaScript tải xuống client. Server Actions hỗ trợ xử lý logic form và mutation trực tiếp trên server mà không cần API route riêng biệt. Ngoài ra, tính năng Streaming & Suspense giúp hiển thị từng phần của trang web ngay khi sẵn sàng, đặc biệt hữu ích cho trải nghiệm AI Chat streaming mượt mà.
+Về phía Client, Next.js 15 với App Router mang lại khả năng render linh hoạt. Calento sử dụng React Server Components (RSC) để fetch dữ liệu lịch ngay từ server, giảm thiểu layout shift và tăng tốc độ tải trang ban đầu (FCP). Server Actions được ứng dụng để xử lý các form submission như tạo sự kiện (`createEvent`) hay cập nhật profile, loại bỏ sự cần thiết của các API routes trung gian thủ công và giữ type-safety xuyên suốt từ server xuống client.
 
   ![][image5]
 
@@ -224,7 +242,7 @@ Giao diện được xây dựng bằng Tailwind CSS, framework utility-first gi
 
 ### **2.3.3. AI Chat Integration**
 
-Tính năng AI Chat được tối ưu hóa hiển thị với React Markdown để render phản hồi từ AI thành HTML đẹp mắt. Đồng thời, Event Source API sử dụng Server-Sent Events (SSE) để nhận phản hồi từ AI theo thời gian thực (streaming response), mang lại cảm giác hội thoại tự nhiên như đang chat với người thật.
+Trong phần tích hợp AI Chat, hệ thống phân tách rõ ràng giữa việc truyền tải dữ liệu và hiển thị. Server-Sent Events (SSE) được sử dụng để stream từng token phản hồi từ AI về client theo thời gian thực, giúp giảm độ trễ nhận thức (perceived latency). Tại phía client, thư viện `react-markdown` đảm nhận việc render luồng text markdown này thành HTML đẹp mắt với các styles dduocj tùy chỉnh, cho phép hiển thị cả danh sách, code blocks, và đặc biệt là các UI components tương tác (như thẻ xác nhận lịch) ngay trong khung chat.
 
 ## **2.4. Công nghệ AI & LLM**
 
@@ -387,72 +405,67 @@ Hệ thống Calento phục vụ các actors sau:
 
 ### **3.2.2. Sơ đồ Use Case tổng quan**
 
-```
-                              Calento System
-┌─────────────────────────────────────────────────────────────────┐
-│                                                                 │
-│  ┌── Authentication ──────────────────────────────┐            │
-│  │  • Register                                    │            │
-│  │  • Login (Email/Google OAuth)                  │            │
-│  │  • Reset Password                              │            │
-│  └────────────────────────────────────────────────┘            │
-│                                                                 │
-│  ┌── Calendar & Events ────────────────────────────┐           │
-│  │  • Create/Edit/Delete Event                     │           │
-│  │  • View Calendar (Day/Week/Month)               │           │
-│  │  • Manage Recurring Events (RRULE)              │           │
-│  │  • Invite Attendees                              │           │
-│  │  • RSVP to Invitations                          │           │
-│  │  • Sync with Google Calendar                    │           │
-│  │  • Resolve Sync Conflicts                       │           │
-│  └─────────────────────────────────────────────────┘           │
-│                                                                 │
-│  ┌── Booking System ────────────────────────────────┐          │
-│  │  • Create Booking Link                           │          │
-│  │  • Set Availability Rules                        │          │
-│  │  • Public: Book Appointment                      │          │
-│  │  • Confirm/Cancel Booking                        │          │
-│  └──────────────────────────────────────────────────┘          │
-│                                                                 │
-│  ┌── Task Management ──────────────────────────────┐           │
-│  │  • Create/Edit/Delete Task                      │           │
-│  │  • Set Priority (Critical/High/Med/Low)         │           │
-│  │  • Drag & Drop in Priority Board                │           │
-│  │  • Mark Task Complete                            │           │
-│  └─────────────────────────────────────────────────┘           │
-│                                                                 │
-│  ┌── Team Collaboration ───────────────────────────┐           │
-│  │  • Create Team                                   │           │
-│  │  • Invite Team Members                           │           │
-│  │  • Create Team Rituals (Recurring Meetings)     │           │
-│  │  • View Team Availability                        │           │
-│  │  • Manage Rotation Schedule                      │           │
-│  └─────────────────────────────────────────────────┘           │
-│                                                                 │
-│  ┌── AI Assistant ─────────────────────────────────┐           │
-│  │  • Chat with AI                                  │           │
-│  │  • Search Events (Semantic)                      │           │
-│  │  • Get Schedule Summary                          │           │
-│  │  • Find Free Slots                               │           │
-│  │  • AI Create Event (Function Calling)            │           │
-│  └─────────────────────────────────────────────────┘           │
-│                                                                 │
-│  ┌── Blog CMS (Admin) ─────────────────────────────┐           │
-│  │  • Create/Edit Blog Post                         │           │
-│  │  • Manage Categories & Tags                      │           │
-│  │  • Publish/Unpublish Posts                       │           │
-│  │  • Moderate Comments                             │           │
-│  └─────────────────────────────────────────────────┘           │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+usecaseDiagram
+    actor "Guest (Khách)" as G
+    actor "Registered User" as U
+    actor "Team Member" as TM
+    actor "Team Owner" as TO
+    actor "Admin" as A
 
-Actor Relationships:
-[Guest] ──────────────→ Authentication, Public Booking, Blog Read
-[Registered User] ────→ All Calendar, Tasks, Booking, AI Features
-[Team Member] ────────→ Team Collaboration (Read)
-[Team Owner] ─────────→ Team Collaboration (Full Control)
-[Admin] ──────────────→ Blog CMS, User Management
+    package "Authentication" {
+        usecase "Đăng ký / Đăng nhập" as UC1
+        usecase "Quên mật khẩu" as UC2
+        usecase "Google OAuth" as UC3
+    }
+
+    package "Calendar Management" {
+        usecase "CRUD Sự kiện" as UC4
+        usecase "Đồng bộ Google Calendar" as UC5
+        usecase "Quản lý Tasks" as UC6
+    }
+
+    package "Booking System" {
+        usecase "Tạo Booking Link" as UC7
+        usecase "Đặt lịch hẹn" as UC8
+    }
+
+    package "Team Collaboration" {
+        usecase "Quản lý Team" as UC9
+        usecase "Team Rituals" as UC10
+        usecase "Xem lịch nhóm" as UC11
+    }
+
+    package "AI Features" {
+        usecase "Chat với AI Assistant" as UC12
+        usecase "Tìm kiếm ngữ nghĩa (RAG)" as UC13
+    }
+
+    G --> UC1
+    G --> UC8
+    
+    U --> UC4
+    U --> UC5
+    U --> UC6
+    U --> UC7
+    U --> UC12
+    U --> UC13
+    
+    TM --> UC11
+    
+    TO --> UC9
+    TO --> UC10
+    
+    A --> UC1
 ```
+
+##### Hình 9: Sơ đồ Use Case tổng quan
+{#hình-9:-sơ-đồ-use-case-tổng-quan}
+
+**Mô tả các Actor:**
+*   **Guest**: Người dùng vãng lai, có thể xem trang public và đặt lịch.
+*   **Registered User**: Người dùng chính, sử dụng toàn bộ tính năng cá nhân.
+*   **Team Member/Owner**: Người dùng tham gia vào các tính năng cộng tác nhóm.
 
 ### **3.2.3. Đặc tả Use Case chi tiết**
 
@@ -664,6 +677,8 @@ flowchart TB
 
 ![Auth Module Flow](Sơ đồ luồng xử lý Authentication với Registration, Email/Password Login và Google OAuth)
 
+##### Hình 10: Auth Module {#hình-10:-auth-module}
+
 **Password Reset Mechanism:**
 
 Khi user quên password, họ có thể request reset qua email. System generate secure reset token (UUID), hash nó với SHA-256, và lưu cả identifier và secret vào user record với expiry timestamp (1 giờ). Email chứa link với token identifier được gửi đến user.
@@ -694,13 +709,15 @@ Module này là core logic của hệ thống. Quản lý lịch, sự kiện, R
 
 ![][image11]
 
-##### Hình 10: Calendar & Event Module {#hình-10:-calendar-&-event-module}
+##### Hình 11: Calendar & Event Module
+{#hình-11:-calendar-&-event-module}
 
 * Booking Module: Xử lý logic đặt lịch, tạo booking links, kiểm tra khung giờ rảnh (Availability checking).
 
 ![][image12]
 
-##### Hình 11: Booking Module {#hình-11:-booking-module}
+##### Hình 12: Booking Module
+{#hình-12:-booking-module}
 
 ### **3.3.2. AI & RAG Modules**
 
@@ -757,7 +774,7 @@ graph TB
 
 ![LLM Module Architecture](Sơ đồ kiến trúc LLM Module với các thành phần: Model Config, Prompt Engineering, Function Calling và SSE Streaming)
 
-##### Hình 12: LLM Module Architecture {#hình-12:-llm-module}
+##### Hình 13: LLM Module Architecture {#hình-13:-llm-module-architecture}
 
 **Luồng xử lý chi tiết:**
 
@@ -859,6 +876,8 @@ graph TB
 
 ![Vector Similarity Search Process](Sơ đồ quy trình tìm kiếm semantic similarity với pgvector: từ text query đến top-K relevant  results)
 
+##### Hình 14: Vector Similarity Search Process {#hình-14:-vector-similarity-search-process}
+
 Quá trình search diễn ra trong ba bước chính. Đầu tiên, user query được transform thành vector embedding sử dụng cùng model `text-embedding-004`. Thứ hai, vector này được so sánh với tất cả vectors đã lưu trong database sử dụng cosine distance, với HNSW index giúp tăng tốc computation đáng kể. Cuối cùng, kết quả được filter theo threshold (similarity > 0.7), sort theo độ tương đồng giảm dần, và trả về top 5 events most relevant với query.
 
 #### **3.3.2.4. RAG Module (Retrieval-Augmented Generation)**
@@ -903,6 +922,8 @@ sequenceDiagram
 ```
 
 ![RAG Sequence Flow](Sơ đồ tuần tự chi tiết của RAG workflow từ user query đến streaming response)
+
+##### Hình 15: RAG Sequence Flow {#hình-15:-rag-sequence-flow}
 
 **Context Quality và Relevance Filtering:**
 
@@ -958,6 +979,8 @@ graph TB
 ```
 
 ![Google Calendar Sync Flow](Sơ đồ luồng đồng bộ Google Calendar với PULL và PUSH phases song song)
+
+##### Hình 16: Google Calendar Sync Flow {#hình-16:-google-calendar-sync-flow}
 
 PULL Phase sử dụng Google Calendar API endpoint `events.list()` với parameter `updatedMin` set to `lastSyncTime`, ensuring chỉ fetch events đã được modified từ lần sync cuối. Mỗi event từ Google được compare với local database dựa vào `google_event_id`. Nếu event chưa tồn tại locally, thực hiện INSERT. Nếu đã tồn tại, compare `updated_at` timestamps - nếu cả hai phía đều có changes (local modified_at > last_sync AND Google updated > last_sync), đây là conflict case cần user resolution.
 
@@ -1019,6 +1042,8 @@ flowchart LR
 
 ![Notification Multi-channel System](Sơ đồ hệ thống notification đa kênh với Email và Webhook workers, retry mechanism)
 
+##### Hình 17: Notification Multi-channel System {#hình-17:-notification-multi-channel-system}
+
 **Notification Types và Prioritization:**
 
 Hệ thống định nghĩa bảy loại notifications với priority levels khác nhau. `event_reminder` notifications (15 phút trước event) có priority `High` và được process với higher concurrency. `booking_created` notifications cũng có priority `High` vì liên quan đến commitment giữa hai người - delay có thể gây hiểu lầm. `sync_conflict` và `team_invitation` có priority `Medium`, trong khi `event_created` có priority `Low` vì không time-sensitive.
@@ -1070,6 +1095,8 @@ sequenceDiagram
 
 ![Webhook Delivery Flow](Sơ đồ tuần tự delivery webhook với HMAC signature và retry mechanism)
 
+##### Hình 18: Webhook Delivery Flow {#hình-18:-webhook-delivery-flow}
+
 **Payload Structure và Versioning:**
 
 Webhook payloads follow consistent JSON schema với top-level fields: `event` (event type string), `timestamp` (ISO8601 UTC), và `data` (event-specific payload). Ví dụ, `booking.created` payload chứa booking details (ID, link slug), guest information (name, email, phone), scheduled time (start, end, timezone), và optionally event metadata.
@@ -1084,7 +1111,7 @@ System support API versioning để maintain backward compatibility. Header `X-C
 
 ![][image16]
 
-##### Hình 14: Worker & Infrastructure {#hình-14:-worker-&-infrastructure}
+##### Hình 19: Worker & Infrastructure {#hình-19:-worker-&-infrastructure}
 
 ## **3.3. Thiết kế dữ liệu**
 
@@ -1221,9 +1248,107 @@ erDiagram
         timestamp due_date
         integer order_index "drag-drop position"
     }
+    user_settings {
+        uuid id PK
+        uuid user_id FK
+        jsonb settings "theme, lang, notifications"
+        timestamp updated_at
+    }
+
+    availabilities {
+        uuid id PK
+        uuid user_id FK
+        integer day_of_week "0-6"
+        time start_time
+        time end_time
+        varchar timezone
+        boolean is_active
+    }
+
+    event_attendees {
+        uuid id PK
+        uuid event_id FK
+        varchar email
+        varchar name
+        enum status "pending/accepted/declined"
+        varchar token "invitation token"
+    }
+
+    event_conflicts {
+        uuid id PK
+        uuid event_id FK
+        uuid user_id FK
+        text conflict_reason
+        jsonb conflict_data
+        enum status "pending/resolved"
+    }
+
+    teams {
+        uuid id PK
+        varchar name
+        uuid owner_id FK
+        varchar timezone
+        boolean is_active
+        timestamp created_at
+    }
+
+    team_members {
+        uuid id PK
+        uuid team_id FK
+        uuid user_id FK
+        enum role "owner/admin/member"
+        timestamp joined_at
+    }
+
+    team_rituals {
+        uuid id PK
+        uuid team_id FK
+        varchar title
+        text recurrence_rule
+        enum rotation_type
+    }
+
+    blog_categories {
+        uuid id PK
+        varchar name
+        varchar slug UK
+        text description
+    }
+
+    blog_tags {
+        uuid id PK
+        varchar name
+        varchar slug UK
+        integer usage_count
+    }
+
+    blog_posts {
+        uuid id PK
+        varchar title
+        varchar slug UK
+        text content
+        uuid author_id FK
+        uuid category_id FK
+        enum status "draft/published"
+        timestamp published_at
+    }
+    
+    blog_posts }o--o{ blog_tags : "has tags"
+
+    user_priorities {
+        uuid id PK
+        uuid user_id FK
+        uuid item_id "polymorphic"
+        enum item_type "task/event"
+        integer position
+        integer priority_level
+    }
 ```
 
 ![Database Entity Relationship Diagram](Sơ đồ ERD đầy đủ của hệ thống Calento với 18 tables và relationships)
+
+##### Hình 20: Database Entity Relationship Diagram
+{#hình-20:-database-entity-relationship-diagram}
 
 ### **3.3.3. Database Migration Strategy: Raw SQL**
 
@@ -1285,81 +1410,89 @@ Schema file được tổ chức theo modules với comments rõ ràng, shared f
 
 #### **Luồng 1: Đồng bộ Google Calendar (Bi-directional Sync)**
 
-```
-[User kết nối Google] 
-   ↓
-[Lưu OAuth tokens vào user_credentials]
-   ↓
-[Background Job - BullMQ] (Chạy định kỳ 5 phút)
-   ├─→ PULL: Google Calendar API → Lấy events mới/updated
-   │     ├─→ So sánh với DB (dựa google_event_id, synced_at)
-   │     ├─→ Phát hiện conflicts → Lưu event_conflicts
-   │     └─→ Tạo/cập nhật events trong DB
-   │
-   └─→ PUSH: Lấy events local (google_event_id = NULL)
-         └─→ Đẩy lên Google Calendar → Cập nhật google_event_id
+```mermaid
+flowchart TD
+    User[User kết nối Google] -->|OAuth 2.0| Creds[Lưu OAuth tokens vào user_credentials]
+    
+    subgraph "Background Job (BullMQ - 5 mins)"
+        Job((Start Sync)) --> PullPhase{PULL Phase}
+        PullPhase -->|1. Get Events| GAPI[Google Calendar API]
+        GAPI -->|Events| Compare[So sánh với DB]
+        Compare -->|New/Updated| UpdateDB[Cập nhật Events DB]
+        Compare -->|Conflict| Conflict[Lưu event_conflicts]
+        
+        UpdateDB --> PushPhase{PUSH Phase}
+        PushPhase -->|2. Get Local Events| Local[Local Events]
+        Local -->|Is Null google_event_id| PushGAPI[Google Calendar API]
+        PushGAPI -->|Created ID| UpdateLocal[Cập nhật google_event_id]
+    end
+    
+    Creds -.-> Job
 ```
 
 **Chi tiết kỹ thuật:**
 - Module: `google.service.ts`, `calendar.service.ts`
 - Queue: `sync-calendar` queue trong BullMQ
-- Error handling: Retry mechanism (3 lần), exponential backoff
-- Conflict resolution: User chọn prefer_google/prefer_calento/keep_both
+- Search logic: Sử dụng `updatedMin` để fetch incremental updates.
+- Conflict resolution: Strategy pattern (Prefer Google / Prefer System).
 
 #### **Luồng 2: Đặt lịch qua Booking Link**
 
-```
-[User A tạo booking link] → /dashboard/booking
-   ├─→ Thiết lập: duration, buffer_time, max_bookings/day
-   └─→ Public URL: calento.space/book/username/slug
-
-[User B truy cập link]
-   ↓
-[Query availabilities của User A] + [Lọc events đã có]
-   ↓
-[Tính available slots] → Hiển thị calendar
-   ↓
-[User B chọn slot + điền info] → Submit
-   ↓
-[Server xử lý]
-   ├─→ Tạo booking record (status: confirmed)
-   ├─→ Tạo event cho User A
-   ├─→ Gửi email confirmation (2 bên)
-   └─→ [Nếu Google connected] → Push event lên Google Calendar
+```mermaid
+flowchart TD
+    Host[User A - Host] -->|Tạo Link| Config[Booking Config]
+    Config -->|URL| Guest[User B - Guest]
+    
+    subgraph "Booking Process"
+        Guest -->|1. Access| CheckAvail[Kiểm tra Availability]
+        CheckAvail -->|Weekly Schedule - Events| Slots[Tính toán Slot rảnh]
+        Slots -->|Display| GuestUI[Chọn giờ & Điền Info]
+        GuestUI -->|Submit| Validate{Validate}
+        
+        Validate -->|Fail| guest_error[Báo lỗi]
+        Validate -->|Pass| Trans[DB Transaction]
+        
+        Trans -->|Create| B_Rec[Booking Record]
+        Trans -->|Create| E_Rec[Event Record]
+        
+        Trans -->|Success| Notif{Notifications}
+    end
+    
+    Notif -->|Email| GuestEmail[Email Guest]
+    Notif -->|Email| HostEmail[Email Host]
+    Notif -->|API| GCal[Push Google Calendar]
 ```
 
 **Chi tiết kỹ thuật:**
 - Module: `booking.service.ts`, `availability.service.ts`
-- Email template: `booking-confirmation.hbs` (Handlebars)
-- Validation: Kiểm tra overlap, advance_notice, max_bookings
-- Transaction: Sử dụng PostgreSQL transaction để đảm bảo atomic
+- Lock mechanism: Optimistic locking để tránh double-booking.
+- Transaction: PostgreSQL transaction đảm bảo tính toàn vẹn dữ liệu (Booking + Event).
 
 #### **Luồng 3: AI Assistant với RAG (Chat)**
 
-```
-[User hỏi: "Tôi có meeting nào tuần sau?"]
-   ↓
-POST /api/v1/ai/chat
-   ↓
-[RAG Service]
-   ├─→ Vector search: Tìm relevant events (pgvector similarity)
-   ├─→ Lấy top 5 events (score > 0.7)
-   └─→ Construct context: events data + user profile
-
-[LLM Service - Gemini]
-   ├─→ System prompt + User question + Context
-   ├─→ Function calling: Xác định intent (search/create/summary)
-   └─→ Generate response (streaming)
-
-[Server-Sent Events (SSE)]
-   └─→ Stream response về frontend → Real-time display
+```mermaid
+flowchart LR
+    User[User Question] -->|API| RAG[RAG Service]
+    
+    subgraph "Retrieval"
+        RAG -->|Generate Embedding| Model[Text Embedding 004]
+        Model -->|Vector| VectorDB[(pgvector)]
+        VectorDB -->|Top-k Similarity| Context[Context Events]
+    end
+    
+    subgraph "Generation"
+        Context --> Prompt[Build Prompt + Context]
+        Prompt -->|Prompt| Gemini[Google Gemini Pro]
+        Gemini -->|Streaming| SSE[SSE Response]
+    end
+    
+    SSE -->|Markdown| UI[Client AI Chat UI]
 ```
 
 **Chi tiết kỹ thuật:**
-- Module: `llm.service.ts`, `rag.service.ts`, `vector.service.ts`
-- Model: Gemini 2 Flash với function calling
-- Embeddings: text-embedding-004 (768 dimensions)
-- Similarity search: Cosine similarity trong pgvector
+- Module: `llm.service.ts`, `rag.service.ts`
+- Model: Gemini 2 Flash cho tốc độ phản hồi nhanh.
+- Vector Store: `pgvector` với HNSW index cho low-latency search.
 
 ### **3.3.5. Sơ đồ tuần tự (Sequence Diagrams)**
 
@@ -1606,6 +1739,43 @@ sequenceDiagram
 
 4. **Response**: Kết quả được trả về AI, AI generate human-readable confirmation message.
 
+**4. Luồng Khôi phục Mật khẩu (Password Reset Flow)**
+
+Quy trình khôi phục mật khẩu bảo mật, sử dụng email xác thực và token dùng một lần.
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Client as Next.js Client
+    participant Server as NestJS Server
+    participant DB as Database
+    participant Email as Email Service
+    
+    User->>Client: Click "Forgot Password"
+    Client->>Server: POST /auth/forgot-password {email}
+    Server->>DB: Check user & Generate Reset Token
+    Server->>Email: Send Reset Email (link + token)
+    Email-->>User: Email with Reset Link
+    
+    User->>Client: Click Link (enter new password)
+    Client->>Server: POST /auth/reset-password {token, newPassword}
+    Server->>DB: Validate Token & Update Password
+    
+    alt Success
+        Server-->>Client: 200 OK (Success)
+        Client-->>User: "Password changed successfully"
+    else Invalid Token
+        Server-->>Client: 400 Bad Request
+        Client-->>User: "Token expired or invalid"
+    end
+```
+
+**Password Reset Flow:**
+
+1.  **Request Reset**: Người dùng yêu cầu đặt lại mật khẩu bằng cách cung cấp email. Client gửi yêu cầu đến endpoint `/auth/forgot-password`.
+2.  **Token Generation**: Server kiểm tra sự tồn tại của email. Nếu hợp lệ, hệ thống tạo một `reset_token` duy nhất (có thời hạn ngắn, ví dụ: 15 phút) và lưu vào database (hoặc Redis).
+3.  **Email Dispatch**: Server sử dụng Email Service để gửi một email chứa liên kết đặt lại mật khẩu (password reset link) kèm theo token đến địa chỉ email của người dùng.
+4.  **Validation & Update**: Khi người dùng nhấn vào liên kết và nhập mật khẩu mới, Client gửi request `/auth/reset-password` kèm token. Server xác thực token (kiểm tra tính hợp lệ và thời hạn). Nếu thành công, mật khẩu trong database được cập nhật (hashed) và token bị hủy bỏ.
 
 
 
@@ -1624,6 +1794,30 @@ Tệp `manifest.json` được cấu hình đầy đủ để biến Calento th�
 Service Worker (`sw.js`) đóng vai trò là network proxy, quản lý cache và offline capabilities:
 
 Service Worker (`sw.js`) quản lý chiến lược caching thông minh. Đối với tài nguyên tĩnh (JS, CSS, images), chiến lược **Cache First** được áp dụng để tăng tốc độ tải trang. Ngược lại, các API requests sử dụng chiến lược **Network First** để đảm bảo dữ liệu luôn mới nhất, chỉ fallback về cache khi mất mạng. Khả năng hỗ trợ offline cho phép người dùng xem lịch ngay cả khi không có kết nối internet, với các thay đổi dữ liệu được đưa vào hàng đợi background sync. Ngoài ra, Service Worker còn hỗ trợ các tác vụ nền như hiển thị Push Notifications và đồng bộ dữ liệu ngầm, đảm bảo tính nhất quán và trải nghiệm liền mạch.
+
+### **3.3.7. Hệ thống Email & Thông báo (Email Notification Service)**
+
+Hệ thống Email & Thông báo đóng vai trò quan trọng trong việc duy trì tương tác với người dùng và đảm bảo họ không bỏ lỡ các sự kiện quan trọng. Module này được xây dựng tách biệt để đảm bảo hiệu năng và khả năng mở rộng.
+
+#### **Chức năng chính**
+-   **Transactional Emails**: Gửi email xác thực tài khoản, reset mật khẩu, và chào mừng người dùng mới (Welcome Email).
+-   **Scheduling Notifications**: Gửi thông báo xác nhận đặt lịch (Booking Confirmation) và lời mời tham gia sự kiện (Event Invitations) cho cả người tổ chức và khách mời.
+-   **Automated Reminders**: Hệ thống tự động quét và gửi email nhắc nhở (Reminder Email) trước khi sự kiện diễn ra (ví dụ: trước 15 phút, 1 giờ) nhờ vào Cron Jobs.
+
+#### **Công nghệ sử dụng**
+-   **Nodemailer**: Thư viện gửi email mạnh mẽ và phổ biến cho Node.js, hỗ trợ SMTP và nhiều transport khác.
+-   **BullMQ & Redis**: Để tránh việc gửi email làm chặn luồng xử lý chính (main thread) của server, toàn bộ tác vụ gửi email được đẩy vào hàng đợi (Queue). BullMQ sẽ lấy job từ Redis và xử lý bất đồng bộ (background processing), đảm bảo phản hồi API luôn nhanh chóng.
+-   **Handlebars**: Sử dụng làm template engine để tạo ra các email HTML động, chuyên nghiệp và nhất quán với thương hiệu.
+
+#### **Giao diện Email mẫu**
+
+![Welcome Email Template](Mô tả: Giao diện Email chào mừng người dùng mới với thiết kế thương hiệu Calento)
+
+![Event Reminder Email](Mô tả: Giao diện Email nhắc nhở sự kiện sắp diễn ra)
+
+![Password Reset Email](Mô tả: Giao diện Email chứa liên kết đặt lại mật khẩu an toàn)
+
+![Team Invitation Email](Mô tả: Giao diện Email mời thành viên gia nhập nhóm làm việc)
 
 ## **3.4. Thiết kế API**
 
@@ -1673,19 +1867,195 @@ Cung cấp các endpoints cho tính năng AI Assistant. Endpoint `/ai/chat` hỗ
 
 ## **3.5. Cài đặt môi trường**
 
-Để triển khai và phát triển hệ thống Calento, môi trường cần đáp ứng các yêu cầu phần mềm cụ thể và tuân theo quy trình cài đặt chuẩn hóa.
-
 ### **3.5.1. Yêu cầu hệ thống (Prerequisites)**
 
-Hệ thống yêu cầu các thành phần core sau đây để hoạt động chính xác:
+Để đảm bảo hệ thống hoạt động ổn định và đồng nhất, việc cài đặt đúng các phiên bản công cụ là bước tiên quyết. Dưới đây là danh sách các công cụ bắt buộc:
 
-Hệ thống yêu cầu các thành phần core để hoạt động chính xác. Node.js (phiên bản 18+) được sử dụng làm runtime cho cả backend và frontend. Cơ sở dữ liệu PostgreSQL (phiên bản 15+) cần được cài đặt extension pgvector để hỗ trợ tính năng AI. Redis (phiên bản 6+) đóng vai trò quản lý hàng đợi và caching. Mặc dù không bắt buộc, Docker được khuyến nghị sử dụng để đơn giản hóa việc thiết lập môi trường development thông qua containerization.
+| Công cụ | Phiên bản yêu cầu | Mục đích sử dụng |
+| :--- | :--- | :--- |
+| **Node.js** | >= 18.x | Môi trường runtime cho Backend (NestJS) và Frontend (Next.js). |
+| **npm** | >= 9.x | Trình quản lý gói (Package manager), cài đặt tự động cùng Node.js. |
+| **PostgreSQL** | >= 14 | Hệ quản trị cơ sở dữ liệu chính, lưu trữ thông tin người dùng và sự kiện. |
+| **Redis** | >= 6 | Hệ thống lưu trữ in-memory dùng cho caching và hàng đợi (background jobs). |
+| **Docker** | >= 20.x | Nền tảng container hóa, giúp thiết lập môi trường nhanh chóng và đồng nhất. |
+| **Git** | >= 2.x | Hệ thống quản lý phiên bản mã nguồn phân tán. |
 
-### **3.5.2. Quy trình cài đặt phát triển**
+**Môi trường phát triển tích hợp (IDE):**
 
-Quy trình cài đặt được thiết kế để automated hóa tối đa, giúp developers mới có thể bắt đầu coding nhanh chóng.
+Visual Studio Code là IDE được khuyến nghị cho dự án này nhờ khả năng tùy biến cao và hệ sinh thái extension phong phú. Để tối ưu hóa quy trình phát triển, các extensions sau nên được cài đặt:
 
-Quy trình cài đặt phát triển được thiết kế để automated hóa tối đa. Đầu tiên, mã nguồn được clone từ repository GitHub về máy local với cấu trúc monorepo. Tiếp theo, lệnh `npm install` được chạy tại mỗi thư mục service để cài đặt dependencies. Bước quan trọng là cấu hình file `.env` với các thông số database, Redis và API keys cần thiết. Sau đó, database được khởi tạo thông qua lệnh `npm run migration:run` để execute các script SQL, tạo tables và extensions. Cuối cùng, hệ thống được khởi chạy với lệnh `npm run start:dev` cho backend và `npm run dev` cho frontend, hỗ trợ hot-reload giúp phản ánh thay đổi code tức thì.
+| Extension | Mục đích | Lợi ích |
+| :--- | :--- | :--- |
+| **ESLint** | Phân tích tĩnh mã nguồn | Phát hiện lỗi cú pháp và logic sớm, đảm bảo tuân thủ chuẩn code. |
+| **Prettier** | Định dạng code tự động | Giữ cho phong cách code đồng nhất, dễ đọc trong toàn bộ dự án. |
+| **TypeScript** | Hỗ trợ ngôn ngữ TypeScript | Cung cấp tính năng kiểm tra kiểu mạnh mẽ và IntelliSense. |
+| **Tailwind CSS** | Hỗ trợ Tailwind CSS | Gợi ý class thông minh, giúp viết CSS nhanh và chính xác hơn. |
+| **Thunder Client** | Client kiểm thử API | Cho phép gửi request và kiểm tra API trực tiếp trong giao diện IDE. |
+| **GitLens** | Mở rộng tính năng Git | Hiển thị lịch sử thay đổi chi tiết từng dòng code (blame annotations). |
+
+### **3.5.2. Cấu hình Backend**
+
+Quá trình thiết lập Backend bao gồm việc sao chép mã nguồn, cài đặt thư viện và quan trọng nhất là cấu hình biến môi trường.
+
+**1. Biến môi trường (.env)**
+
+File `.env` chứa các thông tin cấu hình nhạy cảm và quan trọng. Dưới đây là bảng chi tiết các biến môi trường cần thiết lập:
+
+*Bảng 3.3: Cấu hình biến môi trường Backend*
+
+| Nhóm cấu hình | Tên biến | Mô tả và Giá trị mẫu |
+| :--- | :--- | :--- |
+| **Application** | `NODE_ENV` | Môi trường chạy (`development`, `production`). |
+| | `PORT` | Cổng hoạt động của server (VD: 8000). |
+| | `APP_URL` | URL gốc của ứng dụng Backend. |
+| **Database** | `DB_HOST`, `DB_PORT` | Địa chỉ và cổng kết nối PostgreSQL (`localhost`, 5432). |
+| | `DB_NAME` | Tên cơ sở dữ liệu (`tempra`). |
+| | `DB_USER`, `DB_PASSWORD` | Thông tin xác thực truy cập database. |
+| **Redis** | `REDIS_HOST`, `REDIS_PORT` | Địa chỉ và cổng kết nối Redis (`localhost`, 6379). |
+| **JWT** | `JWT_SECRET` | Khóa bí mật để ký Access Token (Chuỗi ngẫu nhiên mạnh). |
+| | `JWT_EXPIRES_IN` | Thời gian hết hạn Access Token (VD: 1h). |
+| | `JWT_REFRESH_SECRET` | Khóa bí mật để ký Refresh Token. |
+| | `JWT_REFRESH_EXPIRES_IN` | Thời gian hết hạn Refresh Token (VD: 7d). |
+| **Google OAuth** | `GOOGLE_CLIENT_ID` | Client ID từ Google Cloud Console. |
+| | `GOOGLE_CLIENT_SECRET` | Client Secret từ Google Cloud Console. |
+| | `GOOGLE_REDIRECT_URI` | URL callback sau khi đăng nhập (VD: `.../auth/google/callback`). |
+| **Gemini AI** | `GEMINI_API_KEY` | API Key để truy cập dịch vụ Google Gemini. |
+| **Email (SMTP)** | `SMTP_HOST`, `SMTP_PORT` | Cấu hình máy chủ gửi mail (VD: `smtp.gmail.com`, 587). |
+| | `SMTP_USER`, `SMTP_PASSWORD` | Tài khoản và mật khẩu ứng dụng (App Password). |
+
+**2. Khởi tạo Database**
+
+Sau khi cấu hình kết nối trong file `.env` hoàn tất, cơ sở dữ liệu `tempra_dev` sẽ được khởi tạo cấu trúc tự động thông qua việc chạy lệnh `npm run migrate:up:dev`. Lệnh này kích hoạt công cụ migration, thực thi tuần tự các scripts SQL để kiến tạo toàn bộ schema, triggers và các extensions cần thiết (bao gồm `pgvector`).
+
+**3. Khởi chạy Server**
+
+Để bắt đầu quy trình phát triển, server backend được khởi động bằng lệnh `npm run start:dev`. Terminal sẽ hiển thị logs khởi động của NestJS, và khi hệ thống sẵn sàng, developers có thể truy cập Swagger UI để thử nghiệm API.
+
+### **3.5.3 Cấu hình Frontend**
+
+Việc thiết lập Frontend tương tự như Backend nhưng tập trung vào các biến môi trường phục vụ cho phía client.
+
+**1. Cài đặt và Cấu hình**
+
+Sau khi di chuyển vào thư mục `client` và cài đặt dependencies, file `.env.local` cần được tạo để chứa các biến môi trường công khai.
+
+*Bảng cấu hình biến môi trường Frontend (.env.local)*
+
+| Tên biến | Mô tả | Giá trị mẫu |
+| :--- | :--- | :--- |
+| `NEXT_PUBLIC_APP_NAME` | Tên hiển thị của ứng dụng. | Calento |
+| `NEXT_PUBLIC_APP_FE_URL` | URL gốc của Frontend. | `http://localhost:3000` |
+| `NEXT_PUBLIC_API_URL` | URL gốc của Backend API. | `http://localhost:8000` |
+| `NEXT_PUBLIC_API_PREFIX` | Tiền tố đường dẫn API. | `api/v1` |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Client ID cho Google OAuth (giống Backend). | `...apps.googleusercontent.com` |
+| `NEXT_PUBLIC_ENABLE_AI_CHAT` | Bật/tắt tính năng AI Chatbot. | `true` hoặc `false` |
+
+**2. Khởi chạy Ứng dụng**
+
+Lệnh `npm run dev` sẽ khởi động Next.js development server. Ứng dụng sau đó có thể được truy cập tại `http://localhost:3000`. Nhờ tính năng Hot Module Replacement (HMR), mọi thay đổi trong mã nguồn Frontend sẽ được cập nhật tức thì trên trình duyệt mà không cần tải lại trang, giúp tăng tốc độ phát triển giao diện.
+
+### **3.5.4 Deploy**
+
+**Docker Compose & Containerization**
+
+Hệ thống được container hóa toàn diện với Docker Compose. Chỉ với câu lệnh `docker-compose up -d` tại thư mục gốc, toàn bộ hệ sinh thái dịch vụ sẽ được khởi tạo và kết nối tự động trong mạng nội bộ Docker.
+
+| Service | Mô tả |
+| :--- | :--- |
+| `frontend` | Ứng dụng frontend (Next.js / React), phục vụ giao diện người dùng |
+| `backend` | API server (NestJS / Node.js), xử lý logic nghiệp vụ |
+| `nginx` | Reverse proxy, xử lý HTTPS, routing và bảo mật |
+| `database` | PostgreSQL (container hoặc managed service) |
+
+### **3.5.5. Quản lý Tên miền và Hạ tầng mạng**
+
+Quy trình thiết lập tên miền và hạ tầng mạng được thực hiện qua các bước sau để đảm bảo hiệu suất và bảo mật tối ưu.
+
+**1. Sơ đồ triển khai (Deployment Architecture)**
+
+```mermaid
+graph LR
+    User((User)) -->|HTTPS/443| CF[Cloudflare CDN]
+    CF -->|Strict SSL| Nginx[Nginx Reverse Proxy]
+    
+    subgraph "VPS Server (Docker Network)"
+        Nginx -->|Proxy :3000| FE[Frontend Container]
+        Nginx -->|Proxy :8000| BE[Backend Container]
+        BE -->|TCP :5432| DB[(PostgreSQL)]
+        BE -->|TCP :6379| Redis[(Redis)]
+    end
+    
+    style CF fill:#f38020,stroke:#f38020,color:white
+    style Nginx fill:#009639,stroke:#009639,color:white
+```
+
+**2. Quản lý Tên miền (Domain Management)**
+
+*   **Nhà đăng ký (Registrar)**: Tên miền `calento.space` được mua và đăng ký thông qua **GoDaddy** - nhà cung cấp tên miền uy tín hàng đầu.
+*   **Nameservers**: Thay vì sử dụng DNS mặc định của GoDaddy, nameservers được trỏ về hệ thống của Cloudflare (`ns1.cloudflare.com` và `ns2.cloudflare.com`). Điều này cho phép tận dụng hạ tầng phân phối nội dung (CDN) và tường lửa ứng dụng web (WAF) miễn phí của Cloudflare.
+*   **Quản lý DNS**: Toàn bộ các bản ghi DNS (A Records, CNAME, MX) được quản lý tập trung tại Cloudflare Dashboard. Việc này giúp cải thiện tốc độ phân giải tên miền (DNS lookup time) và cung cấp khả năng cập nhật bản ghi tức thì (instant propagation).
+
+### **3.5.6. Cấu hình Máy chủ**
+
+Máy chủ được cấu hình với thông số kỹ thuật tối ưu cho giai đoạn khởi chạy, đảm bảo cân bằng giữa hiệu năng và chi phí.
+
+| Thành phần | Thông số kỹ thuật | Ghi chú |
+| :--- | :--- | :--- |
+| **Nhà cung cấp** | Digital Ocean, GCP | Basic Droplet Plan |
+| **CPU** | 2 vCPUs (Intel) | Đủ khả năng xử lý các tác vụ đồng thời. |
+| **RAM** | 4 GB | Đảm bảo đủ bộ nhớ cho Docker containers và cache. |
+| **Lưu trữ** | 80 GB SSD | Tốc độ truy xuất cao cho Database. |
+| **Hệ điều hành** | Ubuntu 22.04 LTS (x64) | Phiên bản ổn định, hỗ trợ lâu dài. |
+| **Vị trí** | Singapore (SGP1) | Giảm độ trễ cho người dùng khu vực Đông Nam Á. |
+
+![VM Instance Google Cloud Platform](VM Instance Config)
+
+##### Hình 21: VM Instance Google Cloud Platform {#hình-21:-vm-instance-google-cloud-platform}
+
+**1. Nginx Reverse Proxy**
+
+Nginx được cấu hình làm cổng vào duy nhất cho mọi traffic HTTP/HTTPS. Cấu hình server block cho `calento.space` xử lý traffic frontend, tự động chuyển hướng HTTP sang HTTPS và áp dụng các headers bảo mật như HSTS và X-Frame-Options. Server block cho `api.calento.space` xử lý traffic backend, hỗ trợ CORS và WebSocket upgrades.
+
+*Cấu hình chính:*
+- **Frontend Block**: Proxy pass tới `localhost:3000`. Cache static files 1 năm.
+- **Backend Block**: Proxy pass tới `localhost:8000`. Rate limiting 10 req/s.
+- **Headers**: `X-Forwarded-For`, `X-Real-IP`, `Upgrade` (cho WebSocket).
+
+**2. Cloudflare CDN và Bảo mật**
+
+Cloudflare quản lý DNS và cung cấp lớp bảo mật mạng.
+
+| Loại | Tên | Nội dung | Trạng thái Proxy |
+| :--- | :--- | :--- | :--- |
+| A | @ | `<droplet_ip>` | Proxied |
+| A | www | `<droplet_ip>` | Proxied |
+| A | api | `<droplet_ip>` | Proxied |
+| CNAME | cdn | `calento.space` | Proxied |
+
+![CloudFlare DNS Record](CloudFlare DNS Record)
+
+##### Hình 22: CloudFlare DNS Record {#hình-22:-cloudflare-dns-record}
+
+**3. Google Search Console**
+
+Google Search Console (GSC) được sử dụng để theo dõi hiệu suất SEO, kiểm soát khả năng index và phát hiện sớm các vấn đề ảnh hưởng đến khả năng hiển thị của website trên Google Search.
+
+*Mục tiêu sử dụng Google Search Console:*
+- Đảm bảo website `calento.space` được Google index chính xác
+- Theo dõi lượng truy cập tìm kiếm tự nhiên (Organic Search)
+- Phát hiện lỗi kỹ thuật ảnh hưởng SEO
+- Tối ưu hiệu suất Core Web Vitals
+
+**4. Cấu hình Google Search Console**
+
+- **Property type**: Domain Property
+- **Domain**: `calento.space`
+- **Xác minh quyền sở hữu**: DNS Verification thông qua Cloudflare
+- **Áp dụng cho**: `https://calento.space`, `https://www.calento.space`, `https://api.calento.space` (API không index)
+
+![Google Search Console](Google Search Console Interface)
+
+##### Hình 23: Google Search Console {#hình-23:-google-search-console}
 
 # **Chương IV. THIẾT KẾ MÀN HÌNH**
 
@@ -1733,9 +2103,35 @@ graph TD
 
 ![Screen Flow Diagram](Sơ đồ liên kết màn hình tổng quan từ Login đến các chức năng chính và Public Booking flow)
 
-## **4.2. Chi tiết các màn hình chính**
+## **4.2. Thiết kế UI/UX**
 
-### **4.2.1. Màn hình Đăng nhập & Đăng ký (Authentication)**
+### **4.2.1. Triết lý thiết kế (Design Philosophy)**
+Hệ thống Calento theo đuổi triết lý thiết kế **"User-Centric Minimalism"** (Tối giản lấy người dùng làm trung tâm). Chúng tôi tin rằng một công cụ quản lý thời gian hiệu quả phải là công cụ "vô hình" - không làm phiền người dùng với các chi tiết thừa thãi mà tập trung tối đa vào nội dung cốt lõi: Lịch trình và Công việc.
+
+Các nguyên tắc chính:
+1. **Clarity (Sự rõ ràng)**: Thông tin quan trọng nhất luôn được làm nổi bật. Sử dụng khoảng trắng (whitespace) hợp lý để giảm tải nhận thức (cognitive load).
+2. **Efficiency (Sự hiệu quả)**: Giảm thiểu số lần click chuột để thực hiện một tác vụ. Các luồng nghiệp vụ chính như Tạo sự kiện hay Đặt lịch được tối ưu hóa để hoàn thành nhanh nhất có thể.
+3. **Consistency (Sự nhất quán)**: Sử dụng hệ thống Design System đồng bộ giúp người dùng nhanh chóng làm quen và ghi nhớ cách sử dụng.
+
+### **4.2.2. Design System & Typography**
+
+**Màu sắc chủ đạo (Color Palette):**
+*   **Primary Blue (#2563EB)**: Màu xanh dương hiện đại, tạo cảm giác tin cậy, chuyên nghiệp và năng động. Được sử dụng cho các nút hành động chính (CTA) và điểm nhấn.
+*   **Slate Neutral (Slate-50 to Slate-900)**: Hệ màu trung tính dùng cho văn bản và đường viền, giúp giảm mỏi mắt khi làm việc lâu dài.
+*   **Semantic Colors**: Green (Thành công), Red (Lỗi/Hủy bỏ), Amber (Cảnh báo/Pending) được sử dụng nhất quán để thông báo trạng thái.
+
+**Typography:**
+Hệ thống sử dụng bộ font **Inter**, một typeface sans-serif được thiết kế chuyên biệt cho giao diện người dùng trên màn hình máy tính. Inter có độ dễ đọc cao (legibility) ở cả kích thước nhỏ, hỗ trợ đa dạng weight từ Thin đến Black, giúp tạo nên ngữ nghĩa rõ ràng cho các tiêu đề và nội dung.
+
+### **4.2.3. Trải nghiệm người dùng (UX) và Accessibility**
+Calento cam kết tuân thủ chuẩn **WCAG 2.1 Level AA** về khả năng truy cập:
+*   **Contrast Key**: Đảm bảo tỷ lệ tương phản màu sắc đủ lớn để người khiếm thị màu cũng có thể sử dụng dễ dàng.
+*   **Keyboard Navigation**: Người dùng có thể điều hướng toàn bộ ứng dụng chỉ bằng bàn phím (Tab, Enter, Arrow keys), hỗ trợ tối đa cho power users và người khuyết tật.
+*   **Responsive Mobile-First**: Giao diện được thiết kế ưu tiên cho mobile trước, đảm bảo mọi tính năng đều hoạt động tốt trên màn hình cảm ứng nhỏ gọn trước khi mở rộng lên desktop.
+
+## **4.3. Chi tiết các màn hình chính**
+
+### **4.3.1. Màn hình Đăng nhập & Đăng ký (Authentication)**
 
 Màn hình Authentication là điểm chạm đầu tiên của người dùng với hệ thống. Thiết kế được chia thành hai cột: bên trái là form nhập liệu clean và minimalist, bên phải là artwork minh họa tính năng hoặc branding imagery. Form hỗ trợ toggle nhanh giữa Login và Register mode.
 
@@ -1743,13 +2139,13 @@ Màn hình Authentication là điểm chạm đầu tiên của người dùng v
 
 ![Login and Registration Screen](Giao diện màn hình đăng nhập và đăng ký với tùy chọn Google Auth)
 
-### **4.2.2. Màn hình Dashboard & Calendar View**
+### **4.3.2. Màn hình Dashboard & Calendar View**
 
 Đây là "trái tim" của ứng dụng, nơi người dùng dành phần lớn thời gian làm việc. Giao diện Calendar sử dụng thư viện FullCalendar được customize mạnh mẽ với theme hiện đại. Main View hiển thị lịch theo các chế độ Month, Week, Day với sự kiện được phân loại bằng mã màu (color-code) giúp dễ dàng nhận biết (Work, Personal, Meeting). Sidebar bên trái tích hợp Mini Calendar hỗ trợ điều hướng nhanh và bộ lọc "My Calendars" để tùy chọn hiển thị. Header chứa các công cụ điều hướng thời gian (Prev/Next, Today), nút "New Event" nổi bật và avatar người dùng để truy cập menu cá nhân.
 
 ![Dashboard Main View](Giao diện chính Dashboard với lịch tuần và sidebar điều hướng)
 
-### **4.2.3. Màn hình AI Assistant Panel**
+### **4.3.3. Màn hình AI Assistant Panel**
 
 AI Assistant không phải là một trang riêng biệt mà là một slide-over panel (ngăn kéo trượt) từ bên phải màn hình, có thể truy cập từ bất kỳ đâu trong ứng dụng. Thiết kế này cho phép người dùng vừa chat với AI vừa quan sát lịch của mình (contextual multitasking).
 
@@ -1757,7 +2153,7 @@ Giao diện chat mô phỏng các ứng dụng nhắn tin hiện đại với bo
 
 ![AI Assistant Chat Interface](Giao diện AI Assistant dạng slide-panel với rich cards và streaming text)
 
-### **4.2.4. Màn hình Public Booking Page**
+### **4.3.4. Màn hình Public Booking Page**
 
 Đây là giao diện dành cho khách (guest) - những người không cần tài khoản Calento vẫn có thể đặt lịch. Vì vậy, thiết kế ưu tiên sự đơn giản tối đa và thân thiện (mobile-first).
 
@@ -1765,7 +2161,7 @@ Giao diện chia làm hai phần: bên trái hiển thị thông tin Host (Avata
 
 ![Public Booking Interface](Giao diện trang đặt lịch công khai dành cho khách mời chọn giờ)
 
-### **4.2.5. Modal Tạo & Chỉnh sửa Sự kiện**
+### **4.3.5. Modal Tạo & Chỉnh sửa Sự kiện**
 
 Thay vì chuyển trang, thao tác tạo và sửa sự kiện diễn ra trong một Modal (Dialog) Overlay, giữ người dùng trong ngữ cảnh hiện tại.
 
@@ -1773,13 +2169,13 @@ Modal được thiết kế tối ưu với các tabs: "Event Details" (Tiêu đ
 
 ![Event Creation Modal](Giao diện Modal tạo sự kiện với các options chi tiết và guest invite)
 
-### **4.2.6. Màn hình User Settings**
+### **4.3.6. Màn hình User Settings**
 
 Trung tâm quản lý cá nhân hóa của người dùng sử dụng layout Tabs trực quan để phân nhóm cấu hình. Tab Profile cho phép cập nhật avatar và tên hiển thị. Tab Preferences cung cấp các tùy chỉnh về ngôn ngữ (Việt/Anh), giao diện (Sáng/Tối), múi giờ và định dạng ngày tháng. Tab Integrations quản lý kết nối Google Calendar, cho phép kết nối hoặc ngắt kết nối và xem trạng thái đồng bộ. Cuối cùng, Tab Notifications giúp người dùng tùy chỉnh kênh nhận thông báo qua Email hoặc Webhook cho từng loại sự kiện cụ thể.
 
 ![User Settings Page](Giao diện trang cài đặt người dùng với các tab cấu hình hệ thống)
 
-### **4.2.7. Màn hình Task Management (Priority Board)**
+### **4.3.7. Màn hình Task Management (Priority Board)**
 
 Giao diện quản lý công việc (To-do) được thiết kế theo phong cách Kanban đơn giản hoặc List view. Các tasks được phân loại rõ ràng theo mức độ ưu tiên (Critical, High, Medium, Low) bằng các tags màu sắc.
 
@@ -1854,7 +2250,7 @@ Dự án **Calento - Calendar Assistant Web** đã đạt được mục tiêu b
 - Kỹ năng làm việc nhóm, quản lý dự án lớn
 - Sản phẩm portfolio chất lượng cho career development
 
-Dự án Calento là minh chứng cho việc kết hợp kiến thức lý thuyết và kỹ năng thực hành, tạo ra một sản phẩm công nghệ có giá trị. Nhóm cam kết tiếp tục phát triển và hoàn thiện hệ thống trong tương lai.
+Dự án Calento là minh chứng cho việc kết hợp kiến thức lý thuyết và kỹ năng thực hành, tạo ra một sản phẩm công nghệ có giá trị.
 
 ---
 
