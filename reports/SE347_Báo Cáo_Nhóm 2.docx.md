@@ -1424,378 +1424,100 @@ Schema file được tổ chức theo modules với comments rõ ràng, shared f
 
 ### **3.3.4. Luồng xử lý nghiệp vụ chính**
 
-#### **Luồng 1: Đồng bộ Google Calendar (Bi-directional Sync)**
+Hệ thống được vận hành dựa trên 6 luồng nghiệp vụ cốt lõi, đảm bảo phục vụ đầy đủ nhu cầu quản lý thời gian và cộng tác của người dùng.
 
-```mermaid
-flowchart TD
-    User[User kết nối Google] -->|OAuth 2.0| Creds[Lưu OAuth tokens vào user_credentials]
-    
-    subgraph "Background Job (BullMQ - 5 mins)"
-        Job((Start Sync)) --> PullPhase{PULL Phase}
-        PullPhase -->|1. Get Events| GAPI[Google Calendar API]
-        GAPI -->|Events| Compare[So sánh với DB]
-        Compare -->|New/Updated| UpdateDB[Cập nhật Events DB]
-        Compare -->|Conflict| Conflict[Lưu event_conflicts]
-        
-        UpdateDB --> PushPhase{PUSH Phase}
-        PushPhase -->|2. Get Local Events| Local[Local Events]
-        Local -->|Is Null google_event_id| PushGAPI[Google Calendar API]
-        PushGAPI -->|Created ID| UpdateLocal[Cập nhật google_event_id]
-    end
-    
-    Creds -.-> Job
-```
+#### **Luồng 1: Xác thực & Phân quyền (Authentication)**
+Quy trình đảm bảo tính bảo mật cho hệ thống, hỗ trợ đăng nhập đa phương thức và quản lý phiên làm việc.
+*   **Input**: Email/Password hoặc Google OAuth Token.
+*   **Process**:
+    1.  Validate thông tin đăng nhập.
+    2.  Cấp phát Access Token (JWT) ngắn hạn và Refresh Token dài hạn.
+    3.  Lưu trữ phiên làm việc an toàn (Cookie/Header).
+*   **Output**: Authenticated Session & User Profile.
 
-**Chi tiết kỹ thuật:**
-- Module: `google.service.ts`, `calendar.service.ts`
-- Queue: `sync-calendar` queue trong BullMQ
-- Search logic: Sử dụng `updatedMin` để fetch incremental updates.
-- Conflict resolution: Strategy pattern (Prefer Google / Prefer System).
+#### **Luồng 2: Quản lý Sự kiện & Đồng bộ (Event Management)**
+Quy trình trung tâm xử lý dữ liệu lịch trình, đảm bảo tính nhất quán trên mọi nền tảng.
+*   **Input**: Thông tin sự kiện (Title, Time, Location).
+*   **Process**:
+    1.  Lưu trữ sự kiện vào PostgreSQL.
+    2.  Đồng bộ 2 chiều với Google Calendar (Sync Logic).
+    3.  Tạo Vector Embedding để phục vụ AI RAG.
+*   **Output**: Sự kiện được hiển thị đồng nhất trên Calento & Google Calendar.
 
-#### **Luồng 2: Đặt lịch qua Booking Link**
+#### **Luồng 3: Hệ thống Đặt lịch (Booking System)**
+Cho phép người dùng tạo trang đặt lịch cá nhân và nhận lịch hẹn từ người khác (Guest).
+*   **Input**: Cấu hình thời gian rảnh (Availability Rules) & Khách chọn giờ.
+*   **Process**:
+    1.  Tính toán Time Slots khả dụng dựa trên lịch hiện có.
+    2.  Validate yêu cầu đặt lịch (Conflict check).
+    3.  Tạo Booking & Event tương ứng.
+*   **Output**: Lịch hẹn được xác nhận & Email thông báo.
 
-```mermaid
-flowchart TD
-    Host[User A - Host] -->|Tạo Link| Config[Booking Config]
-    Config -->|URL| Guest[User B - Guest]
-    
-    subgraph "Booking Process"
-        Guest -->|1. Access| CheckAvail[Kiểm tra Availability]
-        CheckAvail -->|Weekly Schedule - Events| Slots[Tính toán Slot rảnh]
-        Slots -->|Display| GuestUI[Chọn giờ & Điền Info]
-        GuestUI -->|Submit| Validate{Validate}
-        
-        Validate -->|Fail| guest_error[Báo lỗi]
-        Validate -->|Pass| Trans[DB Transaction]
-        
-        Trans -->|Create| B_Rec[Booking Record]
-        Trans -->|Create| E_Rec[Event Record]
-        
-        Trans -->|Success| Notif{Notifications}
-    end
-    
-    Notif -->|Email| GuestEmail[Email Guest]
-    Notif -->|Email| HostEmail[Email Host]
-    Notif -->|API| GCal[Push Google Calendar]
-```
+#### **Luồng 4: Trợ lý AI (AI Assistant)**
+Hỗ trợ người dùng tra cứu thông tin và quản lý lịch trình thông qua ngôn ngữ tự nhiên.
+*   **Input**: Câu hỏi hoặc lệnh của người dùng (VD: "Hôm nay tôi rảnh lúc nào?").
+*   **Process**:
+    1.  RAG: Tìm kiếm sự kiện liên quan trong Vector DB.
+    2.  LLM: Tổng hợp ngữ cảnh và sinh câu trả lời.
+*   **Output**: Câu trả lời text hoặc thực hiện hành động (Function Call).
 
-**Chi tiết kỹ thuật:**
-- Module: `booking.service.ts`, `availability.service.ts`
-- Lock mechanism: Optimistic locking để tránh double-booking.
-- Transaction: PostgreSQL transaction đảm bảo tính toàn vẹn dữ liệu (Booking + Event).
+#### **Luồng 5: Quản lý Công việc (Task Management)**
+Quản lý danh sách việc cần làm (To-do) tích hợp với lịch trình.
+*   **Input**: Task mới, Deadline, Priority.
+*   **Process**:
+    1.  Phân loại và sắp xếp Task theo độ ưu tiên.
+    2.  Lên lịch nhắc nhở (Notification Scheduler).
+*   **Output**: Danh sách công việc & Thông báo nhắc nhở.
 
-#### **Luồng 3: AI Assistant với RAG (Chat)**
+#### **Luồng 6: Hợp tác Nhóm (Team Collaboration)**
+Cho phép làm việc nhóm, chia sẻ lịch và lên lịch họp chung.
+*   **Input**: Tạo Team, Mời thành viên.
+*   **Process**:
+    1.  Quản lý thành viên và quyền hạn (RBAC).
+    2.  Tổng hợp lịch của thành viên để tìm giờ họp chung (Overlay Calendar).
+*   **Output**: Team Workspace & Lịch họp tối ưu.
 
-```mermaid
-flowchart LR
-    User[User Question] -->|API| RAG[RAG Service]
-    
-    subgraph "Retrieval"
-        RAG -->|Generate Embedding| Model[Text Embedding 004]
-        Model -->|Vector| VectorDB[(pgvector)]
-        VectorDB -->|Top-k Similarity| Context[Context Events]
-    end
-    
-    subgraph "Generation"
-        Context --> Prompt[Build Prompt + Context]
-        Prompt -->|Prompt| Gemini[Google Gemini Pro]
-        Gemini -->|Streaming| SSE[SSE Response]
-    end
-    
-    SSE -->|Markdown| UI[Client AI Chat UI]
-```
-
-**Chi tiết kỹ thuật:**
-- Module: `llm.service.ts`, `rag.service.ts`
-- Model: Gemini 2 Flash cho tốc độ phản hồi nhanh.
-- Vector Store: `pgvector` với HNSW index cho low-latency search.
+---
 
 ### **3.3.5. Sơ đồ tuần tự (Sequence Diagrams)**
 
-Để hiểu rõ hơn về tương tác giữa các thành phần trong hệ thống, các sơ đồ tuần tự (sequence diagrams) sau đây mô tả chi tiết luồng xử lý của các tính năng quan trọng.
+Các biểu đồ sau đây mô tả chi tiết tương tác kỹ thuật giữa các thành phần hệ thống cho từng luồng nghiệp vụ nêu trên.
 
-#### ** Sequen Diagram 1: AI Chatbot với RAG (Retrieval-Augmented Generation)**
-
-```mermaid
-sequenceDiagram
-    participant U as User (Frontend)
-    participant API as API Gateway
-    participant AI as AI Controller
-    participant RAG as RAG Service
-    participant VEC as Vector Service
-    participant DB as PostgreSQL (pgvector)
-    participant LLM as Gemini LLM Service
-    participant SSE as SSE Stream
-
-    U->>API: POST /api/v1/ai/chat<br/>{message: "Tôi có bận vào thứ 5?"}
-    API->>AI: authenticateUser()<br/>validateInput()
-    
-    Note over AI,RAG: Phase 1: Retrieval (Tìm kiếm context)
-    AI->>RAG: processConvers ation(userId, message)
-    RAG->>VEC: generateEmbedding(message)
-    VEC-->>RAG: vector[768]
-    
-    RAG->>DB: SELECT * FROM events<br/>WHERE user_id = ?<br/>ORDER BY embedding <=> vector<br/>LIMIT 5
-    DB-->>RAG: relevantEvents[]
-    
-    Note over RAG: Context: 5 events với similarity > 0.7
-    
-    Note over AI,LLM: Phase 2: Augmentation (Xây dựng prompt)
-    RAG->>LLM: constructPrompt(systemPrompt, context, userMessage)
-    Note over LLM: System: "Bạn là AI assistant..."<br/>Context: JSON của 5 events<br/>Question: "Tôi có bận vào thứ 5?"
-    
-    Note over LLM: Phase 3: Generation (Streaming response)
-    LLM->>LLM: callGeminiAPI(prompt, stream=true)
-    LLM-->>SSE: chunk 1: "Dựa vào lịch..."
-    SSE-->>U: SSE event-stream
-    LLM-->>SSE: chunk 2: "bạn có 2 meetings..."
-    SSE-->>U: SSE event-stream
-    LLM-->>SSE: chunk 3: "[DONE]"
-    SSE-->>U: SSE close
-    
-    Note over U: Hiển thị markdown real-time
-```
-
-**Giải thích chi tiết:**
-
-1. **Request Phase**: User gửi câu hỏi từ chat interface, API authenticate JWT token và validate input.
-
-2. **Retrieval Phase**: RAG Service chuyển câu hỏi thành vector embedding 768-chiều sử dụng model `text-embedding-004`. Vector này được so sánh với embeddings của tất cả events trong database sử dụng toán tử `<=>` (cosine distance) của pgvector. Top 5 events có similarity cao nhất (> 0.7) được lấy ra làm context.
-
-3. **Augmentation Phase**: Context events được format thành JSON và đưa vào prompt template cùng với system instruction và user question. Prompt hoàn chỉnh được gửi đến Gemini API.
-
-4. **Generation Phase**: Gemini xử lý prompt và trả về response dưới dạng streaming. Mỗi chunk text được forward qua Server-Sent Events (SSE) về frontend ngay lập tức, tạo trải nghiệm real-time tương tự ChatGPT.
-
-#### **Sequence Diagram 2: Đồng bộ Google Calendar (Bi-directional Sync)**
-
-```mermaid
-sequenceDiagram
-    participant BG as Background Job (BullMQ)
-    participant SYNC as Sync Service
-    participant DB as PostgreSQL
-    participant GCAL as Google Calendar API
-    participant CONF as Conflict Resolver
-    participant NOTIFY as Notification Service
-
-    Note over BG: Cron job chạy mỗi 5 phút
-    
-    BG->>SYNC: triggerSync(userId)
-    SYNC->>DB: getUserCredentials(userId)
-    DB-->>SYNC: {accessToken, refreshToken}
-    
-    rect rgb(200, 220, 255)
-        Note over SYNC,GCAL: PULL Phase: Google → Calento
-        SYNC->>GCAL: GET /calendars/{id}/events<br/>?updatedMin=lastSyncTime
-        GCAL-->>SYNC: events[] (200 OK)
-        
-        loop Mỗi event từ Google
-            SYNC->>DB: findEventByGoogleId(eventId)
-            alt Event chưa tồn tại
-                SYNC->>DB: INSERT INTO events<br/>(google_event_id, ...)
-            else Event đã tồn tại nhưng updated
-                SYNC->>SYNC: compareEvent(dbEvent, googleEvent)
-                alt Có conflict
-                    SYNC->>CONF: detectConflict(dbEvent, googleEvent)
-                    CONF->>DB: INSERT INTO event_conflicts
-                    CONF->>NOTIFY: notifyUser(conflict)
-                else Không conflict
-                    SYNC->>DB: UPDATE events SET ...<br/>WHERE google_event_id = ?
-                end
-            end
-        end
-    end
-    
-    rect rgb(255, 220, 200)
-        Note over SYNC,GCAL: PUSH Phase: Calento → Google
-        SYNC->>DB: SELECT * FROM events<br/>WHERE google_event_id IS NULL<br/>AND user_id = ?
-        DB-->>SYNC: localEvents[]
-        
-        loop Mỗi local event
-            SYNC->>GCAL: POST /calendars/{id}/events<br/>{title, start, end, ...}
-            GCAL-->>SYNC: {id: "google123"} (201 Created)
-            SYNC->>DB: UPDATE events<br/>SET google_event_id = 'google123'<br/>WHERE id = ?
-        end
-    end
-    
-    SYNC->>DB: UPDATE user_credentials<br/>SET last_sync_at = NOW()
-    SYNC-->>BG: syncCompleted(summary)
-```
-
-**Giải thích luồng đồng bộ:**
-
-1. **PULL Phase (Google → Calento)**: Background job lấy events từ Google Calendar API với tham số `updatedMin` để chỉ fetch events đã thay đổi từ lần sync cuối. Mỗi event được so sánh với database:
-   - Nếu chưa tồn tại → INSERT mới
-   - Nếu đã tồn tại → So sánh timestamps và content
-   - Nếu phát hiện conflict (cả 2 phía đều update) → Lưu vào `event_conflicts` table và notify user
-
-2. **PUSH Phase (Calento → Google)**: Tìm tất cả events có `google_event_id = NULL` (local-only events) và đẩy lên Google Calendar. Sau khi push thành công, lưu `google_event_id` vào database.
-
-3. **Error Handling**: Nếu `accessToken` expired, tự động refresh bằng `refreshToken`. Nếu API rate limit → exponential backoff và retry.
-
-#### **Sequence Diagram 3: Public Booking Flow (Guest đặt lịch)**
-
-```mermaid
-sequenceDiagram
-    participant G as Guest
-    participant PUB as Public Booking Page
-    participant API as Booking API
-    participant AVAIL as Availability Service
-    participant DB as PostgreSQL
-    participant EMAIL as Email Service
-    participant GCAL as Google Calendar API
-
-    G->>PUB: Truy cập /book/username/slug
-    PUB->>API: GET /booking-links/:slug
-    API->>DB: findBookingLink(slug)
-    DB-->>API: bookingLink {duration, buffer, ...}
-    API-->>PUB: bookingLinkData
-    
-    PUB->>API: GET /booking-links/:id/slots<br/>?startDate=2026-01-20
-    API->>AVAIL: calculateAvailableSlots(userId, dateRange)
-    
-    rect rgb(220, 255, 220)
-        Note over AVAIL,DB: Tính toán slots rảnh
-        AVAIL->>DB: SELECT * FROM availabilities<br/>WHERE user_id = ?
-        DB-->>AVAIL: weeklySchedule[]
-        
-        AVAIL->>DB: SELECT * FROM events<br/>WHERE user_id = ?<br/>AND start_time BETWEEN ? AND ?
-        DB-->>AVAIL: existingEvents[]
-        
-        AVAIL->>AVAIL: computeFreeSlots(<br/>weeklySchedule,<br/>existingEvents,<br/>duration + buffer<br/>)
-    end
-    
-    AVAIL-->>API: availableSlots[]
-    API-->>PUB: slots: [{start, end}, ...]
-    
-    G->>PUB: Chọn slot + điền form<br/>{name, email, notes}
-    PUB->>API: POST /bookings<br/>{slotTime, guestInfo}
-    
-    API->>API: validateSlot(still available?)
-    API->>DB: BEGIN TRANSACTION
-    
-    API->>DB: INSERT INTO bookings<br/>(link_id, start_time, ...)
-    DB-->>API: booking {id, ...}
-    
-    API->>DB: INSERT INTO events<br/>(title, start_time, ...)
-    DB-->>API: event {id, ...}
-    
-    API->>DB: UPDATE bookings<br/>SET event_id = ?
-    API->>DB: COMMIT TRANSACTION
-    
-    par Email notifications
-        API->>EMAIL: sendBookingConfirmation(guest)
-        EMAIL-->>G: Email "Booking confirmed..."
-    and
-        API->>EMAIL: sendBooking Notification(host)
-        EMAIL-->>G: Email "New booking from..."
-    end
-    
-    opt Nếu host kết nối Google
-        API->>GCAL: POST /events (push event)
-        GCAL-->>API: {id: "google123"}
-    end
-    
-    API-->>PUB: 201 Created {bookingId}
-    PUB-->>G: "Đặt lịch thành công!"
-```
-
-**Các điểm quan trọng:**
-
-1. **Availability Calculation**: Hệ thống kết hợp `availabilities` table (weekly schedule) với `events` table (actual events) để tính các slots trống. Buffer time được apply trước và sau mỗi slot.
-
-2. **Double-check Validation**: Trước khi tạo booking, re-validate slot vẫn available (tránh race condition khi 2 người book cùng lúc).
-
-3. **Transaction Safety**: Sử dụng database transaction để đảm bảo booking và event được tạo atomic. Nếu một trong hai fails → rollback cả hai.
-
-4. **Parallel Email**: Gửi email cho guest và host song song (không chờ đợi) để giảm response time.
-
-#### **Sequence Diagram 4: AI Function Calling (Create Event)**
+#### **Sequence Diagram 1: Đăng nhập & Xác thực (Authentication Flow)**
 
 ```mermaid
 sequenceDiagram
     participant U as User
-    participant AI as AI Controller
-    participant LLM as Gemini LLM
-    participant FC as Function Call Handler
-    participant EVENT as Event Service
-    participant DB as PostgreSQL
-
-    U->>AI: "Đặt lịch họp team vào 9h sáng thứ 2"
-    AI->>LLM: chat(message, tools=[createEvent])
-    
-    Note over LLM: Gemini phân tích intent
-    LLM-->>AI: functionCall {<br/>  name: "createEvent",<br/>  args: {<br/>    title: "Họp team",<br/>    start: "2026-01-20T09:00:00",<br/>    duration: 60<br/>  }<br/>}
-    
-    AI->>FC: executeFunctionCall(createEvent, args)
-    FC->>FC: confirmWithUser(args)
-    FC-->>U: "Tạo sự kiện:<br/>📅 Họp team<br/>⏰ 20/01 9:00 AM<br/>Xác nhận?"
-    
-    U-->>FC: "Yes" (confirm)
-    
-    FC->>EVENT: createEvent(userId, eventData)
-    EVENT->>DB: INSERT INTO events (...)
-    DB-->>EVENT: event {id, ...}
-    EVENT -->>FC: success(event)
-    
-    FC-->>AI: functionResult {<br/>  success: true,<br/>  eventId: "uuid123"<br/>}
-    
-    AI->>LLM: chat(functionResult)
-    LLM-->>AI: "Đã tạo sự kiện 'Họp team'<br/>vào thứ 2, 20/01 lúc 9:00 AM."
-    
-    AI-->>U: Display AI response
-```
-
-**Function Calling Flow:**
-
-1. **Intent Detection**: LLM nhận diện user muốn create event, extract parameters (title, time) từ natural language.
-
-2. **Confirmation**: Trước khi execute, hiển thị preview để user confirm (tránh tạo nhầm).
-
-3. **Execution**: Call Event Service để thực sự tạo event trong database.
-
-4. **Response**: Kết quả được trả về AI, AI generate human-readable confirmation message.
-
-**4. Luồng Khôi phục Mật khẩu (Password Reset Flow)**
-
-Quy trình khôi phục mật khẩu bảo mật, sử dụng email xác thực và token dùng một lần.
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant Client as Next.js Client
-    participant Server as NestJS Server
+    participant C as Client
+    participant A as Auth Service
+    participant G as Google OAuth
     participant DB as Database
-    participant Email as Email Service
-    
-    User->>Client: Click "Forgot Password"
-    Client->>Server: POST /auth/forgot-password {email}
-    Server->>DB: Check user & Generate Reset Token
-    Server->>Email: Send Reset Email (link + token)
-    Email-->>User: Email with Reset Link
-    
-    User->>Client: Click Link (enter new password)
-    Client->>Server: POST /auth/reset-password {token, newPassword}
-    Server->>DB: Validate Token & Update Password
-    
-    alt Success
-        Server-->>Client: 200 OK (Success)
-        Client-->>User: "Password changed successfully"
-    else Invalid Token
-        Server-->>Client: 400 Bad Request
-        Client-->>User: "Token expired or invalid"
+    participant J as JWT Service
+
+    Note over U, DB: Login Flow (Hỗ trợ Local & Google)
+
+    alt Google Login
+        U->>C: Click "Login with Google"
+        C->>G: Direction to Google Consent
+        G-->>C: Auth Code
+        C->>A: POST /auth/google/login {code}
+        A->>G: Verify Code & Get Profile
+        G-->>A: User Profile (Email, Name)
+    else Local Login
+        U->>C: Input Email/Pass
+        C->>A: POST /auth/login
+        A->>DB: Find User & Validate Hash
     end
+
+    A->>DB: Sync User Record
+    A->>J: Generate Tokens (Access + Refresh)
+    J-->>A: {accessToken, refreshToken}
+    
+    A-->>C: Set HttpOnly Cookie (Refresh) + JSON (Access)
+    C-->>U: Redirect to Dashboard
 ```
 
-**Password Reset Flow:**
-
-1.  **Request Reset**: Người dùng yêu cầu đặt lại mật khẩu bằng cách cung cấp email. Client gửi yêu cầu đến endpoint `/auth/forgot-password`.
-2.  **Token Generation**: Server kiểm tra sự tồn tại của email. Nếu hợp lệ, hệ thống tạo một `reset_token` duy nhất (có thời hạn ngắn, ví dụ: 15 phút) và lưu vào database (hoặc Redis).
-3.  **Email Dispatch**: Server sử dụng Email Service để gửi một email chứa liên kết đặt lại mật khẩu (password reset link) kèm theo token đến địa chỉ email của người dùng.
-4.  **Validation & Update**: Khi người dùng nhấn vào liên kết và nhập mật khẩu mới, Client gửi request `/auth/reset-password` kèm token. Server xác thực token (kiểm tra tính hợp lệ và thời hạn). Nếu thành công, mật khẩu trong database được cập nhật (hashed) và token bị hủy bỏ.
-
-#### **Sequence Diagram 5: Quy trình Tạo Sự kiện (Create Event Module)**
-
-Quy trình xử lý khi người dùng tạo sự kiện mới, bao gồm việc đồng bộ dữ liệu đa nền tảng (Database, Google Calendar, và Vector Database cho AI).
+#### **Sequence Diagram 2: Quy trình Sự kiện (Event Process)**
 
 ```mermaid
 sequenceDiagram
@@ -1807,47 +1529,64 @@ sequenceDiagram
     participant G as Google Sync Service
     participant V as Vector Service (AI)
 
-    U->>C: Click "Create Event"<br/>(Fill form: Title, Time, Attendees)
-    C->>C: Validate Input (Client-side)
-    C->>S: POST /events
-    
-    S->>ES: createEvent(dto)
-    
-    %% Step 1: Core Creation & Google Sync
-    rect rgb(240, 248, 255)
-        Note over ES, G: Event Sync Service
-        ES->>DB: INSERT INTO events
-        DB-->>ES: event {id, ...}
+    Note over U, V: Quy trình CRUD Sự Kiện (Create - Read - Update - Delete)
+
+    opt 1. Create / Update Flow
+        U->>C: Create/Update Event
+        C->>S: POST/PATCH /events
+        S->>ES: createOrUpdate(dto)
         
-        opt If Google Connected
-            ES->>G: Sync to Google Calendar
-            G-->>ES: {googleEventId}
+        rect rgb(240, 248, 255)
+            Note over ES, G: Core Data & Sync
+            ES->>DB: UPSERT Event
+            DB-->>ES: event data
+            
+            opt If Google Connected
+                ES->>G: Sync to Google (Insert/Update)
+                G-->>ES: googleId
+            end
         end
+
+        rect rgb(255, 248, 240)
+            Note over ES, V: AI Context Sync
+            ES->>V: syncEventToVector(event)
+            Note right of V: Generate/Update Embedding
+            V-->>ES: Success
+        end
+        
+        ES-->>S: Return Event
+        S-->>C: Success
     end
 
-    %% Step 2: AI Embedding Sync
-    rect rgb(255, 248, 240)
-        Note over ES, V: AI Context Sync
-        ES->>V: syncEventToVector(event)
-        Note right of V: Generate Embedding<br/>& Store for RAG
-        V-->>ES: Success
+    opt 2. Read Flow (Get/List)
+        U->>C: View Calendar/Event
+        C->>S: GET /events
+        S->>ES: findAll(filter)
+        ES->>DB: SELECT * FROM events
+        DB-->>ES: events[]
+        ES-->>S: events[]
+        S-->>C: Display Events
     end
-    
-    ES-->>S: Return Created Event
-    S-->>C: 201 Created
-    C-->>U: Show Success Toast<br/>& Update Calendar View
+
+    opt 3. Delete Flow
+        U->>C: Delete Event
+        C->>S: DELETE /events/:id
+        S->>ES: delete(id)
+        
+        par Cleanup Data
+            ES->>DB: DELETE FROM events
+            and
+            ES->>G: Delete from Google
+            and
+            ES->>V: Delete Vector Embedding
+        end
+        
+        ES-->>S: Success
+        S-->>C: Success
+    end
 ```
 
-**Giải thích chi tiết:**
-1.  **Core Creation**: Sự kiện được lưu vào cơ sở dữ liệu chính (PostgreSQL) đầu tiên để đảm bảo tính toàn vẹn dữ liệu.
-2.  **Google Sync**: Nếu người dùng đã kết nối Google Calendar, hệ thống sẽ đồng bộ sự kiện sang Google Calendar ngay lập tức để đảm bảo lịch trình luôn được cập nhật trên mọi thiết bị.
-3.  **Vector Embedding**: Sau khi tạo xong, thông tin sự kiện được gửi đến `VectorService` để tạo embedding và lưu vào Vector Database (pgvector). Bước này giúp AI Assisant có thể "hiểu" và tra cứu được sự kiện này trong tương lai khi người dùng chat (ví dụ: "Sắp tới tôi có lịch gì?").
-
-
-
-#### **Sequence Diagram 6: Quy trình Đặt Lịch (Booking Module Flow)**
-
-Quy trình khách (Guest) đặt lịch hẹn thông qua trang Public Booking Page.
+#### **Sequence Diagram 3: Quy trình Đặt lịch (Booking Process)**
 
 ```mermaid
 sequenceDiagram
@@ -1855,38 +1594,139 @@ sequenceDiagram
     participant C as Public Page
     participant S as Booking Controller
     participant BS as Booking Service
-    participant V as Availability Service
+    participant AS as Availability Service
     participant DB as Database
+    participant N as Notification
 
-    G->>C: Select Time Slot & Confirm
-    C->>S: POST /bookings/:slug
+    G->>C: View Booking Link
+    C->>S: GET /slots
+    S->>AS: calculateAvailableSlots()
+    AS->>DB: Fetch Events & Schedule
+    AS-->>S: Available Slots []
+    S-->>C: Show Slots
     
-    S->>BS: createBooking(slug, dto)
+    G->>C: Select Slot & Confirm
+    C->>S: POST /bookings
+    S->>BS: createBooking()
     
-    %% Step 1: Validation
-    BS->>DB: Get Booking Link (by Slug)
-    DB-->>BS: link details
+    BS->>AS: validateSlot(Double-Check)
     
-    BS->>BS: Validate Rules<br/>(Advance Notice, Daily Limit)
-    
-    BS->>V: checkAvailability(time)
-    V-->>BS: Available
-    
-    %% Step 2: Creation
-    BS->>DB: INSERT INTO bookings<br/>(Status: CONFIRMED)
-    DB-->>BS: booking {id, confirmation_token...}
-    
-    BS-->>S: Return Booking
-    S-->>C: 201 Created
-    
-    C-->>G: Show Confirmation Screen
+    alt Slot Available
+        BS->>DB: Transaction: Create Booking + Event
+        DB-->>BS: Success
+        
+        par Emails
+            BS->>N: Send Confirmation to Guest
+            BS->>N: Send Alert to Host
+        end
+        
+        BS-->>S: Booking Confirmed
+        S-->>C: Success Page
+    else Slot Taken
+        BS-->>S: Error (Conflict)
+        S-->>C: Error Message
+    end
 ```
 
-**Giải thích:**
-1.  **Validation**: Hệ thống kiểm tra kỹ lưỡng các quy tắc đặt lịch (Booking Rules) như thời gian báo trước, giới hạn số lượt đặt trong ngày, và đặc biệt là kiểm tra tính khả dụng (Availability) thực tế của Host để tránh trùng lịch.
-2.  **Creation**: Nếu hợp lệ, Booking được tạo ngay với trạng thái `CONFIRMED`. Một `confirmation_token` được sinh ra để dùng cho các tác vụ hủy/dời lịch sau này mà không cần đăng nhập.
-3.  **Completion**: Trả về thông tin đặt lịch thành công cho khách.
+#### **Sequence Diagram 4: AI Chatbot với RAG**
 
+```mermaid
+sequenceDiagram
+    participant U as User (Frontend)
+    participant API as API Gateway
+    participant RAG as RAG Service
+    participant VEC as Vector Service
+    participant DB as PostgreSQL (pgvector)
+    participant LLM as Gemini LLM Service
+    participant SSE as SSE Stream
+
+    U->>API: POST /chat "Tôi bận lúc nào?"
+    
+    Note over API,DB: Retrieval Phase
+    API->>RAG: process(question)
+    RAG->>VEC: Embed(question)
+    VEC-->>RAG: vector
+    RAG->>DB: Search Top-K Similar Events
+    DB-->>RAG: Context Events []
+    
+    Note over RAG,LLM: Generation Phase
+    RAG->>LLM: Prompt = Context + Question
+    LLM-->>SSE: Stream Response
+    SSE-->>U: "Bạn có cuộc họp lúc 9h..."
+```
+
+#### **Sequence Diagram 5: Quản lý Công việc (Task Flow)**
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant TS as Task Service
+    participant DB as Database
+    participant SCH as Scheduler (BullMQ)
+    participant N as Notification
+
+    U->>TS: Create Task (Title, DueDate, Priority)
+    TS->>DB: INSERT INTO tasks
+    DB-->>TS: task_id
+    
+    opt Has Due Date
+        TS->>SCH: scheduleReminder(task_id, due_date - 30m)
+        SCH-->>TS: job_id
+    end
+    
+    TS-->>U: Task Created
+    
+    Note over SCH,N: When Due Date Approaches
+    SCH->>N: triggerReminder()
+    N-->>U: Push Notification / Email
+```
+
+#### **Sequence Diagram 6: Hợp tác Nhóm (Team Collaboration)**
+
+```mermaid
+sequenceDiagram
+    participant Owner
+    participant Member
+    participant TM as Team Service
+    participant DB as Database
+    participant Mail as Email Service
+
+    Owner->>TM: Create Team "Marketing"
+    TM->>DB: Insert Team
+    
+    Owner->>TM: Invite Member (email)
+    TM->>DB: Create Invitation Token
+    TM->>Mail: Send Invite Link
+    Mail-->>Member: Email "Join Team"
+    
+    Member->>TM: Click Join Link
+    TM->>DB: Verify Token & Add Member
+    DB-->>TM: Success
+    
+    TM->>Owner: Notify "Member Joined"
+```
+
+#### **Sequence Diagram 7: Khôi phục Mật khẩu (Password Reset)**
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Client
+    participant Server
+    participant DB
+    participant Email
+    
+    User->>Client: Click "Forgot Password"
+    Client->>Server: POST /auth/forgot-password
+    Server->>DB: Generate Token
+    Server->>Email: Send Link
+    Email-->>User: Email with Token
+    
+    User->>Client: Click Link & New Pass
+    Client->>Server: POST /auth/reset-password
+    Server->>DB: Validate & Update Pass
+    Server-->>Client: Success
+```
 
 ### **3.3.6. Progressive Web App (PWA)**
 
