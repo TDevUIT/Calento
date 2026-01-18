@@ -264,6 +264,14 @@ LangChain hoạt động như một framework kết nối LLM với dữ liệu 
 
   ##### Hình 7: LangChain {#hình-7:-langchain}
 
+### **2.4.3. Kiến trúc RAG (Retrieval-Augmented Generation)**
+
+Hệ thống triển khai kỹ thuật **Advanced RAG** để tối ưu hóa khả năng truy xuất thông tin của AI, bao gồm 3 bước xử lý chuyên sâu:
+
+1.  **Query Expansion (Mở rộng truy vấn)**: Câu hỏi thô của người dùng thường ngắn gọn hoặc thiếu ngữ cảnh (ví dụ: "lịch họp mai"). Hệ thống sử dụng LLM để viết lại câu hỏi này (ví dụ: "danh sách sự kiện ngày 20/01/2026"), bổ sung các từ khóa liên quan để tăng độ chính xác khi tìm kiếm.
+2.  **Hybrid Search (Tìm kiếm lai)**: Kết hợp sức mạnh của **Vector Search** (`pgvector`) để tìm kiếm theo ngữ nghĩa và **Full-Text Search** để tìm kiếm từ khóa chính xác. Kết quả tìm kiếm được tính điểm tổng hợp theo công thức trọng số: `Score = 0.7 * VectorScore + 0.3 * TextScore`, đảm bảo cân bằng giữa hiểu ngữ cảnh và khớp từ khóa.
+3.  **Reranking (Sắp xếp lại)**: Danh sách các ngữ cảnh tiềm năng sau khi được truy xuất sẽ được đưa qua một mô hình AI nhẹ để chấm điểm mức độ liên quan (Relevance Scoring) một lần nữa. Chỉ Top 3 ngữ cảnh có điểm cao nhất mới được chọn để đưa vào prompt context gửi cho Chatbot, giúp giảm nhiễu (hallucination) và tăng độ chính xác của câu trả lời.
+
 # **Chương III. PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG** {#chương-iii.-phân-tích-và-thiết-kế-hệ-thống}
 
 ## **3.1. Danh sách các yêu cầu**
@@ -406,57 +414,57 @@ Hệ thống Calento phục vụ các actors sau:
 ### **3.2.2. Sơ đồ Use Case tổng quan**
 
 ```mermaid
-usecaseDiagram
-    actor "Guest (Khách)" as G
-    actor "Registered User" as U
-    actor "Team Member" as TM
-    actor "Team Owner" as TO
-    actor "Admin" as A
+graph TD
+    User((Registered User))
+    Guest((Guest))
+    Admin((Admin))
+    TeamMember((Team Member))
+    TeamOwner((Team Owner))
 
-    package "Authentication" {
-        usecase "Đăng ký / Đăng nhập" as UC1
-        usecase "Quên mật khẩu" as UC2
-        usecase "Google OAuth" as UC3
-    }
+    subgraph Authentication
+        UC1(Đăng ký / Đăng nhập)
+        UC2(Quên mật khẩu)
+        UC3(Google OAuth)
+    end
 
-    package "Calendar Management" {
-        usecase "CRUD Sự kiện" as UC4
-        usecase "Đồng bộ Google Calendar" as UC5
-        usecase "Quản lý Tasks" as UC6
-    }
+    subgraph Calendar[Calendar Management]
+        UC4(CRUD Sự kiện)
+        UC5(Đồng bộ Google Calendar)
+        UC6(Quản lý Tasks)
+    end
 
-    package "Booking System" {
-        usecase "Tạo Booking Link" as UC7
-        usecase "Đặt lịch hẹn" as UC8
-    }
+    subgraph Booking[Booking System]
+        UC7(Tạo Booking Link)
+        UC8(Đặt lịch hẹn)
+    end
 
-    package "Team Collaboration" {
-        usecase "Quản lý Team" as UC9
-        usecase "Team Rituals" as UC10
-        usecase "Xem lịch nhóm" as UC11
-    }
+    subgraph Team[Team Collaboration]
+        UC9(Quản lý Team)
+        UC10(Team Rituals)
+        UC11(Xem lịch nhóm)
+    end
 
-    package "AI Features" {
-        usecase "Chat với AI Assistant" as UC12
-        usecase "Tìm kiếm ngữ nghĩa (RAG)" as UC13
-    }
+    subgraph AI[AI Features]
+        UC12(Chat AI Assistant)
+        UC13(RAG Search)
+    end
 
-    G --> UC1
-    G --> UC8
-    
-    U --> UC4
-    U --> UC5
-    U --> UC6
-    U --> UC7
-    U --> UC12
-    U --> UC13
-    
-    TM --> UC11
-    
-    TO --> UC9
-    TO --> UC10
-    
-    A --> UC1
+    User --> UC4
+    User --> UC5
+    User --> UC6
+    User --> UC7
+    User --> UC12
+    User --> UC13
+
+    Guest --> UC1
+    Guest --> UC8
+
+    TeamOwner --> UC9
+    TeamOwner --> UC10
+
+    TeamMember --> UC11
+
+    Admin --> UC1
 ```
 
 ##### Hình 9: Sơ đồ Use Case tổng quan
@@ -705,19 +713,27 @@ Calendar Module cũng quản lý calendar sharing permissions (trong tương lai
 
 ### **3.3.2. Event Management Modules**
 
-Module này là core logic của hệ thống. Quản lý lịch, sự kiện, RRULE engine cho sự kiện lặp lại, đồng bộ dữ liệu.
+Đây là nhóm module cốt lõi (Core Modules) chịu trách nhiệm về toàn bộ nghiệp vụ quản lý lịch trình và đặt hẹn.
 
-![][image11]
+#### **3.3.2.1. Calendar & Event Module**
 
-##### Hình 11: Calendar & Event Module
-{#hình-11:-calendar-&-event-module}
+Module này quản lý vòng đời của các đối tượng Calendar và Event, đóng vai trò là xương sống dữ liệu của hệ thống.
 
-* Booking Module: Xử lý logic đặt lịch, tạo booking links, kiểm tra khung giờ rảnh (Availability checking).
+*   **Quản lý sự kiện (Event Lifecycle)**: Hỗ trợ đầy đủ các thao tác CRUD cho sự kiện đơn (Single Events) và lặp lại (Recurring Events). Mỗi sự kiện lưu trữ thông tin chi tiết: thời gian, địa điểm, mô tả, màu sắc, và danh sách người tham dự (Attendees).
+*   **Recurrence Engine (RRULE)**: Tích hợp engine xử lý chuẩn RFC 5545 để quản lý các sự kiện lặp lại phức tạp (v.d: "Họp vào 9h sáng thứ Hai cách tuần"). Engine này tự động tính toán và generate các instances cụ thể (occurrences) từ quy tắc lặp, giúp user nhìn thấy đầy đủ lịch trình trong tương lai mà không cần lưu cứng hàng nghìn record vào DB.
+*   **Timezone & Localization**: Xử lý logic chuyển đổi múi giờ (Timezone Conversion) để ensuring thời gian hiển thị chính xác cho user ở bất kỳ đâu. Mọi thời gian đều được lưu trữ dưới dạng UTC trong database và chỉ convert sang local time khi hiển thị.
 
-![][image12]
+_(Xem chi tiết quy trình xử lý tại mục 3.3.5 - Sơ đồ tuần tự)_
 
-##### Hình 12: Booking Module
-{#hình-12:-booking-module}
+#### **3.3.2.2. Booking Module**
+
+Module Booking giải quyết bài toán cốt lõi về "tìm giờ rảnh và đặt hẹn", giúp automate quy trình lên lịch họp.
+
+*   **Availability Engine (Công cụ tính giờ rảnh)**: Đây là logic phức tạp nhất. Engine phân tích Availability Rules (khung giờ làm việc) của user, trừ đi các sự kiện bận (Busy Events) từ Calendar Module, tính toán cả Buffer Time (thời gian nghỉ giữa các cuộc họp) và Advance Notice (thời gian báo trước). Kết quả là danh sách các "Slots" khả dụng để guest có thể book.
+*   **Booking Link Flow**: Quản lý việc tạo và cấu hình các trang đặt lịch công khai (Public Booking Page). Mỗi link có thể tùy chỉnh thời lượng (15/30/60 phút), câu hỏi khảo sát (Custom Questions), và cấu hình xác nhận tự động.
+*   **Multi-step Booking Process**: Xử lý transaction đặt lịch an toàn: (1) Guest chọn slot -> (2) System hold slot tạm thời -> (3) Guest điền info -> (4) Confirm booking -> (5) Create Event & Send Emails. Quy trình này đảm bảo không bị double-booking (hai người đặt cùng lúc 1 giờ).
+
+_(Xem chi tiết quy trình đặt lịch tại mục 3.3.5 - Sơ đồ tuần tự)_
 
 ### **3.3.2. AI & RAG Modules**
 
@@ -1819,6 +1835,45 @@ Hệ thống Email & Thông báo đóng vai trò quan trọng trong việc duy t
 
 ![Team Invitation Email](Mô tả: Giao diện Email mời thành viên gia nhập nhóm làm việc)
 
+4. **Validation & Update**: Khi người dùng nhấn vào liên kết và nhập mật khẩu mới, Client gửi request `/auth/reset-password` kèm token. Server xác thực token (kiểm tra tính hợp lệ và thời hạn). Nếu thành công, mật khẩu trong database được cập nhật (hashed) và token bị hủy bỏ.
+
+#### **Sequence Diagram 5: Quy trình Tạo Sự kiện (Create Event Flow)**
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant C as Client
+    participant S as Event Service
+    participant DB as Database
+    participant G as Google Sync Service
+    participant E as Email Service
+
+    U->>C: Click "Create Event"<br/>(Fill form: Title, Time, Attendees)
+    C->>C: Validate Input (Client-side)
+    C->>S: POST /events
+    
+    S->>S: Validate Data (Server-side)
+    S->>DB: INSERT INTO events
+    DB-->>S: event {id, ...}
+    
+    par Async Actions
+        S->>E: Send Invitation Emails<br/>(to attendees)
+        S->>G: Sync to Google Calendar<br/>(if connected)
+    and
+        S-->>C: 201 Created (return Event)
+    end
+    
+    C-->>U: Show Success Toast<br/>& Update Calendar View
+    
+    E-->>U: (Email sent bg)
+    G-->>U: (Synced bg)
+```
+
+**Giải thích:**
+1.  **User Interaction**: User điền form tạo sự kiện.
+2.  **Sync & Notify**: Sau khi lưu vào DB, Server thực hiện song song (parallel) việc gửi email mời khách và đồng bộ lên Google Calendar (nếu user đã connect).
+3.  **Response**: Trả về kết quả ngay cho User UX mượt mà, không chờ actions background.
+
 ## **3.4. Thiết kế API**
 
 
@@ -1864,6 +1919,68 @@ Nhóm API này phục vụ tính năng đặt lịch công khai. Các endpoints 
 
 **AI Integration Module:**
 Cung cấp các endpoints cho tính năng AI Assistant. Endpoint `/ai/chat` hỗ trợ Server-Sent Events (SSE), cho phép streaming response từ LLM về client theo thời gian thực (real-time typing effect). Endpoint này cũng handle logic RAG: nhận câu hỏi, gọi vector search service, và inject context vào prompt trước khi gửi đến Gemini model.
+
+### **3.4.5. Danh sách API chi tiết**
+
+Dưới đây là bảng đặc tả các API endpoints quan trọng nhất của hệ thống, được phân nhóm theo chức năng:
+
+### **3.4.5. Danh sách API chi tiết**
+
+Dưới đây là bảng đặc tả các API endpoints quan trọng nhất của hệ thống, được phân nhóm theo chức năng:
+
+### **3.4.5. Danh sách API chi tiết**
+
+Dưới đây là bảng đặc tả các API endpoints quan trọng nhất của hệ thống, được phân nhóm theo chức năng:
+
+| Module | Method | Endpoint | Mô tả chức năng | Auth |
+| :--- | :---: | :--- | :--- | :---: |
+| **Auth** | POST | `/api/v1/auth/login` | Đăng nhập bằng Email/Password | No |
+| | POST | `/api/v1/auth/register` | Đăng ký tài khoản mới | No |
+| | POST | `/api/v1/auth/logout` | Đăng xuất (Clear cookie) | Yes |
+| | POST | `/api/v1/auth/refresh` | Làm mới Access Token (Token Rotation) | No |
+| | GET | `/api/v1/auth/verify` | Kiểm tra trạng thái đăng nhập | No |
+| | GET | `/api/v1/auth/google/url` | Lấy URL đăng nhập Google OAuth | No |
+| | POST | `/api/v1/auth/google/login` | Đăng nhập với Authorization Code | No |
+| | POST | `/api/v1/auth/forgot-password` | Yêu cầu reset mật khẩu | No |
+| **Users** | GET | `/api/v1/users/me` | Lấy thông tin Profile hiện tại | Yes |
+| | GET | `/api/v1/users/search` | Tìm kiếm người dùng (cho invite) | Yes |
+| | PATCH | `/api/v1/users/me/settings` | Cập nhật cài đặt (Language, Theme) | Yes |
+| **Calendars** | GET | `/api/v1/calendars` | Lấy danh sách lịch cá nhân | Yes |
+| | POST | `/api/v1/calendars` | Tạo lịch mới (Secondary Calendar) | Yes |
+| | GET | `/api/v1/calendars/primary` | Lấy lịch chính (Primary) | Yes |
+| **Events** | GET | `/api/v1/events` | Lấy danh sách sự kiện (Filter by date) | Yes |
+| | POST | `/api/v1/events` | Tạo sự kiện mới | Yes |
+| | GET | `/api/v1/events/recurring/expand` | Bung sự kiện lặp lại (Expand RRULE) | Yes |
+| | POST | `/api/v1/events/sync` | Trigger đồng bộ Google Calendar | Yes |
+| | POST | `/api/v1/events/:id/invitations/send`| Gửi email mời tham gia sự kiện | Yes |
+| | POST | `/api/v1/events/invitation/:token/respond`| Phản hồi lời mời (Accept/Decline) | No |
+| **Booking** | GET | `/api/v1/booking-links` | Quản lý danh sách Booking Links | Yes |
+| | GET | `/api/v1/bookings/public/:slug` | Lấy thông tin trang đặt lịch Public | No |
+| | GET | `/api/v1/bookings/public/:slug/slots`| Tìm các khung giờ rảnh (Availability) | No |
+| | POST | `/api/v1/bookings/:slug` | Khách thực hiện đặt lịch (Create) | No |
+| | POST | `/api/v1/bookings/:id/cancel` | Hủy lịch hẹn | Yes |
+| | POST | `/api/v1/bookings/:id/reschedule` | Dời lịch hẹn | Yes |
+| **Tasks** | GET | `/api/v1/tasks` | Lấy danh sách công việc (todo list) | Yes |
+| | POST | `/api/v1/tasks` | Tạo công việc mới | Yes |
+| | GET | `/api/v1/tasks/overdue` | Lấy công việc quá hạn | Yes |
+| | GET | `/api/v1/tasks/statistics` | Thống kê hiệu suất hoàn thành task | Yes |
+| | PATCH | `/api/v1/tasks/:id/status` | Cập nhật trạng thái (todo/done) | Yes |
+| **AI** | POST | `/api/v1/ai/chat` | Chat với AI (Response Object) | Yes |
+| | POST | `/api/v1/ai/chat/stream` | Chat Streaming (Server-Sent Events) | Yes |
+| | GET | `/api/v1/ai/conversations` | Lịch sử hội thoại | Yes |
+| | POST | `/api/v1/ai/actions/confirm` | Xác nhận hành động AI đề xuất | Yes |
+| **Teams** | GET | `/api/v1/teams` | Lấy danh sách Teams của user | Yes |
+| | POST | `/api/v1/teams/:id/members` | Mời thành viên vào Team | Yes |
+| | GET | `/api/v1/teams/:id/heatmap` | Biểu đồ nhiệt rảnh/bận của Team | Yes |
+| | GET | `/api/v1/teams/:id/optimal-times` | Gợi ý giờ họp tốt nhất cho Team | Yes |
+| **Analytics**| GET | `/api/v1/analytics/overview` | Tổng quan số liệu (Events/Time) | Yes |
+| | GET | `/api/v1/analytics/time-utilization`| Phân tích hiệu suất sử dụng thời gian | Yes |
+| | GET | `/api/v1/analytics/categories` | Phân tích phân bổ danh mục (Category) | Yes |
+| **Blog** | GET | `/api/v1/blog/public/published` | Lấy bài viết đã xuất bản (Public) | No |
+| | GET | `/api/v1/blog/search` | Tìm kiếm bài viết | No |
+| | POST | `/api/v1/blog` | Tạo bài viết mới (Admin) | Yes |
+| **Notification**| POST | `/api/v1/notifications/schedule-reminders`| Lên lịch gửi nhắc nhở (Job Trigger) | Yes |
+| | GET | `/api/v1/notifications/pending` | Lấy thông báo đang chờ xử lý | Yes |
 
 ## **3.5. Cài đặt môi trường**
 
@@ -1947,8 +2064,6 @@ Sau khi di chuyển vào thư mục `client` và cài đặt dependencies, file 
 | `NEXT_PUBLIC_APP_FE_URL` | URL gốc của Frontend. | `http://localhost:3000` |
 | `NEXT_PUBLIC_API_URL` | URL gốc của Backend API. | `http://localhost:8000` |
 | `NEXT_PUBLIC_API_PREFIX` | Tiền tố đường dẫn API. | `api/v1` |
-| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Client ID cho Google OAuth (giống Backend). | `...apps.googleusercontent.com` |
-| `NEXT_PUBLIC_ENABLE_AI_CHAT` | Bật/tắt tính năng AI Chatbot. | `true` hoặc `false` |
 
 **2. Khởi chạy Ứng dụng**
 
@@ -2067,37 +2182,109 @@ Hệ thống được tổ chức thành các luồng màn hình logic, giúp ng
 
 ```mermaid
 graph TD
-    Start((Start)) --> Login[Login / Register Screen]
-    Login -->|Auth Success| Dashboard[Step 1: Dashboard Home]
-    
-    subgraph "Main Workspace"
-        Dashboard --> Calendar[Step 2: Calendar View]
-        Dashboard --> Tasks[Task Board]
-        Dashboard --> Settings[Step 3: User Settings]
-        Dashboard --> Team[Team Workspace]
+    %% Public Area
+    subgraph Public[Public Pages]
+        Home[Landing Page]
+        About[About Us]
+        Pricing[Pricing]
+        BlogList[Blog Listing] --> BlogDetail[Blog Detail]
+        PublicBooking[Public Booking Page] --> BookingConfirm[Booking Confirmation]
     end
-    
-    subgraph "Feature Flows"
-        Calendar -->|Click Time Slot| EventModal[Step 4: Create Event Modal]
-        Calendar -->|Click Event| EventDetail[Event Detail Modal]
-        EventModal -->|Submit| Calendar
+
+    %% Auth Area
+    subgraph Auth[Authentication]
+        Login[Login Screen] -->|Forgot Password| ForgotPwd[Forgot Password]
+        Register[Register Screen] -->|Verify Email| OTP[OTP/Email Verification]
+        OAuth[Google OAuth Callback]
+    end
+
+    %% Dashboard Area
+    subgraph Dashboard[Dashboard Workspace]
+        HomeDashboard[Home Dashboard]
         
-        Dashboard -->|Click AI Chat| AIChat[Step 5: AI Assistant Panel]
-        AIChat -->|Function Call| Calendar
-        
-        Dashboard -->|Manage Links| BookingMgr[Booking Links Manager]
-        BookingMgr -->|Create/Edit| LinkConfig[Link Configuration]
+        %% Calendar Group
+        subgraph CalModule[Calendar Management]
+            CalMonth[Calendar Month View]
+            CalWeek[Calendar Week View]
+            CalDay[Calendar Day View]
+            EventCreate[Create Event Modal]
+            EventDetail[Event View/Edit Modal]
+        end
+
+        %% Booking Group
+        subgraph BookModule[Booking System]
+            BookingList[Booking Links Manager]
+            BookingCreate[Create Booking Type]
+            BookingSettings[Booking Settings]
+            AvailSettings[Availability Rules]
+        end
+
+        %% Task Group
+        subgraph TaskModule[Task Management]
+            TaskBoard[Kanban Board]
+            TaskList[Task List View]
+        end
+
+        %% Team Group
+        subgraph TeamModule[Team Collaboration]
+            TeamList[Team List]
+            TeamDetail[Team Dashboard]
+            TeamSettings[Team Settings]
+        end
+
+        %% AI Group
+        subgraph AIModule[Ai Assistant]
+            AIChat[AI Sidebar/Panel]
+        end
+
+        %% Settings Group
+        subgraph SettingModule[Settings]
+            Profile[User Profile]
+            Integ[Integrations]
+            Pref[Preferences]
+            Billing[Billing]
+        end
     end
+
+    %% Connections
+    Home --> Login
+    Home --> Register
     
-    subgraph "Public View"
-        Guest((Guest User)) --> P_Booking[Step 6: Public Booking Page]
-        P_Booking -->|Select Slot| P_Confirm[Confirmation Screen]
-        P_Confirm -->|Success| P_Success[Success Page]
-    end
+    Login -->|Success| HomeDashboard
+    Register -->|Success| HomeDashboard
+    OAuth -->|Success| HomeDashboard
     
-    style Dashboard fill:#e3f2fd,stroke:#2196f3
-    style Calendar fill:#e3f2fd,stroke:#2196f3
-    style P_Booking fill:#e8f5e9,stroke:#4caf50
+    HomeDashboard --> CalMonth
+    HomeDashboard --> BookingList
+    HomeDashboard --> TaskBoard
+    HomeDashboard --> AIChat
+    HomeDashboard --> Profile
+    
+    %% Calendar Flows
+    CalMonth -->|Switch View| CalWeek
+    CalWeek -->|Switch View| CalDay
+    CalMonth -->|Click Slot| EventCreate
+    CalMonth -->|Click Event| EventDetail
+    
+    %% Booking Flows
+    BookingList -->|Create New| BookingCreate
+    BookingList -->|Edit| BookingSettings
+    BookingSettings --> AvailSettings
+    
+    %% Task Flows
+    TaskBoard -->|Toggle View| TaskList
+    
+    %% Team Flows
+    HomeDashboard --> TeamList
+    TeamList -->|Select Team| TeamDetail
+    TeamDetail -->|Manage| TeamSettings
+
+    %% Navigation
+    User((User)) --> Home
+    Guest((Guest)) --> PublicBooking
+    
+    style HomeDashboard fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
+    style PublicBooking fill:#e8f5e9,stroke:#4caf50
     style AIChat fill:#f3e5f5,stroke:#9c27b0
 ```
 
@@ -2106,7 +2293,7 @@ graph TD
 ## **4.2. Thiết kế UI/UX**
 
 ### **4.2.1. Triết lý thiết kế (Design Philosophy)**
-Hệ thống Calento theo đuổi triết lý thiết kế **"User-Centric Minimalism"** (Tối giản lấy người dùng làm trung tâm). Chúng tôi tin rằng một công cụ quản lý thời gian hiệu quả phải là công cụ "vô hình" - không làm phiền người dùng với các chi tiết thừa thãi mà tập trung tối đa vào nội dung cốt lõi: Lịch trình và Công việc.
+Hệ thống Calento theo đuổi triết lý thiết kế **"User-Centric Minimalism"** (Tối giản lấy người dùng làm trung tâm). Nhóm tin rằng một công cụ quản lý thời gian hiệu quả phải là công cụ "vô hình" - không làm phiền người dùng với các chi tiết thừa thãi mà tập trung tối đa vào nội dung cốt lõi: Lịch trình và Công việc.
 
 Các nguyên tắc chính:
 1. **Clarity (Sự rõ ràng)**: Thông tin quan trọng nhất luôn được làm nổi bật. Sử dụng khoảng trắng (whitespace) hợp lý để giảm tải nhận thức (cognitive load).
@@ -2147,7 +2334,7 @@ Màn hình Authentication là điểm chạm đầu tiên của người dùng v
 
 ### **4.3.3. Màn hình AI Assistant Panel**
 
-AI Assistant không phải là một trang riêng biệt mà là một slide-over panel (ngăn kéo trượt) từ bên phải màn hình, có thể truy cập từ bất kỳ đâu trong ứng dụng. Thiết kế này cho phép người dùng vừa chat với AI vừa quan sát lịch của mình (contextual multitasking).
+AI Assistant không phải là một trang riêng biệt mà là một slide-over panel (ngăn kéo trượt) từ bên phải màn hình, được tích hợp trực tiếp vào giao diện **Dashboard** và **Calendar**. Thiết kế này cho phép người dùng vừa chat với AI vừa quan sát lịch của mình (contextual multitasking) mà không cần chuyển ngữ cảnh. Hiện tại tính năng này chỉ khả dụng trong không gian làm việc chính (Workspace), chưa hỗ trợ ở các trang Admin hay Public.
 
 Giao diện chat mô phỏng các ứng dụng nhắn tin hiện đại với bong bóng chat (chat bubbles). Điểm đặc biệt là khả năng hiển thị Rich UI Components trong stream chat: khi AI đề xuất một lịch họp, nó không chỉ hiện text mà hiện một "Event Card" nhỏ gọn có nút "Confirm" để người dùng thao tác ngay lập tức. Hiệu ứng "typing indicator" và response streaming tạo cảm giác phản hồi tự nhiên và nhanh chóng.
 
@@ -2183,7 +2370,13 @@ Tính năng Drag & Drop cho phép người dùng dễ dàng sắp xếp lại th
 
 ![Task Management Board](Giao diện quản lý Task với danh sách ưu tiên và thao tác kéo thả)
 
+### **4.3.8. Màn hình Quản lý Blog (Admin CMS)**
 
+Giao diện quản trị (Admin Dashboard) đang trong giai đoạn phát triển hoàn thiện. Hiện tại, module **Content Management System (CMS)** đã được triển khai để phục vụ việc tạo và quản lý bài viết Blog.
+
+Giao diện soạn thảo hỗ trợ Markdown Editor với chế độ xem trước (Preview) thời gian thực. Admin có thể đặt tiêu đề, chọn danh mục, gắn thẻ (tags) và tải lên ảnh bìa cho bài viết. Danh sách bài viết cho phép lọc theo trạng thái (Draft/Published) và thực hiện các thao tác chỉnh sửa nhanh. Các module quản trị khác (Quản lý User, Analytics) sẽ được cập nhật trong các phiên bản tiếp theo.
+
+![Admin Blog CMS](Giao diện Admin tạo bài viết Blog với trình soạn thảo Markdown)
 # **Chương V. KẾT LUẬN**
 
 ## **5.1. Kết quả đạt được**
