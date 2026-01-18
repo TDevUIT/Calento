@@ -135,50 +135,27 @@ Xây dựng thành công ứng dụng web Calento với đầy đủ các tính 
 
 ### **1.2.2. Mục tiêu cụ thể**
 
-1. Về nghiệp vụ:  
-   * Cung cấp đầy đủ các thao tác quản lý lịch cơ bản (CRUD events).  
-   * Tích hợp Google Calendar để đồng bộ dữ liệu hai chiều.  
-   * Xây dựng hệ thống đặt lịch hẹn (Booking System) chuyên nghiệp.  
-   * Phát triển trợ lý ảo AI có khả năng hiểu lệnh và thực hiện hành động (Function Calling).  
-2. Về kỹ thuật:  
-   * Xây dựng hệ thống theo kiến trúc Client-Server hiện đại, đảm bảo tính mở rộng và bảo trì.  
-   * Sử dụng NestJS cho Backend và Next.js cho Frontend để tối ưu hiệu suất và SEO.  
-   * Triển khai PostgreSQL với pgvector để hỗ trợ tính năng RAG (Retrieval-Augmented Generation).  
-   * Tối ưu hóa trải nghiệm người dùng với Real-time Streaming và phản hồi nhanh chóng.
+Về mặt nghiệp vụ, ứng dụng cần cung cấp đầy đủ các thao tác quản lý lịch cơ bản (CRUD events) và tích hợp đồng bộ dữ liệu hai chiều với Google Calendar. Một tính năng quan trọng là hệ thống đặt lịch hẹn (Booking System) chuyên nghiệp, cho phép người dùng tùy chỉnh thời gian rảnh. Bên cạnh đó, trợ lý ảo AI sẽ được phát triển với khả năng hiểu lệnh và thực hiện hành động (Function Calling) để hỗ trợ người dùng tối đa.
+
+Về mặt kỹ thuật, hệ thống được xây dựng theo kiến trúc Client-Server hiện đại để đảm bảo tính mở rộng và dễ bảo trì. Backend sử dụng NestJS kết hợp với Frontend Next.js nhằm tối ưu hóa hiệu suất và khả năng SEO. Cơ sở dữ liệu PostgreSQL được triển khai cùng extension pgvector để hỗ trợ tính năng RAG (Retrieval-Augmented Generation), đồng thời trải nghiệm người dùng được tối ưu hóa thông qua Real-time Streaming và phản hồi nhanh chóng.
 
 ## **1.3. Phạm vi thực hiện**
 
 ### **1.3.1. Các tính năng được triển khai**
 
-1. Quản lý sự kiện (Event Management):  
-   * Tạo, xem, sửa, xóa sự kiện.  
-   * Hỗ trợ sự kiện lặp lại (Recurring events \- RRULE).  
-   * Quản lý người tham dự và gửi lời mời.  
-2. AI Assistant & RAG (Retrieval-Augmented Generation):  
-   * Chatbot tích hợp Google Gemini AI.  
-   * Hỗ trợ Function Calling để thực hiện hành động (tạo lịch, tìm lịch trống).  
-   * MỚI: Hệ thống RAG giúp AI ghi nhớ và truy xuất ngữ cảnh người dùng thông qua Vector Search.  
-3. Hệ thống đặt lịch (Booking System):  
-   * Tạo trang đặt lịch cá nhân (Booking Links).  
-   * Tùy chỉnh khung giờ rảnh và quy tắc đặt lịch.  
-4. Đồng bộ & Tích hợp:  
-   * Đồng bộ 2 chiều với Google Calendar.  
-   * Gửi email thông báo và nhắc nhở tự động.
+Hệ thống bao gồm tính năng Quản lý sự kiện (Event Management) cho phép tạo, xem, sửa, xóa sự kiện, hỗ trợ sự kiện lặp lại (Recurring events - RRULE), quản lý người tham dự và gửi lời mời. Tính năng AI Assistant & RAG tích hợp Chatbot sử dụng Google Gemini AI, hỗ trợ Function Calling để thực hiện hành động như tạo lịch hoặc tìm lịch trống. Điểm mới là hệ thống RAG giúp AI ghi nhớ và truy xuất ngữ cảnh người dùng thông qua Vector Search.
+
+Đối với Hệ thống đặt lịch (Booking System), người dùng có thể tạo các trang đặt lịch cá nhân (Booking Links) và tùy chỉnh khung giờ rảnh cũng như quy tắc đặt lịch. Khả năng Đồng bộ & Tích hợp đảm bảo đồng bộ 2 chiều với Google Calendar, đồng thời hệ thống sẽ gửi email thông báo và nhắc nhở tự động đến người dùng.
 
 ### **1.3.2. Giới hạn**
 
-* Ứng dụng tập trung vào nền tảng Web, giao diện Mobile được tối ưu qua Responsive Web Design (không phải Native App).  
-* Chưa hỗ trợ tích hợp Video Call trực tiếp (chỉ tạo link Google Meet).  
-* Tính năng phân tích dữ liệu nâng cao (Advanced Analytics) sẽ được phát triển trong giai đoạn sau.
+Ứng dụng hiện tập trung phát triển trên nền tảng Web, với giao diện Mobile được tối ưu hóa qua Responsive Web Design thay vì Native App. Hệ thống chưa hỗ trợ tích hợp Video Call trực tiếp mà chỉ tạo link Google Meet. Ngoài ra, tính năng phân tích dữ liệu nâng cao (Advanced Analytics) sẽ được phát triển trong giai đoạn sau của dự án.
 
 ## **1.4. Bố cục báo cáo**
 
 Báo cáo được chia thành 4 chương chính:
 
-* Chương 1: Giới thiệu đề tài: Trình bày lý do chọn đề tài, mục tiêu và phạm vi của dự án.  
-* Chương 2: Công nghệ sử dụng: Giới thiệu các công nghệ, ngôn ngữ và công cụ được sử dụng để xây dựng hệ thống (NestJS, Next.js, PostgreSQL/pgvector, Google Gemini).  
-* Chương 3: Phân tích và thiết kế hệ thống: Mô tả kiến trúc tổng thể, các thành phần module (bao gồm module Vector/RAG mới), và thiết kế cơ sở dữ liệu chi tiết.  
-* Chương 4: Thiết kế màn hình: Trình bày sơ đồ luồng màn hình và chi tiết thiết kế giao diện người dùng, bao gồm các cải tiến về trải nghiệm chat thông minh
+Báo cáo được chia thành 4 chương chính. Chương 1 giới thiệu tổng quan về đề tài, lý do lựa chọn, mục tiêu và phạm vi dự án. Chương 2 trình bày các công nghệ, ngôn ngữ và công cụ sử dụng như NestJS, Next.js, PostgreSQL/pgvector và Google Gemini. Chương 3 tập trung phân tích và thiết kế hệ thống, mô tả kiến trúc tổng thể, các module thành phần và thiết kế cơ sở dữ liệu. Cuối cùng, Chương 4 trình bày thiết kế chi tiết màn hình, bao gồm sơ đồ luồng và giao diện người dùng, đặc biệt là các cải tiến trong trải nghiệm chat thông minh.
 
 # **Chương II. CÔNG NGHỆ SỬ DỤNG** {#chương-ii.-công-nghệ-sử-dụng}
 
@@ -200,9 +177,7 @@ Hệ thống Calento được xây dựng trên nền tảng công nghệ hiện
 
 NestJS là framework Node.js được chọn làm nền tảng cho Backend vì kiến trúc module hóa rõ ràng, hỗ trợ TypeScript toàn diện và tuân thủ các nguyên tắc SOLID.
 
-* Module System: Giúp tổ chức code thành các khối độc lập (AuthModule, UserModule, AIModule, VectorModule...), dễ bảo trì và mở rộng.  
-* Dependency Injection: Quản lý sự phụ thuộc giữa các thành phần hiệu quả.  
-* Decorators: Đơn giản hóa việc khai báo route, middleware và validation.
+NestJS là framework Node.js được chọn làm nền tảng cho Backend vì kiến trúc module hóa rõ ràng, hỗ trợ TypeScript toàn diện và tuân thủ các nguyên tắc SOLID. Hệ thống Module của NestJS giúp tổ chức code thành các khối độc lập (AuthModule, UserModule, AIModule...), giúp việc bảo trì và mở rộng trở nên dễ dàng. Cơ chế Dependency Injection quản lý sự phụ thuộc giữa các thành phần một cách hiệu quả, trong khi các Decorators đơn giản hóa việc khai báo route, middleware và validation, giúp code trở nên gọn gàng và dễ đọc hơn.
 
 
   ##### Hình 1: NestJS  {#hình-1:-nestjs}
@@ -211,9 +186,7 @@ NestJS là framework Node.js được chọn làm nền tảng cho Backend vì k
 
 Hệ thống sử dụng PostgreSQL làm cơ sở dữ liệu chính (Relational Database) kết hợp với extension pgvector để hỗ trợ lưu trữ và tìm kiếm vector.
 
-* Relational Data: Lưu trữ thông tin structured như User, Event, Calendar, Booking.  
-* Vector Data: Lưu trữ embeddings của ngữ cảnh người dùng và lịch sử hội thoại trong bảng user\_context\_summary với kích thước 768 chiều (tương thích với model embedding mới của Google).  
-* Hybrid Search: Kết hợp tìm kiếm từ khóa (Full-text search) và tìm kiếm ngữ nghĩa (Vector similarity search) để tăng độ chính xác.
+Hệ thống sử dụng PostgreSQL làm cơ sở dữ liệu chính, kết hợp với extension pgvector để hỗ trợ lưu trữ và tìm kiếm vector. PostgreSQL đảm nhiệm vai trò lưu trữ các dữ liệu có cấu trúc (Relational Data) như User, Event, Calendar và Booking. Phần dữ liệu vector (embeddings của ngữ cảnh người dùng và lịch sử hội thoại) được lưu trữ trong bảng `user_context_summary` với kích thước 768 chiều, tương thích với model embedding mới của Google. Giải pháp Hybrid Search kết hợp giữa tìm kiếm từ khóa (Full-text search) và tìm kiếm ngữ nghĩa (Vector similarity search) giúp tăng đáng kể độ chính xác khi truy xuất thông tin.
 
   ![][image2]
 
@@ -221,8 +194,7 @@ Hệ thống sử dụng PostgreSQL làm cơ sở dữ liệu chính (Relational
 
 ### **2.2.3. Redis & BullMQ**
 
-* Redis: Sử dụng làm bộ nhớ đệm (Caching) để tăng tốc độ truy xuất dữ liệu thường dùng và lưu trữ session/temp data.  
-* BullMQ: Thư viện quản lý hàng đợi (Message Queue) dựa trên Redis, dùng để xử lý các tác vụ nền (background jobs) như gửi email, đồng bộ lịch Google, xử lý embeddings mà không làm chặn luồng chính của ứng dụng.
+Redis được sử dụng làm bộ nhớ đệm (Caching) để tăng tốc độ truy xuất dữ liệu thường dùng và lưu trữ dữ liệu phiên làm việc tạm thời. Kết hợp với đó là BullMQ, thư viện quản lý hàng đợi dựa trên Redis, đảm nhiệm việc xử lý các tác vụ nền (background jobs) như gửi email, đồng bộ lịch Google hay xử lý embeddings, giúp tránh tình trạng chặn luồng chính của ứng dụng.
 
   ![][image3]
 
@@ -236,9 +208,7 @@ Hệ thống sử dụng PostgreSQL làm cơ sở dữ liệu chính (Relational
 
 Sử dụng Next.js phiên bản mới nhất với App Router để tận dụng các tính năng:
 
-* Server Components (RSC): Render giao diện trên server, giảm dung lượng JavaScript gửi xuống client.  
-* Server Actions: Xử lý logic form và mutation trực tiếp trên server mà không cần tạo API route riêng biệt.  
-* Streaming & Suspense: Hiển thị từng phần của trang web ngay khi sẵn sàng, đặc biệt hữu ích cho tính năng AI Chat streaming.
+Hệ thống sử dụng Next.js phiên bản mới nhất với App Router để tận dụng tối đa các tính năng hiện đại. Server Components (RSC) cho phép render giao diện ngay trên server, giúp giảm dung lượng JavaScript tải xuống client. Server Actions hỗ trợ xử lý logic form và mutation trực tiếp trên server mà không cần API route riêng biệt. Ngoài ra, tính năng Streaming & Suspense giúp hiển thị từng phần của trang web ngay khi sẵn sàng, đặc biệt hữu ích cho trải nghiệm AI Chat streaming mượt mà.
 
   ![][image5]
 
@@ -246,8 +216,7 @@ Sử dụng Next.js phiên bản mới nhất với App Router để tận dụn
 
 ### **2.3.2. Tailwind CSS & UI Libraries**
 
-* Tailwind CSS: Framework CSS utility-first giúp xây dựng giao diện nhanh chóng, dễ tùy biến và tối ưu dung lượng.  
-* Radix UI / Shadcn UI: Bộ component headless đảm bảo tính truy cập (accessibility) và dễ dàng tùy chỉnh style.
+Giao diện được xây dựng bằng Tailwind CSS, framework utility-first giúp phát triển nhanh chóng, dễ tùy biến và tối ưu dung lượng. Để đảm bảo tính truy cập (accessibility) và khả năng tùy chỉnh cao, hệ thống tích hợp bộ component headless Radix UI / Shadcn UI.
 
   ![][image6]
 
@@ -255,8 +224,7 @@ Sử dụng Next.js phiên bản mới nhất với App Router để tận dụn
 
 ### **2.3.3. AI Chat Integration**
 
-* React Markdown: Hỗ trợ render nội dung phản hồi từ AI (Markdown) thành HTML đẹp mắt.  
-* Event Source API: Sử dụng Server-Sent Events (SSE) để nhận phản hồi từ AI theo thời gian thực (streaming response), mang lại cảm giác hội thoại tự nhiên.
+Tính năng AI Chat được tối ưu hóa hiển thị với React Markdown để render phản hồi từ AI thành HTML đẹp mắt. Đồng thời, Event Source API sử dụng Server-Sent Events (SSE) để nhận phản hồi từ AI theo thời gian thực (streaming response), mang lại cảm giác hội thoại tự nhiên như đang chat với người thật.
 
 ## **2.4. Công nghệ AI & LLM**
 
@@ -264,8 +232,7 @@ Sử dụng Next.js phiên bản mới nhất với App Router để tận dụn
 
 Calento tích hợp mô hình ngôn ngữ lớn (LLM) Gemini Pro của Google để xử lý logic hội thoại và function calling.
 
-* Natural Language Processing: Hiểu ý định người dùng từ câu chat tự nhiên (VD: "Đặt lịch họp team vào sáng thứ 2").  
-* Function Calling: AI tự động xác định và gọi các hàm nghiệp vụ (createEvent, findSlot, summary) dựa trên yêu cầu.
+Calento tích hợp mô hình ngôn ngữ lớn (LLM) Gemini Pro của Google để xử lý logic hội thoại. Hệ thống có khả năng xử lý ngôn ngữ tự nhiên (NLP) để hiểu ý định người dùng từ các câu chat thông thường, ví dụ như "Đặt lịch họp team vào sáng thứ 2". Đồng thời, tính năng Function Calling cho phép AI tự động xác định và gọi các hàm nghiệp vụ như `createEvent` hay `findSlot` dựa trên yêu cầu cụ thể.
 
   ![][image7]
 
@@ -273,8 +240,7 @@ Calento tích hợp mô hình ngôn ngữ lớn (LLM) Gemini Pro của Google đ
 
 ### **2.4.2. LangChain & Embeddings**
 
-* LangChain: Framework giúp kết nối LLM với dữ liệu của ứng dụng và quản lý luồng hội thoại.  
-* Embeddings (text-embedding-004): Chuyển đổi văn bản (ghi chú, ngữ cảnh) thành các vector 768 chiều để lưu trữ và tìm kiếm tương đồng, phục vụ cho tính năng RAG (nhớ lại thông tin cũ).
+LangChain hoạt động như một framework kết nối LLM với dữ liệu ứng dụng và quản lý luồng hội thoại. Hệ thống sử dụng model `text-embedding-004` để chuyển đổi văn bản (ghi chú, ngữ cảnh) thành các vector 768 chiều. Các vector này được lưu trữ và sử dụng cho việc tìm kiếm tương đồng, nền tảng cốt lõi của tính năng RAG giúp AI nhớ lại thông tin cũ.
 
   ![][image8]
 
@@ -1265,21 +1231,7 @@ erDiagram
 
 Hệ thống Calento sử dụng raw SQL migrations trong `server/migrations/schema.sql` thay vì ORM như Prisma, mặc dù Prisma  rất phổ biến trong NestJS ecosystem. Quyết định này dựa trên bốn lý do kỹ thuật quan trọng.
 
-**Lý do 1: Advanced PostgreSQL Features**
-
-Prisma Schema Language (PSL) có limitations với advanced PostgreSQL features. Extension `pgvector` cho vector embeddings không được Prisma native support - phải dùng raw SQL hoặc unsafe typing. Custom ENUM types, specialized indexes (HNSW, GIN, GIST), và triggers cũng khó express đầy đủ trong PSL. Raw SQL cho phép leverage full power của PostgreSQL mà không bị giới hạn bởi ORM abstractions.
-
-**Lý do 2: Migration Control & Transparency**
-
-Raw SQL migrations cung cấp explicit control và transparency. Developers thấy chính xác DDL statements được execute, dễ review trong code review, và có thể optimize từng migration statement. Prisma migrations auto-generated đôi khi produce suboptimal SQL hoặc unexpected changes, đặc biệt với complex schema modifications như column type changes hoặc data migrations.
-
-**Lý do 3: Performance Optimization**
-
-Database design của Calento heavily optimized cho specific access  patterns. Events table có composite indexes `(user_id, start_time, end_time)` cho time-range queries, partial indexes cho conditional filtering, và HNSW index configuration tuned cho 768-dim vectors. Raw SQL allows fine-grained control over index types, fill factors, và storage parameters mà Prisma không expose đầy đủ.
-
-**Lý do 4: Team Expertise & Maintainability**
-
-Team có deep PostgreSQL expertise và prefer SQL-first approach. Raw migrations dễ debug khi có issues (direct psql execution), portable across environments (không depend on Prisma version), và có thể reuse existing PostgreSQL knowledge/tools. Migration files cũng serve as documentation - clear, readable SQL statements miêu tả exact schema structure.
+Hệ thống Calento sử dụng raw SQL migrations trong `server/migrations/schema.sql` thay vì ORM như Prisma vì bốn lý do chính. Thứ nhất, để tận dụng các tính năng nâng cao của PostgreSQL như extension `pgvector` và custom ENUM types mà Prisma chưa hỗ trợ đầy đủ. Thứ hai, raw SQL mang lại sự minh bạch và kiểm soát tuyệt đối, giúp developers dễ dàng review và tối ưu từng câu lệnh DDL. Thứ ba, việc tối ưu hóa hiệu năng được thực hiện chi tiết thông qua các index parameters như fill factors hay index types (HNSW) mà ORM thường ẩn đi. Cuối cùng, đội ngũ phát triển ưu tiên cách tiếp cận SQL-first để tận dụng tối đa kinh nghiệm về PostgreSQL, giúp việc debug và bảo trì trở nên dễ dàng hơn.
 
 **Migration Execution:**
 
@@ -1656,7 +1608,25 @@ sequenceDiagram
 
 
 
+
+### **3.3.6. Progressive Web App (PWA)**
+
+Calento được xây dựng như một Progressive Web App (PWA), cho phép ứng dụng hoạt động gần giống như một ứng dụng native trên các thiết bị di động và desktop. Nhờ vào việc cấu hình Manifest và Service Worker, người dùng có thể cài đặt Calento trực tiếp từ trình duyệt mà không cần thông qua App Store.
+
+#### **App Manifest Configuration**
+
+Tệp `manifest.json` được cấu hình đầy đủ các tham số để đảm bảo trải nghiệm cài đặt tốt nhất:
+
+Tệp `manifest.json` được cấu hình đầy đủ để biến Calento thành một ứng dụng độc lập. Ứng dụng được định danh rõ ràng với tên đầy đủ "Calento - AI Calendar Assistant", hiển thị ở chế độ `standalone` để loại bỏ thanh địa chỉ và tạo cảm giác native. Giao diện được đồng bộ theme với màu nền trắng (#ffffff) và màu chủ đạo đen (#000000). Hệ thống icon đa kích thước (từ 192x192 đến 512x512) bao gồm cả maskable icons cho Android đảm bảo hiển thị sắc nét trên mọi thiết bị. Ngoài ra, các shortcuts được tích hợp giúp người dùng truy cập nhanh các tính năng quan trọng ngay từ màn hình chính.
+
+#### **Service Worker & Caching Strategy**
+
+Service Worker (`sw.js`) đóng vai trò là network proxy, quản lý cache và offline capabilities:
+
+Service Worker (`sw.js`) quản lý chiến lược caching thông minh. Đối với tài nguyên tĩnh (JS, CSS, images), chiến lược **Cache First** được áp dụng để tăng tốc độ tải trang. Ngược lại, các API requests sử dụng chiến lược **Network First** để đảm bảo dữ liệu luôn mới nhất, chỉ fallback về cache khi mất mạng. Khả năng hỗ trợ offline cho phép người dùng xem lịch ngay cả khi không có kết nối internet, với các thay đổi dữ liệu được đưa vào hàng đợi background sync. Ngoài ra, Service Worker còn hỗ trợ các tác vụ nền như hiển thị Push Notifications và đồng bộ dữ liệu ngầm, đảm bảo tính nhất quán và trải nghiệm liền mạch.
+
 ## **3.4. Thiết kế API**
+
 
 Hệ thống Calento cung cấp một bộ RESTful API toàn diện, được thiết kế xoay quanh các tài nguyên (resources) và tuân thủ chặt chẽ các nguyên tắc kiến trúc REST. API đóng vai trò là xương sống giao tiếp giữa frontend (Next.js) và backend (NestJS), cũng như cho phép các integrations từ bên thứ ba trong tương lai.
 
@@ -1709,36 +1679,13 @@ Cung cấp các endpoints cho tính năng AI Assistant. Endpoint `/ai/chat` hỗ
 
 Hệ thống yêu cầu các thành phần core sau đây để hoạt động chính xác:
 
-**Node.js (Runtime Environment):**
-Yêu cầu phiên bản 18.x hoặc mới hơn (LTS). Node.js là runtime environment cho cả backend (NestJS) và frontend (Next.js). Phiên bản 18+ hỗ trợ native fetch API và các tính năng performance mới nhất của V8 engine.
-
-**PostgreSQL (Database):**
-Yêu cầu phiên bản 15.x trở lên. Đặc biệt, database phải được cài đặt extension `pgvector` (phiên bản 0.5.0+) để hỗ trợ tính năng lưu trữ và tìm kiếm vector cho AI. Nếu sử dụng Docker, image `ankane/pgvector` hoặc tương đương được khuyến nghị.
-
-**Redis (In-memory Data Store):**
-Yêu cầu phiên bản 6.x trở lên. Redis đóng vai trò quan trọng trong việc quản lý hàng đợi background jobs (BullMQ) cho email sending và calendar syncing, cũng như caching layer để tăng tốc độ phản hồi API.
-
-**Docker (Containerization - Optional but Recommended):**
-Docker và Docker Compose giúp đơn giản hóa việc thiết lập môi trường development bằng cách đóng gói database và Redis vào các containers cấu hình sẵn, đảm bảo môi trường đồng nhất giữa các developers.
+Hệ thống yêu cầu các thành phần core để hoạt động chính xác. Node.js (phiên bản 18+) được sử dụng làm runtime cho cả backend và frontend. Cơ sở dữ liệu PostgreSQL (phiên bản 15+) cần được cài đặt extension pgvector để hỗ trợ tính năng AI. Redis (phiên bản 6+) đóng vai trò quản lý hàng đợi và caching. Mặc dù không bắt buộc, Docker được khuyến nghị sử dụng để đơn giản hóa việc thiết lập môi trường development thông qua containerization.
 
 ### **3.5.2. Quy trình cài đặt phát triển**
 
 Quy trình cài đặt được thiết kế để automated hóa tối đa, giúp developers mới có thể bắt đầu coding nhanh chóng.
 
-**Bước 1: Khởi tạo mã nguồn**
-Đầu tiên, clone repository từ GitHub về máy local. Dự án được tổ chức theo cấu trúc monorepo với hai thư mục chính: `server` và `client`.
-
-**Bước 2: Cài đặt dependencies**
-Tại thư mục gốc của mỗi service (`server` và `client`), chạy lệnh `npm install` để tải về tất cả các thư viện cần thiết được định nghĩa trong `package.json`. Quá trình này sẽ cài đặt NestJS framework, Next.js, TypeORM/pg driver, và các utility libraries khác.
-
-**Bước 3: Cấu hình biến môi trường**
-Dự án cung cấp file `.env.example` làm mẫu. Developers cần tạo file `.env` tại thư mục gốc của `server` và điền các thông số cấu hình: database credentials (DB_HOST, DB_USER, DB_PASS), Redis connection info, Google OAuth keys (lấy từ Google Cloud Console), và Gemini API key (lấy từ Google AI Studio). Việc cấu hình chính xác `.env` là bước critical để hệ thống connect được với các external services.
-
-**Bước 4: Khởi tạo cơ sở dữ liệu**
-Thay vì dùng ORM migration tools, hệ thống sử dụng raw SQL scripts để khởi tạo database. Developers chạy lệnh `npm run migration:run` để execute file `schema.sql` vào PostgreSQL. Script này sẽ tạo các tables, extensions (uuid-ossp, pgvector), indexes, và triggers cần thiết. Sau đó, lệnh `npm run seed` có thể được dùng để populate dữ liệu mẫu (fake users, events) phục vụ testing.
-
-**Bước 5: Khởi chạy ứng dụng**
-Cuối cùng, khởi động server backend với lệnh `npm run start:dev` (chạy tại port 8000) và frontend với `npm run dev` (chạy tại port 3000). Hệ thống hot-reload được kích hoạt, cho phép mọi thay đổi code được phản ánh ngay lập tức mà không cần restart server thủ công.
+Quy trình cài đặt phát triển được thiết kế để automated hóa tối đa. Đầu tiên, mã nguồn được clone từ repository GitHub về máy local với cấu trúc monorepo. Tiếp theo, lệnh `npm install` được chạy tại mỗi thư mục service để cài đặt dependencies. Bước quan trọng là cấu hình file `.env` với các thông số database, Redis và API keys cần thiết. Sau đó, database được khởi tạo thông qua lệnh `npm run migration:run` để execute các script SQL, tạo tables và extensions. Cuối cùng, hệ thống được khởi chạy với lệnh `npm run start:dev` cho backend và `npm run dev` cho frontend, hỗ trợ hot-reload giúp phản ánh thay đổi code tức thì.
 
 # **Chương IV. THIẾT KẾ MÀN HÌNH**
 
@@ -1798,11 +1745,7 @@ Màn hình Authentication là điểm chạm đầu tiên của người dùng v
 
 ### **4.2.2. Màn hình Dashboard & Calendar View**
 
-Đây là "trái tim" của ứng dụng, nơi người dùng dành phần lớn thời gian làm việc. Giao diện Calendar sử dụng thư viện FullCalendar được customize mạnh mẽ với theme hiện đại.
-
-- **Main View**: Hiển thị lịch theo các chế độ Month, Week, Day. Các sự kiện được color-code theo loại (Work, Personal, Meeting) giúp dễ dàng phân biệt.
-- **Sidebar**: Bên trái chứa Mini Calendar để điều hướng nhanh ngày tháng, và bộ lọc "My Calendars" cho phép toggle hiển thị/ẩn các lịch khác nhau.
-- **Header**: Chứa các controls điều hướng (Prev/Next, Today), nút "New Event" nổi bật, và avatar user để truy cập menu cá nhân.
+Đây là "trái tim" của ứng dụng, nơi người dùng dành phần lớn thời gian làm việc. Giao diện Calendar sử dụng thư viện FullCalendar được customize mạnh mẽ với theme hiện đại. Main View hiển thị lịch theo các chế độ Month, Week, Day với sự kiện được phân loại bằng mã màu (color-code) giúp dễ dàng nhận biết (Work, Personal, Meeting). Sidebar bên trái tích hợp Mini Calendar hỗ trợ điều hướng nhanh và bộ lọc "My Calendars" để tùy chọn hiển thị. Header chứa các công cụ điều hướng thời gian (Prev/Next, Today), nút "New Event" nổi bật và avatar người dùng để truy cập menu cá nhân.
 
 ![Dashboard Main View](Giao diện chính Dashboard với lịch tuần và sidebar điều hướng)
 
@@ -1832,12 +1775,7 @@ Modal được thiết kế tối ưu với các tabs: "Event Details" (Tiêu đ
 
 ### **4.2.6. Màn hình User Settings**
 
-Trung tâm quản lý cá nhân hóa của người dùng. Giao diện Settings sử dụng layout Tabs dọc hoặc ngang để phân nhóm cấu hình:
-
-- **Profile**: Upload Avatar, đổi tên hiển thị.
-- **Preferences**: Cài đặt ngôn ngữ (Việt/Anh), Theme (Sáng/Tối), Timezone, và định dạng ngày giờ (12h/24h).
-- **Integrations**: Quản lý kết nối Google Calendar (Connect/Disconnect), xem trạng thái sync lần cuối.
-- **Notifications**: Tùy chỉnh nhận thông báo qua Email/Webhook cho từng loại sự kiện.
+Trung tâm quản lý cá nhân hóa của người dùng sử dụng layout Tabs trực quan để phân nhóm cấu hình. Tab Profile cho phép cập nhật avatar và tên hiển thị. Tab Preferences cung cấp các tùy chỉnh về ngôn ngữ (Việt/Anh), giao diện (Sáng/Tối), múi giờ và định dạng ngày tháng. Tab Integrations quản lý kết nối Google Calendar, cho phép kết nối hoặc ngắt kết nối và xem trạng thái đồng bộ. Cuối cùng, Tab Notifications giúp người dùng tùy chỉnh kênh nhận thông báo qua Email hoặc Webhook cho từng loại sự kiện cụ thể.
 
 ![User Settings Page](Giao diện trang cài đặt người dùng với các tab cấu hình hệ thống)
 
@@ -1856,229 +1794,45 @@ Tính năng Drag & Drop cho phép người dùng dễ dàng sắp xếp lại th
 
 ### **5.1.1. Hoàn thành đầy đủ hệ thống Calendar Assistant**
 
-Dự án đã xây dựng thành công một hệ thống Calendar Assistant toàn diện với các thành tựu chính:
+Dự án đã xây dựng thành công một hệ thống Calendar Assistant toàn diện. Về phía Backend, nhóm đã phát triển 22 modules với cấu trúc rõ ràng cùng hơn 102 API endpoints RESTful. Cơ sở dữ liệu gồm 18 bảng được thiết kế chuẩn hóa, hỗ trợ Authentication bảo mật qua JWT và Google OAuth 2.0. Hệ thống cũng xử lý tốt các tác vụ nền với BullMQ và Redis cũng như gửi email notification qua templating engine.
 
-**Backend (NestJS + PostgreSQL):**
-- ✅ **22 modules** được phát triển với cấu trúc rõ ràng, dễ bảo trì
-- ✅ **102+ API endpoints** RESTful hoàn chỉnh với Swagger documentation
-- ✅ **18 bảng database** được thiết kế chuẩn hóa với indexes và triggers tối ưu
-- ✅ **Authentication system** bảo mật với JWT và OAuth 2.0 (Google)
-- ✅ **Background job processing** với BullMQ và Redis
-- ✅ **Email notification system** với templating engine (Handlebars)
+Về Frontend, ứng dụng sử dụng Next.js 15 và React 19 để tạo ra giao diện Responsive mượt mà, tối ưu SEO thông qua Server-Side Rendering (SSR). Trải nghiệm chat với AI được nâng tầm nhờ Real-time streaming qua Server-Sent Events. Việc sử dụng TypeScript, Zod validation và các thư viện UI hiện đại như Radix UI mang lại độ tin cậy và thẩm mỹ cao cho sản phẩm.
 
-**Frontend (Next.js 15 + React 19):**
-- ✅ **Responsive UI** hoạt động mượt mà trên mọi thiết bị
-- ✅ **Server-Side Rendering (SSR)** tối ưu SEO và performance
-- ✅ **Real-time streaming** cho AI chat với Server-Sent Events
-- ✅ **Type-safe development** với TypeScript và Zod validation
-- ✅ **Modern UI components** từ Radix UI và TailwindCSS
-- ✅ **State management** hiệu quả với Zustand và TanStack Query
-
-**Tính năng đặc trưng:**
-
-1. **Google Calendar Integration (Đồng bộ 2 chiều):**
-   - Pull events từ Google Calendar tự động
-   - Push local events lên Google Calendar
-   - Conflict detection và resolution
-   - Real-time webhook notifications
-
-2. **AI Assistant với RAG Pattern:**
-   - Chat interface thông minh với ngôn ngữ tự nhiên
-   - Vector search (pgvector) để tìm kiếm semantic
-   - Function calling với Gemini để thực hiện actions
-   - Context-aware responses dựa trên lịch sử người dùng
-
-3. **Booking System chuyên nghiệp:**
-   - Public booking pages với slug tùy chỉnh
-   - Availability checking tự động
-   - Email confirmations cho host và guest
-   - Buffer time và advance notice rules
-
-4. **Team Collaboration:**
-   - Team management (max 5 members)
-   - Recurring team rituals với rotation
-   - Shared team calendar
-   - Team availability overview
-
-5. **Task Management với Priority Board:**
-   - Drag & drop interface
-   - 4 cấp độ ưu tiên (Critical, High, Medium, Low)
-   - Recurring tasks với RRULE
-   - Integration với calendar view
-
-6. **Blog CMS:**
-   - Full-featured content management
-   - Categories, tags, comments
-   - SEO optimization (meta tags, sitemap)
-   - Analytics tracking (views, popular posts)
+Các tính năng đặc trưng đã được hoàn thiện bao gồm: Đồng bộ 2 chiều với Google Calendar (Pull/Push events, xử lý xung đột); Trợ lý ảo AI sử dụng RAG Pattern với khả năng tìm kiếm semantic và function calling; Hệ thống Booking chuyên nghiệp với tính năng availability checking tự động; Hỗ trợ làm việc nhóm (Team Collaboration) với lịch chung và rituals; Quản lý công việc (Task Management) tích hợp Priority Board; và cuối cùng là Blog CMS đầy đủ tính năng hỗ trợ SEO và Analytics.
 
 ### **5.1.2. Điểm mạnh của hệ thống**
 
-**Về Kiến trúc:**
-- **Modular design**: Dễ dàng thêm/sửa/xóa modules mà không ảnh hưởng toàn bộ hệ thống
-- **Type-safety**: TypeScript giúp phát hiện lỗi sớm, giảm bugs trong production
-- **Scalability**: Architecture cho phép scale horizontal (thêm server instances)
-- **Maintainability**: Code structure rõ ràng, documentation đầy đủ
-
-**Về Performance:**
-- **Caching strategy**: Redis cache giảm 70% database queries cho hot data
-- **Database indexing**: Query time trung bình < 50ms cho 100K events
-- **Frontend optimization**: Bundle size < 200KB (gzipped), First Contentful Paint < 1.5s
-- **Background processing**: Heavy tasks không block main thread
-
-**Về Security:**
-- **Authentication**: JWT với refresh token rotation, session management
-- **Authorization**: Role-based access control (RBAC)
-- **Data protection**: Password hashing (bcrypt), SQL injection prevention
-- **HTTPS**: SSL/TLS certificates từ Cloudflare
-- **Input validation**: Zod schemas trên cả frontend và backend
+**Về Kiến trúc**, hệ thống tuân thủ thiết kế Modular giúp dễ dàng bảo trì và mở rộng. Việc sử dụng TypeScript đảm bảo type-safety, giảm thiểu lỗi runtime, đồng thời kiến trúc hỗ trợ scale horizontal để đáp ứng nhu cầu tăng trưởng. **Về Performance**, chiến lược caching với Redis giúp giảm tải database đáng kể, kết hợp với tối ưu hóa database indexing và frontend bundle size giúp ứng dụng đạt tốc độ phản hồi ấn tượng. **Về Security**, hệ thống áp dụng các chuẩn bảo mật cao như JWT rotation, RBAC, password hashing, và bảo vệ chống lại các lỗ hổng phổ biến như SQL Injection thông qua input validation chặt chẽ.
 
 ### **5.1.3. Kiến thức và kỹ năng đạt được**
 
 Qua quá trình thực hiện đồ án, nhóm đã nắm vững:
 
-**Về Full-stack Development:**
-- Thiết kế và triển khai REST API chuẩn
-- Database modeling cho ứng dụng phức tạp (relationships, constraints, transactions)
-- Frontend state management và component architecture
-- Authentication/Authorization flows (OAuth 2.0, JWT)
-
-**Về AI/ML Integration:**
-- Làm việc với LLM APIs (Google Gemini)
-- Implement RAG pattern với vector database
-- Embeddings và similarity search
-- Prompt engineering và function calling
-
-**Về DevOps:**
-- Docker containerization
-- CI/CD setup (GitHub Actions)
-- Cloud deployment (Digital Ocean, GCP)
-- Reverse proxy configuration (Nginx)
-- DNS management (Cloudflare)
-
-**Về Soft Skills:**
-- Làm việc nhóm với Git workflow (branching, PR, code review)
-- Technical documentation writing
-- Time management và task breakdown
-- Problem-solving với debugging tools
+Qua quá trình thực hiện đồ án, nhóm đã tích lũy được khối lượng kiến thức đáng kể. Về **Full-stack Development**, nhóm nắm vững quy trình thiết kế REST API, database modeling phức tạp, và state management hiện đại. Trong lĩnh vực **AI/ML**, nhóm đã có kinh nghiệm làm việc với LLM APIs, triển khai RAG pattern và kỹ thuật prompt engineering. Về **DevOps**, các kỹ năng containerization với Docker, thiết lập CI/CD và triển khai cloud đã được thực hành nhuần nhuyễn. Cuối cùng, các **Soft Skills** như quản lý thời gian, làm việc nhóm qua Git và kỹ năng giải quyết vấn đề cũng được cải thiện rõ rệt.
 
 ## **5.2. Hạn chế của hệ thống**
 
 ### **5.2.1. Hạn chế kỹ thuật**
-
-**Mobile Experience:**
-- Chưa có native mobile app (iOS/Android)
-- Web responsive tốt nhưng thiếu offline capabilities
-- Không tận dụng được platform-specific features (biometric, push notifications native)
-
-**Calendar Integration:**
-- Chỉ hỗ trợ Google Calendar (chưa có Outlook, Apple Calendar)
-- Webhook notifications phụ thuộc vào Google (không chủ động)
-- Không sync được attachments/files từ Google
-
-**AI Limitations:**
-- AI chỉ reactive (phản hồi khi hỏi), chưa proactive (suggest tự động)
-- Phụ thuộc vào Gemini API (có rate limits và cost)
-- RAG context window giới hạn (chỉ lưu 30 ngày gần nhất)
-
-**Performance:**
-- Chưa implement database sharding (single PostgreSQL instance)
-- Redis single node (chưa có cluster mode)
-- Không có CDN cho static assets (chỉ dùng Nginx)
-
-### **5.2.2. Hạn chế nghiệp vụ**
-
-**Team Features:**
-- Giới hạn 5 members/team (business rule)
-- Không hỗ trợ team hierarchy (sub-teams)
-- Chưa có resource booking (meeting rooms, equipment)
-
-**Booking System:**
-- Không có payment integration (chưa support paid bookings)
-- Chưa hỗ trợ group bookings (multi-person events)
-- Không có waitlist khi slots đầy
-
-**Analytics:**
-- Chưa có dashboard analytics chi tiết
-- Không track productivity metrics
-- Thiếu reports exports (PDF, CSV)
+ 
+ Về trải nghiệm Mobile, ứng dụng hiện chưa có phiên bản native app cho iOS/Android nên thiếu các tính năng offline và thông báo đẩy (push notifications) đặc thù của nền tảng. Khả năng tích hợp lịch hiện tại chỉ mới hỗ trợ Google Calendar, chưa mở rộng sang Outlook hay Apple Calendar. Đối với AI, mô hình vẫn hoạt động theo cơ chế reactive (phản hồi khi được hỏi) và phụ thuộc vào giới hạn của Gemini API. Về hạ tầng, hệ thống chưa triển khai database sharding hay Redis cluster, điều này có thể ảnh hưởng đến khả năng scale khi lượng người dùng tăng đột biến.
+ 
+ ### **5.2.2. Hạn chế nghiệp vụ**
+ 
+ Các tính năng cho Team còn giới hạn ở số lượng 5 thành viên và chưa hỗ trợ phân cấp teams. Hệ thống đặt lịch (Booking) chưa tích hợp cổng thanh toán và chưa hỗ trợ đặt lịch nhóm. Ngoài ra, phần Analytics hiện tại còn sơ khai, thiếu các báo cáo chi tiết và khả năng xuất dữ liệu đa dạng cho người dùng.
 
 ## **5.3. Hướng phát triển tương lai**
 
 ### **5.3.1. Ngắn hạn (3-6 tháng)**
-
-**Mobile Native App:**
-- Phát triển React Native app cho iOS và Android
-- Implement offline-first architecture với local database sync
-- Push notifications native
-- Biometric authentication (Touch ID, Face ID)
-
-**Real-time Collaboration:**
-- WebSocket integration cho live updates
-- Collaborative editing (multiple users edit same event)
-- Presence indicators (who's viewing what)
-
-**Additional Integrations:**
-- Microsoft Outlook Calendar sync
-- Apple Calendar sync
-- Slack integration (bot commands, notifications)
-- Zoom/Meet auto-create links
-
-**AI Enhancements:**
-- Proactive suggestions: "Bạn có 3 meetings liên tiếp, cần break?"
-- Smart scheduling: AI suggests best meeting times for teams
-- Email parsing: Auto-create events from email invitations
-- Voice input: Speech-to-text cho faster event creation
-
-### **5.3.2. Dài hạn (6-12 tháng)**
-
-**Enterprise Features:**
-- Multi-tenant architecture
-- Company-wide calendars và policies
-- Advanced role-based permissions
-- SSO integration (SAML, LDAP)
-- Audit logs và compliance reports
-
-**AI-Powered Productivity:**
-- Meeting effectiveness scoring
-- Time allocation analysis (work vs personal)
-- Focus time protection (block distractions)
-- Habit tracking và productivity insights
-- Auto-categorization of events
-
-**Advanced Booking:**
-- Payment processing (Stripe, PayPal)
-- Subscription-based bookings
-- Dynamic pricing
-- Multi-person/group bookings
-- Resources management (rooms, equipment)
-
-**Analytics & Insights Dashboard:**
-- Time tracking per project/category
-- Team productivity heatmaps
-- Meeting cost calculator
-- Custom reports builder
-- Data export (PDF, Excel, Google Sheets)
-
-**Infrastructure Improvements:**
-- Database sharding cho horizontal scaling
-- Redis cluster mode cho high availability
-- CDN integration (CloudFlare, AWS CloudFront)
-- Microservices migration (tách AI service riêng)
-- Kubernetes deployment
-
-### **5.3.3. Về mặt nghiên cứu**
-
-**AI Research:**
-- Fine-tune LLM riêng cho calendar domain
-- Multi-modal AI (voice, image recognition)
-- Federated learning để protect user privacy
-- Graph neural networks cho relationship analysis
-
-**Performance Optimization:**
-- Query optimization với materialized views
-- Caching strategies (tiered caching)
-- Lazy loading và pagination best practices
+ 
+ Trong ngắn hạn, nhóm sẽ tập trung phát triển ứng dụng Mobile Native (React Native) với khả năng offline-first và bảo mật sinh trắc học. Tính năng Real-time Collaboration cũng sẽ được bổ sung để hỗ trợ nhiều người cùng chỉnh sửa sự kiện. Bên cạnh đó, các integrations mới như Outlook Calendar, Slack bot, và khả năng AI chủ động đề xuất lịch trình (Proactive suggestions) sẽ được ưu tiên triển khai.
+ 
+ ### **5.3.2. Dài hạn (6-12 tháng)**
+ 
+ Về dài hạn, mục tiêu là hướng tới các tính năng Enterprise như kiến trúc multi-tenant, SSO integration và báo cáo tuân thủ (audit logs). AI sẽ được nâng cấp sâu hơn để phân tích hiệu quả cuộc họp và thói quen làm việc. Hệ thống Booking sẽ tích hợp thanh toán và quản lý tài nguyên. Đồng thời, hạ tầng sẽ được cải thiện với Database sharding và Kubernetes deployment để đảm bảo khả năng phục vụ quy mô lớn.
+ 
+ ### **5.3.3. Về mặt nghiên cứu**
+ 
+ Nhóm định hướng tiếp tục nghiên cứu sâu về AI, bao gồm việc Fine-tune LLM riêng cho bài toán calendar, phát triển Multi-modal AI và Federated learning để bảo vệ quyền riêng tư. Các kỹ thuật tối ưu hóa hiệu năng database nâng cao cũng sẽ được thử nghiệm và áp dụng.
 
 ## **5.4. Kết luận chung**
 
