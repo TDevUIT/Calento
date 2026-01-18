@@ -1793,6 +1793,99 @@ sequenceDiagram
 3.  **Email Dispatch**: Server sử dụng Email Service để gửi một email chứa liên kết đặt lại mật khẩu (password reset link) kèm theo token đến địa chỉ email của người dùng.
 4.  **Validation & Update**: Khi người dùng nhấn vào liên kết và nhập mật khẩu mới, Client gửi request `/auth/reset-password` kèm token. Server xác thực token (kiểm tra tính hợp lệ và thời hạn). Nếu thành công, mật khẩu trong database được cập nhật (hashed) và token bị hủy bỏ.
 
+#### **Sequence Diagram 5: Quy trình Tạo Sự kiện (Create Event Module)**
+
+Quy trình xử lý khi người dùng tạo sự kiện mới, bao gồm việc đồng bộ dữ liệu đa nền tảng (Database, Google Calendar, và Vector Database cho AI).
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant C as Client
+    participant S as Event Controller
+    participant ES as Event Service
+    participant DB as Database
+    participant G as Google Sync Service
+    participant V as Vector Service (AI)
+
+    U->>C: Click "Create Event"<br/>(Fill form: Title, Time, Attendees)
+    C->>C: Validate Input (Client-side)
+    C->>S: POST /events
+    
+    S->>ES: createEvent(dto)
+    
+    %% Step 1: Core Creation & Google Sync
+    rect rgb(240, 248, 255)
+        Note over ES, G: Event Sync Service
+        ES->>DB: INSERT INTO events
+        DB-->>ES: event {id, ...}
+        
+        opt If Google Connected
+            ES->>G: Sync to Google Calendar
+            G-->>ES: {googleEventId}
+        end
+    end
+
+    %% Step 2: AI Embedding Sync
+    rect rgb(255, 248, 240)
+        Note over ES, V: AI Context Sync
+        ES->>V: syncEventToVector(event)
+        Note right of V: Generate Embedding<br/>& Store for RAG
+        V-->>ES: Success
+    end
+    
+    ES-->>S: Return Created Event
+    S-->>C: 201 Created
+    C-->>U: Show Success Toast<br/>& Update Calendar View
+```
+
+**Giải thích chi tiết:**
+1.  **Core Creation**: Sự kiện được lưu vào cơ sở dữ liệu chính (PostgreSQL) đầu tiên để đảm bảo tính toàn vẹn dữ liệu.
+2.  **Google Sync**: Nếu người dùng đã kết nối Google Calendar, hệ thống sẽ đồng bộ sự kiện sang Google Calendar ngay lập tức để đảm bảo lịch trình luôn được cập nhật trên mọi thiết bị.
+3.  **Vector Embedding**: Sau khi tạo xong, thông tin sự kiện được gửi đến `VectorService` để tạo embedding và lưu vào Vector Database (pgvector). Bước này giúp AI Assisant có thể "hiểu" và tra cứu được sự kiện này trong tương lai khi người dùng chat (ví dụ: "Sắp tới tôi có lịch gì?").
+
+
+
+#### **Sequence Diagram 6: Quy trình Đặt Lịch (Booking Module Flow)**
+
+Quy trình khách (Guest) đặt lịch hẹn thông qua trang Public Booking Page.
+
+```mermaid
+sequenceDiagram
+    participant G as Guest
+    participant C as Public Page
+    participant S as Booking Controller
+    participant BS as Booking Service
+    participant V as Availability Service
+    participant DB as Database
+
+    G->>C: Select Time Slot & Confirm
+    C->>S: POST /bookings/:slug
+    
+    S->>BS: createBooking(slug, dto)
+    
+    %% Step 1: Validation
+    BS->>DB: Get Booking Link (by Slug)
+    DB-->>BS: link details
+    
+    BS->>BS: Validate Rules<br/>(Advance Notice, Daily Limit)
+    
+    BS->>V: checkAvailability(time)
+    V-->>BS: Available
+    
+    %% Step 2: Creation
+    BS->>DB: INSERT INTO bookings<br/>(Status: CONFIRMED)
+    DB-->>BS: booking {id, confirmation_token...}
+    
+    BS-->>S: Return Booking
+    S-->>C: 201 Created
+    
+    C-->>G: Show Confirmation Screen
+```
+
+**Giải thích:**
+1.  **Validation**: Hệ thống kiểm tra kỹ lưỡng các quy tắc đặt lịch (Booking Rules) như thời gian báo trước, giới hạn số lượt đặt trong ngày, và đặc biệt là kiểm tra tính khả dụng (Availability) thực tế của Host để tránh trùng lịch.
+2.  **Creation**: Nếu hợp lệ, Booking được tạo ngay với trạng thái `CONFIRMED`. Một `confirmation_token` được sinh ra để dùng cho các tác vụ hủy/dời lịch sau này mà không cần đăng nhập.
+3.  **Completion**: Trả về thông tin đặt lịch thành công cho khách.
 
 
 ### **3.3.6. Progressive Web App (PWA)**
@@ -1837,42 +1930,6 @@ Hệ thống Email & Thông báo đóng vai trò quan trọng trong việc duy t
 
 4. **Validation & Update**: Khi người dùng nhấn vào liên kết và nhập mật khẩu mới, Client gửi request `/auth/reset-password` kèm token. Server xác thực token (kiểm tra tính hợp lệ và thời hạn). Nếu thành công, mật khẩu trong database được cập nhật (hashed) và token bị hủy bỏ.
 
-#### **Sequence Diagram 5: Quy trình Tạo Sự kiện (Create Event Flow)**
-
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant C as Client
-    participant S as Event Service
-    participant DB as Database
-    participant G as Google Sync Service
-    participant E as Email Service
-
-    U->>C: Click "Create Event"<br/>(Fill form: Title, Time, Attendees)
-    C->>C: Validate Input (Client-side)
-    C->>S: POST /events
-    
-    S->>S: Validate Data (Server-side)
-    S->>DB: INSERT INTO events
-    DB-->>S: event {id, ...}
-    
-    par Async Actions
-        S->>E: Send Invitation Emails<br/>(to attendees)
-        S->>G: Sync to Google Calendar<br/>(if connected)
-    and
-        S-->>C: 201 Created (return Event)
-    end
-    
-    C-->>U: Show Success Toast<br/>& Update Calendar View
-    
-    E-->>U: (Email sent bg)
-    G-->>U: (Synced bg)
-```
-
-**Giải thích:**
-1.  **User Interaction**: User điền form tạo sự kiện.
-2.  **Sync & Notify**: Sau khi lưu vào DB, Server thực hiện song song (parallel) việc gửi email mời khách và đồng bộ lên Google Calendar (nếu user đã connect).
-3.  **Response**: Trả về kết quả ngay cho User UX mượt mà, không chờ actions background.
 
 ## **3.4. Thiết kế API**
 
