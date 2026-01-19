@@ -109,7 +109,7 @@ Dựa trên các yêu cầu nghiệp vụ trên, hệ thống được phân tí
 | FR-37 | Email | Send transactional emails | High | ✅ Completed |
 | FR-38 | Email | Email templates (Handlebars) | Medium | ✅ Completed |
 | FR-39 | Webhook | Configure webhook URLs | Low | ✅ Completed |
-| FR-40 | Analytics | Track user activities | Low | 🚧 In Progress |
+| FR-40 | Analytics | Track user activities | Low | ✅ Completed |
 
 ## **3.2. Kiến trúc hệ thống**
 
@@ -117,7 +117,73 @@ Hệ thống Calento được thiết kế theo mô hình Micro-modular Monolith
 
 ## **3.1.1. Sơ đồ kiến trúc tổng thể**
 
-![][image9]
+```mermaid
+graph TB
+    subgraph Client_Layer [Client Layer]
+        User((User))
+        Web_App[Next.js Web Application]
+        Mobile_App[Mobile App (Future)]
+    end
+
+    subgraph API_Layer [API Gateway & Backend]
+        LB[Load Balancer / Nginx]
+        NestJS[NestJS Monolothic Service]
+    end
+
+    subgraph Service_Layer [Business Logic Modules]
+        Auth[Auth Service]
+        User_Svc[User Service]
+        Calendar[Calendar Service]
+        Booking[Booking Service]
+        AI_Svc[AI Agent Service]
+        Notif[Notification Service]
+    end
+
+    subgraph Data_Layer [Data & Storage]
+        PostgreSQL[(PostgreSQL Database<br/>+ pgvector)]
+        Redis[(Redis Cluster<br/>Cache & Queue)]
+    end
+
+    subgraph External_Services [External Services]
+        G_Calendar[Google Calendar API]
+        G_Gemini[Google Gemini AI]
+        Email_Service[SMTP / Email Service]
+    end
+
+    User -->|HTTPS| Web_App
+    User -->|HTTPS| Mobile_App
+    
+    Web_App -->|REST API / SSE| LB
+    Mobile_App -->|REST API| LB
+    
+    LB --> NestJS
+    
+    NestJS -.->|Includes| Auth
+    NestJS -.->|Includes| User_Svc
+    NestJS -.->|Includes| Calendar
+    NestJS -.->|Includes| Booking
+    NestJS -.->|Includes| AI_Svc
+    NestJS -.->|Includes| Notif
+
+    NestJS -->|Read/Write| PostgreSQL
+    NestJS -->|Cache & Pub/Sub| Redis
+    
+    Calendar -->|Sync| G_Calendar
+    AI_Svc -->|Inference| G_Gemini
+    Notif -->|Send| Email_Service
+    
+    classDef client fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef server fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    classDef service fill:#fff8e1,stroke:#ff6f00,stroke-width:1px,stroke-dasharray: 5 5;
+    classDef data fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef external fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+
+    class Web_App,Mobile_App client;
+    class NestJS,LB server;
+    class Auth,User_Svc,Calendar,Booking,AI_Svc,Notif service;
+    class PostgreSQL,Redis data;
+    class G_Calendar,G_Gemini,Email_Service external;
+```
 
 ##### Hình 8: Kiến trúc tổng thể  {#hình-8:-kiến-trúc-tổng-thể}
 
@@ -1154,54 +1220,100 @@ Hệ thống được vận hành dựa trên 6 luồng nghiệp vụ cốt lõi
 
 #### **Luồng 1: Xác thực & Phân quyền (Authentication)**
 Quy trình đảm bảo tính bảo mật cho hệ thống, hỗ trợ đăng nhập đa phương thức và quản lý phiên làm việc.
-*   **Input**: Email/Password hoặc Google OAuth Token.
-*   **Process**:
-    1.  Validate thông tin đăng nhập.
-    2.  Cấp phát Access Token (JWT) ngắn hạn và Refresh Token dài hạn.
-    3.  Lưu trữ phiên làm việc an toàn (Cookie/Header).
-*   **Output**: Authenticated Session & User Profile.
+
+```mermaid
+graph LR
+    Input[Input: Email/Pass or OAuth] --> Validate{Validate Credentials}
+    Validate -- Valid --> Token[Generate JWT Access/Refresh]
+    Validate -- Invalid --> Error[Return Error]
+    Token --> Session[Save Session / Cookie]
+    Session --> Output[Output: Authenticated User]
+    
+    style Validate fill:#fff9c4
+    style Output fill:#c8e6c9
+```
 
 #### **Luồng 2: Quản lý Sự kiện & Đồng bộ (Event Management)**
 Quy trình trung tâm xử lý dữ liệu lịch trình, đảm bảo tính nhất quán trên mọi nền tảng.
-*   **Input**: Thông tin sự kiện (Title, Time, Location).
-*   **Process**:
-    1.  Lưu trữ sự kiện vào PostgreSQL.
-    2.  Đồng bộ 2 chiều với Google Calendar (Sync Logic).
-    3.  Tạo Vector Embedding để phục vụ AI RAG.
-*   **Output**: Sự kiện được hiển thị đồng nhất trên Calento & Google Calendar.
+
+```mermaid
+graph LR
+    Input[Input: Event Data] --> DB[(Save to Postgres)]
+    DB --> Sync{Sync needed?}
+    Sync -- Yes --> GCal[Bi-directional Sync Google]
+    Sync -- No --> Embed
+    GCal --> Embed[Create Vector Embedding]
+    Embed --> Output[Output: Unified Calendar View]
+
+    style DB fill:#bbdefb
+    style GCal fill:#ffccbc
+    style Embed fill:#e1bee7
+```
 
 #### **Luồng 3: Hệ thống Đặt lịch (Booking System)**
 Cho phép người dùng tạo trang đặt lịch cá nhân và nhận lịch hẹn từ người khác (Guest).
-*   **Input**: Cấu hình thời gian rảnh (Availability Rules) & Khách chọn giờ.
-*   **Process**:
-    1.  Tính toán Time Slots khả dụng dựa trên lịch hiện có.
-    2.  Validate yêu cầu đặt lịch (Conflict check).
-    3.  Tạo Booking & Event tương ứng.
-*   **Output**: Lịch hẹn được xác nhận & Email thông báo.
+
+```mermaid
+graph LR
+    Input[Input: Availability Rules] --> Calc[Calculate Time Slots]
+    Calc --> Guest[Guest Selects Slot]
+    Guest --> Check{Conflict Check}
+    Check -- Pass --> Book[Create Booking & Event]
+    Check -- Fail --> Retry[Request Another Slot]
+    Book --> Email[Send Confirmations]
+    Email --> Output[Output: Confirmed Appointment]
+
+    style Check fill:#fff9c4
+    style Book fill:#c8e6c9
+```
 
 #### **Luồng 4: Trợ lý AI (AI Assistant)**
 Hỗ trợ người dùng tra cứu thông tin và quản lý lịch trình thông qua ngôn ngữ tự nhiên.
-*   **Input**: Câu hỏi hoặc lệnh của người dùng (VD: "Hôm nay tôi rảnh lúc nào?").
-*   **Process**:
-    1.  RAG: Tìm kiếm sự kiện liên quan trong Vector DB.
-    2.  LLM: Tổng hợp ngữ cảnh và sinh câu trả lời.
-*   **Output**: Câu trả lời text hoặc thực hiện hành động (Function Call).
+
+```mermaid
+graph LR
+    Input[Input: User Query] --> RAG[RAG: Vector Search Events]
+    RAG --> Context[Retrieve Context]
+    Context --> LLM[LLM: Generate Response]
+    LLM --> Decision{Action Needed?}
+    Decision -- Yes --> Func[Execute Function]
+    Decision -- No --> Reply[Text Response]
+    Func --> Reply
+    Reply --> Output[Output: Answer/Action]
+
+    style RAG fill:#e1bee7
+    style LLM fill:#bbdefb
+```
 
 #### **Luồng 5: Quản lý Công việc (Task Management)**
 Quản lý danh sách việc cần làm (To-do) tích hợp với lịch trình.
-*   **Input**: Task mới, Deadline, Priority.
-*   **Process**:
-    1.  Phân loại và sắp xếp Task theo độ ưu tiên.
-    2.  Lên lịch nhắc nhở (Notification Scheduler).
-*   **Output**: Danh sách công việc & Thông báo nhắc nhở.
+
+```mermaid
+graph LR
+    Input[Input: New Task] --> Sort[Classify Priority]
+    Sort --> Store[(Save to DB)]
+    Store --> Sched[Schedule Logic]
+    Sched --> Remind[Setup Notifications]
+    Remind --> Output[Output: Task List & Alerts]
+
+    style Store fill:#bbdefb
+    style Remind fill:#ffccbc
+```
 
 #### **Luồng 6: Hợp tác Nhóm (Team Collaboration)**
 Cho phép làm việc nhóm, chia sẻ lịch và lên lịch họp chung.
-*   **Input**: Tạo Team, Mời thành viên.
-*   **Process**:
-    1.  Quản lý thành viên và quyền hạn (RBAC).
-    2.  Tổng hợp lịch của thành viên để tìm giờ họp chung (Overlay Calendar).
-*   **Output**: Team Workspace & Lịch họp tối ưu.
+
+```mermaid
+graph LR
+    Input[Input: Create Team/Invite] --> RBAC[Manage Roles & Access]
+    RBAC --> Agg[Aggregate Calendars]
+    Agg --> Overlay[Overlay Availability]
+    Overlay --> Opt[Find Optimal Time]
+    Opt --> Output[Output: Team Schedule]
+
+    style RBAC fill:#fff9c4
+    style Opt fill:#c8e6c9
+```
 
 ---
 
