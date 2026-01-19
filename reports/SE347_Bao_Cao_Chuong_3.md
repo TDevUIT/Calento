@@ -122,7 +122,7 @@ graph TB
     subgraph Client_Layer [Client Layer]
         User((User))
         Web_App[Next.js Web Application]
-        Mobile_App[Mobile App (Future)]
+        Mobile_App["Mobile App (Future)"]
     end
 
     subgraph API_Layer [API Gateway & Backend]
