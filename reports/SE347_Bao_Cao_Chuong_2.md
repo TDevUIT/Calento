@@ -6,11 +6,11 @@ Hệ thống Calento được xây dựng trên nền tảng công nghệ hiện
 
 | Thành phần | Công nghệ chính |
 | ----- | ----- |
-| Frontend | Next.js 15, React 19, Tailwind CSS, TanStack Query, Zustand |
-| Backend | NestJS, TypeScript |
-| Database | PostgreSQL (với pgvector extension), Redis |
-| AI & ML | Google, Gemini, LangChain, Embeddings |
-| Infrastructure | Docker, BullMQ, Google Cloud Platform |
+| Frontend | Next.js 15, React 19, Tailwind CSS, TanStack Query, Zustand, Radix UI, Framer Motion, Recharts, Zod |
+| Backend | NestJS 11, TypeScript, Swagger (OpenAPI), Nodemailer, Passport, BullMQ |
+| Database | PostgreSQL 16 (với pgvector extension), Redis 7 |
+| AI & ML | Google Gemini 2.0 Flash, LangChain, Google Embeddings (text-embedding-004) |
+| Infrastructure | Docker, Google Cloud Platform, Nginx |
 
 ## **2.2. Công nghệ Backend**
 
