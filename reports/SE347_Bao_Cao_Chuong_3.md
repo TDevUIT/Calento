@@ -307,7 +307,7 @@ graph TD
 | **Mô tả** | User tạo booking link để người khác đặt lịch với mình |
 | **Tiền điều kiện** | User đã đăng nhập, đã set availability |
 | **Hậu điều kiện** | Booking link được tạo, public URL có thể share |
-| **Luồng chính** | 1. User vào /dashboard/booking<br>2. Click "New Booking Link"<br>3. Nhập thông tin:<br>   - Title (VD: "30min Meeting")<br>   - Slug (unique, VD: "meeting-30min")<br>   - Duration (minutes)<br>   - Buffer time (trước/sau)<br>   - Advance notice (hours)<br>   - Max bookings per day<br>   - Location (optional)<br>4. Validate:<br>   - Slug chưa tồn tại cho user này<br>   - Duration > 0<br>5. Tạo booking_link record<br>6. Generate public URL: calento.space/book/username/slug<br>7. Hiển thị preview và share options |
+| **Luồng chính** | 1. User vào /dashboard/booking<br>2. Click "New Booking Link"<br>3. Nhập thông tin:<br>   - Title (VD: "30min Meeting")<br>   - Slug (unique, VD: "meeting-30min")<br>   - Duration (minutes)<br>   - Buffer time (trước/sau)<br>   - Advance notice (hours)<br>   - Max bookings per day<br>   - Location (Tùy chọn: Google Meet, Phone, In-person, Custom)<br>4. Validate:<br>   - Slug chưa tồn tại cho user này<br>   - Duration > 0<br>5. Tạo booking_link record<br>6. Generate public URL: calento.space/book/username/slug<br>7. Hiển thị preview và share options |
 | **Luồng thay thế** | **4a. Slug đã tồn tại:**<br>   - Suggest alternative (append số)<br>**4b. User chưa set availability:**<br>   - Prompt user set availability trước |
 | **Business Rules** | - 1 user có thể tạo nhiều booking links<br>- Slug unique per user (không global)<br>- Buffer time không tính vào duration |
 
@@ -522,7 +522,7 @@ _(Xem chi tiết quy trình xử lý tại mục 3.3.5 - Sơ đồ tuần tự)_
 Module Booking giải quyết bài toán cốt lõi về "tìm giờ rảnh và đặt hẹn", giúp automate quy trình lên lịch họp.
 
 *   **Availability Engine (Công cụ tính giờ rảnh)**: Đây là logic phức tạp nhất. Engine phân tích Availability Rules (khung giờ làm việc) của user, trừ đi các sự kiện bận (Busy Events) từ Calendar Module, tính toán cả Buffer Time (thời gian nghỉ giữa các cuộc họp) và Advance Notice (thời gian báo trước). Kết quả là danh sách các "Slots" khả dụng để guest có thể book.
-*   **Booking Link Flow**: Quản lý việc tạo và cấu hình các trang đặt lịch công khai (Public Booking Page). Mỗi link có thể tùy chỉnh thời lượng (15/30/60 phút), câu hỏi khảo sát (Custom Questions), và cấu hình xác nhận tự động.
+*   **Booking Link Flow**: Quản lý việc tạo và cấu hình các trang đặt lịch công khai (Public Booking Page). Mỗi link có thể tùy chỉnh thời lượng, câu hỏi khảo sát, và đặc biệt là **Location**. Nếu người dùng chọn "Google Meet", hệ thống sẽ tự động sinh đường dẫn cuộc họp (Google Meet Link) ngay khi booking được tạo, giúp tiết kiệm thao tác thủ công.
 *   **Multi-step Booking Process**: Xử lý transaction đặt lịch an toàn: (1) Guest chọn slot -> (2) System hold slot tạm thời -> (3) Guest điền info -> (4) Confirm booking -> (5) Create Event & Send Emails. Quy trình này đảm bảo không bị double-booking (hai người đặt cùng lúc 1 giờ).
 
 _(Xem chi tiết quy trình đặt lịch tại mục 3.3.5 - Sơ đồ tuần tự)_
@@ -858,13 +858,18 @@ Hệ thống định nghĩa bảy loại notifications với priority levels kh�
 
 Priority được implement thông qua separate queues với different worker  configurations. High-priority queue có concurrency 10 workers, Medium có 5, Low có 2. Cấu hình này đảm bảo critical notifications luôn được process nhanh chóng ngay cả khi system under load.
 
-### **3.3.5. Webhook System Module**
+### **3.3.5. Webhook System Module (Outgoing Webhook)**
 
-Webhook System cho phép Calento integrate với external services theo event-driven pattern. Thay vì external services phải constantly poll Calento API để check updates, webhooks "push" notifications đến configured endpoints ngay khi events xảy ra.
+Chức năng "Báo ra bên ngoài" (Outgoing Webhook) được thiết kế đơn giản và hiệu quả, nhắm đến mục tiêu tích hợp với các nền tảng thứ ba như Slack, Zapier, hoặc CRM.
 
-**Configuration và Security:**
+**Cơ chế hoạt động - "Lưu Cấu Hình":**
 
-User configure webhooks qua dashboard UI, specify endpoint URL, select which event types muốn subscribe (ví dụ: chỉ `booking.created` và `booking.cancelled`), và nhận một secret key. Secret key này critical cho security - được sử dụng để generate HMAC-SHA256 signature cho mỗi webhook payload. Receiver có thể verify signature bằng same secret để authenticate rằng request thực sự đến từ Calento, không phải attacker.
+Tại sao cần chức năng "Tạo Webhook"? Thực chất đây không phải là một quy trình tạo mới tài nguyên phức tạp, mà đơn giản là hành động **Lưu Cấu Hình (Save Setting)**:
+1.  **Cấu hình**: Người dùng (ví dụ: User A muốn bắn tin về Slack, User B muốn bắn về CRM) nhập URL đích (Endpoint) vào hệ thống và lưu lại. URL này được lưu trữ trong Database như một dữ liệu tĩnh.
+2.  **Kích hoạt**: Khi sự kiện quan trọng xảy ra (điển hình là `Booking Created`), hệ thống sẽ truy xuất URL đã cấu hình của user đó.
+3.  **Thực thi**: Một job được đẩy vào Queue. Worker sau đó lấy job và thực hiện gửi HTTP Request (POST) chứa payload dữ liệu đến URL đích.
+
+Cơ chế này loại bỏ sự phức tạp không cần thiết, tập trung vào việc cho phép người dùng tự định nghĩa "kênh thông báo" của riêng họ thông qua việc lưu Webhook URL.
 
 System enforce HTTPS-only policy - webhook URLs phải dùng `https://` protocol. HTTP endpoints bị reject để prevent man-in-the-middle attacks. Rate limiting cũng được apply: maximum 100 webhooks per minute per user để prevent abuse và protect both Calento infrastructure và receiving endpoints.
 
