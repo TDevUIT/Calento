@@ -339,6 +339,118 @@ graph TD
 | **Luồng thay thế** | **4a. Không tìm thấy relevant events:**<br>   - Context = empty<br>   - AI answer dựa vào general knowledge<br>**5a. Gemini API error:**<br>   - Fallback: "Xin lỗi, AI tạm thời không khả dụng"<br>**6a. Function execution failed:**<br>   - Return error to AI<br>   - AI explain lỗi cho user |
 | **Business Rules** | - Chỉ search events của chính user (privacy)<br>- Vector search timeout: 3s max<br>- Function calling: Phải confirm với user trước khi execute |
 
+#### **UC-06: Tạo Sự kiện (Create Event)**
+
+| Thuộc tính | Nội dung |
+|------------|----------|
+| **Use Case ID** | UC-06 |
+| **Tên** | Tạo sự kiện mới |
+| **Actor** | Registered User |
+| **Mô tả** | User tạo một sự kiện mới trên lịch, có thể mời người tham gia và đồng bộ với Google Calendar |
+| **Tiền điều kiện** | User đã đăng nhập |
+| **Hậu điều kiện** | Event được lưu vào DB, synced to Google (nếu linked), stored in Vector DB, invitations sent |
+| **Luồng chính** | 1. User click nút "Create Event" hoặc click vào calendar grid<br>2. Nhập thông tin sự kiện:<br>   - Title, Description<br>   - Start Time, End Time<br>   - Location<br>   - Attendees (email list)<br>   - Color, Recurring rules (optional)<br>3. User click "Save"<br>4. Backend validate input (time range, email format)<br>5. Transaction:<br>   - Create Event record<br>   - Sync to Google Calendar (Use Case: Google Sync)<br>   - Generate embedding & Sync to Vector Database<br>   - Send Invitation Emails to attendees<br>6. Trả về thông tin event mới tạo<br>7. Frontend hiển thị event trên calendar grid |
+| **Luồng thay thế** | **5a. Google Sync failed:**<br>   - Log warning, event vẫn tạo local<br>   - Flag `syncedToGoogle = false`<br>**5b. Invalid Attendees:**<br>   - Filter invalid emails<br>   - User notified about skipped emails |
+| **Business Rules** | - Start Time < End Time<br>- Nếu chọn recurring, generate rule theo RFC 5545<br>- Vector embedding text format: "Title. When: Time. Where: Location. Desc: Description" |
+
+#### **UC-07: Quản lý Công việc (Manage Tasks)**
+
+| Thuộc tính | Nội dung |
+|------------|----------|
+| **Use Case ID** | UC-07 |
+| **Tên** | Quản lý công việc (Tasks) |
+| **Actor** | Registered User |
+| **Mô tả** | User tạo, cập nhật trạng thái, và xóa các công việc cần làm |
+| **Tiền điều kiện** | User đã đăng nhập |
+| **Hậu điều kiện** | Task DB updated |
+| **Luồng chính** | 1. User truy cập Task Dashboard<br>2. User thực hiện action:<br>   - **Create**: Nhập title, priority (Low/Medium/High/Critical), due_date. System create task with status TODO.<br>   - **Update Status**: Kéo thả task giữa các columns (Todo -> In Progress -> Done). System update status & completed_at.<br>   - **Edit**: Sửa title, description, tags.<br>   - **Delete**: Soft delete task.<br>3. Backend validate & execute update<br>4. Return updated task object |
+| **Luồng thay thế** | **2a. Validation Fail:**<br>   - Title is required<br>   - Due date must be valid date |
+| **Business Rules** | - Task đã complete tự động set `completed_at`<br>- Soft delete cho phép restore trong 30 ngày<br>- Priority defaults to MEDIUM |
+
+#### **UC-08: Tạo Nhóm (Create Team)**
+
+| Thuộc tính | Nội dung |
+|------------|----------|
+| **Use Case ID** | UC-08 |
+| **Tên** | Tạo nhóm làm việc mới |
+| **Actor** | Registered User (Team Owner) |
+| **Mô tả** | User tạo một không gian làm việc chung (Team) |
+| **Tiền điều kiện** | User đã đăng nhập |
+| **Hậu điều kiện** | Team created, User becomes Owner |
+| **Luồng chính** | 1. User truy cập Team section -> Click "Create Team"<br>2. Nhập: Team Name, Description<br>3. Submit<br>4. Backend:<br>   - Create Team record<br>   - Add User to Team_Members with role OWNER, status ACTIVE<br>5. Redirect user đến Team Dashboard |
+| **Luồng thay thế** | **2a. Name conflict:**<br>   - Cho phép trùng tên, unique ID handle phân biệt |
+| **Business Rules** | - User trở thành Owner mặc định<br>- Limits: User Free plan chỉ được tạo 1 team |
+
+#### **UC-09: Mời thành viên (Invite Team Member)**
+
+| Thuộc tính | Nội dung |
+|------------|----------|
+| **Use Case ID** | UC-09 |
+| **Tên** | Mời thành viên vào nhóm |
+| **Actor** | Team Owner / Admin |
+| **Mô tả** | Gửi lời mời gia nhập nhóm qua email |
+| **Tiền điều kiện** | User là Owner hoặc Admin của team |
+| **Hậu điều kiện** | Member created (PENDING), Email sent |
+| **Luồng chính** | 1. Admin vào "Team Members" -> Click "Invite"<br>2. Nhập email người được mời và role (Member/Admin)<br>3. Backend check:<br>   - User exists in system (by email)<br>   - User chưa phải là member của team<br>   - Team chưa đạt limit members<br>4. Create Team_Member record (status = PENDING)<br>5. Gửi email invitation chứa accept link<br>6. Notify success |
+| **Luồng thay thế** | **3a. User not found:**<br>   - Return error "User chưa đăng ký Calento"<br>**3b. Already member:**<br>   - Return error "User đã trong team"<br>**3c. Limit reached:**<br>   - Error "Team đã đầy" |
+| **Business Rules** | - Không thể mời trực tiếp Owner của team khác (phải user tự leave)<br>- Invite expires sau 7 ngày (tùy config) |
+
+#### **UC-10: Xem Lịch Nhóm (View Team Calendar)**
+
+| Thuộc tính | Nội dung |
+|------------|----------|
+| **Use Case ID** | UC-10 |
+| **Tên** | Xem lịch rảnh bận của nhóm (Heatmap) |
+| **Actor** | Team Member |
+| **Mô tả** | Xem biểu đồ nhiệt (heatmap) hiển thị mức độ rảnh rỗi của toàn team |
+| **Tiền điều kiện** | User là thành viên của team |
+| **Hậu điều kiện** | Hiển thị availability grid |
+| **Luồng chính** | 1. User truy cập Team Calendar view<br>2. Chọn Time Range (Tuần này/Tuần sau)<br>3. Backend `generateHeatmap`:<br>   - Iterate qua từng time slot (30 mins)<br>   - Với mỗi slot, check calendar của tất cả members<br>   - Calculate availability % (VD: 3/5 người rảnh = 60%)<br>4. Trả về JSON slots với percentage<br>5. Frontend render heatmap (Xanh đậm = Rảnh nhiều, Xanh nhạt = Bận nhiều) |
+| **Luồng thay thế** | **3a. Member sync error:**<br>   - Bỏ qua member đó hoặc show warning |
+| **Business Rules** | - Chỉ show thông tin Free/Busy, không show chi tiết event content (Privacy)<br>- Resolve timezone về timezone của người xem |
+
+#### **UC-11: Tạo Bài viết (Create Blog Post)**
+
+| Thuộc tính | Nội dung |
+|------------|----------|
+| **Use Case ID** | UC-11 |
+| **Tên** | Viết bài blog mới |
+| **Actor** | Admin / Content Manager |
+| **Mô tả** | Tạo nội dung bài viết chia sẻ kiến thức |
+| **Tiền điều kiện** | User có quyền Admin |
+| **Hậu điều kiện** | Blog post created (Draft/Published) |
+| **Luồng chính** | 1. User truy cập CMS -> Create Post<br>2. Nhập: Title, Slug, Content (Markdown), Excerpt, Category, Featured Image<br>3. Set SEO meta: Title, Description, Keywords<br>4. Chọn Status: Draft hoặc Published<br>5. Submit<br>6. Backend:<br>   - Calculate reading time<br>   - Save to DB<br>7. Return success |
+| **Luồng thay thế** | **2a. Slug duplicate:**<br>   - Auto append suffix hoặc báo lỗi |
+| **Business Rules** | - Slug phải unique<br>- Calculating reading time: 200 words/minute |
+
+#### **UC-12: Kiểm duyệt Bình luận (Moderate Comments)**
+
+| Thuộc tính | Nội dung |
+|------------|----------|
+| **Use Case ID** | UC-12 |
+| **Tên** | Kiểm duyệt bình luận |
+| **Actor** | Admin |
+| **Mô tả** | Duyệt hoặc xóa các bình luận trên blog post |
+| **Tiền điều kiện** | User là Admin |
+| **Hậu điều kiện** | Comment status updated (Approved/Spam/Deleted) |
+| **Luồng chính** | 1. User truy cập Comment Moderation Dashboard<br>2. System load list comments với status PENDING<br>3. Admin review content<br>4. Admin action:<br>   - **Approve**: Comment visible public<br>   - **Mark Spam**: Hide & flag user<br>   - **Delete**: Remove from DB<br>5. Backend update status<br>6. UI refresh list |
+| **Luồng thay thế** | **2a. No pending comments:**<br>   - Show empty state "All caught up" |
+| **Business Rules** | - Auto-filter bad words trước khi vào PENDING (Future)<br>- Admin actions are logged |
+
+#### **UC-13: Xem Báo cáo Thống kê (View Analytics)**
+
+| Thuộc tính | Nội dung |
+|------------|----------|
+| **Use Case ID** | UC-13 |
+| **Tên** | Xem báo cáo hoạt động cá nhân |
+| **Actor** | Registered User |
+| **Mô tả** | Xem thống kê về sử dụng thời gian: số meeting, phân bổ thời gian |
+| **Tiền điều kiện** | User đã đăng nhập |
+| **Hậu điều kiện** | Charts & metrics hiển thị |
+| **Luồng chính** | 1. User vào Analytics tab<br>2. Chọn Date Range<br>3. Backend aggregate metrics:<br>   - **Event Analytics**: Tổng số sự kiện, thời gian họp trung bình<br>   - **Time Utilization**: Tổng giờ họp vs Giờ rảnh<br>   - **Category Distribution**: Top categories (Họp, Deep work...)<br>   - **Time Distribution**: Phân bổ theo ngày/tuần<br>4. Return JSON analytics data<br>5. Frontend visualize bằng charts (Bar, Pie, Line) |
+| **Luồng thay thế** | **3a. No data:**<br>   - Show empty state với suggestion tạo event |
+| **Business Rules** | - Cache analytics result cho heavy queries<br>- Privacy: Chỉ thống kê data của chính user đó |
+
 ### **3.2.4. Ma trận Actor - Use Case**
 
 | Use Case | Guest | Registered User | Team Member | Team Owner | Admin |
@@ -1207,6 +1319,23 @@ Schema file được tổ chức theo modules với comments rõ ràng, shared f
 | 16 | blog_posts | Bài viết blog/CMS | id, title, slug, content, author_id, category_id, status, published_at | 100-1,000 |
 | 17 | blog_categories | Danh mục blog | id, name, slug, description | 10-50 |
 | 18 | blog_tags | Tags cho bài viết | id, name, slug, usage_count | 50-500 |
+| 19 | blog_post_tags | Liên kết bài viết và tags | id, post_id, tag_id | 200-2,000 |
+| 20 | blog_comments | Bình luận bài viết | id, post_id, author_name, content, status | 1,000-10,000 |
+| 21 | blog_views | Thống kê lượt xem bài viết | id, post_id, ip_address, viewed_at | 10,000-100,000 |
+| 22 | team_availability | Lịch rảnh chi tiết của team | id, team_id, user_id, date, available_slots | 5,000-50,000 |
+| 23 | team_meeting_rotations | Lịch xoay tua cuộc họp team | id, ritual_id, user_id, scheduled_at | 1,000-5,000 |
+| 24 | sync_logs | Log tổng quát quá trình đồng bộ | id, user_id, sync_type, status, error_message | 50,000-500,000 |
+| 25 | sync_log | Chi tiết lịch sử đồng bộ provider | id, user_id, provider, status, details | 50,000-500,000 |
+| 26 | sync_errors | Lỗi đồng bộ và retry logic | id, user_id, error_type, retry_count, resolved | 1,000-10,000 |
+| 27 | webhook_channels | Kênh webhook Google Calendar | id, channel_id, resource_id, expiration | 100-1,000 |
+| 28 | integrations | Tích hợp bên thứ 3 (Slack, etc) | id, user_id, provider, access_token | 100-1,000 |
+| 29 | notifications | Thông báo nhắc nhở event | id, event_id, channel, remind_at, is_sent | 100,000-1,000,000 |
+| 30 | meeting_notes | Ghi chú cuộc họp (AI Generated) | id, event_id, content, ai_summary | 10,000-50,000 |
+| 31 | email_logs | Lịch sử gửi email hệ thống | id, user_id, to, subject, status, sent_at | 100,000-1,000,000 |
+| 32 | ai_conversations | Lịch sử chat với AI Assistant | id, user_id, messages (JSONB), context | 10,000-50,000 |
+| 33 | ai_actions | Hành động do AI thực hiện | id, conversation_id, action_type, status | 5,000-20,000 |
+| 34 | contacts | Liên hệ từ Landing Page | id, name, email, message, status | 500-2,000 |
+| 35 | user_context_summary | Vector embeddings cho RAG | id, user_id, context, embedding (vector) | 1,000-10,000 |
 
 ### **3.3.3. Mối quan hệ dữ liệu** 
 
