@@ -17,7 +17,8 @@ $files = @(
     "09_ai.sql",
     "10_contacts.sql",
     "11_context.sql",
-    "12_hybrid_search.sql"
+    "12_hybrid_search.sql",
+    "13_booking_links_location.sql"
 )
 
 Write-Host "Building schema..."
