@@ -290,6 +290,7 @@ CREATE INDEX IF NOT EXISTS idx_calendars_google_id ON calendars(google_calendar_
 CREATE INDEX IF NOT EXISTS idx_calendars_primary ON calendars(is_primary);
 
 CREATE INDEX IF NOT EXISTS idx_events_calendar_id ON events(calendar_id);
+CREATE INDEX IF NOT EXISTS idx_events_team_id ON events(team_id);
 CREATE INDEX IF NOT EXISTS idx_events_google_id ON events(google_event_id) WHERE google_event_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_events_start_time ON events(start_time);
 CREATE INDEX IF NOT EXISTS idx_events_end_time ON events(end_time);
@@ -540,16 +541,6 @@ CREATE TABLE IF NOT EXISTS teams (
 
 COMMENT ON TABLE teams IS 'Stores team information for collaborative scheduling';
 
--- Link events to teams (optional)
-DO $$
-BEGIN
-    ALTER TABLE events
-        ADD CONSTRAINT fk_events_team_id
-        FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE SET NULL;
-EXCEPTION
-    WHEN duplicate_object THEN NULL;
-END $$;
-
 -- Team members table
 CREATE TABLE IF NOT EXISTS team_members (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -609,6 +600,16 @@ CREATE TABLE IF NOT EXISTS team_meeting_rotations (
     event_id UUID REFERENCES events(id) ON DELETE SET NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Link events to teams (optional)
+DO $$
+BEGIN
+    ALTER TABLE events
+        ADD CONSTRAINT fk_events_team_id
+        FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE SET NULL;
+EXCEPTION
+    WHEN duplicate_object THEN NULL;
+END $$;
 
 COMMENT ON TABLE team_meeting_rotations IS 'Tracks meeting rotation assignments';
 
@@ -1233,6 +1234,19 @@ DROP TRIGGER IF EXISTS tsvectorupdate ON user_context_summary;
 CREATE TRIGGER tsvectorupdate 
 BEFORE INSERT OR UPDATE ON user_context_summary
 FOR EACH ROW EXECUTE FUNCTION user_context_summary_tsvector_trigger();
+
+
+
+-- ============================================================================
+-- MIGRATION: 13_BOOKING_LINKS_LOCATION
+-- Add missing columns to booking_links table
+-- ============================================================================
+
+ALTER TABLE booking_links
+  ADD COLUMN IF NOT EXISTS location VARCHAR(100);
+
+ALTER TABLE booking_links
+  ADD COLUMN IF NOT EXISTS location_link TEXT;
 
 
 
