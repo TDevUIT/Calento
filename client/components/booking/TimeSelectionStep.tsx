@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BookingTimeSlot } from '@/interface';
-import { format, addDays, parseISO, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay } from 'date-fns';
+import { format, addDays, parseISO, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isSameDay, startOfDay, endOfDay } from 'date-fns';
 import { getBrowserTimezone } from '@/utils';
+import { useEventsByDateRange } from '@/hook/event';
 
 interface TimeSelectionStepProps {
   bookingLink: BookingLink;
@@ -44,6 +45,51 @@ export const TimeSelectionStep = ({
     return eachDayOfInterval({ start: gridStart, end: gridEnd });
   }, [selectedDate]);
 
+  // Fetch user's calendar events for the selected day
+  const selectedDateStart = useMemo(() => {
+    return format(startOfDay(parseISO(selectedDate + 'T00:00:00')), "yyyy-MM-dd'T'HH:mm:ss'Z'");
+  }, [selectedDate]);
+
+  const selectedDateEnd = useMemo(() => {
+    return format(endOfDay(parseISO(selectedDate + 'T00:00:00')), "yyyy-MM-dd'T'HH:mm:ss'Z'");
+  }, [selectedDate]);
+
+  const { data: eventsData, isLoading: isLoadingEvents } = useEventsByDateRange(
+    selectedDateStart,
+    selectedDateEnd,
+    {
+      limit: 50,
+    }
+  );
+
+  const userEvents = useMemo(() => {
+    return eventsData?.data?.items || [];
+  }, [eventsData]);
+
+  // Helper to format event time range
+  const formatEventTime = (startTime: string | Date, endTime: string | Date) => {
+    const start = typeof startTime === 'string' ? parseISO(startTime) : startTime;
+    const end = typeof endTime === 'string' ? parseISO(endTime) : endTime;
+    return `${format(start, 'h:mm a')} - ${format(end, 'h:mm a')}`;
+  };
+
+  // Helper to get color scheme for event
+  const getEventColorScheme = (color?: string) => {
+    // Map color strings to Tailwind classes
+    const colorMap: Record<string, { bg: string; border: string }> = {
+      blue: { bg: 'bg-blue-100 dark:bg-blue-900/30', border: 'border-blue-500' },
+      purple: { bg: 'bg-purple-100 dark:bg-purple-900/30', border: 'border-purple-500' },
+      green: { bg: 'bg-green-100 dark:bg-green-900/30', border: 'border-green-500' },
+      red: { bg: 'bg-red-100 dark:bg-red-900/30', border: 'border-red-500' },
+      orange: { bg: 'bg-orange-100 dark:bg-orange-900/30', border: 'border-orange-500' },
+      yellow: { bg: 'bg-yellow-100 dark:bg-yellow-900/30', border: 'border-yellow-500' },
+      pink: { bg: 'bg-pink-100 dark:bg-pink-900/30', border: 'border-pink-500' },
+      indigo: { bg: 'bg-indigo-100 dark:bg-indigo-900/30', border: 'border-indigo-500' },
+    };
+
+    return colorMap[color?.toLowerCase() || ''] || { bg: 'bg-blue-100 dark:bg-blue-900/30', border: 'border-blue-500' };
+  };
+
   return (
     <Card className="shadow-sm border border-gray-200">
       <div className="grid grid-cols-1 lg:grid-cols-12">
@@ -73,7 +119,7 @@ export const TimeSelectionStep = ({
               <select
                 className="w-full appearance-none bg-white dark:bg-gray-900 border border-gray-200 rounded-md px-3 py-2 pr-8 text-sm"
                 value={getBrowserTimezone()}
-                onChange={() => {}}
+                onChange={() => { }}
               >
                 <option value={getBrowserTimezone()}>
                   {getBrowserTimezone()}
@@ -123,13 +169,12 @@ export const TimeSelectionStep = ({
                       <button
                         key={d.toISOString()}
                         onClick={() => onDateSelect(format(d, 'yyyy-MM-dd'))}
-                        className={`h-9 rounded-md text-sm transition ${
-                          active
+                        className={`h-9 rounded-md text-sm transition ${active
                             ? 'bg-blue-600 text-white'
                             : isCurrentMonth
-                            ? 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100'
-                            : 'text-gray-400 dark:text-gray-600'
-                        }`}
+                              ? 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100'
+                              : 'text-gray-400 dark:text-gray-600'
+                          }`}
                       >
                         {format(d, 'd')}
                       </button>
@@ -167,18 +212,16 @@ export const TimeSelectionStep = ({
                         key={slot.start}
                         onClick={() => onSlotSelect(slot.start)}
                         disabled={!slot.available}
-                        className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg border-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group ${
-                          selectedSlot === slot.start
+                        className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg border-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group ${selectedSlot === slot.start
                             ? 'bg-blue-600 text-white border-blue-600 shadow-md'
                             : index < 3
-                            ? 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/30 hover:border-green-300 dark:hover:border-green-700 hover:shadow-sm'
-                            : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm'
-                        }`}
+                              ? 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/30 hover:border-green-300 dark:hover:border-green-700 hover:shadow-sm'
+                              : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm'
+                          }`}
                       >
                         <span
-                          className={`text-sm font-medium ${
-                            selectedSlot === slot.start ? 'text-white' : 'text-gray-900 dark:text-gray-100'
-                          }`}
+                          className={`text-sm font-medium ${selectedSlot === slot.start ? 'text-white' : 'text-gray-900 dark:text-gray-100'
+                            }`}
                         >
                           {formatTimeSlot(slot.start)}
                         </span>
@@ -210,37 +253,54 @@ export const TimeSelectionStep = ({
               </div>
             </div>
             <div className="h-[420px] overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
-              <div className="relative">
-                {Array.from({ length: 12 }).map((_, i) => {
-                  const hour = i + 8;
-                  const hasEvent = i === 2 || i === 5;
-                  return (
-                    <div key={i} className="flex border-b border-gray-100 dark:border-gray-700 last:border-0">
-                      <div className="w-16 flex-shrink-0 p-3 text-xs text-gray-500 dark:text-gray-400 font-medium border-r border-gray-100 dark:border-gray-700">
-                        {hour > 12 ? `${hour - 12}pm` : `${hour}am`}
-                      </div>
-                      <div className="flex-1 p-3 min-h-[60px] relative">
-                        {hasEvent && (
+              {isLoadingEvents ? (
+                <div className="p-3 space-y-2">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Skeleton key={i} className="h-16 w-full rounded-md" />
+                  ))}
+                </div>
+              ) : userEvents.length > 0 ? (
+                <div className="relative">
+                  {userEvents.map((event, index) => {
+                    const startTime = typeof event.start_time === 'string' ? parseISO(event.start_time) : event.start_time;
+                    const hour = startTime.getHours();
+                    const colorScheme = getEventColorScheme(event.color);
+
+                    return (
+                      <div key={event.id} className="flex border-b border-gray-100 dark:border-gray-700 last:border-0">
+                        <div className="w-16 flex-shrink-0 p-3 text-xs text-gray-500 dark:text-gray-400 font-medium border-r border-gray-100 dark:border-gray-700">
+                          {format(startTime, 'h:mm a')}
+                        </div>
+                        <div className="flex-1 p-3 min-h-[60px] relative">
                           <div
-                            className={`absolute inset-x-2 top-2 bottom-2 rounded-md p-2 ${
-                              i === 2
-                                ? 'bg-blue-100 dark:bg-blue-900/30 border-l-4 border-blue-500'
-                                : 'bg-purple-100 dark:bg-purple-900/30 border-l-4 border-purple-500'
-                            }`}
+                            className={`rounded-md p-2 ${colorScheme.bg} border-l-4 ${colorScheme.border}`}
                           >
-                            <div className="text-xs font-medium text-gray-900 dark:text-gray-100">
-                              {i === 2 ? 'Team Meeting' : 'Client Call'}
+                            <div className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate">
+                              {event.title}
                             </div>
                             <div className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
-                              {i === 2 ? '10:00 - 10:30' : '1:00 - 2:00'}
+                              {formatEventTime(event.start_time, event.end_time)}
                             </div>
+                            {event.location && (
+                              <div className="text-xs text-gray-500 dark:text-gray-500 mt-0.5 truncate">
+                                📍 {event.location}
+                              </div>
+                            )}
                           </div>
-                        )}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-full p-6">
+                  <div className="text-center">
+                    <Calendar className="h-10 w-10 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-400">No events scheduled</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">Your calendar is clear for this day</p>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="mt-3 text-xs text-center text-gray-500 dark:text-gray-400">
               Times shown are in your timezone
