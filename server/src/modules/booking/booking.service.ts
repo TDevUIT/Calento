@@ -31,6 +31,9 @@ import {
 } from './exceptions/booking.exceptions';
 import { AvailabilityService } from '../availability/services/availability.service';
 import { UserService } from '../users/user.service';
+import { EventService } from '../event/event.service';
+import { CalendarService } from '../calendar/calendar.service';
+import { EventAttendeeDto } from '../event/dto/events.dto';
 
 @Injectable()
 export class BookingService {
@@ -42,6 +45,8 @@ export class BookingService {
     private readonly availabilityService: AvailabilityService,
     private readonly messageService: MessageService,
     private readonly userService: UserService,
+    private readonly eventService: EventService,
+    private readonly calendarService: CalendarService,
   ) { }
 
   async createBookingLink(
@@ -171,6 +176,66 @@ export class BookingService {
       status: BookingStatus.CONFIRMED,
       confirmation_token: this.generateConfirmationToken(),
     });
+
+    // Create event in the user's primary calendar
+    try {
+      const primaryCalendar = await this.calendarService.getPrimaryCalendar(
+        bookingLink.user_id,
+      );
+
+      if (primaryCalendar) {
+        const attendees: EventAttendeeDto[] = [
+          {
+            email: dto.booker_email,
+            name: dto.booker_name,
+            response_status: 'accepted',
+          },
+        ];
+
+        // Add user (host) as attendee
+        const user = await this.userService.getUserById(bookingLink.user_id);
+        if (user && user.email) {
+          attendees.push({
+            email: user.email,
+            name: `${user.first_name} ${user.last_name}`.trim(),
+            response_status: 'accepted',
+            is_organizer: true,
+          });
+        }
+
+        const event = await this.eventService.createEvent(
+          {
+            calendar_id: primaryCalendar.id,
+            title: bookingLink.title, // Use booking link title
+            description: dto.booker_notes || bookingLink.description,
+            start_time: startTime.toISOString(),
+            end_time: actualEndTime.toISOString(),
+            location: bookingLink.location,
+            timezone: booking.timezone,
+            attendees: attendees,
+            conference_data: bookingLink.location_link
+              ? {
+                type: 'custom',
+                url: bookingLink.location_link,
+              }
+              : undefined,
+          },
+          bookingLink.user_id,
+        );
+
+        // Update booking with event_id if needed (assuming booking entity has event_id)
+        if (event && event.id) {
+          await this.bookingRepository.update(booking.id, { event_id: event.id });
+          booking.event_id = event.id;
+        }
+      }
+    } catch (error) {
+      this.logger.error(
+        `Failed to create event for booking ${booking.id}: ${error.message}`,
+      );
+      // We don't throw here to avoid failing the booking creation if event creation fails
+      // Ideally, there should be a retry mechanism or background job
+    }
 
     return booking;
   }

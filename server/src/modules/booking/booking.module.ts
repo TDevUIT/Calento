@@ -7,11 +7,20 @@ import { DatabaseModule } from '../../database/database.module';
 import { CommonModule } from '../../common/common.module';
 import { AvailabilityModule } from '../availability/availability.module';
 import { UsersModule } from '../users/users.module';
+import { EventModule } from '../event/event.module';
+import { CalendarModule } from '../calendar/calendar.module';
 
 @Module({
-  imports: [DatabaseModule, CommonModule, AvailabilityModule, UsersModule],
+  imports: [
+    DatabaseModule,
+    CommonModule,
+    AvailabilityModule,
+    UsersModule,
+    EventModule,
+    CalendarModule,
+  ],
   controllers: [BookingLinkController, BookingController],
   providers: [BookingService, BookingLinkRepository, BookingRepository],
   exports: [BookingService, BookingLinkRepository, BookingRepository],
 })
-export class BookingModule {}
+export class BookingModule { }
