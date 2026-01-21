@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS user_context_summary (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     context JSONB NOT NULL DEFAULT '{}',
-    embedding vector(1536), -- Vector embedding for semantic search (OpenAI default)
+    embedding vector(768), -- Vector embedding for semantic search (Gemini text-embedding-004)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

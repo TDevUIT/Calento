@@ -1,14 +1,8 @@
 -- ============================================================================
 -- Migration: Fix Vector Embedding Dimension Mismatch
 -- Description: Change embedding dimension from 1536 to 768 for Google Gemini
--- Date: 2025-12-24
+-- Date: 2026-01-21
 -- ============================================================================
-
--- IMPORTANT: This migration will:
--- 1. Drop existing HNSW index (will be recreated)
--- 2. Delete all existing embeddings (they are invalid with wrong dimensions)
--- 3. Alter column to use 768 dimensions
--- 4. Recreate the HNSW index
 
 BEGIN;
 
@@ -23,11 +17,11 @@ DROP INDEX IF EXISTS idx_user_context_summary_embedding;
 UPDATE user_context_summary SET embedding = NULL;
 
 -- Step 3: Alter the column to use 768 dimensions
-ALTER TABLE user_context_summary 
+ALTER TABLE user_context_summary
 ALTER COLUMN embedding TYPE vector(768);
 
 -- Step 4: Recreate the HNSW index
-CREATE INDEX idx_user_context_summary_embedding 
+CREATE INDEX idx_user_context_summary_embedding
     ON user_context_summary USING hnsw (embedding vector_cosine_ops);
 
 COMMIT;
