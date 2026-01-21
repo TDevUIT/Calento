@@ -5,6 +5,11 @@ import { EventHoverCard } from '../shared/EventHoverCard';
 import type { Event } from '@/interface';
 import { CalendarEvent } from './FullCalendar';
 
+ type ClickableChildProps = {
+  onClick?: (e: React.MouseEvent) => void;
+  style?: React.CSSProperties;
+ };
+
 interface CalendarEventItemProps {
   event: CalendarEvent;
   children: React.ReactNode;
@@ -27,12 +32,10 @@ export function CalendarEventItem({
   align = 'center',
 }: CalendarEventItemProps) {
   const childWithClickHandler = (() => {
-    if (children && typeof children === 'object' && 'props' in (children as any)) {
-      const child = children as React.ReactElement<any>;
-      const existingOnClick = child.props?.onClick as
-        | ((e: React.MouseEvent) => void)
-        | undefined;
-      const existingStyle = child.props?.style as React.CSSProperties | undefined;
+    if (React.isValidElement(children)) {
+      const child = children as React.ReactElement<ClickableChildProps>;
+      const existingOnClick = child.props?.onClick;
+      const existingStyle = child.props?.style;
 
       return React.cloneElement(child, {
         onClick: (e: React.MouseEvent) => {

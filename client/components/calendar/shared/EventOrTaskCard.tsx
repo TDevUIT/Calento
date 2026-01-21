@@ -7,6 +7,11 @@ import type { Event } from '@/interface';
 import type { Task } from '@/interface';
 import type { CalendarEvent } from '../views/FullCalendar';
 
+ type ClickableChildProps = {
+  onClick?: (e: React.MouseEvent) => void;
+  style?: React.CSSProperties;
+ };
+
 interface EventOrTaskCardProps {
   event: CalendarEvent;
   fullEvent?: Event;
@@ -30,11 +35,9 @@ export function EventOrTaskCard({
 }: EventOrTaskCardProps) {
   const withClickHandler = (handler?: () => void) => {
     if (React.isValidElement(children)) {
-      const child = children as React.ReactElement<any>;
-      const existingOnClick = child.props?.onClick as
-        | ((e: React.MouseEvent) => void)
-        | undefined;
-      const existingStyle = child.props?.style as React.CSSProperties | undefined;
+      const child = children as React.ReactElement<ClickableChildProps>;
+      const existingOnClick = child.props?.onClick;
+      const existingStyle = child.props?.style;
 
       return React.cloneElement(child, {
         onClick: (e: React.MouseEvent) => {
