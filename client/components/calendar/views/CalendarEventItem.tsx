@@ -1,5 +1,6 @@
 ﻿'use client';
 
+ import React from 'react';
 import { EventHoverCard } from '../shared/EventHoverCard';
 import type { Event } from '@/interface';
 import { CalendarEvent } from './FullCalendar';
@@ -25,6 +26,33 @@ export function CalendarEventItem({
   side = 'bottom',
   align = 'center',
 }: CalendarEventItemProps) {
+  const childWithClickHandler = (() => {
+    if (children && typeof children === 'object' && 'props' in (children as any)) {
+      const child = children as React.ReactElement<any>;
+      const existingOnClick = child.props?.onClick as
+        | ((e: React.MouseEvent) => void)
+        | undefined;
+      const existingStyle = child.props?.style as React.CSSProperties | undefined;
+
+      return React.cloneElement(child, {
+        onClick: (e: React.MouseEvent) => {
+          existingOnClick?.(e);
+          onClick?.();
+        },
+        style: {
+          ...existingStyle,
+          cursor: existingStyle?.cursor ?? 'pointer',
+        },
+      });
+    }
+
+    return (
+      <span onClick={onClick} style={{ cursor: 'pointer' }}>
+        {children}
+      </span>
+    );
+  })();
+
   const fullEvent: Event = {
     id: event.id,
     user_id: '',
@@ -52,9 +80,7 @@ export function CalendarEventItem({
       onEdit={() => onEdit?.(fullEvent)}
       onDelete={() => onDelete?.(event.id)}
     >
-      <div onClick={onClick} style={{ cursor: 'pointer' }}>
-        {children}
-      </div>
+      {childWithClickHandler}
     </EventHoverCard>
   );
 }

@@ -28,6 +28,33 @@ export function EventOrTaskCard({
   side = 'bottom',
   align = 'center',
 }: EventOrTaskCardProps) {
+  const withClickHandler = (handler?: () => void) => {
+    if (React.isValidElement(children)) {
+      const child = children as React.ReactElement<any>;
+      const existingOnClick = child.props?.onClick as
+        | ((e: React.MouseEvent) => void)
+        | undefined;
+      const existingStyle = child.props?.style as React.CSSProperties | undefined;
+
+      return React.cloneElement(child, {
+        onClick: (e: React.MouseEvent) => {
+          existingOnClick?.(e);
+          handler?.();
+        },
+        style: {
+          ...existingStyle,
+          cursor: existingStyle?.cursor ?? 'pointer',
+        },
+      });
+    }
+
+    return (
+      <span onClick={handler} style={{ cursor: 'pointer' }}>
+        {children}
+      </span>
+    );
+  };
+
   if (event.type === 'task' && fullTask) {
     return (
       <TaskHoverCard
@@ -36,9 +63,7 @@ export function EventOrTaskCard({
         align={align}
         onEdit={onEdit}
       >
-        <div onClick={onEdit} style={{ cursor: 'pointer' }}>
-          {children}
-        </div>
+        {withClickHandler(onEdit)}
       </TaskHoverCard>
     );
   }
@@ -66,9 +91,7 @@ export function EventOrTaskCard({
       onEdit={onEdit}
       onDelete={onDelete}
     >
-      <div onClick={onEdit} style={{ cursor: 'pointer' }}>
-        {children}
-      </div>
+      {withClickHandler(onEdit)}
     </EventHoverCard>
   );
 }
