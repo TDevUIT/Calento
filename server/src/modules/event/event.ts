@@ -61,6 +61,7 @@ export interface Event {
 
   visibility?: 'default' | 'public' | 'private' | 'confidential';
   response_status?: 'accepted' | 'declined' | 'tentative' | 'needsAction';
+  is_organizer?: boolean;
 
   created_at: Date;
   updated_at: Date;

@@ -420,6 +420,8 @@ export class EventRepository extends BaseRepository<Event> {
         ...(team_ref_id
           ? { team: { id: team_ref_id, name: team_ref_name || undefined } }
           : {}),
+        response_status: row.viewer_status || normalizedEvent.response_status,
+        is_organizer: row.viewer_is_organizer === true || row.organizer_id === row.viewer_id || row.organizer_id === creator_id,
       };
     }
 
@@ -431,6 +433,8 @@ export class EventRepository extends BaseRepository<Event> {
       ...(team_ref_id
         ? { team: { id: team_ref_id, name: team_ref_name || undefined } }
         : {}),
+      response_status: row.viewer_status || normalizedEvent.response_status,
+      is_organizer: row.viewer_is_organizer === true || false,
     };
   }
 
@@ -618,10 +622,13 @@ export class EventRepository extends BaseRepository<Event> {
           u.email as creator_email,
           u.avatar as creator_avatar,
           t.id as team_ref_id,
-          t.name as team_ref_name
+          t.name as team_ref_name,
+          ea_viewer.response_status as viewer_status,
+          ea_viewer.is_organizer as viewer_is_organizer
         FROM events e
         LEFT JOIN users u ON e.organizer_id = u.id
         LEFT JOIN teams t ON e.team_id = t.id
+        LEFT JOIN event_attendees ea_viewer ON ea_viewer.event_id = e.id AND ea_viewer.email = '${userEmail}'
         WHERE ${whereClause}
         ORDER BY e.${safeSortBy} ${safeSortOrder}
         LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
@@ -826,6 +833,14 @@ export class EventRepository extends BaseRepository<Event> {
       );
     }
 
+    // Permission Check
+    if (existingEvent.organizer_id !== userId) {
+      this.logger.warn(`User ${userId} attempted to update event ${actualId} owned by ${existingEvent.organizer_id}`);
+      throw new EventCreationFailedException(
+        'You do not have permission to update this event',
+      );
+    }
+
     if (eventDto.title || eventDto.start_time || eventDto.end_time) {
       await this.eventValidationService.validateEvent(
         userId,
@@ -924,6 +939,14 @@ export class EventRepository extends BaseRepository<Event> {
     if (!existingEvent) {
       throw new EventCreationFailedException(
         this.messageService.get('error.event_not_found'),
+      );
+    }
+
+    // Permission Check
+    if (existingEvent.organizer_id !== userId) {
+      this.logger.warn(`User ${userId} attempted to delete event ${actualId} owned by ${existingEvent.organizer_id}`);
+      throw new EventCreationFailedException(
+        'You do not have permission to delete this event',
       );
     }
 
