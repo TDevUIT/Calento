@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
@@ -44,6 +44,17 @@ export default function PublicBookingPage() {
     handleBookingSubmit,
     setStep,
   } = useBookingForm(slug);
+
+  // Auto-fill user details if logged in and not the owner
+  useEffect(() => {
+    if (currentUser && bookingLink && currentUser.id !== bookingLink.user_id) {
+      setBookingData((prev) => ({
+        ...prev,
+        booker_name: prev.booker_name || ((currentUser.first_name ? `${currentUser.first_name} ${currentUser.last_name || ''}` : currentUser.username) || '').trim(),
+        booker_email: prev.booker_email || currentUser.email || '',
+      }));
+    }
+  }, [currentUser, bookingLink, setBookingData]);
 
   const { data: availableSlots, isLoading: isLoadingSlotsData } = useAvailableSlots(slug, {
     start_date: selectedDate,
