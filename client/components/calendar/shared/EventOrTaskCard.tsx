@@ -25,8 +25,8 @@ export function EventOrTaskCard({
   children,
   onEdit,
   onDelete,
-  side = 'right',
-  align = 'start',
+  side = 'bottom',
+  align = 'center',
 }: EventOrTaskCardProps) {
   if (event.type === 'task' && fullTask) {
     return (

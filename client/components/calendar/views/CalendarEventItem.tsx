@@ -22,8 +22,8 @@ export function CalendarEventItem({
   onEdit,
   onDelete,
   enableHover = true,
-  side = 'right',
-  align = 'start',
+  side = 'bottom',
+  align = 'center',
 }: CalendarEventItemProps) {
   const fullEvent: Event = {
     id: event.id,

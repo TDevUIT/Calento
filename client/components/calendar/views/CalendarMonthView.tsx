@@ -93,8 +93,6 @@ const CalendarMonthView = () => {
                       event={event}
                       fullEvent={event.type !== 'task' ? convertToFullEvent(event) : undefined}
                       fullTask={event.taskData}
-                      side="right"
-                      align="start"
                       onEdit={() => onEventClick?.(event)}
                       onDelete={() => { }}
                     >

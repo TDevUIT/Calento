@@ -26,8 +26,8 @@ export function EventHoverCard({
   children,
   onEdit,
   onDelete,
-  side: defaultSide = 'right',
-  align: defaultAlign = 'start',
+  side: defaultSide = 'bottom',
+  align: defaultAlign = 'center',
   mode = 'quick',
   autoPosition = true,
 }: EventHoverCardProps) {
@@ -69,10 +69,10 @@ export function EventHoverCard({
       <HoverCardContent
         side={defaultSide}
         align={defaultAlign}
-        className="w-auto p-0 border-0 bg-transparent shadow-none event-hover-card pointer-events-auto"
+        className="w-auto p-0 border-0 bg-transparent shadow-none event-hover-card pointer-events-auto z-[9999]"
         sideOffset={8}
         alignOffset={0}
-        style={{ zIndex: 999999, pointerEvents: 'auto' }}
+        style={{ pointerEvents: 'auto' }}
         onPointerDownOutside={() => {
           setOpen(false);
         }}
