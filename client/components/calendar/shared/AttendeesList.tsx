@@ -67,7 +67,7 @@ export function AttendeesList({ attendees, organizerEmail }: AttendeesListProps)
     if (b.is_organizer) return 1;
     if (a.email === organizerEmail) return -1;
     if (b.email === organizerEmail) return 1;
-    
+
     const statusOrder = { accepted: 0, tentative: 1, needsAction: 2, declined: 3 };
     const aStatus = a.response_status || 'needsAction';
     const bStatus = b.response_status || 'needsAction';
@@ -144,9 +144,7 @@ export function AttendeesList({ attendees, organizerEmail }: AttendeesListProps)
                     {attendee.name && (
                       <p className="text-xs text-muted-foreground">{attendee.email}</p>
                     )}
-                    <p className="text-xs">
-                      <span className="font-medium">Status:</span> {config.label}
-                    </p>
+
                     {isOrganizer && (
                       <p className="text-xs font-medium text-yellow-600">
                         Organizer

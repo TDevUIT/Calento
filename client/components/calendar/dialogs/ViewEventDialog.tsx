@@ -17,18 +17,18 @@ interface ViewEventDialogProps {
   onDelete?: () => void;
 }
 
-export function ViewEventDialog({ 
-  open, 
-  onOpenChange, 
+export function ViewEventDialog({
+  open,
+  onOpenChange,
   event,
   onEdit,
-  onDelete 
+  onDelete
 }: ViewEventDialogProps) {
   if (!event) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="p-0 max-w-md border-0 bg-transparent shadow-none">
+      <DialogContent className="p-0 max-w-md border-0 bg-transparent shadow-none" showCloseButton={false}>
         <DialogTitle className="sr-only">{event.title || 'Event Details'}</DialogTitle>
         <EventDetailView
           event={event}
