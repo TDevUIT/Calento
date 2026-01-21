@@ -374,12 +374,19 @@ export class BookingService {
     endTime: Date,
     excludeBookingId?: string,
   ): Promise<void> {
+    this.logger.debug(`[validateBookingTime] Starting validation for booking link ${bookingLink.slug}`);
+    this.logger.debug(`[validateBookingTime] Start: ${startTime.toISOString()}, End: ${endTime.toISOString()}`);
+    this.logger.debug(`[validateBookingTime] Timezone: ${bookingLink.timezone}`);
+
     // Ensure both times are in UTC for accurate comparison
     const now = new Date();
     const nowUtc = new Date(now.toISOString());
     const startTimeUtc = new Date(startTime.toISOString());
 
+    this.logger.debug(`[validateBookingTime] Now UTC: ${nowUtc.toISOString()}`);
+
     if (startTimeUtc < nowUtc) {
+      this.logger.warn(`[validateBookingTime] FAILED: Past date check - Start ${startTimeUtc.toISOString()} < Now ${nowUtc.toISOString()}`);
       const message = this.messageService.get('booking.past_date');
       throw new BookingPastDateException(message);
     }
@@ -387,7 +394,11 @@ export class BookingService {
     const advanceNoticeMs =
       bookingLink.advance_notice_hours *
       TIME_CONSTANTS.BOOKING.ADVANCE_NOTICE_MULTIPLIER;
-    if (startTimeUtc.getTime() - nowUtc.getTime() < advanceNoticeMs) {
+    const advanceNoticeDiff = startTimeUtc.getTime() - nowUtc.getTime();
+    this.logger.debug(`[validateBookingTime] Advance notice - Required: ${advanceNoticeMs}ms (${bookingLink.advance_notice_hours}h), Actual: ${advanceNoticeDiff}ms`);
+
+    if (advanceNoticeDiff < advanceNoticeMs) {
+      this.logger.warn(`[validateBookingTime] FAILED: Advance notice check - ${advanceNoticeDiff}ms < ${advanceNoticeMs}ms`);
       const message = this.messageService.get(
         'booking.advance_notice',
         undefined,
@@ -401,7 +412,11 @@ export class BookingService {
     const bookingWindowMs =
       bookingLink.booking_window_days *
       TIME_CONSTANTS.BOOKING.BOOKING_WINDOW_MULTIPLIER;
-    if (startTimeUtc.getTime() - nowUtc.getTime() > bookingWindowMs) {
+    const bookingWindowDiff = startTimeUtc.getTime() - nowUtc.getTime();
+    this.logger.debug(`[validateBookingTime] Booking window - Max: ${bookingWindowMs}ms (${bookingLink.booking_window_days} days), Actual: ${bookingWindowDiff}ms`);
+
+    if (bookingWindowDiff > bookingWindowMs) {
+      this.logger.warn(`[validateBookingTime] FAILED: Booking window check - ${bookingWindowDiff}ms > ${bookingWindowMs}ms`);
       const message = this.messageService.get(
         'booking.outside_window',
         undefined,
@@ -412,6 +427,7 @@ export class BookingService {
       throw new BookingOutsideWindowException(message);
     }
 
+    this.logger.debug(`[validateBookingTime] Checking availability for user ${bookingLink.user_id}`);
     const availabilityCheck = await this.availabilityService.checkAvailability(
       bookingLink.user_id,
       {
@@ -420,7 +436,10 @@ export class BookingService {
       },
     );
 
+    this.logger.debug(`[validateBookingTime] Availability check result: ${JSON.stringify(availabilityCheck)}`);
+
     if (!availabilityCheck.available) {
+      this.logger.warn(`[validateBookingTime] FAILED: Availability check - User not available. Conflicts: ${availabilityCheck.conflicts?.length || 0}`);
       const message = this.messageService.get('booking.time_unavailable');
       throw new BookingTimeUnavailableException(message);
     }
@@ -431,16 +450,23 @@ export class BookingService {
       endTime,
     );
 
+    this.logger.debug(`[validateBookingTime] Found ${bookings.length} existing bookings in range`);
+
     const hasConflict = bookings.some((booking) => {
       if (excludeBookingId && booking.id === excludeBookingId) {
         return false;
       }
       const bookingStart = new Date(booking.start_time);
       const bookingEnd = new Date(booking.end_time);
-      return startTime < bookingEnd && endTime > bookingStart;
+      const conflict = startTime < bookingEnd && endTime > bookingStart;
+      if (conflict) {
+        this.logger.debug(`[validateBookingTime] Conflict with booking ${booking.id}: ${bookingStart.toISOString()} - ${bookingEnd.toISOString()}`);
+      }
+      return conflict;
     });
 
     if (hasConflict) {
+      this.logger.warn(`[validateBookingTime] FAILED: Booking conflict detected`);
       const message = this.messageService.get('booking.time_unavailable');
       throw new BookingTimeUnavailableException(message);
     }
@@ -450,7 +476,10 @@ export class BookingService {
         bookingLink.id,
         startTime,
       );
+      this.logger.debug(`[validateBookingTime] Daily booking count: ${dayCount}/${bookingLink.max_bookings_per_day}`);
+
       if (dayCount >= bookingLink.max_bookings_per_day) {
+        this.logger.warn(`[validateBookingTime] FAILED: Daily limit reached - ${dayCount} >= ${bookingLink.max_bookings_per_day}`);
         const message = this.messageService.get(
           'booking.daily_limit',
           undefined,
@@ -461,6 +490,8 @@ export class BookingService {
         throw new BookingDailyLimitException(message);
       }
     }
+
+    this.logger.debug(`[validateBookingTime] ✓ All validation checks passed`);
   }
 
   private generateConfirmationToken(): string {
