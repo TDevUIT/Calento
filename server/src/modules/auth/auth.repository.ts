@@ -16,7 +16,7 @@ export class AuthRepository {
   constructor(
     private readonly databaseService: DatabaseService,
     private readonly userValidationService: UserValidationService,
-  ) {}
+  ) { }
 
   async createUser(
     userData: RegisterDto & { password_hash: string },
@@ -193,7 +193,7 @@ export class AuthRepository {
     try {
       const query = `
         UPDATE users
-        SET password_reset_token = $1, password_reset_expires = $2, updated_at = NOW()
+        SET reset_token_identifier = $1, reset_token_expires_at = $2, updated_at = NOW()
         WHERE id = $3
       `;
       await this.databaseService.query(query, [token, expiresAt, userId]);
@@ -213,7 +213,7 @@ export class AuthRepository {
     try {
       const query = `
         SELECT * FROM users
-        WHERE password_reset_token = $1 AND password_reset_expires > NOW()
+        WHERE reset_token_identifier = $1 AND reset_token_expires_at > NOW()
       `;
       const result = await this.databaseService.query(query, [token]);
       return result.rows[0] || null;
@@ -233,8 +233,8 @@ export class AuthRepository {
       const query = `
         UPDATE users
         SET password_hash = $1,
-            password_reset_token = NULL,
-            password_reset_expires = NULL,
+            reset_token_identifier = NULL,
+            reset_token_expires_at = NULL,
             updated_at = NOW()
         WHERE id = $2
       `;
@@ -253,7 +253,7 @@ export class AuthRepository {
     try {
       const query = `
         UPDATE users
-        SET password_reset_token = NULL, password_reset_expires = NULL, updated_at = NOW()
+        SET reset_token_identifier = NULL, reset_token_expires_at = NULL, updated_at = NOW()
         WHERE id = $1
       `;
       await this.databaseService.query(query, [userId]);
