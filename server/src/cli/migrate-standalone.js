@@ -111,15 +111,10 @@ function loadMigrationFiles() {
     const filePath = path.join(migrationsPath, file);
     const content = fs.readFileSync(filePath, 'utf-8');
 
-    // Extract migration ID from filename (format: YYYYMMDD_NNN_name.sql)
-    const match = file.match(/^(\d{8}_\d{3})_(.+)\.sql$/);
-    if (!match) {
-      console.warn(`⚠️  Skipping invalid migration filename: ${file}`);
-      continue;
-    }
-
-    const id = match[1];
-    const name = match[2];
+    // Use filename (without extension) as migration ID.
+    // This allows multiple filename formats (e.g. 20251228T202000_*, z_fix-*, etc.).
+    const id = file.replace('.sql', '');
+    const name = file;
 
     // Split UP and DOWN migrations
     const downMarkerRegex = /^-- DOWN Migration:.*$/m;
