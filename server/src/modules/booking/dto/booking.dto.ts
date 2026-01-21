@@ -166,6 +166,19 @@ export class CreateBookingLinkDto {
 
 export class UpdateBookingLinkDto {
   @ApiPropertyOptional({
+    description: 'URL slug for the booking link',
+    example: 'quick-meeting',
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(3)
+  @MaxLength(100)
+  @Matches(/^[a-z0-9-]+$/, {
+    message: 'slug must contain only lowercase letters, numbers, and hyphens',
+  })
+  slug?: string;
+
+  @ApiPropertyOptional({
     description: 'Title of the booking link',
   })
   @IsOptional()
