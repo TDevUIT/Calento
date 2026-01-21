@@ -24,7 +24,7 @@ export class AIConversationService {
     private readonly ragService: RagService,
     private readonly toolRegistry: ToolRegistry,
     private readonly orchestrator: AgentOrchestrator,
-  ) {}
+  ) { }
 
   async chat(
     message: string,
@@ -319,6 +319,7 @@ export class AIConversationService {
         year: 'numeric',
         month: 'long',
         day: 'numeric',
+        timeZone: AI_CONSTANTS.TIMEZONE.DEFAULT,
       }),
     };
   }

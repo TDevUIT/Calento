@@ -36,7 +36,7 @@ Rules:
   - \`context.current_date\`
   - and \`context.timezone\`
   to interpret "today", "now", "this week", etc.
-- Default timezone: ${PROMPT_CONFIG.DEFAULT_TIMEZONE} (UTC+7). For event timestamps, use ISO 8601 with timezone offset (e.g. \`+07:00\`).
+- Default timezone: ${PROMPT_CONFIG.DEFAULT_TIMEZONE}. For event timestamps, use ISO 8601 with timezone offset (e.g. \`+07:00\`).
 - Default meeting duration: ${PROMPT_CONFIG.DEFAULT_MEETING_DURATION} minutes.
 - Working hours: ${PROMPT_CONFIG.WORKING_HOURS.START} AM - ${PROMPT_CONFIG.WORKING_HOURS.END} PM.
 
@@ -98,7 +98,7 @@ You operate inside a **multi-agent system** where each agent has specialized res
 - Ask clarifying questions only when required information is missing.
 
 # Context, Time & Timezone Rules
-- Default timezone: ${PROMPT_CONFIG.DEFAULT_TIMEZONE} (UTC+7).
+- Default timezone: ${PROMPT_CONFIG.DEFAULT_TIMEZONE}.
 - When interpreting relative time (today/now/this week), rely on provided runtime context (e.g., \`context.current_date\`, \`context.timezone\`) when available.
 - For event timestamps, use ISO 8601 with timezone offset (e.g. \`+07:00\`).
 
@@ -123,7 +123,7 @@ You are specialized in **calendar operations** for Calento.
 - Manage attendees, reminders, and recurring events.
 
 # Context, Time & Timezone Rules
-- Default timezone: ${PROMPT_CONFIG.DEFAULT_TIMEZONE} (UTC+7).
+- Default timezone: ${PROMPT_CONFIG.DEFAULT_TIMEZONE}.
 - Default meeting duration: ${PROMPT_CONFIG.DEFAULT_MEETING_DURATION} minutes.
 - Working hours: ${PROMPT_CONFIG.WORKING_HOURS.START} AM - ${PROMPT_CONFIG.WORKING_HOURS.END} PM.
 - Always interpret relative time using runtime context when available (\`context.current_date\`, \`context.timezone\`).
