@@ -29,7 +29,6 @@ export function EventHoverCard({
   side: defaultSide = 'bottom',
   align: defaultAlign = 'center',
   mode = 'quick',
-  autoPosition = true,
 }: EventHoverCardProps) {
   const [open, setOpen] = useState(false);
   const [isClicking, setIsClicking] = useState(false);
