@@ -53,7 +53,7 @@ export class AuthService {
     private readonly calendarService: CalendarService,
     private readonly googleAuthService: GoogleAuthService,
     private readonly userService: UserService,
-  ) {}
+  ) { }
 
   async register(registerDto: RegisterDto): Promise<AuthResponse> {
     try {
@@ -475,10 +475,11 @@ export class AuthService {
         subject: 'Password Reset Request',
         template: 'password-reset',
         context: {
-          user_name: user.first_name || user.username,
-          reset_url: resetUrl,
-          expiry_hours:
+          userName: user.first_name || user.username,
+          resetUrl: resetUrl,
+          expiryHours:
             SECURITY_CONSTANTS.PASSWORD_RESET_TOKEN_EXPIRY / (1000 * 60 * 60),
+          year: new Date().getFullYear(),
         },
       });
 
