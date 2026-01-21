@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   HoverCard,
   HoverCardContent,
@@ -33,58 +33,6 @@ export function EventHoverCard({
 }: EventHoverCardProps) {
   const [open, setOpen] = useState(false);
   const [isClicking, setIsClicking] = useState(false);
-  const [position, setPosition] = useState<{
-    side: 'top' | 'right' | 'bottom' | 'left';
-    align: 'start' | 'center' | 'end';
-  }>({
-    side: defaultSide,
-    align: defaultAlign,
-  });
-  const triggerElementRef = useRef<HTMLElement | null>(null);
-
-  const calculateBestPosition = useCallback(() => {
-    if (!autoPosition || !triggerElementRef.current) {
-      return { side: defaultSide, align: defaultAlign };
-    }
-
-    const rect = triggerElementRef.current.getBoundingClientRect();
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-
-    const distanceToRight = viewportWidth - rect.right;
-    const distanceToLeft = rect.left;
-    const distanceToTop = rect.top;
-    const distanceToBottom = viewportHeight - rect.bottom;
-
-    const maxDistance = Math.max(
-      distanceToRight,
-      distanceToLeft,
-      distanceToTop,
-      distanceToBottom
-    );
-
-    let side: 'top' | 'right' | 'bottom' | 'left' = defaultSide;
-    let align: 'start' | 'center' | 'end' = defaultAlign;
-
-    if (maxDistance === distanceToRight && distanceToRight > 350) {
-      side = 'right';
-      align = rect.top < 100 ? 'start' : rect.bottom > viewportHeight - 100 ? 'end' : 'center';
-    } else if (maxDistance === distanceToLeft && distanceToLeft > 350) {
-      side = 'left';
-      align = rect.top < 100 ? 'start' : rect.bottom > viewportHeight - 100 ? 'end' : 'center';
-    } else if (maxDistance === distanceToBottom && distanceToBottom > 250) {
-      side = 'bottom';
-      align = rect.left < 100 ? 'start' : rect.right > viewportWidth - 100 ? 'end' : 'center';
-    } else if (maxDistance === distanceToTop && distanceToTop > 250) {
-      side = 'top';
-      align = rect.left < 100 ? 'start' : rect.right > viewportWidth - 100 ? 'end' : 'center';
-    } else {
-      side = distanceToRight > distanceToBottom ? 'right' : 'bottom';
-      align = 'start';
-    }
-
-    return { side, align };
-  }, [autoPosition, defaultSide, defaultAlign]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -99,19 +47,11 @@ export function EventHoverCard({
 
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen);
-    if (newOpen && autoPosition) {
-      const newPosition = calculateBestPosition();
-      setPosition(newPosition);
-    }
-  };
-
-  const handleMouseEnter = (e: React.MouseEvent) => {
-    triggerElementRef.current = e.currentTarget as HTMLElement;
   };
 
   return (
     <HoverCard open={open && !isClicking} onOpenChange={handleOpenChange} openDelay={500} closeDelay={100}>
-      <HoverCardTrigger 
+      <HoverCardTrigger
         asChild
         onPointerDown={() => {
           setIsClicking(true);
@@ -123,13 +63,12 @@ export function EventHoverCard({
         onClick={() => {
           setOpen(false);
         }}
-        onMouseEnter={handleMouseEnter}
       >
         {children}
       </HoverCardTrigger>
-      <HoverCardContent 
-        side={position.side} 
-        align={position.align}
+      <HoverCardContent
+        side={defaultSide}
+        align={defaultAlign}
         className="w-auto p-0 border-0 bg-transparent shadow-none event-hover-card pointer-events-auto"
         sideOffset={8}
         alignOffset={0}
