@@ -141,10 +141,6 @@ export function AttendeesList({ attendees, organizerEmail }: AttendeesListProps)
                 <TooltipContent side="left" className="max-w-xs">
                   <div className="space-y-1">
                     <p className="font-medium">{attendee.name || attendee.email}</p>
-                    {attendee.name && (
-                      <p className="text-xs text-muted-foreground">{attendee.email}</p>
-                    )}
-
                     {isOrganizer && (
                       <p className="text-xs font-medium text-yellow-600">
                         Organizer
