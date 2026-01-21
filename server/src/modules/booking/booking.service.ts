@@ -146,13 +146,17 @@ export class BookingService {
     }
 
     const startTime = new Date(dto.start_time);
-    // Include buffer time in end time calculation to match slot generation
-    const totalDuration = bookingLink.duration_minutes + (bookingLink.buffer_time_minutes || 0);
-    const endTime = new Date(
-      startTime.getTime() + totalDuration * 60 * 1000,
+    // Calculate end time for the actual meeting duration (without buffer)
+    const actualEndTime = new Date(
+      startTime.getTime() + bookingLink.duration_minutes * 60 * 1000,
+    );
+    // Calculate end time including buffer time for storage (to prevent back-to-back bookings)
+    const endTimeWithBuffer = new Date(
+      startTime.getTime() + (bookingLink.duration_minutes + (bookingLink.buffer_time_minutes || 0)) * 60 * 1000,
     );
 
-    await this.validateBookingTime(bookingLink, startTime, endTime);
+    // Validate using actual meeting time (without buffer), as buffer is just spacing between meetings
+    await this.validateBookingTime(bookingLink, startTime, actualEndTime);
 
     const booking = await this.bookingRepository.create({
       booking_link_id: bookingLink.id,
@@ -162,7 +166,7 @@ export class BookingService {
       booker_phone: dto.booker_phone,
       booker_notes: dto.booker_notes,
       start_time: startTime,
-      end_time: endTime,
+      end_time: endTimeWithBuffer,
       timezone: dto.timezone || bookingLink.timezone || 'UTC',
       status: BookingStatus.CONFIRMED,
       confirmation_token: this.generateConfirmationToken(),
@@ -233,15 +237,19 @@ export class BookingService {
     }
 
     const newStartTime = new Date(dto.start_time);
-    // Include buffer time in end time calculation to match slot generation
-    const totalDuration = bookingLink.duration_minutes + (bookingLink.buffer_time_minutes || 0);
-    const newEndTime = new Date(
-      newStartTime.getTime() + totalDuration * 60 * 1000,
+    // Calculate end time for the actual meeting duration (without buffer)
+    const actualNewEndTime = new Date(
+      newStartTime.getTime() + bookingLink.duration_minutes * 60 * 1000,
+    );
+    // Calculate end time including buffer time for storage (to prevent back-to-back bookings)
+    const newEndTimeWithBuffer = new Date(
+      newStartTime.getTime() + (bookingLink.duration_minutes + (bookingLink.buffer_time_minutes || 0)) * 60 * 1000,
     );
 
-    await this.validateBookingTime(bookingLink, newStartTime, newEndTime, id);
+    // Validate using actual meeting time (without buffer), as buffer is just spacing between meetings
+    await this.validateBookingTime(bookingLink, newStartTime, actualNewEndTime, id);
 
-    return this.bookingRepository.reschedule(id, newStartTime, newEndTime);
+    return this.bookingRepository.reschedule(id, newStartTime, newEndTimeWithBuffer);
   }
 
   async getAvailableSlots(
