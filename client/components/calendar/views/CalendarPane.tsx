@@ -15,6 +15,8 @@ import { getColorHex } from '@/utils';
 import { getWeekStartDay } from '@/utils';
 import { useControllerStore } from '@/store/controller.store';
 import { useCalendarSettingsStore } from '@/store/calendar-settings.store';
+import { useAuth } from '@/hook/auth/use-auth';
+import { usePrimaryCalendar } from '@/hook/calendar/use-primary-calendar';
 import { COLORS } from '@/constants/theme.constants';
 import { useKeyboardShortcuts } from '@/components/calendar/useKeyboardShortcuts';
 
@@ -42,8 +44,13 @@ export default function CalendarPane() {
 
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showViewDialog, setShowViewDialog] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showTaskDialog, setShowTaskDialog] = useState(false);
+
+  const { user } = useAuth();
+  const { data: primaryCalendar } = usePrimaryCalendar();
 
   useKeyboardShortcuts({
     onShowShortcuts: () => setShowShortcuts(true),
@@ -150,6 +157,15 @@ export default function CalendarPane() {
     const calendarOk = visibleCalendarIds.size === 0 || visibleCalendarIds.has(event.calendarId || '');
     const teamOk = visibleTeamIds.size === 0 || !event.teamId || visibleTeamIds.has(event.teamId);
 
+    // Also show events where I am an invitee if my primary calendar is visible (or if all calendars are visible)
+    // We assume if the user has their primary calendar selected, they want to see their schedule (which includes invited events)
+    const isInvited = event.creator?.id && user?.id && event.creator.id !== user.id;
+    const isPrimaryCalendarVisible = primaryCalendar?.data?.id && visibleCalendarIds.has(primaryCalendar.data.id);
+
+    if (isInvited && (visibleCalendarIds.size === 0 || isPrimaryCalendarVisible)) {
+      return teamOk;
+    }
+
     return calendarOk && teamOk;
   });
 
@@ -180,8 +196,26 @@ export default function CalendarPane() {
       setSelectedTask(event.taskData);
       setShowTaskDialog(true);
     } else {
-      setSelectedEventId(event.id);
-      setShowEditDialog(true);
+      // Find the full event object
+      const fullEvent = apiEvents.find(e => e.id === event.id);
+
+      if (fullEvent) {
+        // Check if I am the creator
+        const isCreator = fullEvent.creator?.id === user?.id || fullEvent.organizer_id === user?.id;
+
+        if (isCreator) {
+          setSelectedEventId(event.id);
+          setShowEditDialog(true);
+        } else {
+          // I am an attendee, show view dialog
+          setSelectedEvent(fullEvent);
+          setShowViewDialog(true);
+        }
+      } else {
+        // Fallback if event not found (should be rare)
+        setSelectedEventId(event.id);
+        setShowEditDialog(true);
+      }
     }
   };
 
@@ -205,6 +239,10 @@ export default function CalendarPane() {
       setSelectedEventId={setSelectedEventId}
       showEditDialog={showEditDialog}
       setShowEditDialog={setShowEditDialog}
+      showViewDialog={showViewDialog}
+      setShowViewDialog={setShowViewDialog}
+      selectedEvent={selectedEvent}
+      setSelectedEvent={setSelectedEvent}
       selectedTask={selectedTask}
       setSelectedTask={setSelectedTask}
       showTaskDialog={showTaskDialog}

@@ -20,12 +20,12 @@ import {
 import { DateDisplay, HeaderActions, ViewSelector, QuickActions } from '@/components/calendar/header';
 import { getCalendarStyles } from '@/utils';
 import { CalendarSidebar } from '@/components/calendar/sidebar/CalendarSidebar';
-import { CreateEventDialog, EditEventDialog } from '@/components/calendar/dialogs';
+import { CreateEventDialog, EditEventDialog, ViewEventDialog } from '@/components/calendar/dialogs';
 import { EditTaskDialog } from '@/components/task/EditTaskDialog';
 import { CalendarSettingsDialog } from '@/components/calendar/settings/CalendarSettingsDialog';
 import { KeyboardShortcuts } from '@/components/calendar/KeyboardShortcuts';
 import { CalendarSettingsProvider } from '@/components/calendar/shared/CalendarSettingsProvider';
-import type { Task } from '@/interface';
+import type { Task, Event } from '@/interface';
 
 export type DashboardCalendarWrapperProps = {
   currentMonth: Date;
@@ -46,6 +46,10 @@ export type DashboardCalendarWrapperProps = {
   setSelectedEventId: (id: string | null) => void;
   showEditDialog: boolean;
   setShowEditDialog: (show: boolean) => void;
+  showViewDialog: boolean;
+  setShowViewDialog: (show: boolean) => void;
+  selectedEvent: Event | null;
+  setSelectedEvent: (event: Event | null) => void;
   selectedTask: Task | null;
   setSelectedTask: (task: Task | null) => void;
   showTaskDialog: boolean;
@@ -83,6 +87,10 @@ export function DashboardCalendarWrapper({
   setSelectedEventId,
   showEditDialog,
   setShowEditDialog,
+  showViewDialog,
+  setShowViewDialog,
+  selectedEvent,
+  setSelectedEvent,
   selectedTask,
   setSelectedTask,
   showTaskDialog,
@@ -235,6 +243,15 @@ export function DashboardCalendarWrapper({
             eventId={selectedEventId}
           />
         )}
+
+        <ViewEventDialog
+          open={showViewDialog}
+          onOpenChange={(open) => {
+            setShowViewDialog(open);
+            if (!open) setSelectedEvent(null);
+          }}
+          event={selectedEvent}
+        />
 
         {selectedTask && (
           <EditTaskDialog
