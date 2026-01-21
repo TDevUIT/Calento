@@ -42,7 +42,7 @@ export class BookingService {
     private readonly availabilityService: AvailabilityService,
     private readonly messageService: MessageService,
     private readonly userService: UserService,
-  ) {}
+  ) { }
 
   async createBookingLink(
     userId: string,
@@ -146,8 +146,10 @@ export class BookingService {
     }
 
     const startTime = new Date(dto.start_time);
+    // Include buffer time in end time calculation to match slot generation
+    const totalDuration = bookingLink.duration_minutes + (bookingLink.buffer_time_minutes || 0);
     const endTime = new Date(
-      startTime.getTime() + bookingLink.duration_minutes * 60 * 1000,
+      startTime.getTime() + totalDuration * 60 * 1000,
     );
 
     await this.validateBookingTime(bookingLink, startTime, endTime);
@@ -231,8 +233,10 @@ export class BookingService {
     }
 
     const newStartTime = new Date(dto.start_time);
+    // Include buffer time in end time calculation to match slot generation
+    const totalDuration = bookingLink.duration_minutes + (bookingLink.buffer_time_minutes || 0);
     const newEndTime = new Date(
-      newStartTime.getTime() + bookingLink.duration_minutes * 60 * 1000,
+      newStartTime.getTime() + totalDuration * 60 * 1000,
     );
 
     await this.validateBookingTime(bookingLink, newStartTime, newEndTime, id);
