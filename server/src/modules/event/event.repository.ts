@@ -551,9 +551,28 @@ export class EventRepository extends BaseRepository<Event> {
         : 'created_at';
       const safeSortOrder = sortOrder === 'ASC' ? 'ASC' : 'DESC';
 
-      const conditions: string[] = ['e.organizer_id = $1'];
+      // Get user email first
+      const userResult = await this.databaseService.query(
+        'SELECT email FROM users WHERE id = $1',
+        [userId],
+      );
+      const userEmail = userResult.rows[0]?.email;
+
+      const conditions: string[] = [];
       const params: any[] = [userId];
       let paramIndex = 2;
+
+      if (userEmail) {
+        // Include events where user is organizer OR an attendee
+        conditions.push(`(e.organizer_id = $1 OR EXISTS (
+           SELECT 1 FROM event_attendees ea 
+           WHERE ea.event_id = e.id AND ea.email = $${paramIndex}
+         ))`);
+        params.push(userEmail);
+        paramIndex++;
+      } else {
+        conditions.push('e.organizer_id = $1');
+      }
 
       if (start_date) {
         conditions.push(`e.end_time > $${paramIndex}`);
@@ -582,13 +601,13 @@ export class EventRepository extends BaseRepository<Event> {
       const whereClause = conditions.join(' AND ');
 
       const countQuery = `
-        SELECT COUNT(*) 
+        SELECT COUNT(DISTINCT e.id) 
         FROM events e
         WHERE ${whereClause}
       `;
 
       const dataQuery = `
-        SELECT 
+        SELECT DISTINCT
           e.*,
           u.id as creator_id,
           COALESCE(
@@ -1023,12 +1042,12 @@ export class EventRepository extends BaseRepository<Event> {
           count: result.rows.length,
           sample: result.rows[0]
             ? {
-                id: result.rows[0].id,
-                title: result.rows[0].title,
-                organizer_id: result.rows[0].organizer_id,
-                creator_id: result.rows[0].creator_id,
-                creator_name: result.rows[0].creator_name,
-              }
+              id: result.rows[0].id,
+              title: result.rows[0].title,
+              organizer_id: result.rows[0].organizer_id,
+              creator_id: result.rows[0].creator_id,
+              creator_name: result.rows[0].creator_name,
+            }
             : null,
         },
       );

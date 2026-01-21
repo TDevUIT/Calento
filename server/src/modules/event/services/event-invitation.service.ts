@@ -341,6 +341,35 @@ export class EventInvitationService {
         [responseStatus, comment, eventId, attendeeEmail],
       );
 
+      // Sync to events table attendees JSON
+      const eventResult = await this.db.query(
+        'SELECT attendees FROM events WHERE id = $1',
+        [eventId],
+      );
+
+      if (eventResult.rows.length > 0) {
+        let attendees = eventResult.rows[0].attendees;
+        if (typeof attendees === 'string') {
+          try {
+            attendees = JSON.parse(attendees);
+          } catch (e) { }
+        }
+
+        if (Array.isArray(attendees)) {
+          const updatedAttendees = attendees.map((a: any) => {
+            if (a.email === attendeeEmail) {
+              return { ...a, response_status: responseStatus };
+            }
+            return a;
+          });
+
+          await this.db.query(
+            'UPDATE events SET attendees = $1 WHERE id = $2',
+            [JSON.stringify(updatedAttendees), eventId],
+          );
+        }
+      }
+
       this.logger.log(
         `Invitation response: ${attendeeEmail} ${action}ed event ${eventId}`,
       );
