@@ -237,6 +237,65 @@ export class BookingService {
       // Ideally, there should be a retry mechanism or background job
     }
 
+    // Try to sync to booker's calendar if they are a registered user
+    try {
+      const bookerUser = await this.userService.getUserByEmail(dto.booker_email);
+      if (bookerUser) {
+        const bookerPrimaryCalendar =
+          await this.calendarService.getPrimaryCalendar(bookerUser.id);
+
+        if (bookerPrimaryCalendar) {
+          const hostUser = await this.userService.getUserById(
+            bookingLink.user_id,
+          );
+          const attendees: EventAttendeeDto[] = [
+            {
+              email: bookerUser.email,
+              name: `${bookerUser.first_name} ${bookerUser.last_name}`.trim(),
+              response_status: 'accepted',
+              is_organizer: true,
+            },
+          ];
+
+          if (hostUser && hostUser.email) {
+            attendees.push({
+              email: hostUser.email,
+              name: `${hostUser.first_name} ${hostUser.last_name}`.trim(),
+              response_status: 'accepted',
+            });
+          }
+
+          await this.eventService.createEvent(
+            {
+              calendar_id: bookerPrimaryCalendar.id,
+              title: bookingLink.title,
+              description: dto.booker_notes || bookingLink.description,
+              start_time: startTime.toISOString(),
+              end_time: actualEndTime.toISOString(),
+              location: bookingLink.location,
+              timezone: booking.timezone,
+              attendees: attendees,
+              conference_data: bookingLink.location_link
+                ? {
+                  type: 'custom',
+                  url: bookingLink.location_link,
+                }
+                : undefined,
+            },
+            bookerUser.id,
+          );
+          this.logger.log(
+            `Synced booking ${booking.id} to booker ${bookerUser.id} calendar`,
+          );
+        }
+      }
+    } catch (error) {
+      this.logger.warn(
+        `Failed to sync booking ${booking.id} to booker calendar: ${error.message}`,
+      );
+      // Don't fail the booking if syncing to booker fails
+    }
+
     return booking;
   }
 
