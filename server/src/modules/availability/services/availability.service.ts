@@ -34,7 +34,7 @@ export class AvailabilityService {
     private readonly databaseService: DatabaseService,
     private readonly messageService: MessageService,
     private readonly userService: UserService,
-  ) {}
+  ) { }
 
   async create(
     userId: string,
@@ -230,30 +230,27 @@ export class AvailabilityService {
     userId: string,
     dto: GetAvailableSlotsDto,
   ): Promise<TimeSlot[]> {
-    const timezone =
+    const requestedTimezone =
       dto.timezone || (await this.userService.getUserTimezone(userId)) || 'UTC';
     this.logger.log(
-      `Generating slots for user ${userId} in timezone: ${timezone}`,
+      `Generating slots for user ${userId}. Request TZ: ${requestedTimezone}`,
     );
 
     const startDateStr = `${dto.start_date}T00:00:00`;
     // Create dates in user's timezone, then convert to UTC for processing
-    const startDateInTz = new Date(startDateStr);
-    const endDateInTz = new Date(`${dto.end_date}T23:59:59`);
+    const startDateInRequestTz = new Date(startDateStr);
+    const endDateInRequestTz = new Date(`${dto.end_date}T23:59:59`);
 
-    const startDate = fromZonedTime(startDateInTz, timezone);
-    const endDate = fromZonedTime(endDateInTz, timezone);
+    const requestStartUtc = fromZonedTime(startDateInRequestTz, requestedTimezone);
+    const requestEndUtc = fromZonedTime(endDateInRequestTz, requestedTimezone);
 
     const durationMinutes = dto.duration_minutes || 30;
 
     this.logger.log(
-      `Date range in ${timezone}: ${startDateStr} to ${dto.end_date}`,
-    );
-    this.logger.log(
-      `Date range in UTC: ${startDate.toISOString()} to ${endDate.toISOString()}`,
+      `Date range in UTC: ${requestStartUtc.toISOString()} to ${requestEndUtc.toISOString()}`,
     );
 
-    if (startDate > endDate) {
+    if (requestStartUtc > requestEndUtc) {
       const message = this.messageService.get(
         'availability.invalid_date_range',
       );
@@ -261,8 +258,8 @@ export class AvailabilityService {
     }
 
     const daysDiff = Math.ceil(
-      (endDate.getTime() - startDate.getTime()) /
-        TIME_CONSTANTS.BOOKING.MILLISECONDS_PER_DAY,
+      (requestEndUtc.getTime() - requestStartUtc.getTime()) /
+      TIME_CONSTANTS.BOOKING.MILLISECONDS_PER_DAY,
     );
     if (daysDiff > TIME_CONSTANTS.BOOKING.MAX_DATE_RANGE_DAYS) {
       const message = this.messageService.get(
@@ -276,33 +273,60 @@ export class AvailabilityService {
 
     if (availabilityRules.length === 0) {
       this.logger.log(
-        `No availability rules found for user ${userId}. Returning empty slots (availability not configured).`,
+        `No availability rules found for user ${userId}. Returning empty slots.`,
       );
       return [];
     }
 
-    const slots: TimeSlot[] = [];
-    const currentDate = new Date(startDate);
+    // Assume all rules for a user share the same timezone, or take the first one found.
+    // The previous implementation of checkAvailability also takes the first rule's timezone.
+    const hostTimezone = availabilityRules[0].timezone || 'UTC';
+    this.logger.log(`Host Timezone: ${hostTimezone}`);
 
-    while (currentDate <= endDate) {
-      const currentDateInTz = toZonedTime(currentDate, timezone);
-      const dayOfWeek = currentDateInTz.getDay() as DayOfWeek;
+    // Determine the range of days in the HOST timezone that overlap with the requested UTC range
+    const hostStart = toZonedTime(requestStartUtc, hostTimezone);
+    const hostEnd = toZonedTime(requestEndUtc, hostTimezone);
+
+    // Normalize to start of day for iteration
+    const currentHostDate = new Date(hostStart);
+    currentHostDate.setHours(0, 0, 0, 0);
+
+    const endHostDate = new Date(hostEnd);
+    endHostDate.setHours(23, 59, 59, 999);
+
+    const slots: TimeSlot[] = [];
+
+    while (currentHostDate <= endHostDate) {
+      // currentHostDate is a Date object representing a specific wall-clock time in Host TZ
+      // (e.g. "2023-01-01 00:00:00") - but strictly it's a shifted timestamp.
+      // toZonedTime returns a Date that looks like the local time when printed/accessed.
+
+      const dayOfWeek = currentHostDate.getDay() as DayOfWeek;
       const dayRules = availabilityRules.filter(
         (rule) => rule.day_of_week === dayOfWeek,
       );
 
       for (const rule of dayRules) {
         const daySlots = await this.generateSlotsForDay(
-          currentDateInTz,
+          currentHostDate,
           rule,
           durationMinutes,
           userId,
-          timezone,
+          hostTimezone,
         );
-        slots.push(...daySlots);
+
+        // Filter slots to ensure they fall within the originally requested absolute time range
+        // and handle potential day boundary overlaps
+        const validSlots = daySlots.filter(slot => {
+          const slotStart = new Date(slot.start_time);
+          const slotEnd = new Date(slot.end_time);
+          return slotStart >= requestStartUtc && slotEnd <= requestEndUtc;
+        });
+
+        slots.push(...validSlots);
       }
 
-      currentDate.setDate(currentDate.getDate() + 1);
+      currentHostDate.setDate(currentHostDate.getDate() + 1);
     }
 
     return slots;
