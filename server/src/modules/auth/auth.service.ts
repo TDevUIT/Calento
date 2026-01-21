@@ -403,6 +403,12 @@ export class AuthService {
         await this.userService.ensureUserSettingsInitialized(user.id);
 
         await this.createDefaultCalendar(user);
+
+        await this.emailQueueService.queueWelcomeEmail(
+          user.id,
+          user.email,
+          user.first_name || user.username,
+        );
       }
 
       const expiresAt = tokens.expiry_date
