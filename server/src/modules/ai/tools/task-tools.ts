@@ -6,9 +6,7 @@ import { TaskService } from '../../task/task.service';
 import { TaskPriority, TaskStatus } from '../../task/task.interface';
 import { FUNCTION_DESCRIPTIONS } from '../prompts/function-prompts';
 
-/**
- * Create Task Tool
- */
+
 @Injectable()
 export class CreateTaskTool extends BaseTool {
   constructor(private readonly taskService: TaskService) {
@@ -18,6 +16,7 @@ export class CreateTaskTool extends BaseTool {
       funcDef.description,
       funcDef.category,
       funcDef.parameters,
+      true, // requiresConfirmation
     );
   }
 
@@ -31,6 +30,18 @@ export class CreateTaskTool extends BaseTool {
         .optional()
         .describe('Task priority'),
     });
+  }
+
+  generatePreview(args: any): { action: string; details: Record<string, any> } {
+    return {
+      action: 'Create Task',
+      details: {
+        title: args.title,
+        description: args.description || 'No description',
+        due_date: args.due_date ? new Date(args.due_date).toLocaleDateString() : 'No due date',
+        priority: args.priority || 'medium',
+      },
+    };
   }
 
   protected async run(args: any, context: AgentContext): Promise<any> {
@@ -61,9 +72,7 @@ export class CreateTaskTool extends BaseTool {
   }
 }
 
-/**
- * Create Learning Plan Tool
- */
+
 @Injectable()
 export class CreateLearningPlanTool extends BaseTool {
   constructor(private readonly taskService: TaskService) {
@@ -73,6 +82,7 @@ export class CreateLearningPlanTool extends BaseTool {
       funcDef.description,
       funcDef.category,
       funcDef.parameters,
+      false, // requiresConfirmation - learning plans don't need confirmation
     );
   }
 
@@ -83,6 +93,18 @@ export class CreateLearningPlanTool extends BaseTool {
       hours_per_day: z.number().optional().describe('Hours per day'),
       start_date: z.string().optional().describe('Start date in ISO format'),
     });
+  }
+
+  generatePreview(args: any): { action: string; details: Record<string, any> } {
+    return {
+      action: 'Create Learning Plan',
+      details: {
+        topic: args.topic,
+        duration: `${args.duration_weeks} weeks`,
+        hours_per_day: args.hours_per_day || 2,
+        start_date: args.start_date ? new Date(args.start_date).toLocaleDateString() : 'Today',
+      },
+    };
   }
 
   protected async run(args: any, context: AgentContext): Promise<any> {

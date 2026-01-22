@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { LangChainService } from '../../llm/langchain.service';
 
 import { ToolRegistry } from '../tools/tool-registry';
-import { AIMessage } from '../interfaces/ai.interface';
+import { AIMessage, AIThinkingProcess } from '../interfaces/ai.interface';
 import { AIActionRepository } from '../repositories/ai-action.repository';
 
 @Injectable()
@@ -14,7 +14,7 @@ export class AgentOrchestrator {
     private readonly langChainService: LangChainService,
     private readonly toolRegistry: ToolRegistry,
     private readonly actionRepo: AIActionRepository,
-  ) {}
+  ) { }
 
   /**
    * Orchestrate the agent loop for static chat
@@ -25,7 +25,13 @@ export class AgentOrchestrator {
     history: AIMessage[],
     conversationId: string,
     context: any = {},
-  ): Promise<{ response: string; actions: any[] }> {
+  ): Promise<{
+    response: string;
+    actions: any[];
+    confidence?: 'high' | 'medium' | 'low';
+    needsClarification?: string[];
+    thinking?: AIThinkingProcess;
+  }> {
     const currentHistory = [...history];
     const actions: any[] = [];
     let iterations = 0;
@@ -129,6 +135,9 @@ export class AgentOrchestrator {
         return {
           response: aiResponse.text,
           actions,
+          confidence: aiResponse.confidence,
+          needsClarification: aiResponse.needsClarification,
+          thinking: aiResponse.thinking,
         };
       }
     }
@@ -136,6 +145,8 @@ export class AgentOrchestrator {
     return {
       response: 'I reached the maximum number of steps without a final answer.',
       actions,
+      confidence: 'low',
+      needsClarification: ['Could you please clarify your request?'],
     };
   }
 

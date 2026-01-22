@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai';
 import { AI_CONSTANTS, ERROR_MESSAGES } from '../ai/constants/ai.constants';
+import { AIThinkingProcess } from '../ai/interfaces/ai.interface';
 import {
   HumanMessage,
   SystemMessage,
@@ -48,8 +49,15 @@ export class LangChainService {
       tools?: StructuredTool[];
       userId?: string;
       long_term_memory?: any[];
+      showThinking?: boolean;
     } = {},
-  ): Promise<{ text: string; functionCalls?: any[] }> {
+  ): Promise<{
+    text: string;
+    functionCalls?: any[];
+    thinking?: AIThinkingProcess;
+    confidence?: 'high' | 'medium' | 'low';
+    needsClarification?: string[];
+  }> {
     try {
       const messages: BaseMessage[] = [];
 
@@ -120,9 +128,22 @@ export class LangChainService {
         }
       }
 
+      const responseText = response.content as string;
+
+      // Parse thinking from response
+      const thinking = options.showThinking
+        ? this.parseThinkingFromResponse(responseText)
+        : undefined;
+
+      // Extract confidence and clarifying questions
+      const confidenceData = this.extractConfidenceData(responseText);
+
       return {
-        text: response.content as string,
+        text: this.cleanResponseText(responseText),
         functionCalls,
+        thinking,
+        confidence: confidenceData.confidence,
+        needsClarification: confidenceData.needsClarification,
       };
     } catch (error) {
       this.logger.error('Chat request failed', error);
@@ -138,8 +159,14 @@ export class LangChainService {
       tools?: StructuredTool[];
       userId?: string;
       long_term_memory?: any[];
+      showThinking?: boolean;
     } = {},
-  ): AsyncGenerator<{ text?: string; functionCall?: any }, void, unknown> {
+  ): AsyncGenerator<{
+    text?: string;
+    functionCall?: any;
+    thinking?: Partial<AIThinkingProcess>;
+    confidence?: 'high' | 'medium' | 'low';
+  }, void, unknown> {
     try {
       const messages: BaseMessage[] = [];
 
@@ -198,6 +225,7 @@ export class LangChainService {
 
       const stream = await modelToUse.stream(messages);
 
+      let fullResponse = '';
       for await (const chunk of stream) {
         chunkCount += 1;
         this.logger.debug(
@@ -216,7 +244,30 @@ export class LangChainService {
                   `First stream chunk after ${firstChunkAt - startedAt}ms`,
                 );
               }
-              yield { text: chunk.content };
+
+              fullResponse += chunk.content;
+
+              // Check for thinking tags
+              if (options.showThinking && chunk.content.includes('<thinking>')) {
+                const thinking = this.parseThinkingFromResponse(fullResponse);
+                if (thinking) {
+                  yield { thinking };
+                }
+              }
+
+              // Check for confidence
+              if (chunk.content.match(/Confidence:/i)) {
+                const confidenceData = this.extractConfidenceData(fullResponse);
+                if (confidenceData.confidence) {
+                  yield { confidence: confidenceData.confidence };
+                }
+              }
+
+              // Yield clean text (without tags)
+              const cleanText = this.cleanStreamChunk(chunk.content);
+              if (cleanText) {
+                yield { text: cleanText };
+              }
             }
           } else if (Array.isArray(chunk.content)) {
             this.logger.debug(
@@ -276,5 +327,96 @@ export class LangChainService {
       this.logger.error('Chat stream failed', error);
       throw error;
     }
+  }
+
+  private parseThinkingFromResponse(
+    content: string,
+  ): AIThinkingProcess | undefined {
+    const thinkingMatch = content.match(/<thinking>([\s\S]*?)<\/thinking>/);
+    if (!thinkingMatch) return undefined;
+
+    const thinkingContent = thinkingMatch[1];
+
+    return {
+      understanding: this.extractSection(thinkingContent, 'Understanding'),
+      dataRetrieved: this.extractListSection(thinkingContent, 'Data Retrieved'),
+      reasoning: this.extractListSection(thinkingContent, 'Reasoning'),
+      conclusion: this.extractSection(thinkingContent, 'Conclusion'),
+    };
+  }
+
+  private extractSection(content: string, sectionName: string): string {
+    const regex = new RegExp(
+      `${sectionName}:\\s*([^\\n]+(?:\\n(?!\\d+\\.|[A-Z][a-z]+:)[^\\n]+)*)`,
+      'i',
+    );
+    const match = content.match(regex);
+    return match ? match[1].trim() : '';
+  }
+
+  private extractListSection(content: string, sectionName: string): string[] {
+    const regex = new RegExp(
+      `${sectionName}:\\s*([\\s\\S]*?)(?=\\n\\d+\\.|\\n[A-Z][a-z]+:|$)`,
+      'i',
+    );
+    const match = content.match(regex);
+    if (!match) return [];
+
+    return match[1]
+      .split('\n')
+      .filter((line) => line.trim().startsWith('-'))
+      .map((line) => line.trim().substring(1).trim())
+      .filter(Boolean);
+  }
+
+  private extractConfidenceData(content: string): {
+    confidence?: 'high' | 'medium' | 'low';
+    needsClarification?: string[];
+  } {
+    // Extract confidence from response
+    const confidenceMatch = content.match(/Confidence:\s*(high|medium|low)/i);
+    const confidence = confidenceMatch
+      ? (confidenceMatch[1].toLowerCase() as 'high' | 'medium' | 'low')
+      : undefined;
+
+    // Extract clarifying questions if present
+    const clarifyMatch = content.match(/<clarify>([\s\S]*?)<\/clarify>/);
+    const needsClarification = clarifyMatch
+      ? clarifyMatch[1]
+        .split('\n')
+        .filter((q) => q.trim().startsWith('-'))
+        .map((q) => q.trim().substring(1).trim())
+        .filter(Boolean)
+      : undefined;
+
+    return { confidence, needsClarification };
+  }
+
+  private cleanResponseText(content: string): string {
+    // Remove thinking tags and confidence markers
+    return content
+      .replace(/<thinking>[\s\S]*?<\/thinking>/g, '')
+      .replace(/<clarify>[\s\S]*?<\/clarify>/g, '')
+      .replace(/Confidence:\s*(high|medium|low)/gi, '')
+      .trim();
+  }
+
+  private cleanStreamChunk(chunk: string): string {
+    // For streaming, we need to be careful not to break mid-tag
+    // Only clean if we have complete tags
+    let cleaned = chunk;
+
+    // Remove complete thinking tags
+    cleaned = cleaned.replace(/<thinking>[\s\S]*?<\/thinking>/g, '');
+    // Remove complete clarify tags
+    cleaned = cleaned.replace(/<clarify>[\s\S]*?<\/clarify>/g, '');
+    // Remove confidence markers
+    cleaned = cleaned.replace(/Confidence:\s*(high|medium|low)/gi, '');
+
+    // Remove partial opening/closing tags to avoid showing them
+    cleaned = cleaned.replace(/<\/?thinking>/g, '');
+    cleaned = cleaned.replace(/<\/?clarify>/g, '');
+
+    return cleaned.trim();
   }
 }

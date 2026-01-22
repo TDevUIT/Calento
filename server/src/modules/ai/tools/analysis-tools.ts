@@ -39,6 +39,18 @@ export class AnalyzeTeamAvailabilityTool extends BaseTool {
     });
   }
 
+  generatePreview(args: any): { action: string; details: Record<string, any> } {
+    return {
+      action: 'Analyze Team Availability',
+      details: {
+        members: args.member_ids?.length || 'All team members',
+        start_date: new Date(args.start_date).toLocaleDateString(),
+        end_date: new Date(args.end_date).toLocaleDateString(),
+        duration: `${args.meeting_duration || 60} minutes`,
+      },
+    };
+  }
+
   protected async run(args: any, context: AgentContext): Promise<any> {
     const memberIds = args.member_ids || [];
     const startDate = new Date(args.start_date);
@@ -56,14 +68,14 @@ export class AnalyzeTeamAvailabilityTool extends BaseTool {
 
     const bestMatch = analysis.best_match
       ? {
-          day: analysis.best_match.day,
-          time: analysis.best_match.time,
-          date: analysis.best_match.start.toISOString(),
-          available_members: analysis.best_match.available_members,
-          total_members: analysis.best_match.total_members,
-          availability: `${analysis.best_match.available_members}/${analysis.best_match.total_members} members available`,
-          reason: this.getBestMatchReason(analysis.best_match),
-        }
+        day: analysis.best_match.day,
+        time: analysis.best_match.time,
+        date: analysis.best_match.start.toISOString(),
+        available_members: analysis.best_match.available_members,
+        total_members: analysis.best_match.total_members,
+        availability: `${analysis.best_match.available_members}/${analysis.best_match.total_members} members available`,
+        reason: this.getBestMatchReason(analysis.best_match),
+      }
       : null;
 
     return {

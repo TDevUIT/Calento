@@ -6,22 +6,37 @@ import { AIAction } from '../interfaces/ai.interface';
 export class AIActionRepository {
   private readonly logger = new Logger(AIActionRepository.name);
 
-  constructor(private readonly db: DatabaseService) {}
+  constructor(private readonly db: DatabaseService) { }
 
   async create(
     conversationId: string,
     actionType: string,
     parameters: Record<string, any>,
+    requiresConfirmation: boolean = false,
   ): Promise<AIAction> {
     this.logger.log(
-      `Creating action: ${actionType} for conversation: ${conversationId}`,
+      `Creating action: ${actionType} for conversation: ${conversationId} (Confirm: ${requiresConfirmation})`,
     );
 
+    const confirmationStatus = requiresConfirmation
+      ? 'awaiting_confirmation'
+      : 'not_required';
+
     const result = await this.db.query(
-      `INSERT INTO ai_actions (conversation_id, action_type, parameters, status)
-       VALUES ($1, $2, $3, $4)
+      `INSERT INTO ai_actions (
+        conversation_id, action_type, parameters, status, 
+        requires_confirmation, confirmation_status
+       )
+       VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
-      [conversationId, actionType, JSON.stringify(parameters), 'pending'],
+      [
+        conversationId,
+        actionType,
+        JSON.stringify(parameters),
+        'pending',
+        requiresConfirmation,
+        confirmationStatus,
+      ],
     );
 
     return this.normalizeAction(result.rows[0]);
@@ -75,6 +90,35 @@ export class AIActionRepository {
     return this.normalizeAction(queryResult.rows[0]);
   }
 
+  async updateConfirmationStatus(
+    id: string,
+    confirmationStatus: 'confirmed' | 'rejected',
+  ): Promise<AIAction> {
+    this.logger.log(`Updating action ${id} confirmation to: ${confirmationStatus}`);
+
+    const status = confirmationStatus === 'rejected' ? 'failed' : 'pending';
+    const error = confirmationStatus === 'rejected' ? 'User rejected action' : null;
+
+    const query = `
+      UPDATE ai_actions 
+      SET confirmation_status = $1,
+          status = $2,
+          error = $3,
+          updated_at = NOW()
+      WHERE id = $4
+      RETURNING *
+    `;
+
+    const queryResult = await this.db.query(query, [
+      confirmationStatus,
+      status,
+      error,
+      id,
+    ]);
+
+    return this.normalizeAction(queryResult.rows[0]);
+  }
+
   async findPendingActions(limit = 50): Promise<AIAction[]> {
     const result = await this.db.query(
       `SELECT * FROM ai_actions 
@@ -103,6 +147,8 @@ export class AIActionRepository {
       parameters: row.parameters || {},
       result: row.result || null,
       status: row.status,
+      requires_confirmation: row.requires_confirmation || false,
+      confirmation_status: row.confirmation_status || 'not_required',
       error: row.error || null,
       created_at: row.created_at,
     };

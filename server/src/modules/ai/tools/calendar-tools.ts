@@ -18,6 +18,7 @@ export class CreateEventTool extends BaseTool {
       funcDef.description,
       funcDef.category as 'calendar',
       funcDef.parameters,
+      true, // requiresConfirmation
     );
   }
 
@@ -34,6 +35,20 @@ export class CreateEventTool extends BaseTool {
         .optional()
         .describe('List of attendee emails'),
     });
+  }
+
+  generatePreview(args: any): { action: string; details: Record<string, any> } {
+    return {
+      action: 'Create Event',
+      details: {
+        title: args.title,
+        start: new Date(args.start_time).toLocaleString(),
+        end: new Date(args.end_time).toLocaleString(),
+        description: args.description || 'No description',
+        location: args.location || 'No location',
+        attendees: args.attendees?.join(', ') || 'No attendees',
+      },
+    };
   }
 
   protected async run(args: any, context: AgentContext): Promise<any> {
@@ -73,9 +88,6 @@ export class CreateEventTool extends BaseTool {
   }
 }
 
-/**
- * Check Availability Tool
- */
 @Injectable()
 export class CheckAvailabilityTool extends BaseTool {
   constructor(private readonly eventService: EventService) {
@@ -94,6 +106,17 @@ export class CheckAvailabilityTool extends BaseTool {
       end_date: z.string().describe('End date in ISO format'),
       duration_minutes: z.number().optional().describe('Duration in minutes'),
     });
+  }
+
+  generatePreview(args: any): { action: string; details: Record<string, any> } {
+    return {
+      action: 'Check Availability',
+      details: {
+        start_date: new Date(args.start_date).toLocaleDateString(),
+        end_date: new Date(args.end_date).toLocaleDateString(),
+        duration: `${args.duration_minutes || 60} minutes`,
+      },
+    };
   }
 
   protected async run(args: any, context: AgentContext): Promise<any> {
@@ -239,6 +262,17 @@ export class SearchEventsTool extends BaseTool {
     });
   }
 
+  generatePreview(args: any): { action: string; details: Record<string, any> } {
+    return {
+      action: 'Search Events',
+      details: {
+        query: args.query || 'All events',
+        start_date: args.start_date ? new Date(args.start_date).toLocaleDateString() : 'Any',
+        end_date: args.end_date ? new Date(args.end_date).toLocaleDateString() : 'Any',
+      },
+    };
+  }
+
   protected async run(args: any, context: AgentContext): Promise<any> {
     const query = String(args.query ?? '').trim();
     // if (!query && !args.start_date && !args.end_date) {
@@ -280,8 +314,6 @@ export class SearchEventsTool extends BaseTool {
         options,
       );
     } else {
-      // Fallback: if no query and no dates, maybe return upcoming events?
-      // Or just return empty to avoid error.
       const now = new Date();
       const nextWeek = new Date();
       nextWeek.setDate(now.getDate() + 7);
@@ -307,9 +339,6 @@ export class SearchEventsTool extends BaseTool {
   }
 }
 
-/**
- * Update Event Tool
- */
 @Injectable()
 export class UpdateEventTool extends BaseTool {
   constructor(private readonly eventService: EventService) {
@@ -319,6 +348,7 @@ export class UpdateEventTool extends BaseTool {
       funcDef.description,
       funcDef.category as 'calendar',
       funcDef.parameters,
+      true, // requiresConfirmation
     );
   }
 
@@ -341,6 +371,17 @@ export class UpdateEventTool extends BaseTool {
         })
         .describe('Fields to update'),
     });
+  }
+
+  generatePreview(args: any): { action: string; details: Record<string, any> } {
+    const updates = args.updates || {};
+    return {
+      action: 'Update Event',
+      details: {
+        event_id: args.event_id,
+        ...updates,
+      },
+    };
   }
 
   protected async run(args: any, context: AgentContext): Promise<any> {
@@ -380,6 +421,7 @@ export class DeleteEventTool extends BaseTool {
       funcDef.description,
       funcDef.category as 'calendar',
       funcDef.parameters,
+      true, // requiresConfirmation
     );
   }
 
@@ -387,6 +429,16 @@ export class DeleteEventTool extends BaseTool {
     return z.object({
       event_id: z.string().describe('Event ID to delete'),
     });
+  }
+
+  generatePreview(args: any): { action: string; details: Record<string, any> } {
+    return {
+      action: 'Delete Event',
+      details: {
+        event_id: args.event_id,
+        warning: '⚠️ This action cannot be undone',
+      },
+    };
   }
 
   protected async run(args: any, context: AgentContext): Promise<any> {

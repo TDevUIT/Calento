@@ -10,6 +10,7 @@ import { RagService } from '../../rag/rag.service';
 import { ToolRegistry } from '../tools/tool-registry';
 import { AI_CONSTANTS, ERROR_MESSAGES } from '../constants/ai.constants';
 import { AgentOrchestrator } from './agent.orchestrator';
+import { ConversationContextManager } from './conversation-context.manager';
 
 @Injectable()
 export class AIConversationService {
@@ -75,9 +76,15 @@ export class AIConversationService {
       longTermMemory,
     );
 
+    // NEW: Enrich query with conversation context
+    const enrichedMessage = ConversationContextManager.enrichQuery(
+      message,
+      conversation.messages,
+    );
+
     try {
       const result = await this.orchestrator.chat(
-        message,
+        enrichedMessage,
         userId,
         conversation.messages,
         conversation.id,
@@ -98,6 +105,9 @@ export class AIConversationService {
       const assistantMessage: AIMessage = {
         role: 'assistant',
         content: this.buildResponseWithActions(result.response, result.actions),
+        confidence: result.confidence,
+        needsClarification: result.needsClarification,
+        thinking: result.thinking,
         timestamp: new Date(),
       };
 
@@ -108,6 +118,9 @@ export class AIConversationService {
         conversation_id: conversation.id,
         function_calls: [], // Orchestrator handled them
         actions: result.actions,
+        confidence: result.confidence,
+        clarifyingQuestions: result.needsClarification,
+        thinking: result.thinking,
         timestamp: new Date(),
       };
     } catch (error) {

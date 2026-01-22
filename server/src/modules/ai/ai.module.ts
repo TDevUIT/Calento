@@ -31,6 +31,8 @@ import {
 } from './tools/calendar-tools';
 import { CreateTaskTool, CreateLearningPlanTool } from './tools/task-tools';
 import { AnalyzeTeamAvailabilityTool } from './tools/analysis-tools';
+import { PendingActionService } from './services/pending-action.service';
+import { AiEnhancementMigrationService } from './services/ai-enhancement-migration.service';
 
 @Module({
   imports: [
@@ -50,6 +52,8 @@ import { AnalyzeTeamAvailabilityTool } from './tools/analysis-tools';
     AIFunctionCallingService,
     AIConversationRepository,
     AIActionRepository,
+    PendingActionService,
+    AiEnhancementMigrationService,
 
     ToolRegistry,
 
@@ -74,6 +78,7 @@ import { AnalyzeTeamAvailabilityTool } from './tools/analysis-tools';
     AIAnalysisService,
     AgentOrchestrator,
     ToolRegistry,
+    PendingActionService, // Export pending action service
   ],
 })
 export class AIModule implements OnModuleInit {
@@ -91,7 +96,7 @@ export class AIModule implements OnModuleInit {
   constructor(
     private readonly toolRegistry: ToolRegistry,
     private readonly moduleRef: ModuleRef,
-  ) {}
+  ) { }
 
   onModuleInit() {
     this.tools.forEach((ToolClass) => {
