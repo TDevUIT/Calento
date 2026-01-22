@@ -45,8 +45,8 @@ export class AIConversationService {
     if (!conversation) {
       const calendarContext = await this.buildCalendarContext(userId);
       conversation = await this.conversationRepo.create(userId, {
-        ...context,
         ...calendarContext,
+        ...context,
       });
     }
 
@@ -153,8 +153,8 @@ export class AIConversationService {
       yield { type: 'status', content: 'analyzing_calendar' };
       const calendarContext = await this.buildCalendarContext(userId);
       conversation = await this.conversationRepo.create(userId, {
-        ...context,
         ...calendarContext,
+        ...context,
       });
     }
 
