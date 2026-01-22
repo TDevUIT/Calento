@@ -3,6 +3,10 @@ import { DatabaseService } from '../../../database/database.service';
 import { PaginationService } from '../../../common/services/pagination.service';
 import { MessageService } from '../../../common/message/message.service';
 import { BaseRepository } from '../../../common/repositories/base.repository';
+import {
+  PaginatedResult,
+  PaginationOptions,
+} from '../../../common/interfaces/pagination.interface';
 import { BookingLink } from '../interfaces/booking.interface';
 import {
   BookingLinkNotFoundException,
@@ -134,6 +138,23 @@ export class BookingLinkRepository extends BaseRepository<BookingLink> {
 
     const result = await this.databaseService.query(query, [slug]);
     return result.rows[0] || null;
+  }
+
+  async getAllBookingLinksAdmin(
+    paginationOptions: Partial<PaginationOptions>,
+  ): Promise<PaginatedResult<BookingLink>> {
+    return this.findAll(paginationOptions);
+  }
+
+  async searchBookingLinksAdmin(
+    searchTerm: string,
+    paginationOptions: Partial<PaginationOptions>,
+  ): Promise<PaginatedResult<BookingLink>> {
+    const searchPattern = `%${searchTerm}%`;
+    const whereCondition = '(title ILIKE $1 OR slug ILIKE $1)';
+    const whereParams = [searchPattern];
+
+    return this.search(whereCondition, whereParams, paginationOptions);
   }
 
   async checkSlugExists(slug: string, excludeId?: string): Promise<boolean> {

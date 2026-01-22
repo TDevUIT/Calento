@@ -3,6 +3,10 @@ import { DatabaseService } from '../../../database/database.service';
 import { PaginationService } from '../../../common/services/pagination.service';
 import { MessageService } from '../../../common/message/message.service';
 import { BaseRepository } from '../../../common/repositories/base.repository';
+import {
+  PaginatedResult,
+  PaginationOptions,
+} from '../../../common/interfaces/pagination.interface';
 import { Booking, BookingStatus } from '../interfaces/booking.interface';
 import { BookingNotFoundException } from '../exceptions/booking.exceptions';
 
@@ -91,6 +95,18 @@ export class BookingRepository extends BaseRepository<Booking> {
 
     const result = await this.databaseService.query(query, [token]);
     return result.rows[0] || null;
+  }
+
+  async searchBookingsAdmin(
+    searchTerm: string,
+    paginationOptions: Partial<PaginationOptions>,
+  ): Promise<PaginatedResult<Booking>> {
+    const searchPattern = `%${searchTerm}%`;
+    const whereCondition =
+      '(booker_email ILIKE $1 OR booker_name ILIKE $1 OR booker_phone ILIKE $1)';
+    const whereParams = [searchPattern];
+
+    return this.search(whereCondition, whereParams, paginationOptions);
   }
 
   async countByDate(bookingLinkId: string, date: Date): Promise<number> {

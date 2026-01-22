@@ -86,6 +86,31 @@ export class EventRepository extends BaseRepository<Event> {
     }
   }
 
+  async searchEventsAdmin(
+    searchTerm: string,
+    paginationOptions: Partial<PaginationOptions>,
+  ): Promise<PaginatedResult<Event>> {
+    const searchPattern = `%${searchTerm}%`;
+    const whereCondition =
+      '(e.title ILIKE $1 OR e.description ILIKE $1 OR e.location ILIKE $1)';
+    const whereParams = [searchPattern];
+
+    try {
+      const result = await this.search(whereCondition, whereParams, paginationOptions);
+      return {
+        ...result,
+        data: result.data.map((event) =>
+          this.normalizeEventDataWithCreator(event as any),
+        ),
+      };
+    } catch (error) {
+      this.logger.error('Failed to search events (admin):', error);
+      throw new EventCreationFailedException(
+        this.messageService.get('error.internal_server_error'),
+      );
+    }
+  }
+
   async findById(id: string): Promise<Event | null> {
     const baseQuery = this.buildSelectQuery();
     const hasWhereClause = baseQuery.toUpperCase().includes('WHERE');

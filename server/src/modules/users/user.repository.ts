@@ -152,4 +152,24 @@ export class UserRepository extends BaseRepository<User> {
       );
     }
   }
+
+  async searchUsersAdmin(
+    searchTerm: string,
+    paginationOptions: Partial<PaginationOptions>,
+  ): Promise<PaginatedResult<User>> {
+    const searchPattern = `%${searchTerm}%`;
+    const whereCondition = '(email ILIKE $1 OR username ILIKE $1)';
+    const whereParams = [searchPattern];
+
+    try {
+      return await this.search(whereCondition, whereParams, paginationOptions, {
+        includeDeleted: true,
+      });
+    } catch (error) {
+      this.logger.error('Failed to search users (admin):', error);
+      throw new UserCreationFailedException(
+        this.messageService.get('error.internal_server_error'),
+      );
+    }
+  }
 }

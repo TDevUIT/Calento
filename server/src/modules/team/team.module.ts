@@ -27,6 +27,7 @@ import { TeamAvailabilityService } from './services/team-availability.service';
     TeamAvailabilityService,
   ],
   exports: [
+    TeamRepository,
     TeamService,
     TeamMemberService,
     TeamRitualService,

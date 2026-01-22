@@ -52,6 +52,14 @@ export class TeamRepository {
     return result.rows.map((row) => this.mapToTeam(row));
   }
 
+  async findAll(): Promise<Team[]> {
+    const result = await this.db.query(
+      'SELECT * FROM teams ORDER BY created_at DESC',
+      [],
+    );
+    return result.rows.map((row) => this.mapToTeam(row));
+  }
+
   async update(id: string, dto: UpdateTeamDto): Promise<Team> {
     const updates: string[] = [];
     const values: any[] = [];
