@@ -5,6 +5,7 @@ import { DatabaseService } from '../../database/database.service';
 
 import { StoreContextDto } from './dto/store-context.dto';
 import { VectorSearchResult } from './interfaces/vector-search-result.interface';
+import { RAG_CONFIG } from '../rag/rag.config';
 
 @Injectable()
 export class VectorService {
@@ -34,6 +35,27 @@ export class VectorService {
       this.logger.error('Failed to generate embedding', error);
       throw new Error(`Embedding generation failed: ${error.message}`);
     }
+  }
+
+  /**
+   * Calculate temporal score based on context age
+   * Uses exponential decay: score = exp(-decay_factor * days_since_creation)
+   * where decay_factor = ln(2) / half_life_days
+   */
+  calculateTemporalScore(createdAt: Date): number {
+    if (!RAG_CONFIG.temporal.enabled) {
+      return 1.0; // No temporal boost if disabled
+    }
+
+    const now = new Date();
+    const ageInMs = now.getTime() - createdAt.getTime();
+    const ageInDays = ageInMs / (1000 * 60 * 60 * 24);
+
+    // Exponential decay formula
+    const decayFactor = Math.log(2) / RAG_CONFIG.temporal.halfLifeDays;
+    const temporalScore = Math.exp(-decayFactor * ageInDays);
+
+    return temporalScore;
   }
 
   /**
@@ -125,6 +147,7 @@ export class VectorService {
                 SELECT 
                     id,
                     context,
+                    created_at,
                     1 - (embedding <=> $1::vector) as similarity
                 FROM user_context_summary
                 WHERE user_id = $2
@@ -142,11 +165,24 @@ export class VectorService {
         `Found ${result.rows.length} similar contexts for user ${userId}`,
       );
 
-      return result.rows.map((row) => ({
-        id: row.id,
-        context: row.context,
-        similarity: parseFloat(row.similarity),
-      }));
+      return result.rows.map((row) => {
+        const baseSimilarity = parseFloat(row.similarity);
+        const createdAt = row.created_at ? new Date(row.created_at) : new Date();
+        const temporalScore = this.calculateTemporalScore(createdAt);
+
+        // Combine base similarity with temporal score
+        const finalSimilarity =
+          RAG_CONFIG.temporal.baseWeight * baseSimilarity +
+          RAG_CONFIG.temporal.weight * temporalScore;
+
+        return {
+          id: row.id,
+          context: row.context,
+          similarity: finalSimilarity,
+          temporal_score: temporalScore,
+          created_at: createdAt,
+        };
+      });
     } catch (error) {
       this.logger.error('Failed to search similar contexts', error);
       throw new Error(`Similarity search failed: ${error.message}`);
@@ -183,6 +219,7 @@ export class VectorService {
                 SELECT 
                     COALESCE(v.id, t.id) as id,
                     ucs.context,
+                    ucs.created_at,
                     COALESCE(v.vector_score, 0) as vector_score,
                     COALESCE(t.text_score, 0) as text_score,
                     (COALESCE(v.vector_score, 0) * 0.7 + COALESCE(t.text_score, 0) * 0.3) as combined_score
@@ -202,11 +239,24 @@ export class VectorService {
 
       this.logger.log(`Hybrid search found ${result.rows.length} contexts`);
 
-      return result.rows.map((row) => ({
-        id: row.id,
-        context: row.context,
-        similarity: parseFloat(row.combined_score), // Use combined score as similarity
-      }));
+      return result.rows.map((row) => {
+        const baseSimilarity = parseFloat(row.combined_score);
+        const createdAt = row.created_at ? new Date(row.created_at) : new Date();
+        const temporalScore = this.calculateTemporalScore(createdAt);
+
+        // Combine base similarity with temporal score
+        const finalSimilarity =
+          RAG_CONFIG.temporal.baseWeight * baseSimilarity +
+          RAG_CONFIG.temporal.weight * temporalScore;
+
+        return {
+          id: row.id,
+          context: row.context,
+          similarity: finalSimilarity,
+          temporal_score: temporalScore,
+          created_at: createdAt,
+        };
+      });
     } catch (error) {
       this.logger.error('Hybrid search failed (falling back to vector)', error);
       // Fallback to normal vector search if table column missing or other error
