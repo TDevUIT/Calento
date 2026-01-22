@@ -7,6 +7,7 @@ export interface AuthenticatedUser {
   username: string;
   first_name?: string;
   last_name?: string;
+  is_admin?: boolean;
   is_active: boolean;
   is_verified: boolean;
   created_at: Date;

@@ -6,6 +6,7 @@
   password_hash: string; // VARCHAR(255) NOT NULL
   first_name?: string; // VARCHAR(100)
   last_name?: string; // VARCHAR(100)
+  is_admin?: boolean; // BOOLEAN DEFAULT false NOT NULL
   is_active: boolean; // BOOLEAN DEFAULT true NOT NULL
   is_verified: boolean; // BOOLEAN DEFAULT false NOT NULL
   created_at: Date; // TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
