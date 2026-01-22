@@ -16,7 +16,7 @@ import {
 } from './CalendarCore';
 
 const CalendarMonthView = () => {
-  const { date, view, events, locale, onEventClick } = useCalendar();
+  const { date, view, events, locale, onEventClick, onDeleteEvent } = useCalendar();
   const { weekStartsOn, highlightWeekends } = useCalendarSettings();
 
   const weekStartsOnDay = weekStartsOn === 'sunday' ? 0 : weekStartsOn === 'monday' ? 1 : 6;
@@ -94,7 +94,8 @@ const CalendarMonthView = () => {
                       fullEvent={event.type !== 'task' ? convertToFullEvent(event) : undefined}
                       fullTask={event.taskData}
                       onEdit={() => onEventClick?.(event)}
-                      onDelete={() => { }}
+
+                      onDelete={() => onDeleteEvent?.(event.id)}
                     >
                       <div
                         className="px-1.5 py-1 text-xs flex items-center gap-1.5 transition-all cursor-pointer hover:shadow-md relative rounded-sm"

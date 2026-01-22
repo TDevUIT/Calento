@@ -26,6 +26,17 @@ import { CalendarSettingsDialog } from '@/components/calendar/settings/CalendarS
 import { KeyboardShortcuts } from '@/components/calendar/KeyboardShortcuts';
 import { CalendarSettingsProvider } from '@/components/calendar/shared/CalendarSettingsProvider';
 import type { Task, Event } from '@/interface';
+import { useDeleteEvent } from '@/hook/event/use-event-mutations';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 export type DashboardCalendarWrapperProps = {
   currentMonth: Date;
@@ -106,6 +117,27 @@ export function DashboardCalendarWrapper({
   compactMode,
 }: DashboardCalendarWrapperProps) {
   const calendarStyles = getCalendarStyles(compactMode, highlightWeekends);
+  const deleteEventMutation = useDeleteEvent();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState<string | null>(null);
+
+  const handleDeleteClick = (eventId: string) => {
+    setEventToDelete(eventId);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (eventToDelete) {
+      deleteEventMutation.mutate(eventToDelete);
+      setDeleteDialogOpen(false);
+      setEventToDelete(null);
+      // Close the view dialog if open
+      if (showViewDialog) {
+        setShowViewDialog(false);
+        setSelectedEvent(null);
+      }
+    }
+  };
 
   const DashboardHeaderCalendarPortal = () => {
     const [slot, setSlot] = useState<HTMLElement | null>(null);
@@ -251,6 +283,7 @@ export function DashboardCalendarWrapper({
             if (!open) setSelectedEvent(null);
           }}
           event={selectedEvent}
+          onDelete={() => selectedEvent && handleDeleteClick(selectedEvent.id)}
         />
 
         {selectedTask && (
@@ -264,6 +297,25 @@ export function DashboardCalendarWrapper({
           />
         )}
       </Calendar>
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Event</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this event? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setEventToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={confirmDelete}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </CalendarSettingsProvider>
   );
 }

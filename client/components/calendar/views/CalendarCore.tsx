@@ -40,6 +40,17 @@ import type { Event } from '@/interface';
 import type { Task } from '@/interface';
 import { calculateEventLayouts, getEventLayoutStyles, getEventTextClasses } from '@/utils';
 import { getStoredCalendarView, saveCalendarView } from '@/utils';
+import { useDeleteEvent } from '@/hook/event/use-event-mutations';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 
 type View = 'day' | 'week' | 'month' | 'year';
@@ -56,6 +67,7 @@ type ContextType = {
   onEventClick?: (event: CalendarEvent) => void;
   enableHotkeys?: boolean;
   today: Date;
+  onDeleteEvent?: (eventId: string) => void;
 };
 
 const Context = createContext<ContextType>({} as ContextType);
@@ -141,6 +153,23 @@ const Calendar = ({
 
   const today = useMemo(() => new Date(), []);
 
+  const deleteEventMutation = useDeleteEvent();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState<string | null>(null);
+
+  const handleDeleteEvent = (eventId: string) => {
+    setEventToDelete(eventId);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (eventToDelete) {
+      deleteEventMutation.mutate(eventToDelete);
+      setDeleteDialogOpen(false);
+      setEventToDelete(null);
+    }
+  };
+
   const changeView = (newView: View) => {
     setView(newView);
     saveCalendarView(newView);
@@ -177,9 +206,30 @@ const Calendar = ({
         onEventClick,
         onChangeView,
         today,
+        onDeleteEvent: handleDeleteEvent,
       }}
     >
       {children}
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Event</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this event? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setEventToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={confirmDelete}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Context.Provider>
   );
 };
@@ -220,7 +270,7 @@ const HourEvents = ({
   events: CalendarEvent[];
   hour: Date;
 }) => {
-  const { onEventClick } = useCalendar();
+  const { onEventClick, onDeleteEvent } = useCalendar();
   const [hoveredEventId, setHoveredEventId] = useState<string | null>(null);
 
   const hourEvents = events.filter((event) => isSameHour(event.start, hour));
@@ -252,7 +302,7 @@ const HourEvents = ({
             fullEvent={event.type !== 'task' ? convertToFullEvent(event) : undefined}
             fullTask={event.taskData}
             onEdit={() => onEventClick?.(event)}
-            onDelete={() => { }}
+            onDelete={() => onDeleteEvent?.(event.id)}
           >
             <div
               className={cn(
@@ -342,7 +392,7 @@ const DayTimelineEvents = ({
   dayDate: Date;
   hourHeight?: number;
 }) => {
-  const { onEventClick } = useCalendar();
+  const { onEventClick, onDeleteEvent } = useCalendar();
   const [hoveredEventId, setHoveredEventId] = useState<string | null>(null);
 
   const dayEvents = useMemo(() => {
@@ -384,7 +434,7 @@ const DayTimelineEvents = ({
             fullEvent={event.type !== 'task' ? convertToFullEvent(event) : undefined}
             fullTask={event.taskData}
             onEdit={() => onEventClick?.(event)}
-            onDelete={() => { }}
+            onDelete={() => onDeleteEvent?.(event.id)}
           >
             <div
               className={cn(
