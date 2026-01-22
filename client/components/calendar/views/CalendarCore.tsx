@@ -68,6 +68,7 @@ type ContextType = {
   enableHotkeys?: boolean;
   today: Date;
   onDeleteEvent?: (eventId: string) => void;
+  onEditEvent?: (event: CalendarEvent) => void;
 };
 
 const Context = createContext<ContextType>({} as ContextType);
@@ -125,6 +126,7 @@ type CalendarProps = {
   enableHotkeys?: boolean;
   onChangeView?: (view: View) => void;
   onEventClick?: (event: CalendarEvent) => void;
+  onEditEvent?: (event: CalendarEvent) => void;
 };
 
 const Calendar = ({
@@ -134,6 +136,7 @@ const Calendar = ({
   enableHotkeys = true,
   view: _defaultMode = 'month',
   onEventClick,
+  onEditEvent,
   events: defaultEvents = [],
   onChangeView,
 }: CalendarProps) => {
@@ -207,6 +210,7 @@ const Calendar = ({
         onChangeView,
         today,
         onDeleteEvent: handleDeleteEvent,
+        onEditEvent,
       }}
     >
       {children}
@@ -270,7 +274,7 @@ const HourEvents = ({
   events: CalendarEvent[];
   hour: Date;
 }) => {
-  const { onEventClick, onDeleteEvent } = useCalendar();
+  const { onEventClick, onDeleteEvent, onEditEvent } = useCalendar();
   const [hoveredEventId, setHoveredEventId] = useState<string | null>(null);
 
   const hourEvents = events.filter((event) => isSameHour(event.start, hour));
@@ -392,7 +396,7 @@ const DayTimelineEvents = ({
   dayDate: Date;
   hourHeight?: number;
 }) => {
-  const { onEventClick, onDeleteEvent } = useCalendar();
+  const { onEventClick, onDeleteEvent, onEditEvent } = useCalendar();
   const [hoveredEventId, setHoveredEventId] = useState<string | null>(null);
 
   const dayEvents = useMemo(() => {
@@ -433,7 +437,7 @@ const DayTimelineEvents = ({
             event={event}
             fullEvent={event.type !== 'task' ? convertToFullEvent(event) : undefined}
             fullTask={event.taskData}
-            onEdit={() => onEventClick?.(event)}
+            onEdit={() => onEditEvent?.(event)}
             onDelete={() => onDeleteEvent?.(event.id)}
           >
             <div

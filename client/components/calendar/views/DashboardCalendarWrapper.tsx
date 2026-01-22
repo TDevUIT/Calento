@@ -139,6 +139,11 @@ export function DashboardCalendarWrapper({
     }
   };
 
+  const handleEditEvent = (event: CalendarEvent) => {
+    setSelectedEventId(event.id);
+    setShowEditDialog(true);
+  };
+
   const DashboardHeaderCalendarPortal = () => {
     const [slot, setSlot] = useState<HTMLElement | null>(null);
 
@@ -218,6 +223,7 @@ export function DashboardCalendarWrapper({
       <Calendar
         events={filteredEvents}
         onEventClick={handleEventClick}
+        onEditEvent={handleEditEvent}
         defaultDate={currentMonth}
         view={defaultView}
         enableHotkeys={enableKeyboardShortcuts}

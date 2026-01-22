@@ -2,8 +2,8 @@
 
 import { useCalendarSettings } from './CalendarSettingsProvider';
 import { formatTimeWithSettings, formatDateWithSettings } from '@/utils';
-import { 
-  MapPin, 
+import {
+  MapPin,
   Video,
   Users,
   Bell,
@@ -16,8 +16,11 @@ import {
   CheckCircle2,
   XCircle,
   HelpCircle,
-  Clock3
+  Clock3,
+  Pencil,
+  Trash2
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
@@ -25,13 +28,15 @@ import type { Event } from '@/interface';
 
 interface EventQuickPreviewProps {
   event: Event;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
-export function EventQuickPreview({ event }: EventQuickPreviewProps) {
+export function EventQuickPreview({ event, onEdit, onDelete }: EventQuickPreviewProps) {
   const startDate = new Date(event.start_time);
   const endDate = new Date(event.end_time);
   const { timeFormat, dateFormat } = useCalendarSettings();
-  
+
   const colorClasses: Record<string, string> = {
     blue: 'bg-blue-500',
     green: 'bg-green-500',
@@ -85,20 +90,20 @@ export function EventQuickPreview({ event }: EventQuickPreviewProps) {
   const acceptedCount = event.attendees?.filter(a => a.response_status === 'accepted').length || 0;
   const totalAttendees = event.attendees?.length || 0;
   const organizerAttendee = event.attendees?.find(a => a.is_organizer);
-  
+
   const organizerName = event.creator?.name || event.organizer_name || organizerAttendee?.name;
   const organizerEmail = event.creator?.email || event.organizer_email || organizerAttendee?.email;
   const organizerAvatar = event.creator?.avatar || event.organizer_avatar;
-  
-  
-  const displayRole = event.creator?.name 
-    ? 'Creator' 
-    : event.organizer_name 
-      ? 'Organizer' 
+
+
+  const displayRole = event.creator?.name
+    ? 'Creator'
+    : event.organizer_name
+      ? 'Organizer'
       : organizerAttendee?.name
         ? 'Organizer'
         : 'Organizer';
-  
+
   const getOrganizerInitials = () => {
     const name = organizerName?.trim();
     if (!name || name === '') return '?';
@@ -107,15 +112,15 @@ export function EventQuickPreview({ event }: EventQuickPreviewProps) {
     if (words.length === 1) return words[0].substring(0, 2).toUpperCase();
     return (words[0][0] + words[words.length - 1][0]).toUpperCase();
   };
-  
+
   const organizerInitials = getOrganizerInitials();
   const displayOrganizerName = organizerName || organizerEmail || 'Unknown';
 
   return (
-    <div 
-      className="w-96 bg-white rounded-lg overflow-hidden relative event-quick-preview" 
-      style={{ 
-        zIndex: 999999, 
+    <div
+      className="w-96 bg-white rounded-lg overflow-hidden relative event-quick-preview"
+      style={{
+        zIndex: 999999,
         pointerEvents: 'auto',
         position: 'relative',
       }}
@@ -131,14 +136,46 @@ export function EventQuickPreview({ event }: EventQuickPreviewProps) {
               {event.title}
             </h3>
           </div>
-          {event.visibility && event.visibility !== 'default' && (
-            <Badge variant="outline" className="flex-shrink-0 text-xs px-1.5 py-0.5 gap-1">
-              {visibilityIcons[event.visibility as keyof typeof visibilityIcons]?.icon}
-              <span className="capitalize">{event.visibility}</span>
-            </Badge>
-          )}
+          <div className="flex items-center gap-1 flex-shrink-0">
+            {event.visibility && event.visibility !== 'default' && (
+              <Badge variant="outline" className="text-xs px-1.5 py-0.5 gap-1">
+                {visibilityIcons[event.visibility as keyof typeof visibilityIcons]?.icon}
+                <span className="capitalize">{event.visibility}</span>
+              </Badge>
+            )}
+            {(onEdit || onDelete) && (
+              <div className="flex items-center">
+                {onEdit && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 ml-1"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEdit();
+                    }}
+                  >
+                    <Pencil className="h-3 w-3" />
+                  </Button>
+                )}
+                {onDelete && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 text-destructive hover:text-destructive"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete();
+                    }}
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
         </div>
-        
+
         <div className="space-y-2">
           <div className="flex items-center gap-2 text-sm font-medium">
             <span>{formatDateWithSettings(startDate, dateFormat)}</span>
@@ -164,7 +201,7 @@ export function EventQuickPreview({ event }: EventQuickPreviewProps) {
         {event.conference_data && (
           <div className="flex items-center gap-2 text-sm">
             <Video className={`h-4 w-4 flex-shrink-0 ${conferenceIcons[event.conference_data.type]?.color || 'text-gray-500'}`} />
-            <a 
+            <a
               href={event.conference_data.url}
               target="_blank"
               rel="noopener noreferrer"

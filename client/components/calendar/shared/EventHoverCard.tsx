@@ -79,7 +79,17 @@ export function EventHoverCard({
         avoidCollisions={true}
       >
         {mode === 'quick' ? (
-          <EventQuickPreview event={event} />
+          <EventQuickPreview
+            event={event}
+            onEdit={() => {
+              setOpen(false);
+              onEdit?.();
+            }}
+            onDelete={() => {
+              setOpen(false);
+              onDelete?.();
+            }}
+          />
         ) : (
           <EventDetailView
             event={event}
