@@ -3,6 +3,7 @@
   BOOKING_LINK = 'booking_link',
   HABIT = 'habit',
   SMART_MEETING = 'smart_meeting',
+  EVENT = 'event',
 }
 
 export enum PriorityLevel {

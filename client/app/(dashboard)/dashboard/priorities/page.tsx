@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useBookingLinks } from "@/hook/booking";
 import { useTasks } from "@/hook/task";
+import { useEvents } from "@/hook/event";
 import { usePriorities } from "@/hook/priority/use-priorities";
 import { cn } from "@/lib/utils";
 import {
@@ -38,10 +39,12 @@ const PrioritiesPage = () => {
 
   const { data: bookingLinks, isLoading: isLoadingLinks } = useBookingLinks();
   const { data: tasksData, isLoading: isLoadingTasks } = useTasks({ page: 1, limit: 100 });
+  const { data: eventsData, isLoading: isLoadingEvents } = useEvents({ page: 1, limit: 100 });
   const { isLoading: isLoadingPriorities } = usePriorities();
   const tasks = tasksData?.data?.items || [];
+  const events = eventsData?.data?.items || [];
 
-  const isLoading = isLoadingLinks || isLoadingTasks || isLoadingPriorities;
+  const isLoading = isLoadingLinks || isLoadingTasks || isLoadingEvents || isLoadingPriorities;
   
   const {
     sensors,
@@ -56,7 +59,7 @@ const PrioritiesPage = () => {
     areAllCategoriesExpanded,
     isCategoryExpanded,
     allItems,
-  } = usePriorityBoard(bookingLinks, tasks);
+  } = usePriorityBoard(bookingLinks, tasks, events);
 
   const toggleCategoryFilter = (categoryId: string) => {
     setVisibleCategories(prev =>

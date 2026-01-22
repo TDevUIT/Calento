@@ -11,7 +11,7 @@ import {
 } from '@dnd-kit/core';
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { BookingLink } from "@/service";
-import type { Task } from "@/interface";
+import type { Event, Task } from "@/interface";
 import { useBulkUpdatePriorities, usePriorities } from "./use-priorities";
 import type { ItemType, PriorityLevel } from "@/interface";
 
@@ -36,7 +36,11 @@ export const priorityColumns = [
   { id: "disabled", label: "Disabled", color: "text-gray-500" },
 ];
 
-export const usePriorityBoard = (bookingLinks?: BookingLink[], tasks?: Task[]) => {
+export const usePriorityBoard = (
+  bookingLinks?: BookingLink[],
+  tasks?: Task[],
+  events?: Event[]
+) => {
   const [items, setItems] = useState<PriorityItem[]>([]);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
@@ -90,8 +94,22 @@ export const usePriorityBoard = (bookingLinks?: BookingLink[], tasks?: Task[]) =
       allItems.push(...mappedTasks);
     }
 
+    if (events) {
+      const mappedEvents: PriorityItem[] = events.map((event) => ({
+        id: `event-${event.id}`,
+        title: event.title,
+        category: "Smart Meetings",
+        priority: getPriorityForItem(event.id, 'event', 'medium'),
+        metadata: {
+          dueDate: event.start_time ? new Date(event.start_time).toISOString() : undefined,
+          status: event.response_status,
+        },
+      }));
+      allItems.push(...mappedEvents);
+    }
+
     setItems(allItems);
-  }, [bookingLinks, tasks, savedPriorities]);
+  }, [bookingLinks, tasks, events, savedPriorities]);
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id);
@@ -134,6 +152,9 @@ export const usePriorityBoard = (bookingLinks?: BookingLink[], tasks?: Task[]) =
       }
       if (id.startsWith('link-')) {
         return { itemId: id.replace('link-', ''), itemType: 'booking_link' };
+      }
+      if (id.startsWith('event-')) {
+        return { itemId: id.replace('event-', ''), itemType: 'event' };
       }
       return null;
     };
