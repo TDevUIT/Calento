@@ -25,6 +25,7 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import type { Event } from '@/interface';
+import { useAuthStore } from '@/store/auth.store';
 
 interface EventQuickPreviewProps {
   event: Event;
@@ -36,6 +37,10 @@ export function EventQuickPreview({ event, onEdit, onDelete }: EventQuickPreview
   const startDate = new Date(event.start_time);
   const endDate = new Date(event.end_time);
   const { timeFormat, dateFormat } = useCalendarSettings();
+  const currentUser = useAuthStore((state) => state.user);
+
+  // Check if current user is the owner of the event
+  const isOwner = currentUser?.id && event.user_id && event.user_id === currentUser.id;
 
   const colorClasses: Record<string, string> = {
     blue: 'bg-blue-500',
@@ -143,7 +148,7 @@ export function EventQuickPreview({ event, onEdit, onDelete }: EventQuickPreview
                 <span className="capitalize">{event.visibility}</span>
               </Badge>
             )}
-            {(onEdit || onDelete) && (
+            {isOwner && (onEdit || onDelete) && (
               <div className="flex items-center">
                 {onEdit && (
                   <Button

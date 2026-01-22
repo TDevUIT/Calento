@@ -41,6 +41,8 @@ import type { Task } from '@/interface';
 import { calculateEventLayouts, getEventLayoutStyles, getEventTextClasses } from '@/utils';
 import { getStoredCalendarView, saveCalendarView } from '@/utils';
 import { useDeleteEvent } from '@/hook/event/use-event-mutations';
+import { useAuthStore } from '@/store/auth.store';
+import { toast } from 'sonner';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -159,8 +161,22 @@ const Calendar = ({
   const deleteEventMutation = useDeleteEvent();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<string | null>(null);
+  const currentUser = useAuthStore((state) => state.user);
 
   const handleDeleteEvent = (eventId: string) => {
+    // Find the event to check permissions
+    const event = events.find(e => e.id === eventId);
+    if (!event) return;
+
+    // Check if current user owns the event
+    const eventUserId = (event as any).userId || (event as any).creator?.id;
+    if (eventUserId && currentUser?.id && eventUserId !== currentUser.id) {
+      toast.error('You cannot delete this event', {
+        description: 'You can only delete events that you created.',
+      });
+      return;
+    }
+
     setEventToDelete(eventId);
     setDeleteDialogOpen(true);
   };
@@ -216,7 +232,7 @@ const Calendar = ({
       {children}
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="z-[99999999]">
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Event</AlertDialogTitle>
             <AlertDialogDescription>

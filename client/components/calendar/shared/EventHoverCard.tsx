@@ -9,6 +9,7 @@ import {
 import type { Event } from '@/interface';
 import { EventDetailView } from '../views';
 import { EventQuickPreview } from '.';
+import { useAuthStore } from '@/store/auth.store';
 
 interface EventHoverCardProps {
   event: Event;
@@ -32,6 +33,14 @@ export function EventHoverCard({
 }: EventHoverCardProps) {
   const [open, setOpen] = useState(false);
   const [isClicking, setIsClicking] = useState(false);
+  const currentUser = useAuthStore((state) => state.user);
+
+  // Check if current user is the owner of the event
+  const isOwner = currentUser?.id && event.user_id && event.user_id === currentUser.id;
+
+  // Only pass callbacks if user owns the event
+  const canEdit = isOwner ? onEdit : undefined;
+  const canDelete = isOwner ? onDelete : undefined;
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -81,26 +90,26 @@ export function EventHoverCard({
         {mode === 'quick' ? (
           <EventQuickPreview
             event={event}
-            onEdit={() => {
+            onEdit={canEdit ? () => {
               setOpen(false);
-              onEdit?.();
-            }}
-            onDelete={() => {
+              canEdit();
+            } : undefined}
+            onDelete={canDelete ? () => {
               setOpen(false);
-              onDelete?.();
-            }}
+              canDelete();
+            } : undefined}
           />
         ) : (
           <EventDetailView
             event={event}
-            onEdit={() => {
+            onEdit={canEdit ? () => {
               setOpen(false);
-              onEdit?.();
-            }}
-            onDelete={() => {
+              canEdit();
+            } : undefined}
+            onDelete={canDelete ? () => {
               setOpen(false);
-              onDelete?.();
-            }}
+              canDelete();
+            } : undefined}
             onClose={() => setOpen(false)}
           />
         )}

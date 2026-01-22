@@ -22,6 +22,7 @@ import { ConferenceInfo } from '../shared/ConferenceInfo';
 import { AttendeesList } from '../shared/AttendeesList';
 import type { Event } from '@/interface';
 import { EVENT_COLORS, VISIBILITY_ICONS, DAY_NAMES } from '@/constants/event.constants';
+import { useAuthStore } from '@/store/auth.store';
 
 interface EventDetailViewProps {
   event: Event;
@@ -34,6 +35,10 @@ export const EventDetailView = ({ event, onEdit, onDelete, onClose }: EventDetai
   const startDate = new Date(event.start_time);
   const endDate = new Date(event.end_time);
   const { timeFormat, dateFormat } = useCalendarSettings();
+  const currentUser = useAuthStore((state) => state.user);
+
+  // Check if current user is the owner of the event
+  const isOwner = currentUser?.id && event.user_id && event.user_id === currentUser.id;
 
   const formatRecurrence = (rule?: string) => {
     if (!rule) return null;
@@ -94,7 +99,7 @@ export const EventDetailView = ({ event, onEdit, onDelete, onClose }: EventDetai
           </div>
         </div>
         <div className="flex items-center gap-1">
-          {onEdit && (
+          {isOwner && onEdit && (
             <Button
               variant="ghost"
               size="icon"
@@ -104,7 +109,7 @@ export const EventDetailView = ({ event, onEdit, onDelete, onClose }: EventDetai
               <Pencil className="h-4 w-4" />
             </Button>
           )}
-          {onDelete && (
+          {isOwner && onDelete && (
             <Button
               variant="ghost"
               size="icon"
