@@ -44,8 +44,6 @@ export default function CalendarPane() {
 
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
-  const [showViewDialog, setShowViewDialog] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [showTaskDialog, setShowTaskDialog] = useState(false);
 
@@ -196,26 +194,9 @@ export default function CalendarPane() {
       setSelectedTask(event.taskData);
       setShowTaskDialog(true);
     } else {
-      // Find the full event object
-      const fullEvent = apiEvents.find(e => e.id === event.id);
-
-      if (fullEvent) {
-        // Check if I am the creator
-        const isCreator = fullEvent.creator?.id === user?.id || fullEvent.organizer_id === user?.id;
-
-        if (isCreator) {
-          setSelectedEventId(event.id);
-          setShowEditDialog(true);
-        } else {
-          // I am an attendee, show view dialog
-          setSelectedEvent(fullEvent);
-          setShowViewDialog(true);
-        }
-      } else {
-        // Fallback if event not found (should be rare)
-        setSelectedEventId(event.id);
-        setShowEditDialog(true);
-      }
+      // Always open EditEventDialog for events
+      setSelectedEventId(event.id);
+      setShowEditDialog(true);
     }
   };
 
@@ -239,10 +220,6 @@ export default function CalendarPane() {
       setSelectedEventId={setSelectedEventId}
       showEditDialog={showEditDialog}
       setShowEditDialog={setShowEditDialog}
-      showViewDialog={showViewDialog}
-      setShowViewDialog={setShowViewDialog}
-      selectedEvent={selectedEvent}
-      setSelectedEvent={setSelectedEvent}
       selectedTask={selectedTask}
       setSelectedTask={setSelectedTask}
       showTaskDialog={showTaskDialog}

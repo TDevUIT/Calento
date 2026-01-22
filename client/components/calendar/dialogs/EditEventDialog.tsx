@@ -12,16 +12,17 @@ interface EditEventDialogProps {
   onOpenChange: (open: boolean) => void;
   eventId: string;
   onDelete?: () => void;
+  readOnly?: boolean;
 }
 
-export function EditEventDialog({ open, onOpenChange, eventId }: EditEventDialogProps) {
+export function EditEventDialog({ open, onOpenChange, eventId, readOnly = false }: EditEventDialogProps) {
   const [mounted, setMounted] = useState(false);
-  
+
   const { originalId, isOccurrence, occurrenceIndex } = useMemo(
     () => getOriginalEventId(eventId),
     [eventId]
   );
-  
+
   const { data: eventResponse, isLoading } = useEventById(originalId);
   const event = eventResponse?.data;
 
@@ -36,13 +37,13 @@ export function EditEventDialog({ open, onOpenChange, eventId }: EditEventDialog
   if (isLoading || !event) {
     const loadingContent = (
       <>
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 animate-in fade-in duration-200"
           style={{ zIndex: 10000 }}
           onClick={() => onOpenChange(false)}
         />
 
-        <div 
+        <div
           className="fixed inset-0 flex items-center justify-center pointer-events-none"
           style={{ zIndex: 10001 }}
         >
@@ -76,12 +77,13 @@ export function EditEventDialog({ open, onOpenChange, eventId }: EditEventDialog
           </div>
         </div>
       )}
-      
+
       <EventFormModal
         open={open}
         onOpenChange={onOpenChange}
         mode="edit"
         event={event}
+        readOnly={readOnly}
       />
     </>
   );

@@ -20,7 +20,7 @@ import {
 import { DateDisplay, HeaderActions, ViewSelector, QuickActions } from '@/components/calendar/header';
 import { getCalendarStyles } from '@/utils';
 import { CalendarSidebar } from '@/components/calendar/sidebar/CalendarSidebar';
-import { CreateEventDialog, EditEventDialog, ViewEventDialog } from '@/components/calendar/dialogs';
+import { CreateEventDialog, EditEventDialog } from '@/components/calendar/dialogs';
 import { EditTaskDialog } from '@/components/task/EditTaskDialog';
 import { CalendarSettingsDialog } from '@/components/calendar/settings/CalendarSettingsDialog';
 import { KeyboardShortcuts } from '@/components/calendar/KeyboardShortcuts';
@@ -57,10 +57,7 @@ export type DashboardCalendarWrapperProps = {
   setSelectedEventId: (id: string | null) => void;
   showEditDialog: boolean;
   setShowEditDialog: (show: boolean) => void;
-  showViewDialog: boolean;
-  setShowViewDialog: (show: boolean) => void;
-  selectedEvent: Event | null;
-  setSelectedEvent: (event: Event | null) => void;
+
   selectedTask: Task | null;
   setSelectedTask: (task: Task | null) => void;
   showTaskDialog: boolean;
@@ -98,10 +95,6 @@ export function DashboardCalendarWrapper({
   setSelectedEventId,
   showEditDialog,
   setShowEditDialog,
-  showViewDialog,
-  setShowViewDialog,
-  selectedEvent,
-  setSelectedEvent,
   selectedTask,
   setSelectedTask,
   showTaskDialog,
@@ -131,10 +124,10 @@ export function DashboardCalendarWrapper({
       deleteEventMutation.mutate(eventToDelete);
       setDeleteDialogOpen(false);
       setEventToDelete(null);
-      // Close the view dialog if open
-      if (showViewDialog) {
-        setShowViewDialog(false);
-        setSelectedEvent(null);
+      // Close the edit dialog if open
+      if (showEditDialog) {
+        setShowEditDialog(false);
+        setSelectedEventId(null);
       }
     }
   };
@@ -144,14 +137,7 @@ export function DashboardCalendarWrapper({
     setShowEditDialog(true);
   };
 
-  const handleEditFromView = () => {
-    if (selectedEvent) {
-      setShowViewDialog(false);
-      setSelectedEventId(selectedEvent.id);
-      setShowEditDialog(true);
-      setSelectedEvent(null);
-    }
-  };
+
 
   const DashboardHeaderCalendarPortal = () => {
     const [slot, setSlot] = useState<HTMLElement | null>(null);
@@ -291,16 +277,7 @@ export function DashboardCalendarWrapper({
           />
         )}
 
-        <ViewEventDialog
-          open={showViewDialog}
-          onOpenChange={(open) => {
-            setShowViewDialog(open);
-            if (!open) setSelectedEvent(null);
-          }}
-          event={selectedEvent}
-          onEdit={handleEditFromView}
-          onDelete={() => selectedEvent && handleDeleteClick(selectedEvent.id)}
-        />
+
 
         {selectedTask && (
           <EditTaskDialog

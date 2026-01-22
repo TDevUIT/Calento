@@ -38,6 +38,7 @@ interface EventFormModalProps {
   defaultCalendarId?: string;
   defaultStartTime?: Date;
   defaultEndTime?: Date;
+  readOnly?: boolean;
 }
 
 export function EventFormModal({
@@ -48,15 +49,16 @@ export function EventFormModal({
   defaultCalendarId = '',
   defaultStartTime,
   defaultEndTime,
+  readOnly = false,
 }: EventFormModalProps) {
   const [mounted, setMounted] = useState(false);
   const [showUnsavedWarning, setShowUnsavedWarning] = useState(false);
-  
+
   useEffect(() => {
     setMounted(true);
     return () => setMounted(false);
   }, []);
-  
+
   const createEvent = useCreateEvent();
   const updateEvent = useUpdateEvent();
   const { mutate: sendInvitations } = useSendInvitations();
@@ -91,10 +93,10 @@ export function EventFormModal({
 
   useEffect(() => {
     if (mode === 'edit' && event && open) {
-      const cleanConferenceData = event.conference_data?.url 
-        ? event.conference_data 
+      const cleanConferenceData = event.conference_data?.url
+        ? event.conference_data
         : undefined;
-      
+
       const formData = {
         calendar_id: event.calendar_id,
         team_id: event.team_id || undefined,
@@ -114,7 +116,7 @@ export function EventFormModal({
         ],
         visibility: event.visibility || 'default',
       };
-      
+
       form.reset(formData);
     }
   }, [mode, event, open, form]);
@@ -126,16 +128,16 @@ export function EventFormModal({
         return;
       }
 
-      const cleanedConferenceData = (data.conference_data?.url && data.conference_data?.type) 
+      const cleanedConferenceData = (data.conference_data?.url && data.conference_data?.type)
         ? {
-            type: data.conference_data.type,
-            url: data.conference_data.url,
-            id: data.conference_data.id,
-            password: data.conference_data.password,
-            phone: data.conference_data.phone,
-            pin: data.conference_data.pin,
-            notes: data.conference_data.notes,
-          }
+          type: data.conference_data.type,
+          url: data.conference_data.url,
+          id: data.conference_data.id,
+          password: data.conference_data.password,
+          phone: data.conference_data.phone,
+          pin: data.conference_data.pin,
+          notes: data.conference_data.notes,
+        }
         : undefined;
 
       const cleanedData = {
@@ -148,16 +150,16 @@ export function EventFormModal({
       };
 
       let createdEventId: string | undefined;
-      
+
       if (mode === 'create') {
         const result = await createEvent.mutateAsync(cleanedData);
         createdEventId = result.data.id;
-        
+
         if (cleanedData.attendees && cleanedData.attendees.length > 0) {
           const shouldSend = confirm(
             `Send invitation to ${cleanedData.attendees.length} attendees?`
           );
-          
+
           if (shouldSend && createdEventId) {
             sendInvitations({
               eventId: createdEventId,
@@ -168,7 +170,7 @@ export function EventFormModal({
       } else if (mode === 'edit' && event) {
         await updateEvent.mutateAsync({ id: event.id, data: cleanedData });
       }
-      
+
       setTimeout(() => {
         onOpenChange(false);
         form.reset();
@@ -180,9 +182,9 @@ export function EventFormModal({
         response: (error as { response?: { data?: unknown; status?: number } })?.response?.data,
         status: (error as { response?: { data?: unknown; status?: number } })?.response?.status,
       });
-      
+
       const errorMessage = (error as { response?: { data?: { message?: string } }; message?: string })?.response?.data?.message || (error as Error)?.message;
-      
+
       if (errorMessage === 'error.event_duration_too_long') {
         toast.error('Event duration cannot exceed 24 hours. Please adjust the time range or use recurring events.');
       } else if (errorMessage === 'error.event_invalid_recurrence_format') {
@@ -228,7 +230,7 @@ export function EventFormModal({
 
   const modalContent = (
     <div className="fixed inset-0 flex items-center justify-center" style={{ zIndex: 10000 }}>
-      <div 
+      <div
         className="absolute inset-0 bg-black/50 animate-in fade-in duration-200"
         onClick={handleClose}
       />
@@ -256,20 +258,22 @@ export function EventFormModal({
                   />
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button 
-                    type="submit"
-                    size="default"
-                    disabled={createEvent.isPending || updateEvent.isPending}
-                  >
-                    {(createEvent.isPending || updateEvent.isPending) ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        {mode === 'create' ? 'Creating...' : 'Saving...'}
-                      </>
-                    ) : (
-                      mode === 'create' ? 'Create' : 'Save'
-                    )}
-                  </Button>
+                  {!readOnly && (
+                    <Button
+                      type="submit"
+                      size="default"
+                      disabled={createEvent.isPending || updateEvent.isPending}
+                    >
+                      {(createEvent.isPending || updateEvent.isPending) ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          {mode === 'create' ? 'Creating...' : 'Saving...'}
+                        </>
+                      ) : (
+                        mode === 'create' ? 'Create' : 'Save'
+                      )}
+                    </Button>
+                  )}
                   <Button
                     type="button"
                     variant="ghost"
@@ -287,90 +291,90 @@ export function EventFormModal({
                   <div className="flex-1 overflow-y-auto min-w-0">
                     <div className="w-full h-full">
                       <div className="px-6 py-4 space-y-0">
-                          <div className="space-y-2 pb-3 border-b border-border/40">
-                            <TimeRangeField form={form} />
-                            <div className="pl-8">
-                              <AllDayField form={form} />
+                        <div className="space-y-2 pb-3 border-b border-border/40">
+                          <TimeRangeField form={form} />
+                          <div className="pl-8">
+                            <AllDayField form={form} />
+                          </div>
+                        </div>
+
+                        <CalendarField form={form} />
+
+                        <FormField
+                          control={form.control}
+                          name="team_id"
+                          render={({ field }) => {
+                            const options: SelectOption[] = [
+                              { value: '', label: 'Personal (no team)' },
+                              ...teams.map((t) => ({ value: t.id, label: t.name })),
+                            ];
+
+                            return (
+                              <FormItem>
+                                <div className="flex items-center gap-3 py-3 border-b border-border/40">
+                                  <Users className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                                  <FormControl>
+                                    <CustomSelect
+                                      value={field.value || ''}
+                                      onValueChange={(val) => field.onChange(val || undefined)}
+                                      options={options}
+                                      placeholder="Select team (optional)"
+                                      className="flex-1 border-0"
+                                    />
+                                  </FormControl>
+                                </div>
+                              </FormItem>
+                            );
+                          }}
+                        />
+
+                        <RecurrenceField form={form} />
+
+                        <ConferenceField form={form} />
+
+                        <div className="flex items-center gap-3 py-3 border-b border-border/40">
+                          <MapPin className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                          <LocationField form={form} />
+                        </div>
+
+                        <div className="py-3 border-b border-border/40">
+                          <div className="flex items-start gap-3">
+                            <Bell className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-2" />
+                            <RemindersField form={form} />
+                          </div>
+                        </div>
+
+                        <div className="py-3 border-b border-border/40">
+                          <div className="flex items-start gap-3">
+                            <div className="h-5 w-5 flex-shrink-0 mt-2">
+                              <div className="h-4 w-4 rounded-full bg-primary"></div>
+                            </div>
+                            <div className="flex-1 space-y-3">
+                              <ColorField form={form} />
+                              <VisibilityField form={form} />
                             </div>
                           </div>
+                        </div>
 
-                          <CalendarField form={form} />
-
-                          <FormField
-                            control={form.control}
-                            name="team_id"
-                            render={({ field }) => {
-                              const options: SelectOption[] = [
-                                { value: '', label: 'Personal (no team)' },
-                                ...teams.map((t) => ({ value: t.id, label: t.name })),
-                              ];
-
-                              return (
-                                <FormItem>
-                                  <div className="flex items-center gap-3 py-3 border-b border-border/40">
-                                    <Users className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                                    <FormControl>
-                                      <CustomSelect
-                                        value={field.value || ''}
-                                        onValueChange={(val) => field.onChange(val || undefined)}
-                                        options={options}
-                                        placeholder="Select team (optional)"
-                                        className="flex-1 border-0"
-                                      />
-                                    </FormControl>
-                                  </div>
-                                </FormItem>
-                              );
-                            }}
-                          />
-
-                          <RecurrenceField form={form} />
-
-                          <ConferenceField form={form} />
-
-                          <div className="flex items-center gap-3 py-3 border-b border-border/40">
-                            <MapPin className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                            <LocationField form={form} />
-                          </div>
-
-                          <div className="py-3 border-b border-border/40">
-                            <div className="flex items-start gap-3">
-                              <Bell className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-2" />
-                              <RemindersField form={form} />
+                        <div className="py-3">
+                          <div className="flex items-start gap-3">
+                            <div className="h-5 w-5 flex-shrink-0 mt-2">
+                              <svg className="h-5 w-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
+                              </svg>
                             </div>
-                          </div>
-
-                          <div className="py-3 border-b border-border/40">
-                            <div className="flex items-start gap-3">
-                              <div className="h-5 w-5 flex-shrink-0 mt-2">
-                                <div className="h-4 w-4 rounded-full bg-primary"></div>
-                              </div>
-                              <div className="flex-1 space-y-3">
-                                <ColorField form={form} />
-                                <VisibilityField form={form} />
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="py-3">
-                            <div className="flex items-start gap-3">
-                              <div className="h-5 w-5 flex-shrink-0 mt-2">
-                                <svg className="h-5 w-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
-                                </svg>
-                              </div>
-                              <div className="flex-1">
-                                <DescriptionField form={form} />
-                              </div>
+                            <div className="flex-1">
+                              <DescriptionField form={form} />
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
+                  </div>
 
                   <div className="w-[500px] border-l overflow-y-auto flex-shrink-0">
                     <div className="p-6">
-                      <GuestsField 
+                      <GuestsField
                         form={form}
                         eventId={mode === 'edit' ? event?.id : undefined}
                         onSendInvitations={() => {
@@ -416,12 +420,12 @@ export function EventFormModal({
           <DialogFooter className="gap-2 sm:gap-0">
             <div className='flex gap-x-2'>
               <Button
-                  type="button"
-                  variant="outline"
-                  onClick={cancelClose}
-                  className='ml-2'
-                >
-                  Continue Editing
+                type="button"
+                variant="outline"
+                onClick={cancelClose}
+                className='ml-2'
+              >
+                Continue Editing
               </Button>
               <Button
                 type="button"
