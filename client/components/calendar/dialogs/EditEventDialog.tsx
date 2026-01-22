@@ -23,7 +23,12 @@ export function EditEventDialog({ open, onOpenChange, eventId, readOnly = false 
     [eventId]
   );
 
-  const { data: eventResponse, isLoading } = useEventById(originalId);
+  const {
+    data: eventResponse,
+    isLoading,
+    isError,
+    error,
+  } = useEventById(originalId);
   const event = eventResponse?.data;
 
   useEffect(() => {
@@ -33,6 +38,40 @@ export function EditEventDialog({ open, onOpenChange, eventId, readOnly = false 
 
   if (!open) return null;
   if (!mounted) return null;
+
+  if (isError) {
+    const errorContent = (
+      <>
+        <div
+          className="fixed inset-0 bg-black/50 animate-in fade-in duration-200"
+          style={{ zIndex: 10000 }}
+          onClick={() => onOpenChange(false)}
+        />
+
+        <div
+          className="fixed inset-0 flex items-center justify-center pointer-events-none"
+          style={{ zIndex: 10001 }}
+        >
+          <div className="w-full h-full bg-background pointer-events-auto animate-in zoom-in-95 fade-in duration-200 flex items-center justify-center">
+            <div className="flex flex-col items-center gap-4 px-6 text-center">
+              <AlertCircle className="h-8 w-8 text-destructive" />
+              <p className="text-sm font-medium">Failed to load event</p>
+              <p className="text-sm text-muted-foreground">{error?.message || 'Event not found'}</p>
+              <button
+                type="button"
+                className="text-sm text-primary underline"
+                onClick={() => onOpenChange(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+
+    return createPortal(errorContent, document.body);
+  }
 
   if (isLoading || !event) {
     const loadingContent = (
