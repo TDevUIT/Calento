@@ -21,64 +21,6 @@
 
 **Thời gian thực hiện:** 10/2025 \- 1/2026
 
-# **MỤC LỤC** {#mục-lục}
-
-[MỤC LỤC	2](#mục-lục)
-
-[Chương I. TỔNG QUAN.	3](#chương-i.-tổng-quan.)
-
-[1\. Giới thiệu đề tài.	3](#heading=h.g1cnmohwqajz)
-
-[1.2. Lý do chọn đề tài.	3](#1.1-lý-do-chọn-đề-tài.)
-
-[2\. Cơ sở lý thuyết.	3](#heading=h.h52d15setcmh)
-
-[Chương II. THIẾT KẾ HỆ THỐNG.	4](#chương-ii.-công-nghệ-sử-dụng)
-
-[1.Kiến trúc hệ thống	4](#heading=h.z18z19u0xqds)
-
-[1.1. Tổng quan về kiến trúc	4](#heading=h.l7khgiosucxf)
-
-[1.2. Sơ đồ kiến trúc tổng thể	4](#heading=h.kr03iokw7h6)
-
-[1.3 Luồng dữ liệu (Data Flow)	9](#heading=h.3i0w0agac8rr)
-
-[2\. Thiết kế Database	9](#heading=h.1pi9ud5uc0oj)
-
-[2.1 Tổng quan về cấu trúc Database	9](#heading=h.st73cs6j8a73)
-
-[2\. Mối quan hệ giữa các Tables	11](#heading=h.enzfv0phyihx)
-
-[Chương III. TRIỂN KHAI HỆ THỐNG.	11](#chương-iii.-phân-tích-và-thiết-kế-hệ-thống)
-
-[1\. Tạo tài khoản Azure.	12](#heading=)
-
-[2\. Khởi tạo tài nguyên và cấu hình.	12](#heading=)
-
-[3\. Triển khai ứng dụng web.	12](#heading=)
-
-[Chương IV. KẾT LUẬN.	13](#heading=h.o9k9z0mixkyq)
-
-[1\. Kết quả đạt được	13](#heading=h.hegb62hm14wp)
-
-[1.1. Thành tựu về Backend	13](#heading=h.htiu8wabsamg)
-
-[1.2. Thành tựu về Frontend	16](#heading=h.4yev20d3vtb0)
-
-[1.3. Thành tựu về Deployment và Infrastructure	16](#heading=h.uucx4p2u0o3t)
-
-[1.4. Kiến thức và Kỹ năng Thu được	16](#heading=h.f35xlt7w5gly)
-
-[2\. Hạn chế của Hệ thống	16](#heading=h.pk08do36flej)
-
-[3\. Hướng Phát triển Tương lai	16](#heading=h.64tzltaurqon)
-
-[NGUỒN THAM KHẢO	17](#nguồn-tham-khảo)
-
-# 
-
-# 
-
 # **DANH MỤC HÌNH ẢNH** 
 
 [Hình 1: NestJS	8](#hình-1:-nestjs)
