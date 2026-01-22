@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { ChatBox } from '@/components/calendar/chat';
 import ChatboxExpandButton from '@/components/calendar/chat/ChatboxExpandButton';
 
-const ChatPane = memo(function ChatPane() {
+export const ChatPane = memo(function ChatPane() {
   const isChatboxExpanded = useControllerStore((state) => state.isChatboxExpanded);
 
   return (

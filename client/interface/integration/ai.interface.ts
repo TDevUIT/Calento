@@ -65,6 +65,14 @@ export interface ChatResponse {
     actions?: ActionPerformed[];
     pending_actions?: PendingAction[];
     thinking_steps?: ThinkingStep[];
+    confidence?: 'high' | 'medium' | 'low';
+    clarifyingQuestions?: string[];
+    thinking?: {
+      understanding?: string;
+      dataRetrieved?: string[];
+      reasoning?: string[];
+      conclusion?: string;
+    };
     timestamp: Date;
   };
 }
@@ -80,6 +88,9 @@ export type StreamMessage =
   | { type: 'status'; content: string }
   | { type: 'action_start'; action: string }
   | { type: 'action_result'; action: ActionPerformed }
+  | { type: 'thinking'; thinking: Partial<{ understanding?: string; dataRetrieved?: string[]; reasoning?: string[]; conclusion?: string; }> }
+  | { type: 'confidence'; confidence: 'high' | 'medium' | 'low' }
+  | { type: 'clarify'; questions: string[] }
   | { type: 'done'; conversation_id?: string }
   | { type: 'error'; error: string };
 

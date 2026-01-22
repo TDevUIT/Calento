@@ -26,6 +26,9 @@ import { toast } from 'sonner';
 import { useControllerStore } from '@/store/controller.store';
 import { EVENT_QUERY_KEYS } from '@/hook/event/query-keys';
 import { getBrowserTimezone } from '@/utils';
+import { AIThinkingDisplay } from './AIThinkingDisplay';
+import { ConfidenceBadge } from './ConfidenceBadge';
+import { ClarifyingQuestions } from './ClarifyingQuestions';
 
 interface ChatBoxProps {
   onClose?: () => void;
@@ -39,6 +42,14 @@ interface ChatMessage extends AIMessage {
   functionCalls?: FunctionCall[];
   actions?: ActionPerformed[];
   isStreaming?: boolean;
+  thinking?: {
+    understanding?: string;
+    dataRetrieved?: string[];
+    reasoning?: string[];
+    conclusion?: string;
+  };
+  confidence?: 'high' | 'medium' | 'low';
+  clarifyingQuestions?: string[];
 }
 
 
@@ -203,6 +214,24 @@ export function ChatBox({
                 newMessages[lastMsgIndex] = {
                   ...lastMsg,
                   actions: [...currentActions, event.action],
+                };
+              } else if (event.type === 'thinking') {
+                newMessages[lastMsgIndex] = {
+                  ...lastMsg,
+                  thinking: {
+                    ...lastMsg.thinking,
+                    ...event.thinking,
+                  },
+                };
+              } else if (event.type === 'confidence') {
+                newMessages[lastMsgIndex] = {
+                  ...lastMsg,
+                  confidence: event.confidence,
+                };
+              } else if (event.type === 'clarify') {
+                newMessages[lastMsgIndex] = {
+                  ...lastMsg,
+                  clarifyingQuestions: event.questions,
                 };
               }
             }
@@ -386,14 +415,43 @@ export function ChatBox({
                     </div>
                   ) : (
                     <div className="space-y-4">
+                      {/* Thinking Process Display */}
+                      {message.thinking && (
+                        <div className="max-w-[85%]">
+                          <AIThinkingDisplay thinking={message.thinking} />
+                        </div>
+                      )}
+
+                      {/* Main Message Content */}
                       {message.content && (
                         <div className="flex items-start gap-3 max-w-[85%]">
-                          <div className="flex-1 min-w-0 bg-muted/30 rounded-2xl px-4 py-3 border border-border">
-                            <MessageContent content={message.content} />
-                            {message.isStreaming && (
-                              <span className="inline-block w-1.5 h-4 bg-foreground/60 ml-1 animate-pulse" />
+                          <div className="flex-1 min-w-0 space-y-2">
+                            <div className="bg-muted/30 rounded-2xl px-4 py-3 border border-border">
+                              <MessageContent content={message.content} />
+                              {message.isStreaming && (
+                                <span className="inline-block w-1.5 h-4 bg-foreground/60 ml-1 animate-pulse" />
+                              )}
+                            </div>
+                            {/* Confidence Badge */}
+                            {message.confidence && !message.isStreaming && (
+                              <div className="flex justify-start">
+                                <ConfidenceBadge confidence={message.confidence} />
+                              </div>
                             )}
                           </div>
+                        </div>
+                      )}
+
+                      {/* Clarifying Questions */}
+                      {message.clarifyingQuestions && message.clarifyingQuestions.length > 0 && (
+                        <div className="max-w-[85%]">
+                          <ClarifyingQuestions
+                            questions={message.clarifyingQuestions}
+                            onQuestionClick={(question) => {
+                              setInput(question);
+                              requestAnimationFrame(() => inputRef.current?.focus());
+                            }}
+                          />
                         </div>
                       )}
 
