@@ -81,9 +81,19 @@ export default function CalendarPane() {
     [startDate, endDate]
   );
 
+  const taskQueryParams = useMemo(
+    () => ({
+      page: 1,
+      limit: 1000,
+      due_after: startDate,
+      due_before: endDate,
+    }),
+    [startDate, endDate]
+  );
+
   const regularEventsQuery = useEvents(queryParams);
   const recurringEventsQuery = useRecurringEvents(recurringQueryParams);
-  const tasksQuery = useTasks({ page: 1, limit: 100 });
+  const tasksQuery = useTasks(taskQueryParams);
 
   const { items: regularEvents = [] } = useApiData<Event>(regularEventsQuery);
   const { items: recurringEvents = [] } = useApiData<Event>(recurringEventsQuery);
