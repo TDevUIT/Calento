@@ -6,6 +6,9 @@
   tool_calls?: any[];
   tool_call_id?: string;
   thinking_steps?: ThinkingStep[];
+  thinking?: AIThinkingProcess;
+  confidence?: 'high' | 'medium' | 'low';
+  needsClarification?: string[];
   timestamp?: Date;
 }
 
@@ -38,6 +41,8 @@ export interface AIAction {
   parameters: Record<string, any>;
   result?: Record<string, any>;
   status: 'pending' | 'completed' | 'failed';
+  requires_confirmation?: boolean;
+  confirmation_status?: 'not_required' | 'awaiting_confirmation' | 'confirmed' | 'rejected';
   error?: string;
   created_at: Date;
 }
@@ -70,4 +75,36 @@ export interface AICalendarContext {
   };
   upcoming_events?: any[];
   available_calendars?: any[];
+}
+
+export interface AIThinkingProcess {
+  understanding?: string;
+  dataRetrieved?: string[];
+  reasoning?: string[];
+  conclusion?: string;
+}
+
+export interface AIResponseWithConfidence {
+  text: string;
+  confidence?: 'high' | 'medium' | 'low';
+  reasoning?: string;
+  needsClarification?: string[];
+  thinking?: AIThinkingProcess;
+}
+
+export interface FunctionCallPreview {
+  action: string;
+  details: Record<string, any>;
+  confirmButton?: string;
+  cancelButton?: string;
+  requiresConfirmation: boolean;
+  toolName: string;
+  arguments: Record<string, any>;
+}
+
+export interface AIConfirmationRequest {
+  type: 'confirmation_request';
+  preview: FunctionCallPreview;
+  conversationId: string;
+  pendingActionId: string;
 }

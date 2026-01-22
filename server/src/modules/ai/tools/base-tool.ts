@@ -8,19 +8,24 @@ export interface ITool {
   readonly description: string;
   readonly category: 'calendar' | 'task' | 'analysis';
   readonly parameters: any;
+  readonly requiresConfirmation?: boolean;
   execute(args: Record<string, any>, context: AgentContext): Promise<any>;
+  generatePreview(args: Record<string, any>): { action: string; details: Record<string, any> };
 }
 
 export abstract class BaseTool implements ITool {
   protected readonly logger: Logger;
+  public readonly requiresConfirmation: boolean = false;
 
   constructor(
     public readonly name: string,
     public readonly description: string,
     public readonly category: 'calendar' | 'task' | 'analysis',
     public readonly parameters: any,
+    requiresConfirmation: boolean = false,
   ) {
     this.logger = new Logger(`Tool:${name}`);
+    this.requiresConfirmation = requiresConfirmation;
   }
 
   async execute(
@@ -54,6 +59,11 @@ export abstract class BaseTool implements ITool {
   ): Promise<any>;
 
   abstract getZodSchema(): ZodObject<ZodRawShape>;
+
+  abstract generatePreview(args: Record<string, any>): {
+    action: string;
+    details: Record<string, any>
+  };
 
   toLangChainTool(context: AgentContext): StructuredTool {
     const self = this;
