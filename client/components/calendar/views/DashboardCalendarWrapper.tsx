@@ -144,6 +144,15 @@ export function DashboardCalendarWrapper({
     setShowEditDialog(true);
   };
 
+  const handleEditFromView = () => {
+    if (selectedEvent) {
+      setShowViewDialog(false);
+      setSelectedEventId(selectedEvent.id);
+      setShowEditDialog(true);
+      setSelectedEvent(null);
+    }
+  };
+
   const DashboardHeaderCalendarPortal = () => {
     const [slot, setSlot] = useState<HTMLElement | null>(null);
 
@@ -289,6 +298,7 @@ export function DashboardCalendarWrapper({
             if (!open) setSelectedEvent(null);
           }}
           event={selectedEvent}
+          onEdit={handleEditFromView}
           onDelete={() => selectedEvent && handleDeleteClick(selectedEvent.id)}
         />
 
