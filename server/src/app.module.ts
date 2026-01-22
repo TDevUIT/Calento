@@ -27,6 +27,7 @@ import { TeamModule } from './modules/team/team.module';
 import { CloudinaryModule } from './modules/cloudinary/cloudinary.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
+import { AdminModule } from './modules/admin/admin.module';
 import { DebugController } from './debug-cors.controller';
 
 @Module({
@@ -58,6 +59,7 @@ import { DebugController } from './debug-cors.controller';
     TeamModule,
     CloudinaryModule,
     NotificationModule,
+    AdminModule,
   ],
   controllers: [DebugController],
   providers: [
