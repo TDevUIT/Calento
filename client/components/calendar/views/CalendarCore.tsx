@@ -169,7 +169,7 @@ const Calendar = ({
     if (!event) return;
 
     // Check if current user owns the event
-    const eventUserId = (event as any).userId || (event as any).creator?.id;
+    const eventUserId = event.creator?.id;
     if (eventUserId && currentUser?.id && eventUserId !== currentUser.id) {
       toast.error('You cannot delete this event', {
         description: 'You can only delete events that you created.',
@@ -290,7 +290,7 @@ const HourEvents = ({
   events: CalendarEvent[];
   hour: Date;
 }) => {
-  const { onEventClick, onDeleteEvent, onEditEvent } = useCalendar();
+  const { onEventClick, onDeleteEvent } = useCalendar();
   const [hoveredEventId, setHoveredEventId] = useState<string | null>(null);
 
   const hourEvents = events.filter((event) => isSameHour(event.start, hour));

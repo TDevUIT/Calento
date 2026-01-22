@@ -5,7 +5,6 @@ import { X, Check, Clock, AlertCircle, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import type { EventAttendee } from '@/interface';
 
@@ -65,12 +64,7 @@ export function GuestItem({
     return email.split('@')[0].slice(0, 2).toUpperCase();
   };
 
-  const handleResponseStatusChange = (newStatus: string) => {
-    onUpdate(index, {
-      ...attendee,
-      response_status: newStatus as EventAttendee['response_status']
-    });
-  };
+
 
   const handleOptionalChange = (isOptional: boolean) => {
     onUpdate(index, {
