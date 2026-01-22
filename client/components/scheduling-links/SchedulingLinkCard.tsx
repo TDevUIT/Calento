@@ -2,6 +2,7 @@
 
 import { Clock, Edit, Copy, MoreHorizontal } from "lucide-react";
 import { toast } from "sonner";
+import Image from "next/image";
 
 interface SchedulingLinkCardProps {
   title: string;
@@ -53,7 +54,7 @@ export const SchedulingLinkCard = ({
   };
 
   return (
-    <div 
+    <div
       className="bg-white rounded-lg p-6 cursor-pointer hover:shadow-sm transition-shadow"
       onClick={onClick}
     >
@@ -68,24 +69,24 @@ export const SchedulingLinkCard = ({
             <span className="text-white text-sm font-semibold">T</span>
           </div>
         </div>
-        
+
         <div className="flex items-center gap-1">
-          <button 
-            className="p-1.5 hover:bg-gray-100 rounded transition-colors" 
+          <button
+            className="p-1.5 hover:bg-gray-100 rounded transition-colors"
             onClick={handleEdit}
             title="Edit"
           >
             <Edit className="w-4 h-4 text-gray-600" />
           </button>
-          <button 
-            className="p-1.5 hover:bg-gray-100 rounded transition-colors" 
+          <button
+            className="p-1.5 hover:bg-gray-100 rounded transition-colors"
             onClick={handleCopy}
             title="Copy link"
           >
             <Copy className="w-4 h-4 text-gray-600" />
           </button>
-          <button 
-            className="p-1.5 hover:bg-gray-100 rounded transition-colors" 
+          <button
+            className="p-1.5 hover:bg-gray-100 rounded transition-colors"
             onClick={handleMore}
             title="More options"
           >
@@ -93,26 +94,27 @@ export const SchedulingLinkCard = ({
           </button>
         </div>
       </div>
-      
+
       <h3 className="font-bold text-gray-900 text-xl mb-2">
         {title}
       </h3>
       <p className="text-sm text-gray-700 mb-6">
         {description}
       </p>
-      
+
       <div className="space-y-2">
         <div className="flex items-center gap-2 text-sm text-gray-700">
           <Clock className="h-4 w-4 text-gray-500" />
           <span>{duration}</span>
         </div>
         <div className="flex items-center gap-2 text-sm">
-          <img
+          <Image
             className="h-4 w-auto"
             src="/Google_Meet_icon.svg"
             alt=""
             aria-hidden="true"
-            role="presentation"
+            width={16}
+            height={16}
           />
           {locationLink ? (
             <a

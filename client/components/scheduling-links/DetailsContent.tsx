@@ -3,6 +3,7 @@
 import { Edit, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import Image from "next/image";
 
 interface LinkDetails {
   title: string;
@@ -68,12 +69,12 @@ export const DetailsContent = ({ details, onEdit }: DetailsContentProps) => {
               {details.group}
             </p>
           </div>
-          
+
           <div>
             <label className="text-xs font-medium text-gray-700 block mb-1">Duration</label>
             <p className="text-sm text-gray-900">{details.duration}</p>
           </div>
-          
+
           {details.hours && (
             <div>
               <label className="text-xs font-medium text-gray-700 block mb-1">Hours</label>
@@ -87,29 +88,30 @@ export const DetailsContent = ({ details, onEdit }: DetailsContentProps) => {
               </div>
             </div>
           )}
-          
+
           <div>
             <label className="text-xs font-medium text-gray-700 block mb-1">Calendar</label>
             <p className="text-sm text-gray-900">{details.calendar}</p>
           </div>
-          
+
           <div className="md:col-span-2">
             <label className="text-xs font-medium text-gray-700 block mb-1">Dates</label>
             <p className="text-sm text-gray-900">{details.dates}</p>
           </div>
-          
+
           {details.location && (
             <div>
               <label className="text-xs font-medium text-gray-700 block mb-1">Location</label>
               <div className="flex items-center gap-1">
                 {details.location === 'Google Meet' ? (
                   <>
-                    <img
+                    <Image
                       className="h-4 w-auto"
                       src="/Google_Meet_icon.svg"
                       alt=""
                       aria-hidden="true"
-                      role="presentation"
+                      width={16}
+                      height={16}
                     />
                     {details.locationLink ? (
                       <Link
@@ -148,7 +150,7 @@ export const DetailsContent = ({ details, onEdit }: DetailsContentProps) => {
               </div>
             </div>
           )}
-          
+
           {details.organizers && (
             <div>
               <label className="text-xs font-medium text-gray-700 block mb-1">Organizers</label>
@@ -168,17 +170,17 @@ export const DetailsContent = ({ details, onEdit }: DetailsContentProps) => {
             <p className="text-sm text-blue-600 flex-1 truncate font-medium">
               {details.schedulingLink}
             </p>
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={handleCopy}
               className="text-blue-600 hover:text-blue-700 hover:bg-blue-100 h-8"
             >
               Copy
             </Button>
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={handleOpen}
               className="text-blue-600 hover:text-blue-700 hover:bg-blue-100 h-8"
             >
