@@ -103,7 +103,7 @@ export type CalendarEvent = {
 function convertToFullEvent(calendarEvent: CalendarEvent): Event {
   return {
     id: calendarEvent.id,
-    user_id: '',
+    user_id: calendarEvent.creator?.id || '',
     calendar_id: calendarEvent.calendarId || '',
     team_id: calendarEvent.teamId,
     title: calendarEvent.title,
