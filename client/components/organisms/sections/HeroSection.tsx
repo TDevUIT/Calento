@@ -7,7 +7,7 @@ import { FEATURES } from "@/config/app.config";
 import { AUTH_ROUTES } from "@/constants/routes";
 import DashboardPreview from "./DashboardPreview";
 import { LogoTicker } from "@/components/molecules/LogoTicker";
-import { StatsOverview } from "@/components/molecules/StatsOverview";
+
 
 export const HeroSection = () => {
   const shouldReduceMotion = useReducedMotion();

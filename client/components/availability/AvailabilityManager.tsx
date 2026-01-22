@@ -35,7 +35,6 @@ export const AvailabilityManager = () => {
     useState<Availability | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [showDeleteAll, setShowDeleteAll] = useState(false);
-  const [activeTab, setActiveTab] = useState("schedule");
 
   const { data: availabilities, isLoading, error, refetch } = useAvailabilities();
   const { data: schedule, isLoading: scheduleLoading } = useWeeklySchedule();
@@ -79,9 +78,9 @@ export const AvailabilityManager = () => {
         <AlertCircle className="h-4 w-4" />
         <AlertDescription className="flex items-center justify-between">
           <span>Failed to load availability data. {error.message}</span>
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => refetch()}
             className="ml-4"
           >
@@ -116,7 +115,7 @@ export const AvailabilityManager = () => {
         </div>
       </div>
 
-      <Tabs defaultValue="schedule" className="w-full" onValueChange={setActiveTab}>
+      <Tabs defaultValue="schedule" className="w-full">
         <div className="border-2 border-black dark:border-white rounded-lg p-2 bg-muted/30 max-w-1/2">
           <TabsList className="grid w-full grid-cols-2 h-auto p-1 bg-transparent gap-2">
             <TabsTrigger

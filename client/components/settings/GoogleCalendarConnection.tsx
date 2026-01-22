@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -93,7 +93,7 @@ export function GoogleCalendarConnection() {
     try {
       setIsSyncing(true);
 
-      const googleService = await import('@/service');
+
 
       // Trigger manual sync
       const response = await fetch('/api/google/events/sync/pull', {

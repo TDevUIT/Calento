@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Plus, Sparkles, Calendar, Users } from 'lucide-react';
 import { SidebarHeader } from './SidebarHeader';
@@ -22,10 +22,10 @@ interface CalendarSidebarProps {
   onVisibleTeamIdsChange?: (ids: Set<string>) => void;
 }
 
-export function CalendarSidebar({ 
- 
-  onCreateEvent, 
-  onClose, 
+export function CalendarSidebar({
+
+  onCreateEvent,
+  onClose,
   visibleCalendarIds,
   onVisibleCalendarIdsChange,
   visibleTeamIds,
@@ -68,8 +68,8 @@ export function CalendarSidebar({
       <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400">
         {activeTab === 'calendar' ? (
           <div className="p-4 space-y-3">
-            <Button 
-              onClick={onCreateEvent} 
+            <Button
+              onClick={onCreateEvent}
               className="w-full gap-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-md hover:shadow-lg transition-all duration-200"
             >
               <Plus className="h-4 w-4" />
@@ -77,8 +77,8 @@ export function CalendarSidebar({
               <Sparkles className="h-3.5 w-3.5 ml-auto" />
             </Button>
 
-            <Button 
-              onClick={() => setShowCreateCalendarDialog(true)} 
+            <Button
+              onClick={() => setShowCreateCalendarDialog(true)}
               variant="outline"
               className="w-full gap-2 border-2 border-dashed border-gray-300 hover:border-blue-500 hover:bg-blue-50 transition-all duration-200"
             >
@@ -87,7 +87,7 @@ export function CalendarSidebar({
               <Plus className="h-3.5 w-3.5 ml-auto" />
             </Button>
 
-            <CalendarListWithAPI 
+            <CalendarListWithAPI
               onCreateCalendar={() => setShowCreateCalendarDialog(true)}
               visibleCalendarIds={visibleCalendarIds}
               onVisibleCalendarIdsChange={onVisibleCalendarIdsChange}
@@ -136,7 +136,7 @@ export function CalendarSidebar({
         )}
       </div>
 
-      <CreateCalendarDialog 
+      <CreateCalendarDialog
         open={showCreateCalendarDialog}
         onOpenChange={setShowCreateCalendarDialog}
       />

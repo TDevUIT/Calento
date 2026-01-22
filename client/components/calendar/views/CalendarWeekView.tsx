@@ -1,6 +1,6 @@
 'use client';
 
-import { addDays, format, isToday, setHours, startOfWeek } from 'date-fns';
+import { addDays, format, isToday, startOfWeek } from 'date-fns';
 import { useMemo } from 'react';
 
 import { cn } from '@/lib/utils';

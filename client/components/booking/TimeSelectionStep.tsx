@@ -170,10 +170,10 @@ export const TimeSelectionStep = ({
                         key={d.toISOString()}
                         onClick={() => onDateSelect(format(d, 'yyyy-MM-dd'))}
                         className={`h-9 rounded-md text-sm transition ${active
-                            ? 'bg-blue-600 text-white'
-                            : isCurrentMonth
-                              ? 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100'
-                              : 'text-gray-400 dark:text-gray-600'
+                          ? 'bg-blue-600 text-white'
+                          : isCurrentMonth
+                            ? 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100'
+                            : 'text-gray-400 dark:text-gray-600'
                           }`}
                       >
                         {format(d, 'd')}
@@ -213,10 +213,10 @@ export const TimeSelectionStep = ({
                         onClick={() => onSlotSelect(slot.start)}
                         disabled={!slot.available}
                         className={`w-full flex items-center justify-between px-4 py-2.5 rounded-lg border-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed group ${selectedSlot === slot.start
-                            ? 'bg-blue-600 text-white border-blue-600 shadow-md'
-                            : index < 3
-                              ? 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/30 hover:border-green-300 dark:hover:border-green-700 hover:shadow-sm'
-                              : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm'
+                          ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                          : index < 3
+                            ? 'border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/30 hover:border-green-300 dark:hover:border-green-700 hover:shadow-sm'
+                            : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm'
                           }`}
                       >
                         <span
@@ -261,9 +261,8 @@ export const TimeSelectionStep = ({
                 </div>
               ) : userEvents.length > 0 ? (
                 <div className="relative">
-                  {userEvents.map((event, index) => {
+                  {userEvents.map((event) => {
                     const startTime = typeof event.start_time === 'string' ? parseISO(event.start_time) : event.start_time;
-                    const hour = startTime.getHours();
                     const colorScheme = getEventColorScheme(event.color);
 
                     return (
