@@ -84,11 +84,9 @@ export default function CalendarPane() {
   const taskQueryParams = useMemo(
     () => ({
       page: 1,
-      limit: 1000,
-      due_after: startDate,
-      due_before: endDate,
+      limit: 100,
     }),
-    [startDate, endDate]
+    []
   );
 
   const regularEventsQuery = useEvents(queryParams);
@@ -132,10 +130,21 @@ export default function CalendarPane() {
       type: 'event' as const,
     }));
 
+    const rangeStart = new Date(startDate);
+    const rangeEnd = new Date(endDate);
+
     const taskItems = tasks
-      .filter((task: Task) => task.due_date && !task.is_deleted)
+      .filter((task: Task) => {
+        if (task.is_deleted) return false;
+
+        const taskDate = task.due_date || task.created_at;
+        if (!taskDate) return false;
+
+        const date = new Date(taskDate);
+        return date >= rangeStart && date <= rangeEnd;
+      })
       .map((task: Task) => {
-        const dueDate = new Date(task.due_date!);
+        const dueDate = new Date(task.due_date || task.created_at);
         const priorityColors = {
           low: COLORS.PRIORITY_LOW,
           medium: COLORS.PRIORITY_MEDIUM,
@@ -157,7 +166,7 @@ export default function CalendarPane() {
       });
 
     return [...eventItems, ...taskItems];
-  }, [apiEvents, tasks]);
+  }, [apiEvents, tasks, startDate, endDate]);
 
   const filteredEvents = calendarEvents.filter((event) => {
     if (event.type === 'task') return true;

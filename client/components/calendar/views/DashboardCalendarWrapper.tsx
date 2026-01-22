@@ -133,6 +133,12 @@ export function DashboardCalendarWrapper({
   };
 
   const handleEditEvent = (event: CalendarEvent) => {
+    if (event.type === 'task' && event.taskData) {
+      setSelectedTask(event.taskData);
+      setShowTaskDialog(true);
+      return;
+    }
+
     setSelectedEventId(event.id);
     setShowEditDialog(true);
   };
