@@ -51,7 +51,6 @@ interface PendingActionType {
 }
 
 export function ChatBox({
-  onClose,
   conversationId: externalConversationId,
   onConversationCreated,
   hideHeader = false,
@@ -59,8 +58,6 @@ export function ChatBox({
 }: ChatBoxProps) {
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [showHistory, setShowHistory] = useState(false);
-  const [minimized, setMinimized] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -68,10 +65,6 @@ export function ChatBox({
   const displayConversationId = externalConversationId || activeConversationId;
 
   const { data: conversationData, isLoading: isLoadingConversation } = useConversation(displayConversationId);
-  const { data: conversationsData } = useConversations();
-  const deleteConversation = useDeleteConversation();
-
-  const conversations = conversationsData?.data || [];
   const [pendingAction, setPendingAction] = useState<PendingActionType | null>(null);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -344,9 +337,8 @@ export function ChatBox({
         </div>
       )}
 
-      {!minimized && (
-        <div className="flex flex-1 overflow-hidden">
-          {/* {showHistory && (
+      <div className="flex flex-1 overflow-hidden">
+        {/* {showHistory && (
           <div className="w-full flex-shrink-0 border-r bg-gray-50">
             <ConversationList
               conversations={conversations}
@@ -358,199 +350,199 @@ export function ChatBox({
           </div>
         )} */}
 
-          <div className="flex flex-col flex-1 overflow-hidden">
-            <div
-              className={`flex-1 px-4 py-4 space-y-5 ${messages.length === 0 && !isLoading ? 'overflow-hidden' : 'overflow-y-auto scrollbar-thin'
-                }`}
-            >
-              {isLoading ? (
-                <div className="space-y-4">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="animate-pulse space-y-3">
-                      <div className="flex justify-end">
-                        <div className="bg-muted rounded-xl h-12 w-3/4"></div>
-                      </div>
-                      <div className="flex justify-start">
-                        <div className="space-y-2 w-4/5">
-                          <div className="bg-muted rounded-xl h-16 w-full"></div>
-                          <div className="bg-muted rounded-xl h-8 w-3/4"></div>
-                        </div>
+        <div className="flex flex-col flex-1 overflow-hidden">
+          <div
+            className={`flex-1 px-4 py-4 space-y-5 ${messages.length === 0 && !isLoading ? 'overflow-hidden' : 'overflow-y-auto scrollbar-thin'
+              }`}
+          >
+            {isLoading ? (
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="animate-pulse space-y-3">
+                    <div className="flex justify-end">
+                      <div className="bg-muted rounded-xl h-12 w-3/4"></div>
+                    </div>
+                    <div className="flex justify-start">
+                      <div className="space-y-2 w-4/5">
+                        <div className="bg-muted rounded-xl h-16 w-full"></div>
+                        <div className="bg-muted rounded-xl h-8 w-3/4"></div>
                       </div>
                     </div>
-                  ))}
-                </div>
-              ) : messages.length === 0 ? (
-                <EmptyState onSuggestionClick={(text) => setInput(text)} />
-              ) : (
-                messages.map((message, index) => (
-                  <div key={index} className="animate-in fade-in duration-200">
-                    {message.role === 'user' ? (
-                      <div className="flex justify-end">
-                        <div className="bg-foreground text-background rounded-2xl px-4 py-2.5 max-w-[85%]">
-                          <p className="text-[15px] leading-relaxed break-words whitespace-pre-wrap">
-                            {message.content}
-                          </p>
-                        </div>
+                  </div>
+                ))}
+              </div>
+            ) : messages.length === 0 ? (
+              <EmptyState onSuggestionClick={(text) => setInput(text)} />
+            ) : (
+              messages.map((message, index) => (
+                <div key={index} className="animate-in fade-in duration-200">
+                  {message.role === 'user' ? (
+                    <div className="flex justify-end">
+                      <div className="bg-foreground text-background rounded-2xl px-4 py-2.5 max-w-[85%]">
+                        <p className="text-[15px] leading-relaxed break-words whitespace-pre-wrap">
+                          {message.content}
+                        </p>
                       </div>
-                    ) : (
-                      <div className="space-y-4">
-                        {message.content && (
-                          <div className="flex items-start gap-3 max-w-[85%]">
-                            <div className="flex-1 min-w-0 bg-muted/30 rounded-2xl px-4 py-3 border border-border">
-                              <MessageContent content={message.content} />
-                              {message.isStreaming && (
-                                <span className="inline-block w-1.5 h-4 bg-foreground/60 ml-1 animate-pulse" />
-                              )}
-                            </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {message.content && (
+                        <div className="flex items-start gap-3 max-w-[85%]">
+                          <div className="flex-1 min-w-0 bg-muted/30 rounded-2xl px-4 py-3 border border-border">
+                            <MessageContent content={message.content} />
+                            {message.isStreaming && (
+                              <span className="inline-block w-1.5 h-4 bg-foreground/60 ml-1 animate-pulse" />
+                            )}
                           </div>
-                        )}
+                        </div>
+                      )}
 
-                        {message.actions && message.actions.length > 0 && (
-                          <div className="space-y-2 max-w-full">
-                            {message.actions.map((action, idx) => (
-                              <div key={idx}>
-                                {action.type === 'checkAvailability' && action.result?.free_slots && (
-                                  <TimeSlotsList
-                                    slots={action.result.free_slots}
-                                    onBook={(slot) => {
-                                      toast.success(`Slot booked: ${new Date(slot.start).toLocaleTimeString()} - ${new Date(slot.end).toLocaleTimeString()}`);
-                                    }}
-                                  />
-                                )}
+                      {message.actions && message.actions.length > 0 && (
+                        <div className="space-y-2 max-w-full">
+                          {message.actions.map((action, idx) => (
+                            <div key={idx}>
+                              {action.type === 'checkAvailability' && action.result?.free_slots && (
+                                <TimeSlotsList
+                                  slots={action.result.free_slots}
+                                  onBook={(slot) => {
+                                    toast.success(`Slot booked: ${new Date(slot.start).toLocaleTimeString()} - ${new Date(slot.end).toLocaleTimeString()}`);
+                                  }}
+                                />
+                              )}
 
-                                {action.type === 'searchEvents' && action.result?.events && (
-                                  <EventsList
-                                    events={action.result.events}
-                                    total={action.result.total}
-                                    dateRange={action.result.date_range}
-                                    message={action.result.message}
-                                  />
-                                )}
+                              {action.type === 'searchEvents' && action.result?.events && (
+                                <EventsList
+                                  events={action.result.events}
+                                  total={action.result.total}
+                                  dateRange={action.result.date_range}
+                                  message={action.result.message}
+                                />
+                              )}
 
-                                {action.type === 'createEvent' && action.result && (
-                                  <div className="bg-muted/30 border border-border rounded-2xl p-4 space-y-3">
+                              {action.type === 'createEvent' && action.result && (
+                                <div className="bg-muted/30 border border-border rounded-2xl p-4 space-y-3">
+                                  <div className="flex items-center gap-2">
+                                    <CheckCircle2 className="h-4 w-4 text-foreground" />
+                                    <h4 className="text-sm font-medium text-foreground">Event Created</h4>
+                                  </div>
+                                  <div className="flex items-start gap-3">
+                                    <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
+                                    <div className="flex-1">
+                                      <h5 className="text-[15px] font-medium text-foreground mb-1">
+                                        {action.result.title}
+                                      </h5>
+                                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                        <Clock className="h-4 w-4" />
+                                        <span>
+                                          {new Date(action.result.start_time).toLocaleString('en-US', {
+                                            weekday: 'short',
+                                            month: 'short',
+                                            day: 'numeric',
+                                            hour: 'numeric',
+                                            minute: '2-digit'
+                                          })}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+
+                              {action.type === 'createTask' && action.result && (
+                                <div className="bg-muted/30 border border-border rounded-2xl overflow-hidden">
+                                  <div className="px-4 py-3 border-b border-border">
                                     <div className="flex items-center gap-2">
                                       <CheckCircle2 className="h-4 w-4 text-foreground" />
-                                      <h4 className="text-sm font-medium text-foreground">Event Created</h4>
+                                      <h4 className="text-sm font-medium text-foreground">Task Created</h4>
                                     </div>
-                                    <div className="flex items-start gap-3">
-                                      <Calendar className="h-5 w-5 text-muted-foreground mt-0.5" />
-                                      <div className="flex-1">
-                                        <h5 className="text-[15px] font-medium text-foreground mb-1">
-                                          {action.result.title}
-                                        </h5>
-                                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                          <Clock className="h-4 w-4" />
-                                          <span>
-                                            {new Date(action.result.start_time).toLocaleString('en-US', {
-                                              weekday: 'short',
-                                              month: 'short',
-                                              day: 'numeric',
-                                              hour: 'numeric',
-                                              minute: '2-digit'
-                                            })}
-                                          </span>
+                                  </div>
+                                  <div className="p-4 space-y-3">
+                                    <div>
+                                      <h5 className="text-[15px] font-medium text-foreground mb-1">{action.result.title}</h5>
+                                      {action.result.description && (
+                                        <p className="text-sm text-muted-foreground">{action.result.description}</p>
+                                      )}
+                                    </div>
+                                    <div className="flex items-center gap-6 pt-3 border-t border-border">
+                                      {action.result.due_date && (
+                                        <div className="flex items-center gap-2">
+                                          <Calendar className="h-4 w-4 text-muted-foreground" />
+                                          <div>
+                                            <p className="text-xs text-muted-foreground">Due</p>
+                                            <p className="text-sm font-medium text-foreground">
+                                              {new Date(action.result.due_date).toLocaleDateString('en-US', {
+                                                month: 'short',
+                                                day: 'numeric',
+                                                year: 'numeric'
+                                              })}
+                                            </p>
+                                          </div>
                                         </div>
-                                      </div>
+                                      )}
+                                      {action.result.estimated_duration && (
+                                        <div className="flex items-center gap-2">
+                                          <Clock className="h-4 w-4 text-muted-foreground" />
+                                          <div>
+                                            <p className="text-xs text-muted-foreground">Duration</p>
+                                            <p className="text-sm font-medium text-foreground">{action.result.estimated_duration} min</p>
+                                          </div>
+                                        </div>
+                                      )}
                                     </div>
                                   </div>
-                                )}
-
-                                {action.type === 'createTask' && action.result && (
-                                  <div className="bg-muted/30 border border-border rounded-2xl overflow-hidden">
-                                    <div className="px-4 py-3 border-b border-border">
-                                      <div className="flex items-center gap-2">
-                                        <CheckCircle2 className="h-4 w-4 text-foreground" />
-                                        <h4 className="text-sm font-medium text-foreground">Task Created</h4>
-                                      </div>
-                                    </div>
-                                    <div className="p-4 space-y-3">
-                                      <div>
-                                        <h5 className="text-[15px] font-medium text-foreground mb-1">{action.result.title}</h5>
-                                        {action.result.description && (
-                                          <p className="text-sm text-muted-foreground">{action.result.description}</p>
-                                        )}
-                                      </div>
-                                      <div className="flex items-center gap-6 pt-3 border-t border-border">
-                                        {action.result.due_date && (
-                                          <div className="flex items-center gap-2">
-                                            <Calendar className="h-4 w-4 text-muted-foreground" />
-                                            <div>
-                                              <p className="text-xs text-muted-foreground">Due</p>
-                                              <p className="text-sm font-medium text-foreground">
-                                                {new Date(action.result.due_date).toLocaleDateString('en-US', {
-                                                  month: 'short',
-                                                  day: 'numeric',
-                                                  year: 'numeric'
-                                                })}
-                                              </p>
-                                            </div>
-                                          </div>
-                                        )}
-                                        {action.result.estimated_duration && (
-                                          <div className="flex items-center gap-2">
-                                            <Clock className="h-4 w-4 text-muted-foreground" />
-                                            <div>
-                                              <p className="text-xs text-muted-foreground">Duration</p>
-                                              <p className="text-sm font-medium text-foreground">{action.result.estimated_duration} min</p>
-                                            </div>
-                                          </div>
-                                        )}
-                                      </div>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ))
-              )}
-
-              {isProcessing && messages.length > 0 && messages[messages.length - 1].role === 'assistant' && !messages[messages.length - 1].content && (
-                <div className="flex items-start gap-3 max-w-[85%] animate-in fade-in duration-200">
-                  <div className="flex-1 bg-muted/30 rounded-2xl px-4 py-3 border border-border">
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="h-4 w-4 text-foreground animate-spin" />
-                      <p className="text-sm text-muted-foreground">{getReadableStatus(processingStatus)}</p>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
+                  )}
+                </div>
+              ))
+            )}
+
+            {isProcessing && messages.length > 0 && messages[messages.length - 1].role === 'assistant' && !messages[messages.length - 1].content && (
+              <div className="flex items-start gap-3 max-w-[85%] animate-in fade-in duration-200">
+                <div className="flex-1 bg-muted/30 rounded-2xl px-4 py-3 border border-border">
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 text-foreground animate-spin" />
+                    <p className="text-sm text-muted-foreground">{getReadableStatus(processingStatus)}</p>
                   </div>
                 </div>
-              )}
+              </div>
+            )}
 
-              <div ref={messagesEndRef} />
-            </div>
+            <div ref={messagesEndRef} />
+          </div>
 
-            <div className="bg-background border-t border-border flex-shrink-0">
-              <div className="flex items-center h-14">
-                <Button
-                  type="button"
-                  size="icon"
-                  variant="ghost"
-                  className="h-14 w-12 rounded-none border-r border-border"
-                  onClick={() => {
-                    handleNewConversation();
-                    requestAnimationFrame(() => inputRef.current?.focus());
-                  }}
-                  aria-label="Actions"
-                >
-                  <Plus className="h-4 w-4 text-muted-foreground" />
-                </Button>
+          <div className="bg-background border-t border-border flex-shrink-0">
+            <div className="flex items-center h-14">
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                className="h-14 w-12 rounded-none border-r border-border"
+                onClick={() => {
+                  handleNewConversation();
+                  requestAnimationFrame(() => inputRef.current?.focus());
+                }}
+                aria-label="Actions"
+              >
+                <Plus className="h-4 w-4 text-muted-foreground" />
+              </Button>
 
-                <Input
-                  ref={inputRef}
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && !(chatMutation.isPending || isProcessing) && handleSend()}
-                  placeholder="Ask about your schedule..."
-                  className="flex-1 h-14 rounded-none border-0 px-3 focus-visible:ring-0 focus-visible:ring-offset-0"
-                  disabled={chatMutation.isPending || isProcessing}
-                />
+              <Input
+                ref={inputRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && !(chatMutation.isPending || isProcessing) && handleSend()}
+                placeholder="Ask about your schedule..."
+                className="flex-1 h-14 rounded-none border-0 px-3 focus-visible:ring-0 focus-visible:ring-offset-0"
+                disabled={chatMutation.isPending || isProcessing}
+              />
 
-                {/* <Button
+              {/* <Button
                   type="button"
                   size="icon"
                   variant="ghost"
@@ -561,25 +553,25 @@ export function ChatBox({
                   <Mic className="h-4 w-4 text-gray-700" />
                 </Button> */}
 
-                <Button
-                  type="button"
-                  size="icon"
-                  className="h-14 w-12 rounded-none border-l border-border bg-[#1c5cf4] hover:bg-[#1341d0]"
-                  onClick={handleSend}
-                  disabled={!input.trim() || chatMutation.isPending || isProcessing}
-                  aria-label="Send"
-                >
-                  {(chatMutation.isPending || isProcessing) ? (
-                    <Loader2 className="h-4 w-4 text-white animate-spin" />
-                  ) : (
-                    <ArrowUp className="h-4 w-4 text-white" />
-                  )}
-                </Button>
-              </div>
+              <Button
+                type="button"
+                size="icon"
+                className="h-14 w-12 rounded-none border-l border-border bg-[#1c5cf4] hover:bg-[#1341d0]"
+                onClick={handleSend}
+                disabled={!input.trim() || chatMutation.isPending || isProcessing}
+                aria-label="Send"
+              >
+                {(chatMutation.isPending || isProcessing) ? (
+                  <Loader2 className="h-4 w-4 text-white animate-spin" />
+                ) : (
+                  <ArrowUp className="h-4 w-4 text-white" />
+                )}
+              </Button>
             </div>
           </div>
         </div>
-      )}
+      </div>
+
     </div>
   );
 }
