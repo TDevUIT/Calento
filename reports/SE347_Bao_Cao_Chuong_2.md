@@ -1,97 +1,99 @@
-# **Chương II. CÔNG NGHỆ SỬ DỤNG** {#chương-ii.-công-nghệ-sử-dụng}
+# <a id="chương-2-cơ-sở-lý-thuyết"></a> **Chương 2: Cơ sở lý thuyết**
 
-## **2.1. Kiến trúc tổng quan (Tech Stack)**
+## <a id="21-tổng-quan-bài-toán-calendar-assistant"></a> **2.1 Tổng quan bài toán Calendar Assistant**
 
-Hệ thống Calento được xây dựng trên nền tảng công nghệ hiện đại, tuân theo mô hình Micro-modular Monolith. Kiến trúc này cho phép chia tách rõ ràng giữa các tầng nghiệp vụ (Domain Layer) và tầng ứng dụng (Application Layer), giúp giữ được sự thống nhất trong triển khai (Monolithic Deployment) nhưng vẫn đảm bảo tính linh hoạt và dễ bảo trì của Microservices.
+Calendar Assistant là bài toán xây dựng hệ thống hỗ trợ người dùng quản lý lịch (calendar) và sự kiện (events), đồng thời tự động hoá một phần thao tác thông qua các gợi ý và tương tác bằng ngôn ngữ tự nhiên. Với Calento, bài toán được mở rộng thêm các nhu cầu phổ biến:
 
-| Thành phần | Công nghệ chính |
-| ----- | ----- |
-| Frontend | Next.js 15, React 19, Tailwind CSS, TanStack Query, Zustand, Radix UI, Framer Motion, Recharts, Zod |
-| Backend | NestJS 11, TypeScript, Swagger (OpenAPI), Nodemailer, Passport, BullMQ |
-| Database | PostgreSQL 16 (với pgvector extension), Redis 7 |
-| AI & ML | Google Gemini 2.0 Flash, LangChain, Google Embeddings (text-embedding-004) |
-| Infrastructure | Docker, Google Cloud Platform, Nginx |
+- Quản lý lịch/sự kiện cá nhân, nhắc lịch và theo dõi thay đổi.
+- Đặt lịch hẹn công khai (booking) dựa trên khung giờ rảnh (availability).
+- Đồng bộ với hệ sinh thái Google Calendar để thống nhất lịch trình.
+- Tích hợp AI Assistant để hiểu yêu cầu, hỗ trợ tìm lịch trống, tạo sự kiện nhanh và truy xuất ngữ cảnh hội thoại.
 
-## **2.2. Công nghệ Backend**
+## <a id="22-typescript"></a> **2.2 TypeScript**
 
-### **2.2.1. NestJS Framework**
+TypeScript là ngôn ngữ lập trình có kiểu tĩnh (static typing) mở rộng từ JavaScript. Trong dự án web theo mô hình client-server, TypeScript giúp:
 
-NestJS là framework Node.js được chọn làm nền tảng cho Backend vì kiến trúc module hóa rõ ràng, hỗ trợ TypeScript toàn diện và tuân thủ các nguyên tắc SOLID.
+- Giảm lỗi do sai kiểu dữ liệu ở thời điểm runtime.
+- Tăng khả năng bảo trì khi hệ thống có nhiều module và API.
+- Dễ tích hợp với hệ sinh thái Node.js và các framework như NestJS/Next.js.
 
-NestJS là framework Node.js được chọn làm nền tảng cho Backend. Trong dự án Calento, NestJS đóng vai trò là xương sống xử lý toàn bộ logic nghiệp vụ và API. Hệ thống tận dụng triệt để kiến trúc Modular của NestJS để phân tách các tính năng thành các module chuyên biệt: `AuthModule` xử lý xác thực JWT, `EventModule` quản lý lịch và sự kiện, `AIModule` điều phối tương tác với Gemini. Các Decorators và Guards được sử dụng rộng rãi để bảo vệ endpoints và validate dữ liệu đầu vào, đảm bảo tính an toàn và chặt chẽ của hệ thống.
+## <a id="23-nodejs"></a> **2.3 Node.js**
 
+Node.js là môi trường chạy JavaScript/TypeScript phía server dựa trên V8. Với các ứng dụng backend xử lý nhiều tác vụ I/O (database, gọi API, gửi email, đồng bộ lịch), Node.js phù hợp nhờ mô hình event-driven và non-blocking I/O.
 
-  ##### Hình 1: NestJS  {#hình-1:-nestjs}
+## <a id="24-nestjs"></a> **2.4 NestJS**
 
-### **2.2.2. PostgreSQL & pgvector**
+NestJS (phiên bản 11) là framework backend dựa trên Node.js, được thiết kế theo hướng module hoá và hỗ trợ TypeScript tốt. Trong Calento, NestJS giúp tổ chức hệ thống theo các module chức năng (ví dụ xác thực, lịch/sự kiện, booking, tích hợp AI), kết hợp các cơ chế phổ biến như middleware/guards/pipes để:
 
-Hệ thống sử dụng PostgreSQL làm cơ sở dữ liệu chính (Relational Database) kết hợp với extension pgvector để hỗ trợ lưu trữ và tìm kiếm vector.
+- Bảo vệ API (authentication/authorization).
+- Kiểm tra và chuẩn hoá dữ liệu đầu vào.
+- Dễ mở rộng và tách biệt trách nhiệm giữa các phần.
 
-PostgreSQL là trái tim lưu trữ dữ liệu của Calento. Ngoài việc lưu trữ các bảng quan hệ (relational tables) như `users` (người dùng), `events` (sự kiện), `bookings` (lịch hẹn), hệ thống còn khai thác sức mạnh của extension `pgvector` để phục vụ tính năng AI RAG. Cụ thể, bảng `user_context_summary` lưu trữ các vector embeddings 768 chiều đại diện cho ngữ cảnh lịch sử của người dùng, cho phép thực hiện các truy vấn tìm kiếm ngữ nghĩa (semantic search) nhanh chóng và chính xác.
+##### Hình 1: NestJS
 
-  ![][image2]
+## <a id="25-postgresql--pgvector"></a> **2.5 PostgreSQL & pgvector**
 
-  ##### Hình 2: PostgreSQl {#hình-2:-postgresql}
+PostgreSQL là hệ quản trị cơ sở dữ liệu quan hệ (RDBMS) dùng để lưu trữ dữ liệu cốt lõi như người dùng, sự kiện, lịch hẹn, cấu hình availability và các thông tin liên quan. Extension `pgvector` bổ sung khả năng lưu trữ vector embedding và thực hiện truy vấn tương đồng (similarity search), phục vụ các bài toán truy xuất ngữ cảnh cho AI (RAG).
 
-### **2.2.3. Redis & BullMQ**
+![][image2]
 
-Redis và BullMQ đóng vai trò quan trọng trong việc xử lý các tác vụ nền (background processing) và tối ưu hiệu năng. Redis được dùng để cache các truy vấn thường xuyên như thông tin User Profile, giúp giảm tải cho Database. BullMQ, chạy trên nền Redis, quản lý các hàng đợi công việc (queues) quan trọng: `mail-queue` để gửi email thông báo bất đồng bộ, và `sync-calendar-queue` để thực hiện đồng bộ lịch Google định kỳ 5 phút/lần cho từng user mà không làm chậm trải nghiệm sử dụng trực tiếp.
+##### Hình 2: PostgreSQL
 
-  ![][image3]
+## <a id="26-redis--bullmq"></a> **2.6 Redis & BullMQ**
 
-  ![][image4]
+Redis là kho dữ liệu in-memory thường dùng cho cache và lưu trạng thái tạm thời. BullMQ là thư viện hàng đợi (queue) chạy trên nền Redis, phù hợp cho các tác vụ nền như gửi email thông báo, xử lý đồng bộ, hoặc các job định kỳ. Việc tách các tác vụ này khỏi luồng request chính giúp hệ thống phản hồi nhanh hơn và ổn định hơn.
 
-  ##### Hình 3: Redis & BullMQ {#hình-3:-redis-&-bullmq}
+![][image3]
 
-## **2.3. Công nghệ Frontend**
+![][image4]
 
-### **2.3.1. Next.js 15 & React 19**
+##### Hình 3: Redis & BullMQ
 
-Sử dụng Next.js phiên bản mới nhất với App Router để tận dụng các tính năng:
+## <a id="27-nextjs--react"></a> **2.7 Next.js & React**
 
-Về phía Client, Next.js 15 với App Router mang lại khả năng render linh hoạt. Calento sử dụng React Server Components (RSC) để fetch dữ liệu lịch ngay từ server, giảm thiểu layout shift và tăng tốc độ tải trang ban đầu (FCP). Server Actions được ứng dụng để xử lý các form submission như tạo sự kiện (`createEvent`) hay cập nhật profile, loại bỏ sự cần thiết của các API routes trung gian thủ công và giữ type-safety xuyên suốt từ server xuống client.
+**Next.js 15** là framework web dựa trên React, sử dụng App Router và Turbopack để tối ưu hiệu suất phát triển và vận hành. **React 19** mang lại các cải tiến về tính năng xử lý bất đồng bộ và tối ưu UI.
 
-  ![][image5]
+Với Calento, Next.js phù hợp cho các trang:
+- Trang public (booking pages) cần SEO tốt và tải nhanh.
+- Trang dashboard quản lý lịch/sự kiện với khả năng render linh hoạt (Server Components / Client Components).
+- Trải nghiệm chat AI theo thời gian thực.
 
-  ##### Hình 4: Next.js & React  {#hình-4:-next.js-&-react}
+![][image5]
 
-### **2.3.2. Tailwind CSS & UI Libraries**
+##### Hình 4: Next.js & React
 
-Giao diện được xây dựng bằng Tailwind CSS, framework utility-first giúp phát triển nhanh chóng, dễ tùy biến và tối ưu dung lượng. Để đảm bảo tính truy cập (accessibility) và khả năng tùy chỉnh cao, hệ thống tích hợp bộ component headless Radix UI / Shadcn UI.
+## <a id="28-tailwind-css--ui-libraries"></a> **2.8 Tailwind CSS & UI Libraries**
 
-  ![][image6]
+**Tailwind CSS v4** là framework utility-first giúp xây dựng giao diện nhanh và nhất quán theo hệ thống design tokens, với hiệu năng build được cải thiện đáng kể.
 
-  ##### Hình 5:Tailwind CSS {#hình-5:tailwind-css}
+Dự án sử dụng kết hợp với các thư viện UI headless như **Radix UI** và bộ component **shadcn/ui** để đảm bảo:
+- Tính truy cập (accessibility) tốt.
+- Dễ dàng tuỳ biến giao diện theo thiết kế riêng.
+- Tốc độ phát triển nhanh nhờ các component có sẵn chất lượng cao.
 
-### **2.3.3. AI Chat Integration**
+![][image6]
 
-Trong phần tích hợp AI Chat, hệ thống phân tách rõ ràng giữa việc truyền tải dữ liệu và hiển thị. Server-Sent Events (SSE) được sử dụng để stream từng token phản hồi từ AI về client theo thời gian thực, giúp giảm độ trễ nhận thức (perceived latency). Tại phía client, thư viện `react-markdown` đảm nhận việc render luồng text markdown này thành HTML đẹp mắt với các styles dduocj tùy chỉnh, cho phép hiển thị cả danh sách, code blocks, và đặc biệt là các UI components tương tác (như thẻ xác nhận lịch) ngay trong khung chat.
+##### Hình 5: Tailwind CSS
 
-## **2.4. Công nghệ AI & LLM**
+## <a id="29-aillm-gemini-langchain--embeddings"></a> **2.9 AI/LLM: Gemini, LangChain & Embeddings**
 
-### **2.4.1. Gemini** 
+Hệ thống tích hợp LLM (Google Gemini) để xử lý hội thoại và hiểu ý định người dùng. **LangChain** đóng vai trò lớp tích hợp giúp tổ chức prompt, điều phối luồng hội thoại và kết nối LLM với dữ liệu ứng dụng.
 
-Calento tích hợp mô hình ngôn ngữ lớn (LLM) Gemini Pro của Google để xử lý logic hội thoại và function calling.
+**Embeddings** được dùng để biểu diễn văn bản thành vector (kích thước 768 chiều) nhằm phục vụ tìm kiếm ngữ nghĩa. Các vector này được lưu trong `pgvector` để thực hiện truy vấn tương đồng, làm nền tảng cho cơ chế RAG (Retrieval-Augmented Generation) nhằm:
+- Bổ sung ngữ cảnh liên quan vào prompt.
+- Giảm thiếu thông tin khi người dùng hỏi ngắn/gãy gọn.
+- Tăng độ nhất quán câu trả lời dựa trên dữ liệu có sẵn.
 
-Calento tích hợp mô hình ngôn ngữ lớn (LLM) Gemini Pro của Google để xử lý logic hội thoại. Hệ thống có khả năng xử lý ngôn ngữ tự nhiên (NLP) để hiểu ý định người dùng từ các câu chat thông thường, ví dụ như "Đặt lịch họp team vào sáng thứ 2". Đồng thời, tính năng Function Calling cho phép AI tự động xác định và gọi các hàm nghiệp vụ như `createEvent` hay `findSlot` dựa trên yêu cầu cụ thể.
+![][image7]
 
-  ![][image7]
+##### Hình 6: Gemini
 
-  ##### Hình 6:Gemini {#hình-6:gemini}
+![][image8]
 
-### **2.4.2. LangChain & Embeddings**
+##### Hình 7: LangChain
 
-LangChain hoạt động như một framework kết nối LLM với dữ liệu ứng dụng và quản lý luồng hội thoại. Hệ thống sử dụng model `text-embedding-004` để chuyển đổi văn bản (ghi chú, ngữ cảnh) thành các vector 768 chiều. Các vector này được lưu trữ và sử dụng cho việc tìm kiếm tương đồng, nền tảng cốt lõi của tính năng RAG giúp AI nhớ lại thông tin cũ.
+## <a id="210-realtimestreaming-sse"></a> **2.10 Realtime/Streaming: SSE**
 
-  ![][image8]
+Server-Sent Events (SSE) là cơ chế streaming một chiều từ server về client qua HTTP. Với tính năng chat AI, SSE phù hợp để đẩy dữ liệu phản hồi theo từng phần (streaming) giúp người dùng nhận kết quả sớm hơn thay vì chờ toàn bộ phản hồi hoàn tất. 
 
-  ##### Hình 7: LangChain {#hình-7:-langchain}
-
-### **2.4.3. Kiến trúc RAG (Retrieval-Augmented Generation)**
-
-Hệ thống triển khai kỹ thuật **Advanced RAG** để tối ưu hóa khả năng truy xuất thông tin của AI, bao gồm 3 bước xử lý chuyên sâu:
-
-1.  **Query Expansion (Mở rộng truy vấn)**: Câu hỏi thô của người dùng thường ngắn gọn hoặc thiếu ngữ cảnh (ví dụ: "lịch họp mai"). Hệ thống sử dụng LLM để viết lại câu hỏi này (ví dụ: "danh sách sự kiện ngày 20/01/2026"), bổ sung các từ khóa liên quan để tăng độ chính xác khi tìm kiếm.
-2.  **Hybrid Search (Tìm kiếm lai)**: Kết hợp sức mạnh của **Vector Search** (`pgvector`) để tìm kiếm theo ngữ nghĩa và **Full-Text Search** để tìm kiếm từ khóa chính xác. Kết quả tìm kiếm được tính điểm tổng hợp theo công thức trọng số: `Score = 0.7 * VectorScore + 0.3 * TextScore`, đảm bảo cân bằng giữa hiểu ngữ cảnh và khớp từ khóa.
-3.  **Reranking (Sắp xếp lại)**: Danh sách các ngữ cảnh tiềm năng sau khi được truy xuất sẽ được đưa qua một mô hình AI nhẹ để chấm điểm mức độ liên quan (Relevance Scoring) một lần nữa. Chỉ Top 3 ngữ cảnh có điểm cao nhất mới được chọn để đưa vào prompt context gửi cho Chatbot, giúp giảm nhiễu (hallucination) và tăng độ chính xác của câu trả lời.
-
+Ở phía client, nội dung có thể được render theo định dạng markdown (ví dụ dùng `react-markdown`) để hiển thị rõ ràng danh sách, bảng, và đoạn mã, mang lại trải nghiệm tương tác mượt mà.
