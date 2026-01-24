@@ -8,20 +8,20 @@
 
 # **ĐỀ TÀI: Xây dựng Calendar Assistant Web**
 
-**Môn học:** Công nghệ Web và ứng dụng \- SE347.Q12
+**Môn học:** Công nghệ Web và ứng dụng - SE347.Q12
 
-**Giảng viên hướng dẫn:  Đặng Việt Dũng**
+**Giảng viên hướng dẫn: Đặng Việt Dũng**
 
-**Thực hiện bởi nhóm 2, bao gồm:** 
+**Thực hiện bởi nhóm 2, bao gồm:**
 
 1. Tạ Văn Thái			22523177		Trưởng nhóm  
 2. Bùi Quốc Lâm		22520733		Thành viên  
 3. Nguyễn Văn Quyền 		22521223		Thành viên  
 4. Nguyễn Công Thắng 	22521330		Thành viên
 
-**Thời gian thực hiện:** 10/2025 \- 1/2026
+**Thời gian thực hiện:** 10/2025 - 1/2026
 
-# **DANH MỤC HÌNH ẢNH** 
+# **DANH MỤC HÌNH ẢNH**
 
 [Hình 1: NestJS	8](#hình-1:-nestjs)
 
@@ -69,51 +69,80 @@
 
 [Hình 23: Google Search Console	23](#hình-23:-google-search-console)
 
-# **Chương I. TỔNG QUAN.** {#chương-i.-tổng-quan.}
+# <a id="chương-1-giới-thiệu-đề-tài"></a> **Chương 1: Giới thiệu đề tài**
 
-## **1.1 Lý do chọn đề tài.** {#1.1-lý-do-chọn-đề-tài.}
+## <a id="11-lý-do-chọn-đề-tài"></a> **1.1 Lý do chọn đề tài**
 
-Trong bối cảnh xã hội hiện đại, việc quản lý thời gian hiệu quả đã trở thành một kỹ năng thiết yếu đối với mọi người, đặc biệt là sinh viên, nhân viên văn phòng và các chuyên gia. Theo khảo sát của Microsoft (2022), một người dùng trung bình dành khoảng 11 giờ mỗi tuần để quản lý và sắp xếp lịch trình cá nhân. Con số này cho thấy nhu cầu cấp thiết về một giải pháp tối ưu hóa quy trình quản lý thời gian.
+Trong bối cảnh học tập và làm việc hiện đại, khối lượng công việc tăng nhanh và lịch trình ngày càng dày đặc khiến nhu cầu quản lý thời gian và sắp xếp lịch trở nên quan trọng. Dù các công cụ như Google Calendar, Outlook Calendar hay Apple Calendar đã phổ biến, người dùng vẫn thường gặp khó khăn khi:
 
-Hiện nay, thị trường đã có nhiều ứng dụng quản lý lịch như Google Calendar, Outlook Calendar, Apple Calendar. Tuy nhiên, các ứng dụng này vẫn tồn tại một số hạn chế:
+- Tạo sự kiện từ thông tin rời rạc (tin nhắn, email, ghi chú) vì phải nhập thủ công.
+- Tìm thời gian trống phù hợp để lên lịch họp/đặt lịch hẹn, đặc biệt khi có nhiều lịch hoặc nhiều người tham gia.
+- Tra cứu lại ngữ cảnh (mục đích cuộc hẹn, tài liệu liên quan) do thông tin nằm phân tán.
 
-| Khía cạnh | Hạn chế |
-| ----- | ----- |
-| Tính tự động hóa | Người dùng phải tự nhập thông tin sự kiện một cách thủ công, không có khả năng đề xuất thời gian họp phù hợp tự động. |
-| Trải nghiệm người dùng | Giao diện phức tạp với nhiều bước thao tác, không hỗ trợ tương tác bằng ngôn ngữ tự nhiên. |
-| Tích hợp AI | Chưa tận dụng được công nghệ Large Language Models (LLMs), thiếu khả năng hiểu ngữ cảnh và tìm kiếm thông minh (RAG). |
+Từ thực tế đó, nhóm xây dựng **Calento (Calendar Intelligence Assistant Web)** với định hướng là một hệ thống quản lý lịch trên nền tảng web kết hợp trợ lý AI, hỗ trợ người dùng thao tác bằng ngôn ngữ tự nhiên, tự động hóa các tác vụ lặp lại và cung cấp trải nghiệm đặt lịch hẹn công khai.
 
-Xuất phát từ những bất cập trên, nhóm quyết định xây dựng Calento (Calendar Intelligence Assistant) \- một ứng dụng web quản lý lịch thông minh. Calento không chỉ là một công cụ lịch thông thường mà còn tích hợp trợ lý ảo AI, khả năng xử lý ngôn ngữ tự nhiên và tìm kiếm ngữ cảnh thông minh để mang lại trải nghiệm đột phá.
+Đề tài đồng thời giúp nhóm vận dụng kiến thức đã học trong môn **Công nghệ Web và Ứng dụng (SE347)**, tiếp cận các kỹ thuật hiện đại như **LLM/Function Calling**, **RAG** và **Vector Similarity Search**.
 
-Đề tài này cũng là cơ hội để nhóm áp dụng các kiến thức đã học trong môn Công nghệ Web và Ứng dụng, đồng thời tìm hiểu các công nghệ mới như AI, Vector Database.
+## <a id="12-mục-tiêu-đề-tài"></a> **1.2 Mục tiêu đề tài**
 
-## **1.2. Mục tiêu**
+Mục tiêu của đề tài là xây dựng một ứng dụng web Calento đáp ứng:
 
-### **1.2.1. Mục tiêu chung**
+- Hỗ trợ người dùng **quản lý lịch và sự kiện** đầy đủ (tạo/xem/sửa/xoá), có các thuộc tính quan trọng (thời gian, mô tả, nhắc nhở, người tham dự).
+- Cung cấp **hệ thống đặt lịch hẹn công khai (Booking System)** để người khác có thể đặt lịch theo khung giờ rảnh của chủ tài khoản.
+- Tích hợp **đồng bộ với Google Calendar** để dữ liệu lịch được thống nhất.
+- Tích hợp **AI Assistant** để người dùng có thể tương tác bằng ngôn ngữ tự nhiên, hỗ trợ tìm lịch trống, tạo lịch nhanh, và truy xuất ngữ cảnh phục vụ hội thoại.
 
-Xây dựng thành công ứng dụng web Calento với đầy đủ các tính năng quản lý lịch, tích hợp trợ lý ảo AI để hỗ trợ người dùng sắp xếp công việc một cách thông minh và tự động.
+## <a id="13-phạm-vi-đề-tài"></a> **1.3 Phạm vi đề tài**
 
-### **1.2.2. Mục tiêu cụ thể**
+### <a id="131-phạm-vi-người-dùng-rolesactors"></a> **1.3.1 Phạm vi người dùng (Roles/Actors)**
 
-Về mặt nghiệp vụ, ứng dụng cần cung cấp đầy đủ các thao tác quản lý lịch cơ bản (CRUD events) và tích hợp đồng bộ dữ liệu hai chiều với Google Calendar. Một tính năng quan trọng là hệ thống đặt lịch hẹn (Booking System) chuyên nghiệp, cho phép người dùng tùy chỉnh thời gian rảnh. Bên cạnh đó, trợ lý ảo AI sẽ được phát triển với khả năng hiểu lệnh và thực hiện hành động (Function Calling) để hỗ trợ người dùng tối đa.
+- **Guest**: Người dùng chưa đăng nhập, có thể truy cập các trang công khai (ví dụ trang booking) và thực hiện đặt lịch nếu được phép.
+- **Registered User**: Người dùng đã đăng ký tài khoản, quản lý lịch/sự kiện cá nhân và cài đặt tích hợp.
+- **Team Member**: Thành viên thuộc một team, tham gia cộng tác theo phạm vi được phân quyền.
+- **Team Owner**: Chủ team, quản lý thành viên, cấu hình team và phân quyền.
+- **Admin/Content Manager**: Quản trị nội dung/hệ thống (nếu hệ thống có các trang quản trị/ CMS).
 
-Về mặt kỹ thuật, hệ thống được xây dựng theo kiến trúc Client-Server hiện đại để đảm bảo tính mở rộng và dễ bảo trì. Backend sử dụng NestJS kết hợp với Frontend Next.js nhằm tối ưu hóa hiệu suất và khả năng SEO. Cơ sở dữ liệu PostgreSQL được triển khai cùng extension pgvector để hỗ trợ tính năng RAG (Retrieval-Augmented Generation), đồng thời trải nghiệm người dùng được tối ưu hóa thông qua Real-time Streaming và phản hồi nhanh chóng.
+### <a id="132-phạm-vi-môi-trường"></a> **1.3.2 Phạm vi môi trường**
 
-## **1.3. Phạm vi thực hiện**
+- Ứng dụng tập trung trên **nền tảng Web** (desktop và mobile thông qua responsive).
+- Triển khai theo mô hình **client-server**, có thể chạy trong môi trường container hóa (Docker) và triển khai lên hạ tầng cloud.
+- Tích hợp các dịch vụ ngoài như **Google Calendar/Google Meet**, email/notification và dịch vụ AI (Gemini).
 
-### **1.3.1. Các tính năng được triển khai**
+### <a id="133-phạm-vi-chức-năng"></a> **1.3.3 Phạm vi chức năng**
 
-Hệ thống bao gồm tính năng Quản lý sự kiện (Event Management) cho phép tạo, xem, sửa, xóa sự kiện, hỗ trợ sự kiện lặp lại (Recurring events - RRULE), quản lý người tham dự và gửi lời mời. Tính năng AI Assistant & RAG tích hợp Chatbot sử dụng Google Gemini AI, hỗ trợ Function Calling để thực hiện hành động như tạo lịch hoặc tìm lịch trống. Điểm mới là hệ thống RAG giúp AI ghi nhớ và truy xuất ngữ cảnh người dùng thông qua Vector Search.
+Trong phạm vi đồ án, hệ thống tập trung vào các nhóm chức năng chính:
 
-Đối với Hệ thống đặt lịch (Booking System), người dùng có thể tạo các trang đặt lịch cá nhân (Booking Links) và tùy chỉnh khung giờ rảnh cũng như quy tắc đặt lịch. Khả năng Đồng bộ & Tích hợp đảm bảo đồng bộ 2 chiều với Google Calendar, đồng thời hệ thống sẽ gửi email thông báo và nhắc nhở tự động đến người dùng.
+- **Xác thực và quản lý người dùng**: đăng ký/đăng nhập, quản lý hồ sơ và cấu hình.
+- **Quản lý Calendar & Event**: CRUD sự kiện; hỗ trợ thuộc tính sự kiện và quản lý lịch cá nhân.
+- **Booking System**: tạo liên kết đặt lịch công khai; cấu hình availability; ghi nhận lịch hẹn.
+- **Đồng bộ Google Calendar**: đồng bộ dữ liệu lịch với tài khoản Google để tránh trùng lịch và thống nhất lịch trình.
+- **AI Assistant & RAG**: hội thoại ngôn ngữ tự nhiên; hỗ trợ thực thi hành động (function calling); truy xuất ngữ cảnh bằng vector search để tăng độ chính xác câu trả lời.
+- **Thông báo/nhắc lịch**: gửi email/notification theo các sự kiện quan trọng (xác nhận đặt lịch, nhắc lịch).
 
-### **1.3.2. Giới hạn**
+## <a id="14-phương-pháp-thực-hiện"></a> **1.4 Phương pháp thực hiện**
 
-Ứng dụng hiện tập trung phát triển trên nền tảng Web, với giao diện Mobile được tối ưu hóa qua Responsive Web Design thay vì Native App. Hệ thống chưa hỗ trợ tích hợp Video Call trực tiếp mà chỉ tạo link Google Meet. Ngoài ra, tính năng phân tích dữ liệu nâng cao (Advanced Analytics) sẽ được phát triển trong giai đoạn sau của dự án.
+Nhóm thực hiện đề tài theo các bước chính:
 
-## **1.4. Bố cục báo cáo**
+- Khảo sát bài toán và xác định yêu cầu nghiệp vụ/chức năng.
+- Phân tích và thiết kế kiến trúc hệ thống, mô hình dữ liệu, phân rã module.
+- Xây dựng backend và frontend theo từng tính năng, kiểm thử theo từng giai đoạn.
+- Tích hợp các dịch vụ ngoài (Google Calendar, email/notification, AI/LLM) và hoàn thiện luồng nghiệp vụ.
+- Đánh giá, tối ưu, chuẩn hóa triển khai và tổng hợp báo cáo.
 
-Báo cáo được chia thành 4 chương chính:
+## <a id="15-công-nghệ-sử-dụng-tech-stack"></a> **1.5 Công nghệ sử dụng (Tech Stack)**
 
-Báo cáo được chia thành 4 chương chính. Chương 1 giới thiệu tổng quan về đề tài, lý do lựa chọn, mục tiêu và phạm vi dự án. Chương 2 trình bày các công nghệ, ngôn ngữ và công cụ sử dụng như NestJS, Next.js, PostgreSQL/pgvector và Google Gemini. Chương 3 tập trung phân tích và thiết kế hệ thống, mô tả kiến trúc tổng thể, các module thành phần và thiết kế cơ sở dữ liệu. Cuối cùng, Chương 4 trình bày thiết kế chi tiết màn hình, bao gồm sơ đồ luồng và giao diện người dùng, đặc biệt là các cải tiến trong trải nghiệm chat thông minh.
-
+- **Frontend**: 
+  - **Framework**: Next.js 15 (App Router, Turbopack)
+  - **Library**: React 19
+  - **Styling**: Tailwind CSS 4, shadcn/ui, Radix UI
+  - **State Management & Data Fetching**: Zustand, TanStack Query v5
+- **Backend**: 
+  - **Framework**: NestJS 11
+  - **Language**: TypeScript
+- **Database**: 
+  - **Primary**: PostgreSQL (+ pgvector cho RAG)
+  - **Cache & Queue**: Redis
+- **Background Jobs**: BullMQ
+- **AI/LLM**: Google Gemini, LangChain, Embeddings (768 chiều)
+- **Realtime**: Server-Sent Events (SSE)
+- **Infrastructure**: Docker, GCP
