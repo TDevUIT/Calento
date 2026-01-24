@@ -206,57 +206,80 @@ Hệ thống Calento phục vụ các actors sau:
 ### **3.2.2. Sơ đồ Use Case tổng quan**
 
 ```mermaid
-graph TD
-    User((Registered User))
+graph LR
+    %% Actors
     Guest((Guest))
-    Admin((Admin))
-    TeamMember((Team Member))
-    TeamOwner((Team Owner))
+    User((Registered User))
+    Admin((Admin/Manager))
+    Role_Team((Team Member/Owner))
 
-    subgraph Authentication
-        UC1(Đăng ký / Đăng nhập)
-        UC2(Quên mật khẩu)
-        UC3(Google OAuth)
+    %% External Systems
+    G_API[Google Calendar API]
+    Gemini[Gemini AI Service]
+
+    %% Subsystems
+    subgraph Auth [Authentication & Identity]
+        UC_Reg(Register/Login)
+        UC_OAuth(Google OAuth)
+        UC_Pass(Forgot Password)
     end
 
-    subgraph Calendar[Calendar Management]
-        UC4(CRUD Sự kiện)
-        UC5(Đồng bộ Google Calendar)
-        UC6(Quản lý Tasks)
+    subgraph Core [Calendar Core]
+        UC_Event(CRUD Event Management)
+        UC_Sync(Google Sync Two-way)
+        UC_Task(Task Management)
     end
 
-    subgraph Booking[Booking System]
-        UC7(Tạo Booking Link)
-        UC8(Đặt lịch hẹn)
+    subgraph Book [Booking System]
+        UC_Link(Create Booking Link)
+        UC_Book(Public Booking Page)
     end
 
-    subgraph Team[Team Collaboration]
-        UC9(Quản lý Team)
-        UC10(Team Rituals)
-        UC11(Xem lịch nhóm)
+    subgraph Team [Team Collaboration]
+        UC_TeamManage(Manage Team)
+        UC_Rituals(Team Rituals)
+        UC_ViewSched(View Team Schedule)
     end
 
-    subgraph AI[AI Features]
-        UC12(Chat AI Assistant)
-        UC13(RAG Search)
+    subgraph AI [AI Intelligence]
+        UC_Chat(AI Chat Assistant)
+        UC_RAG(RAG Context Search)
     end
 
-    User --> UC4
-    User --> UC5
-    User --> UC6
-    User --> UC7
-    User --> UC12
-    User --> UC13
+    %% Relationships - Guest
+    Guest -->|Sign Up| UC_Reg
+    Guest -->|Book Slot| UC_Book
 
-    Guest --> UC1
-    Guest --> UC8
+    %% Relationships - User
+    User -->|Authenticate| UC_Reg
+    User -->|Manage| Core
+    User -->|Setup| UC_Link
+    User -->|Consult| AI
+    User -->|Secure| UC_Pass
 
-    TeamOwner --> UC9
-    TeamOwner --> UC10
+    %% Relationships - Team
+    Role_Team -.->|Inherits| User
+    Role_Team -->|Collaborate| Team
 
-    TeamMember --> UC11
+    %% Relationships - Admin
+    Admin -->|System Manage| Auth
+    Admin -->|Access All| Core
 
-    Admin --> UC1
+    %% Internal & External Dependencies
+    UC_Reg -.-> UC_OAuth
+    UC_Link --> UC_Book
+    UC_Sync -.->|Sync| G_API
+    AI -.->|Inference| Gemini
+
+    %% Styling
+    classDef actor fill:#eceff1,stroke:#455a64,stroke-width:2px,color:#263238
+    classDef usecase fill:#fff9c4,stroke:#fbc02d,stroke-width:1px,color:#000
+    classDef ext fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,stroke-dasharray: 5 5,color:#0d47a1
+    classDef sub fill:#ffffff,stroke:#cfd8dc,stroke-width:1px,color:#546e7a
+
+    class Guest,User,Admin,Role_Team actor
+    class UC_Reg,UC_OAuth,UC_Pass,UC_Event,UC_Sync,UC_Task,UC_Link,UC_Book,UC_TeamManage,UC_Rituals,UC_ViewSched,UC_Chat,UC_RAG usecase
+    class G_API,Gemini ext
 ```
 
 ##### Hình 9: Sơ đồ Use Case tổng quan
@@ -523,9 +546,13 @@ Hệ thống Calento được xây dựng theo kiến trúc micro-modular monoli
 
 Nhóm Core Modules bao gồm các module cơ bản nhất của hệ thống, cung cấp các chức năng thiết yếu mà hầu hết các modules khác đều phụ thuộc vào. Đây là foundation layer của toàn bộ application architecture.
 
-#### **33.1.1. Auth Module (Authentication & Authorization)**
+#### **3.3.1.1. Auth Module (Authentication & Authorization)**
+
+###### **Auth: Chức năng & trách nhiệm**
 
 Auth Module là gatekeeper của toàn bộ hệ thống, đảm nhiệm việc xác thực danh tính người dùng và quản lý quyền truy cập. Module này được thiết kế với nhiều lớp bảo mật (defense in depth) để đảm bảo chỉ những người dùng hợp lệ mới có thể truy cập vào hệ thống và các tài nguyên của họ.
+
+###### **Auth: Luồng xử lý chính**
 
 **Registration Flow (Đăng ký tài khoản):**
 
@@ -597,23 +624,35 @@ Khi user quên password, họ có thể request reset qua email. System generate
 
 Khi user click link và nhập password mới, system verify token chưa expired và hash matches. Nếu valid, password mới được hash và update, reset tokens bị clear. Tất cả existing sessions bị invalidate để force re-login across devices, preventing unauthorized access nếu attacker có old tokens.
 
+###### **Auth: API endpoints & bảo mật**
+
+Các endpoints chính bao gồm `/auth/login`, `/auth/register`, `/auth/refresh`. Bảo mật được tăng cường thông qua HTTP-only cookies cho refresh tokens, short-lived access tokens, và rate limiting để chống brute-force.
+
 #### **3.3.1.2. Users Module (User Profile Management)**
 
 Users Module quản lý toàn bộ thông tin profile và preferences của người dùng. Module này cung cấp CRUD operations cho user data như first name, last name, avatar, timezone, và các settings cá nhân.
+
+###### **Users: Dữ liệu & cài đặt**
 
 Một tính năng quan trọng là User Settings management với JSONB storage trong PostgreSQL. Thay vì tạo nhiều columns riêng cho mỗi setting, hệ thống sử dụng JSONB column `settings` để store flexible configuration. Ví dụ, user có thể config notification preferences (email enabled/disabled cho từng loại notification), default calendar view (week/month), working hours, theme preference (light/dark), language...
 
 JSONB được chọn vì khả năng query và index tốt - PostgreSQL có thể index vào specific keys trong JSON, cho phép fast lookups mà vẫn giữ flexibility. Module expose API endpoints như `PATCH /users/me/settings` để update partial settings mà không overwrite toàn bộ object.
 
-Users Module cũng handle avatar upload và processing. Khi user upload avatar image, file được validate (max 5MB, only JPEG/PNG/WebP), resize về multiple sizes (32x32 thumbnail, 128x128 medium, 512x512 large) using sharp library, và upload lên cloud storage (hoặc local filesystem trong development). Avatar URLs được update vào user record.
+###### **Users: API endpoints**
+
+Module cung cấp các endpoints như `GET /users/me` (lấy thông tin cá nhân), `PATCH /users/me` (cập nhật thông tin cơ bản), `PATCH /users/me/settings` (cập nhật cấu hình JSONB), và `POST /users/avatar` (upload ảnh đại diện). Users Module cũng handle avatar upload và processing. Khi user upload avatar image, file được validate (max 5MB, only JPEG/PNG/WebP), resize về multiple sizes (32x32 thumbnail, 128x128 medium, 512x512 large) using sharp library, và upload lên cloud storage (hoặc local filesystem trong development). Avatar URLs được update vào user record.
 
 #### **3.3.1.3. Calendar Module (Calendar Metadata Management)**
+
+###### **Calendar: Khái niệm & dữ liệu**
 
 Calendar Module khác với Event Module - nó quản lý calendars metadata chứ không phải individual events. Một user có thể có nhiều calendars, ví dụ: "Work", "Personal", "Family", mỗi calendar có màu sắc riêng để phân biệt trên UI.
 
 Khi user connect Google Calendar, mỗi Google calendar được map với một Calento calendar record. Record này lưu `google_calendar_id`, `name`, `timezone`, `color`, và là `primary` calendar hay không. System duy trì sync relationship này để biết events nào thuộc calendar nào.
 
-Calendar Module cũng quản lý calendar sharing permissions (trong tương lai). Hiện tại mỗi user chỉ thấy calendars của chính họ, nhưng architecture đã chuẩn bị cho team calendars - permissions table có thể define ai có quyền view/edit calendar nào.
+###### **Calendar: API endpoints**
+
+Calendar Module cũng quản lý calendar sharing permissions (trong tương lai). Hiện tại mỗi user chỉ thấy calendars của chính họ, nhưng architecture đã chuẩn bị cho team calendars - permissions table có thể define ai có quyền view/edit calendar nào. Các API bao gồm `GET /calendars` (lấy danh sách), `POST /calendars` (tạo calendar phụ), `PATCH /calendars/:id` (sửa màu sắc/tên).
 
 ### **3.3.2. Event Management Modules**
 
@@ -623,19 +662,34 @@ Calendar Module cũng quản lý calendar sharing permissions (trong tương lai
 
 Module này quản lý vòng đời của các đối tượng Calendar và Event, đóng vai trò là xương sống dữ liệu của hệ thống.
 
-*   **Quản lý sự kiện (Event Lifecycle)**: Hỗ trợ đầy đủ các thao tác CRUD cho sự kiện đơn (Single Events) và lặp lại (Recurring Events). Mỗi sự kiện lưu trữ thông tin chi tiết: thời gian, địa điểm, mô tả, màu sắc, và danh sách người tham dự (Attendees).
-*   **Recurrence Engine (RRULE)**: Tích hợp engine xử lý chuẩn RFC 5545 để quản lý các sự kiện lặp lại phức tạp (v.d: "Họp vào 9h sáng thứ Hai cách tuần"). Engine này tự động tính toán và generate các instances cụ thể (occurrences) từ quy tắc lặp, giúp user nhìn thấy đầy đủ lịch trình trong tương lai mà không cần lưu cứng hàng nghìn record vào DB.
-*   **Timezone & Localization**: Xử lý logic chuyển đổi múi giờ (Timezone Conversion) để ensuring thời gian hiển thị chính xác cho user ở bất kỳ đâu. Mọi thời gian đều được lưu trữ dưới dạng UTC trong database và chỉ convert sang local time khi hiển thị.
+###### **Event: Chức năng chính**
 
-_(Xem chi tiết quy trình xử lý tại mục 3.3.5 - Sơ đồ tuần tự)_
+*   **Quản lý sự kiện (Event Lifecycle)**: Hỗ trợ đầy đủ các thao tác CRUD cho sự kiện đơn (Single Events) và lặp lại (Recurring Events). Mỗi sự kiện lưu trữ thông tin chi tiết: thời gian, địa điểm, mô tả, màu sắc, và danh sách người tham dự (Attendees).
+
+###### **Event: Luồng tạo/sửa/xóa & recurring**
+
+*   **Recurrence Engine (RRULE)**: Tích hợp engine xử lý chuẩn RFC 5545 để quản lý các sự kiện lặp lại phức tạp (v.d: "Họp vào 9h sáng thứ Hai cách tuần"). Engine này tự động tính toán và generate các instances cụ thể (occurrences) từ quy tắc lặp, giúp user nhìn thấy đầy đủ lịch trình trong tương lai mà không cần lưu cứng hàng nghìn record vào DB.
+
+###### **Event: Dữ liệu liên quan**
+
+*   **Timezone & Localization**: Xử lý logic chuyển đổi múi giờ (Timezone Conversion) để ensuring thời gian hiển thị chính xác cho user ở bất kỳ đâu. Mọi thời gian đều được lưu trữ dưới dạng UTC trong database và chỉ convert sang local time khi hiển thị.
 
 #### **3.3.2.2. Booking Module**
 
 Module Booking giải quyết bài toán cốt lõi về "tìm giờ rảnh và đặt hẹn", giúp automate quy trình lên lịch họp.
 
+###### **Booking: Slot/Availability engine**
+
 *   **Availability Engine (Công cụ tính giờ rảnh)**: Đây là logic phức tạp nhất. Engine phân tích Availability Rules (khung giờ làm việc) của user, trừ đi các sự kiện bận (Busy Events) từ Calendar Module, tính toán cả Buffer Time (thời gian nghỉ giữa các cuộc họp) và Advance Notice (thời gian báo trước). Kết quả là danh sách các "Slots" khả dụng để guest có thể book.
+
+###### **Booking: Luồng đặt lịch (guest)**
+
 *   **Booking Link Flow**: Quản lý việc tạo và cấu hình các trang đặt lịch công khai (Public Booking Page). Mỗi link có thể tùy chỉnh thời lượng, câu hỏi khảo sát, và đặc biệt là **Location**. Nếu người dùng chọn "Google Meet", hệ thống sẽ tự động sinh đường dẫn cuộc họp (Google Meet Link) ngay khi booking được tạo, giúp tiết kiệm thao tác thủ công.
 *   **Multi-step Booking Process**: Xử lý transaction đặt lịch an toàn: (1) Guest chọn slot -> (2) System hold slot tạm thời -> (3) Guest điền info -> (4) Confirm booking -> (5) Create Event & Send Emails. Quy trình này đảm bảo không bị double-booking (hai người đặt cùng lúc 1 giờ).
+
+###### **Booking: Dữ liệu liên quan**
+
+Dữ liệu booking liên kết chặt chẽ với bảng Availability (lịch rảnh), Events (sự kiện được tạo ra), và Google Calendar Sync (để block time). Trạng thái booking (confirmed, cancelled, rescheduled) được tracking chi tiết.
 
 _(Xem chi tiết quy trình đặt lịch tại mục 3.3.5 - Sơ đồ tuần tự)_
 
@@ -1299,54 +1353,535 @@ Schema file được tổ chức theo modules với comments rõ ràng, shared f
 
 
 
-| STT | Table Name | Mô tả | Columns chính | Records ước tính |
-| :---: | ----- | ----- | ----- | ----- |
-| 1 | users | Thông tin tài khoản người dùng | id, email, username, password_hash, avatar, full_name | 1,000-10,000 |
-| 2 | user_credentials | OAuth tokens (Google Calendar) | id, user_id, provider, access_token, refresh_token, expires_at | 500-5,000 |
-| 3 | user_settings | Preferences người dùng (JSONB) | id, user_id, settings (JSONB) | 1,000-10,000 |
-| 4 | calendars | Metadata lịch đồng bộ từ Google | id, user_id, google_calendar_id, name, timezone, is_primary | 2,000-20,000 |
-| 5 | events | Sự kiện (synced hoặc local) | id, calendar_id, google_event_id, title, start_time, end_time, recurrence_rule, status | 50,000-500,000 |
-| 6 | event_attendees | Người tham dự sự kiện với invitation tracking | id, event_id, email, name, response_status, invitation_token | 20,000-200,000 |
-| 7 | event_conflicts | Xử lý conflicts khi đồng bộ | id, user_id, calento_event_id, google_event_id, conflict_reason, resolution | 100-1,000 |
-| 8 | availabilities | Khung giờ rảnh hàng tuần của user | id, user_id, day_of_week, start_time, end_time, timezone | 5,000-50,000 |
-| 9 | booking_links | Trang đặt lịch công khai | id, user_id, slug, title, duration_minutes, advance_notice_hours | 2,000-20,000 |
-| 10 | bookings | Lịch hẹn từ booking links | id, booking_link_id, user_id, event_id, booker_name, booker_email, start_time, status | 10,000-100,000 |
-| 11 | tasks | Công việc cần làm (To-do) | id, user_id, title, status, priority, due_date, recurrence_rule | 20,000-200,000 |
-| 12 | user_priorities | Ưu tiên cho tasks/items trong priority board | id, user_id, item_id, item_type, priority, position | 10,000-100,000 |
-| 13 | teams | Thông tin nhóm (collaborative) | id, name, owner_id, timezone, settings (JSONB), is_active | 500-5,000 |
-| 14 | team_members | Thành viên nhóm | id, team_id, user_id, role, status | 2,000-20,000 |
-| 15 | team_rituals | Cuộc họp định kỳ của team | id, team_id, title, recurrence_rule, rotation_type | 1,000-10,000 |
-| 16 | blog_posts | Bài viết blog/CMS | id, title, slug, content, author_id, category_id, status, published_at | 100-1,000 |
-| 17 | blog_categories | Danh mục blog | id, name, slug, description | 10-50 |
-| 18 | blog_tags | Tags cho bài viết | id, name, slug, usage_count | 50-500 |
-| 19 | blog_post_tags | Liên kết bài viết và tags | id, post_id, tag_id | 200-2,000 |
-| 20 | blog_comments | Bình luận bài viết | id, post_id, author_name, content, status | 1,000-10,000 |
-| 21 | blog_views | Thống kê lượt xem bài viết | id, post_id, ip_address, viewed_at | 10,000-100,000 |
-| 22 | team_availability | Lịch rảnh chi tiết của team | id, team_id, user_id, date, available_slots | 5,000-50,000 |
-| 23 | team_meeting_rotations | Lịch xoay tua cuộc họp team | id, ritual_id, user_id, scheduled_at | 1,000-5,000 |
-| 24 | sync_logs | Log tổng quát quá trình đồng bộ | id, user_id, sync_type, status, error_message | 50,000-500,000 |
-| 25 | sync_log | Chi tiết lịch sử đồng bộ provider | id, user_id, provider, status, details | 50,000-500,000 |
-| 26 | sync_errors | Lỗi đồng bộ và retry logic | id, user_id, error_type, retry_count, resolved | 1,000-10,000 |
-| 27 | webhook_channels | Kênh webhook Google Calendar | id, channel_id, resource_id, expiration | 100-1,000 |
-| 28 | integrations | Tích hợp bên thứ 3 (Slack, etc) | id, user_id, provider, access_token | 100-1,000 |
-| 29 | notifications | Thông báo nhắc nhở event | id, event_id, channel, remind_at, is_sent | 100,000-1,000,000 |
-| 30 | meeting_notes | Ghi chú cuộc họp (AI Generated) | id, event_id, content, ai_summary | 10,000-50,000 |
-| 31 | email_logs | Lịch sử gửi email hệ thống | id, user_id, to, subject, status, sent_at | 100,000-1,000,000 |
-| 32 | ai_conversations | Lịch sử chat với AI Assistant | id, user_id, messages (JSONB), context | 10,000-50,000 |
-| 33 | ai_actions | Hành động do AI thực hiện | id, conversation_id, action_type, status | 5,000-20,000 |
-| 34 | contacts | Liên hệ từ Landing Page | id, name, email, message, status | 500-2,000 |
-| 35 | user_context_summary | Vector embeddings cho RAG | id, user_id, context, embedding (vector) | 1,000-10,000 |
+#### **3.3.4. Chi tiết thiết kế Database (35 Tables)**
 
-### **3.3.3. Mối quan hệ dữ liệu** 
+Hệ thống cơ sở dữ liệu bao gồm 35 bảng, được chia thành các nhóm chức năng chính. Dưới đây là schema chi tiết đầy đủ cho từng bảng, bao gồm toàn bộ các thuộc tính.
 
-* 1 User có nhiều Calendars.  
-* 1 Calendar chứa nhiều Events.  
-* 1 User có nhiều Context Summaries (cho RAG).  
-* 1 User tạo nhiều Booking Links.
-* 1 Event có nhiều Event Attendees.
-* 1 User có nhiều Tasks.
-* 1 Team có nhiều Team Members và Team Rituals.
-* 1 Blog Post thuộc 1 Category và có nhiều Tags.
+##### **1. Core & Auth (Identity Module)**
+
+**1.1. Table: users**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | UUID | PK, DEFAULT `gen_random_uuid()` | Khóa chính |
+| `email` | VARCHAR(255) | UNIQUE, NOT NULL | Email người dùng |
+| `username` | VARCHAR(100) | UNIQUE, NOT NULL | Tên đăng nhập |
+| `avatar` | VARCHAR(255) | DEFAULT NULL | URL ảnh đại diện |
+| `password_hash` | VARCHAR(255) | NOT NULL | Mật khẩu đã mã hóa |
+| `first_name` | VARCHAR(100) | | Tên |
+| `last_name` | VARCHAR(100) | | Họ |
+| `full_name` | VARCHAR(200) | | Tên đầy đủ |
+| `is_active` | BOOLEAN | DEFAULT TRUE | Trạng thái hoạt động |
+| `is_verified` | BOOLEAN | DEFAULT FALSE | Trạng thái xác thực |
+| `reset_token_identifier` | VARCHAR(255) | | ID token reset mật khẩu |
+| `reset_token_secret` | VARCHAR(255) | | Secret reset mật khẩu |
+| `reset_token_expires_at` | TIMESTAMP | | Thời gian hết hạn reset |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm tạo |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm cập nhật |
+
+**1.2. Table: user_credentials**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | UUID | PK | Khóa chính |
+| `user_id` | UUID | FK -> users.id | ID người dùng |
+| `provider` | ENUM | 'google', 'outlook', 'apple' | Nhà cung cấp |
+| `access_token` | VARCHAR(500) | | Token truy cập |
+| `refresh_token` | VARCHAR(500) | | Token làm mới |
+| `expires_at` | TIMESTAMP | | Thời gian hết hạn |
+| `scope` | TEXT | | Phạm vi quyền |
+| `sync_enabled` | BOOLEAN | DEFAULT TRUE | Bật/tắt đồng bộ |
+| `last_sync_at` | TIMESTAMP | | Lần đồng bộ cuối |
+| `is_active` | BOOLEAN | DEFAULT TRUE | Trạng thái |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm tạo |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm cập nhật |
+
+**1.3. Table: user_settings**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | UUID | PK | Khóa chính |
+| `user_id` | UUID | FK -> users.id, UNIQUE | ID người dùng |
+| `settings` | JSONB | DEFAULT '{}' | Cấu hình (JSON) |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm tạo |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm cập nhật |
+
+##### **2. Calendar & Events System**
+
+**2.1. Table: calendars**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | UUID | PK | Khóa chính |
+| `user_id` | UUID | FK -> users.id | Chủ sở hữu |
+| `google_calendar_id` | VARCHAR(255) | NOT NULL | ID lịch Google |
+| `name` | VARCHAR(255) | | Tên lịch |
+| `description` | TEXT | | Mô tả |
+| `timezone` | VARCHAR(100) | | Múi giờ |
+| `is_primary` | BOOLEAN | DEFAULT FALSE | Là lịch chính |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm tạo |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm cập nhật |
+
+**2.2. Table: events**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | UUID | PK | Khóa chính |
+| `calendar_id` | UUID | FK -> calendars.id | ID lịch |
+| `team_id` | UUID | FK -> teams.id | ID nhóm (nếu có) |
+| `google_event_id` | VARCHAR(255) | | ID sự kiện Google |
+| `title` | VARCHAR(500) | | Tiêu đề |
+| `description` | TEXT | | Mô tả |
+| `location` | VARCHAR(500) | | Địa điểm |
+| `timezone` | VARCHAR(100) | | Múi giờ |
+| `start_time` | TIMESTAMP | | Bắt đầu |
+| `end_time` | TIMESTAMP | | Kết thúc |
+| `is_all_day` | BOOLEAN | DEFAULT FALSE | Cả ngày |
+| `is_recurring` | BOOLEAN | DEFAULT FALSE | Lặp lại |
+| `recurrence_rule` | TEXT | | Quy tắc lặp (RRULE) |
+| `status` | ENUM | confirmed/cancelled | Trạng thái |
+| `color` | VARCHAR(50) | DEFAULT 'blue' | Màu sắc |
+| `attendees` | JSONB | | Danh sách tham dự (cũ) |
+| `reminders` | JSONB | | Nhắc nhở |
+| `synced_at` | TIMESTAMP | | Thời gian đồng bộ |
+| `organizer_id` | UUID | FK -> users.id | Người tổ chức |
+| `organizer_email` | VARCHAR(255) | | Email người tổ chức |
+| `organizer_name` | VARCHAR(255) | | Tên người tổ chức |
+| `conference_data` | JSONB | | Link họp online |
+| `visibility` | VARCHAR(50) | DEFAULT 'default' | Quyền riêng tư |
+| `response_status` | VARCHAR(50) | DEFAULT 'accepted' | Trạng thái phản hồi |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm tạo |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm cập nhật |
+
+**2.3. Table: event_attendees**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | UUID | PK | Khóa chính |
+| `event_id` | UUID | FK -> events.id | ID sự kiện |
+| `email` | VARCHAR(255) | NOT NULL | Email |
+| `name` | VARCHAR(255) | | Tên hiển thị |
+| `response_status` | VARCHAR(50) | DEFAULT 'needsAction' | Trạng thái RSVP |
+| `is_optional` | BOOLEAN | DEFAULT FALSE | Không bắt buộc |
+| `is_organizer` | BOOLEAN | DEFAULT FALSE | Là người tổ chức |
+| `comment` | TEXT | | Bình luận |
+| `invitation_token` | VARCHAR(255) | UNIQUE | Token mời |
+| `invitation_sent_at` | TIMESTAMPTZ | | Thời gian gửi mời |
+| `invitation_responded_at`| TIMESTAMPTZ | | Thời gian phản hồi |
+| `invitation_remind_count`| INTEGER | DEFAULT 0 | Số lần nhắc |
+| `can_modify_event` | BOOLEAN | DEFAULT FALSE | Quyền sửa sự kiện |
+| `can_invite_others` | BOOLEAN | DEFAULT FALSE | Quyền mời người khác |
+| `can_see_guest_list` | BOOLEAN | DEFAULT TRUE | Quyền xem DS khách |
+| `google_calendar_synced` | BOOLEAN | DEFAULT FALSE | Đã đồng bộ Google |
+| `google_event_id` | VARCHAR(255) | | ID sự kiện Google của khách |
+| `created_at` | TIMESTAMPTZ | DEFAULT NOW() | Thời điểm tạo |
+| `updated_at` | TIMESTAMPTZ | DEFAULT NOW() | Thời điểm cập nhật |
+
+**2.4. Table: availabilities**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | UUID | PK | Khóa chính |
+| `user_id` | UUID | FK -> users.id | ID người dùng |
+| `day_of_week` | INTEGER | 0-6 | Thứ trong tuần |
+| `start_time` | TIME | NOT NULL | Giờ bắt đầu |
+| `end_time` | TIME | NOT NULL | Giờ kết thúc |
+| `is_active` | BOOLEAN | DEFAULT TRUE | Đang kích hoạt |
+| `timezone` | VARCHAR(50) | DEFAULT 'UTC' | Múi giờ |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm tạo |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm cập nhật |
+
+**2.5. Table: event_conflicts**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | UUID | PK | Khóa chính |
+| `user_id` | UUID | FK -> users.id | ID người dùng |
+| `calento_event_id` | UUID | FK -> events.id | ID sự kiện nội bộ |
+| `google_event_id` | VARCHAR(255) | | ID sự kiện Google |
+| `conflict_reason` | VARCHAR(100) | NOT NULL | Lý do xung đột |
+| `resolution` | VARCHAR(100) | | Hướng giải quyết |
+| `resolved` | BOOLEAN | DEFAULT FALSE | Đã giải quyết |
+| `calento_event_data` | JSONB | | Dữ liệu sự kiện nội bộ |
+| `google_event_data` | JSONB | | Dữ liệu sự kiện Google |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm tạo |
+| `resolved_at` | TIMESTAMP | | Thời điểm giải quyết |
+
+##### **3. Booking System**
+
+**3.1. Table: booking_links**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | UUID | PK | Khóa chính |
+| `user_id` | UUID | FK -> users.id | ID người dùng |
+| `slug` | VARCHAR(100) | UNIQUE, NOT NULL | Đường dẫn định danh |
+| `title` | VARCHAR(255) | NOT NULL | Tiêu đề trang |
+| `description` | TEXT | | Mô tả |
+| `location` | VARCHAR(100) | | Địa điểm |
+| `location_link` | TEXT | | Link họp online |
+| `duration_minutes` | INTEGER | NOT NULL | Thời lượng |
+| `buffer_time_minutes` | INTEGER | DEFAULT 0 | Thời gian đệm |
+| `max_bookings_per_day` | INTEGER | | Tối đa/ngày |
+| `advance_notice_hours` | INTEGER | DEFAULT 24 | Đặt trước (giờ) |
+| `booking_window_days` | INTEGER | DEFAULT 60 | Khoảng thời gian đặt |
+| `is_active` | BOOLEAN | DEFAULT TRUE | Kích hoạt |
+| `color` | VARCHAR(50) | | Màu sắc |
+| `timezone` | VARCHAR(100) | DEFAULT 'UTC' | Múi giờ |
+| `expires_at` | TIMESTAMPTZ | | Thời hạn |
+| `created_at` | TIMESTAMPTZ | DEFAULT NOW() | Thời điểm tạo |
+| `updated_at` | TIMESTAMPTZ | DEFAULT NOW() | Thời điểm cập nhật |
+
+**3.2. Table: bookings**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | UUID | PK | Khóa chính |
+| `booking_link_id` | UUID | FK -> booking_links.id | Trang đặt lịch |
+| `user_id` | UUID | FK -> users.id | Người nhận lịch |
+| `event_id` | UUID | FK -> events.id | Sự kiện liên quan |
+| `booker_name` | VARCHAR(255) | NOT NULL | Tên người đặt |
+| `booker_email` | VARCHAR(255) | NOT NULL | Email người đặt |
+| `booker_phone` | VARCHAR(50) | | SĐT người đặt |
+| `booker_notes` | TEXT | | Ghi chú |
+| `start_time` | TIMESTAMPTZ | NOT NULL | Bắt đầu |
+| `end_time` | TIMESTAMPTZ | NOT NULL | Kết thúc |
+| `timezone` | VARCHAR(100) | NOT NULL | Múi giờ |
+| `status` | VARCHAR(50) | DEFAULT 'confirmed' | Trạng thái |
+| `cancellation_reason` | TEXT | | Lý do hủy |
+| `cancelled_at` | TIMESTAMPTZ | | Thời gian hủy |
+| `cancelled_by` | VARCHAR(50) | | Người hủy |
+| `confirmation_token` | VARCHAR(255) | UNIQUE | Token xác nhận |
+| `created_at` | TIMESTAMPTZ | DEFAULT NOW() | Thời điểm tạo |
+| `updated_at` | TIMESTAMPTZ | DEFAULT NOW() | Thời điểm cập nhật |
+
+##### **4. Task Management**
+
+**4.1. Table: tasks**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | UUID | PK | Khóa chính |
+| `user_id` | UUID | FK -> users.id | ID người dùng |
+| `title` | VARCHAR(200) | NOT NULL | Tiêu đề |
+| `description` | TEXT | | Mô tả |
+| `status` | VARCHAR(50) | DEFAULT 'todo' | Trạng thái |
+| `priority` | VARCHAR(50) | DEFAULT 'medium' | Độ ưu tiên |
+| `due_date` | TIMESTAMPTZ | | Hạn chót |
+| `completed_at` | TIMESTAMPTZ | | Thời gian hoàn thành |
+| `tags` | TEXT[] | | Thẻ phân loại |
+| `project_id` | UUID | | Dự án |
+| `parent_task_id` | UUID | FK -> tasks.id | Task cha |
+| `is_recurring` | BOOLEAN | DEFAULT FALSE | Lặp lại |
+| `recurrence_rule` | TEXT | | Quy tắc lặp |
+| `estimated_duration` | INTEGER | | Thời gian ước tính |
+| `actual_duration` | INTEGER | | Thời gian thực tế |
+| `is_deleted` | BOOLEAN | DEFAULT FALSE | Đã xóa |
+| `deleted_at` | TIMESTAMPTZ | | Thời gian xóa |
+| `created_at` | TIMESTAMPTZ | DEFAULT NOW() | Thời điểm tạo |
+| `updated_at` | TIMESTAMPTZ | DEFAULT NOW() | Thời điểm cập nhật |
+
+**4.2. Table: user_priorities**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | UUID | PK | Khóa chính |
+| `user_id` | UUID | FK -> users.id | ID người dùng |
+| `item_id` | VARCHAR(255) | NOT NULL | ID đối tượng |
+| `item_type` | VARCHAR(50) | NOT NULL | Loại đối tượng |
+| `priority` | VARCHAR(50) | NOT NULL | Mức ưu tiên |
+| `position` | INTEGER | DEFAULT 0 | Vị trí sắp xếp |
+| `created_at` | TIMESTAMPTZ | DEFAULT NOW() | Thời điểm tạo |
+| `updated_at` | TIMESTAMPTZ | DEFAULT NOW() | Thời điểm cập nhật |
+
+##### **5. Team Collaboration**
+
+**5.1. Table: teams**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | UUID | PK | Khóa chính |
+| `name` | VARCHAR(255) | NOT NULL | Tên nhóm |
+| `description` | TEXT | | Mô tả |
+| `owner_id` | UUID | FK -> users.id | Trưởng nhóm |
+| `timezone` | VARCHAR(100) | DEFAULT 'UTC' | Múi giờ |
+| `settings` | JSONB | DEFAULT '{}' | Cấu hình |
+| `is_active` | BOOLEAN | DEFAULT TRUE | Trạng thái |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm tạo |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm cập nhật |
+
+**5.2. Table: team_members**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | UUID | PK | Khóa chính |
+| `team_id` | UUID | FK -> teams.id | Nhóm |
+| `user_id` | UUID | FK -> users.id | Thành viên |
+| `role` | VARCHAR(50) | DEFAULT 'member' | Vai trò |
+| `status` | VARCHAR(50) | DEFAULT 'pending' | Trạng thái tham gia |
+| `joined_at` | TIMESTAMP | | Thời điểm tham gia |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm tạo |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm cập nhật |
+
+**5.3. Table: team_rituals**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | UUID | PK | Khóa chính |
+| `team_id` | UUID | FK -> teams.id | Nhóm |
+| `title` | VARCHAR(255) | NOT NULL | Tiêu đề |
+| `description` | TEXT | | Mô tả |
+| `recurrence_rule` | VARCHAR(500)| | Quy tắc lặp |
+| `duration_minutes` | INTEGER | DEFAULT 30 | Thời lượng |
+| `buffer_before` | INTEGER | DEFAULT 0 | Đệm trước |
+| `buffer_after` | INTEGER | DEFAULT 0 | Đệm sau |
+| `rotation_type` | VARCHAR(50) | DEFAULT 'none' | Kiểu xoay tua |
+| `rotation_order` | JSONB | | Thứ tự xoay tua |
+| `current_rotation_index`| INTEGER | DEFAULT 0 | Vị trí hiện tại |
+| `is_active` | BOOLEAN | DEFAULT TRUE | Kích hoạt |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm tạo |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm cập nhật |
+
+**5.4. Table: team_availability**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | UUID | PK | Khóa chính |
+| `team_id` | UUID | FK -> teams.id | Nhóm |
+| `user_id` | UUID | FK -> users.id | Thành viên |
+| `date` | DATE | NOT NULL | Ngày |
+| `available_slots` | JSONB | | Các slot rảnh |
+| `timezone` | VARCHAR(100) | | Múi giờ |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm tạo |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm cập nhật |
+
+**5.5. Table: team_meeting_rotations**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | UUID | PK | Khóa chính |
+| `ritual_id` | UUID | FK -> team_rituals.id | Cuộc họp định kỳ |
+| `user_id` | UUID | FK -> users.id | Người được chỉ định |
+| `scheduled_at` | TIMESTAMP | NOT NULL | Thời gian họp |
+| `event_id` | UUID | FK -> events.id | Sự kiện liên quan |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm tạo |
+
+##### **6. Blog & CMS**
+
+**6.1. Table: blog_categories**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | SERIAL | PK | Khóa chính |
+| `name` | VARCHAR(100) | UNIQUE, NOT NULL | Tên danh mục |
+| `slug` | VARCHAR(100) | UNIQUE, NOT NULL | Đường dẫn |
+| `description` | TEXT | | Mô tả |
+| `color` | VARCHAR(7) | DEFAULT '#6366f1' | Màu sắc |
+| `sort_order` | INTEGER | DEFAULT 0 | Thứ tự |
+| `is_active` | BOOLEAN | DEFAULT TRUE | Kích hoạt |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm tạo |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm cập nhật |
+
+**6.2. Table: blog_tags**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | SERIAL | PK | Khóa chính |
+| `name` | VARCHAR(50) | UNIQUE, NOT NULL | Tên thẻ |
+| `slug` | VARCHAR(50) | UNIQUE, NOT NULL | Đường dẫn |
+| `usage_count` | INTEGER | DEFAULT 0 | Số lần sử dụng |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm tạo |
+
+**6.3. Table: blog_posts**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | SERIAL | PK | Khóa chính |
+| `title` | VARCHAR(255) | NOT NULL | Tiêu đề |
+| `slug` | VARCHAR(255) | UNIQUE, NOT NULL | Đường dẫn |
+| `excerpt` | TEXT | | Tóm tắt |
+| `content` | TEXT | NOT NULL | Nội dung |
+| `featured_image` | VARCHAR(500) | | Ảnh đại diện |
+| `alt_text` | VARCHAR(255) | | Văn bản thay thế |
+| `author_id` | UUID | FK -> users.id | Tác giả |
+| `category_id` | INTEGER | FK -> blog_categories.id| Danh mục |
+| `status` | VARCHAR(20) | DEFAULT 'draft' | Trạng thái |
+| `is_featured` | BOOLEAN | DEFAULT FALSE | Nổi bật |
+| `published_at` | TIMESTAMP | | Thời gian xuất bản |
+| `views_count` | INTEGER | DEFAULT 0 | Lượt xem |
+| `reading_time` | INTEGER | | Thời gian đọc |
+| `seo_title` | VARCHAR(60) | | Tiêu đề SEO |
+| `seo_description` | VARCHAR(160) | | Mô tả SEO |
+| `seo_keywords` | TEXT | | Từ khóa SEO |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm tạo |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm cập nhật |
+
+**6.4. Table: blog_post_tags**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | SERIAL | PK | Khóa chính |
+| `post_id` | INTEGER | FK -> blog_posts.id | Bài viết |
+| `tag_id` | INTEGER | FK -> blog_tags.id | Thẻ |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm tạo |
+
+**6.5. Table: blog_comments**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | SERIAL | PK | Khóa chính |
+| `post_id` | INTEGER | FK -> blog_posts.id | Bài viết |
+| `author_name` | VARCHAR(100) | NOT NULL | Tên người bình luận |
+| `author_email` | VARCHAR(255) | NOT NULL | Email |
+| `author_website` | VARCHAR(255) | | Website |
+| `content` | TEXT | NOT NULL | Nội dung |
+| `status` | VARCHAR(20) | DEFAULT 'pending' | Trạng thái |
+| `parent_id` | INTEGER | FK -> blog_comments.id | Bình luận cha |
+| `ip_address` | INET | | IP người gửi |
+| `user_agent` | TEXT | | User Agent |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm tạo |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm cập nhật |
+
+**6.6. Table: blog_views**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | SERIAL | PK | Khóa chính |
+| `post_id` | INTEGER | FK -> blog_posts.id | Bài viết |
+| `ip_address` | INET | | IP người xem |
+| `user_agent` | TEXT | | User Agent |
+| `referrer` | VARCHAR(500) | | Nguồn giới thiệu |
+| `viewed_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm xem |
+
+##### **7. Sync & Infrastructure**
+
+**7.1. Table: sync_logs**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | UUID | PK | Khóa chính |
+| `user_id` | UUID | FK -> users.id | ID người dùng |
+| `sync_type` | ENUM | NOT NULL | Loại đồng bộ |
+| `status` | ENUM | NOT NULL | Trạng thái |
+| `error_message` | TEXT | | Chi tiết lỗi |
+| `synced_items_count`| INTEGER | DEFAULT 0 | Số lượng mục synced |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm tạo |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm cập nhật |
+
+**7.2. Table: sync_log**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | UUID | PK | Khóa chính |
+| `user_id` | UUID | FK -> users.id | ID người dùng |
+| `provider` | VARCHAR(50) | DEFAULT 'google' | Nhà cung cấp |
+| `status` | VARCHAR(50) | NOT NULL | Trạng thái |
+| `details` | JSONB | | Chi tiết log |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm tạo |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm cập nhật |
+
+**7.3. Table: sync_errors**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | UUID | PK | Khóa chính |
+| `user_id` | UUID | FK -> users.id | ID người dùng |
+| `error_type` | VARCHAR(50) | NOT NULL | Loại lỗi |
+| `error_message` | TEXT | NOT NULL | Thông báo lỗi |
+| `retry_count` | INTEGER | DEFAULT 0 | Số lần thử lại |
+| `max_retries` | INTEGER | DEFAULT 3 | Tối đa thử lại |
+| `next_retry_at` | TIMESTAMPTZ | NOT NULL | Thời gian thử lại |
+| `metadata` | JSONB | DEFAULT '{}' | Metadata |
+| `resolved` | BOOLEAN | DEFAULT FALSE | Đã xử lý |
+| `created_at` | TIMESTAMPTZ | DEFAULT NOW() | Thời điểm tạo |
+| `updated_at` | TIMESTAMPTZ | DEFAULT NOW() | Thời điểm cập nhật |
+
+**7.4. Table: webhook_channels**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | UUID | PK | Khóa chính |
+| `user_id` | UUID | FK -> users.id | ID người dùng |
+| `calendar_id` | VARCHAR(255) | NOT NULL | ID lịch |
+| `channel_id` | VARCHAR(255) | UNIQUE, NOT NULL | ID kênh webhook |
+| `resource_id` | VARCHAR(255) | NOT NULL | ID tài nguyên |
+| `resource_uri` | TEXT | NOT NULL | URI tài nguyên |
+| `token` | VARCHAR(500) | | Token xác thực |
+| `expiration` | TIMESTAMP | NOT NULL | Thời gian hết hạn |
+| `is_active` | BOOLEAN | DEFAULT TRUE | Trạng thái |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm tạo |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm cập nhật |
+
+**7.5. Table: integrations**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | UUID | PK | Khóa chính |
+| `user_id` | UUID | FK -> users.id | ID người dùng |
+| `provider` | ENUM | NOT NULL | Nhà cung cấp |
+| `access_token` | VARCHAR(500) | NOT NULL | Token truy cập |
+| `refresh_token` | VARCHAR(500) | NOT NULL | Token làm mới |
+| `workspace_id` | VARCHAR(255) | | ID workspace |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm tạo |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm cập nhật |
+
+##### **8. Notification & AI**
+
+**8.1. Table: notifications**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | UUID | PK | Khóa chính |
+| `event_id` | UUID | FK -> events.id | Sự kiện |
+| `channel` | ENUM | NOT NULL | Kênh (email/push) |
+| `remind_at` | TIMESTAMP | | Thời gian nhắc |
+| `is_sent` | BOOLEAN | DEFAULT FALSE | Đã gửi |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm tạo |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm cập nhật |
+
+**8.2. Table: meeting_notes**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | UUID | PK | Khóa chính |
+| `event_id` | UUID | FK -> events.id | Sự kiện |
+| `content` | TEXT | | Nội dung ghi chú |
+| `ai_summary` | TEXT | | Tóm tắt AI |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm tạo |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm cập nhật |
+
+**8.3. Table: email_logs**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | UUID | PK | Khóa chính |
+| `user_id` | UUID | FK -> users.id | Người dùng |
+| `to` | VARCHAR(255) | NOT NULL | Người nhận |
+| `subject` | VARCHAR(500) | NOT NULL | Tiêu đề |
+| `template` | VARCHAR(100) | | Mẫu email |
+| `status` | VARCHAR(20) | DEFAULT 'pending' | Trạng thái |
+| `error_message` | TEXT | | Lỗi (nếu có) |
+| `sent_at` | TIMESTAMPTZ | | Thời gian gửi |
+| `created_at` | TIMESTAMPTZ | DEFAULT NOW() | Thời điểm tạo |
+| `updated_at` | TIMESTAMPTZ | DEFAULT NOW() | Thời điểm cập nhật |
+
+**8.4. Table: ai_conversations**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | UUID | PK | Khóa chính |
+| `user_id` | UUID | FK -> users.id | Người dùng |
+| `messages` | JSONB | DEFAULT '[]' | Lịch sử tin nhắn |
+| `context` | JSONB | | Ngữ cảnh |
+| `created_at` | TIMESTAMPTZ | DEFAULT NOW() | Thời điểm tạo |
+| `updated_at` | TIMESTAMPTZ | DEFAULT NOW() | Thời điểm cập nhật |
+
+**8.5. Table: ai_actions**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | UUID | PK | Khóa chính |
+| `conversation_id`| UUID | FK -> ai_conversations.id| Hội thoại |
+| `action_type` | VARCHAR(100) | NOT NULL | Loại hành động |
+| `parameters` | JSONB | NOT NULL | Tham số |
+| `result` | JSONB | | Kết quả |
+| `status` | VARCHAR(20) | DEFAULT 'pending' | Trạng thái |
+| `error` | TEXT | | Lỗi |
+| `created_at` | TIMESTAMPTZ | DEFAULT NOW() | Thời điểm tạo |
+| `updated_at` | TIMESTAMPTZ | DEFAULT NOW() | Thời điểm cập nhật |
+
+**8.6. Table: contacts**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | UUID | PK | Khóa chính |
+| `first_name` | VARCHAR(50) | NOT NULL | Tên |
+| `last_name` | VARCHAR(50) | NOT NULL | Họ |
+| `email` | VARCHAR(255) | NOT NULL | Email |
+| `phone_number` | VARCHAR(20) | | SĐT |
+| `country` | VARCHAR(100) | | Quốc gia |
+| `inquiry_type` | VARCHAR(50) | NOT NULL | Loại yêu cầu |
+| `message` | TEXT | NOT NULL | Nội dung |
+| `subscribe_offers`| BOOLEAN | DEFAULT FALSE | Đăng ký nhận tin |
+| `status` | VARCHAR(20) | DEFAULT 'new' | Trạng thái |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm tạo |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm cập nhật |
+
+**8.7. Table: user_context_summary**
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | UUID | PK | Khóa chính |
+| `user_id` | UUID | FK -> users.id | Người dùng |
+| `context` | JSONB | DEFAULT '{}' | Dữ liệu ngữ cảnh |
+| `embedding` | VECTOR(768) | | Vector embedding |
+| `created_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm tạo |
+| `updated_at` | TIMESTAMP | DEFAULT NOW() | Thời điểm cập nhật |
 
 ### **3.3.4. Luồng xử lý nghiệp vụ chính**
 
@@ -1447,6 +1982,106 @@ graph LR
 
     style RBAC fill:#fff9c4
     style Opt fill:#c8e6c9
+```
+
+#### **Luồng 7: Khôi phục mật khẩu (Password Reset)**
+Quy trình giúp người dùng lấy lại quyền truy cập khi quên mật khẩu thông qua bảo mật 2 lớp (Email Token).
+
+```mermaid
+graph LR
+    User[User: Forgot Password] --> Req[Request Reset]
+    Req --> Gen[Generate Secure Token]
+    Gen --> Email[Send Email Link]
+    Email --> UserClick[User Clicks Link]
+    UserClick --> NewPass[Input New Password]
+    NewPass --> Update[(Update DB)]
+    Update --> Output[Output: Access Restored]
+
+    style Gen fill:#bbdefb
+    style Update fill:#c8e6c9
+```
+
+#### **Luồng 8: Email & Thông báo (Notification Delivery)**
+Hệ thống xử lý thông báo bất đồng bộ qua hàng đợi để đảm bảo hiệu năng và độ tin cậy.
+
+```mermaid
+graph LR
+    Trigger[Event Trigger] --> Filter{Check Preferences}
+    Filter -- Email --> Q_Email[Email Queue]
+    Filter -- Webhook --> Q_Web[Webhook Queue]
+    Q_Email --> W_Email[Email Worker]
+    Q_Web --> W_Web[Webhook Worker]
+    W_Email --> Send[SMTP / API Send]
+    Send --> Output[Output: User Received]
+
+    style Filter fill:#fff9c4
+    style W_Email fill:#ffe0b2
+```
+
+#### **Luồng 9: Webhook Outgoing (Webhook Delivery)**
+Cơ chế gửi dữ liệu sang hệ thống bên thứ 3 (Slack, CRM) khi có sự kiện.
+
+```mermaid
+graph LR
+    Event[Event Occurred] --> Load[Load Configured URLs]
+    Load --> Sign[HMAC Signature]
+    Sign --> POST[HTTP POST Client]
+    POST --> Ext[External System]
+    Ext -- Fail --> Retry[Retry w/ Backoff]
+    Ext -- Success --> Log[(Log Success)]
+
+    style Sign fill:#e1bee7
+    style Retry fill:#ffccbc
+```
+
+#### **Luồng 10: Blog CMS (Bài viết, tags, comments)**
+Quy trình quản lý nội dung từ lúc soạn thảo đến khi xuất bản và tương tác.
+
+```mermaid
+graph LR
+    Admin[Admin] --> Draft[Draft Post]
+    Draft --> SEO[Optimize SEO]
+    SEO --> Publish[(Publish to DB)]
+    Publish --> Reader[Reader View]
+    Reader --> Comment[Add Comment]
+    Comment --> Mod{Moderation}
+    Mod -- Approve --> Public[Comment Visible]
+
+    style Draft fill:#bbdefb
+    style Mod fill:#fff9c4
+```
+
+#### **Luồng 11: Analytics/Report (Tổng hợp số liệu)**
+Quy trình tổng hợp dữ liệu thô thành biểu đồ báo cáo hiệu suất.
+
+```mermaid
+graph LR
+    Request[View Dashboard] --> Agg[Aggregate Service]
+    Agg --> Query[(Query DB)]
+    Query --> Calc[Calculate Metrics]
+    Calc --> Format[Format JSON Data]
+    Format --> Chart[Render Charts]
+
+    style Agg fill:#e1bee7
+    style Calc fill:#c8e6c9
+```
+
+#### **Luồng 12: Xử lý xung đột đồng bộ (Sync Conflict Resolution)**
+Cơ chế phát hiện và giải quyết mâu thuẫn dữ liệu giữa Calento và Google Calendar.
+
+```mermaid
+graph TD
+    Sync[Sync Process] --> Detect{Conflict?}
+    Detect -- No --> Update[(Update DB)]
+    Detect -- Yes --> Log[Log Conflict]
+    Log --> Notify[Notify User]
+    Notify --> UserDecide[User Selects Strategy]
+    UserDecide -- Keep Local --> OverwriteG[Overwrite Google]
+    UserDecide -- Keep Google --> OverwriteL[Overwrite Local]
+    UserDecide -- Keep Both --> Clone[Create Copy]
+
+    style Detect fill:#ffccbc
+    style UserDecide fill:#fff9c4
 ```
 
 ---
@@ -1700,158 +2335,211 @@ sequenceDiagram
     Server-->>Client: Success
 ```
 
-### **3.3.6. Progressive Web App (PWA)**
+#### **Sequence Diagram 8: Gửi Email/Thông báo (Notification Delivery)**
 
-Calento được xây dựng như một Progressive Web App (PWA), cho phép ứng dụng hoạt động gần giống như một ứng dụng native trên các thiết bị di động và desktop. Nhờ vào việc cấu hình Manifest và Service Worker, người dùng có thể cài đặt Calento trực tiếp từ trình duyệt mà không cần thông qua App Store.
+```mermaid
+sequenceDiagram
+    participant S as Service
+    participant Q as Redis Queue
+    participant W as Worker
+    participant T as Template Engine
+    participant M as Mailer (SMTP)
 
-#### **App Manifest Configuration**
+    S->>Q: addJob('send-email', {userId, type})
+    Q-->>S: jobId (Ack)
+    
+    Note right of Q: Async Process
+    W->>Q: processJob()
+    Q-->>W: jobData
+    
+    W->>T: render(template, data)
+    T-->>W: htmlContent
+    
+    W->>M: sendMail(to, subject, html)
+    M-->>W: Success
+    
+    W->>Q: jobCompleted()
+```
 
-Tệp `manifest.json` được cấu hình đầy đủ các tham số để đảm bảo trải nghiệm cài đặt tốt nhất:
+#### **Sequence Diagram 9: Webhook Delivery (Outgoing Webhook)**
 
-Tệp `manifest.json` được cấu hình đầy đủ để biến Calento thành một ứng dụng độc lập. Ứng dụng được định danh rõ ràng với tên đầy đủ "Calento - AI Calendar Assistant", hiển thị ở chế độ `standalone` để loại bỏ thanh địa chỉ và tạo cảm giác native. Giao diện được đồng bộ theme với màu nền trắng (#ffffff) và màu chủ đạo đen (#000000). Hệ thống icon đa kích thước (từ 192x192 đến 512x512) bao gồm cả maskable icons cho Android đảm bảo hiển thị sắc nét trên mọi thiết bị. Ngoài ra, các shortcuts được tích hợp giúp người dùng truy cập nhanh các tính năng quan trọng ngay từ màn hình chính.
+```mermaid
+sequenceDiagram
+    participant E as Event
+    participant S as Webhook Service
+    participant W as Webhook Worker
+    participant EXT as External API
 
-#### **Service Worker & Caching Strategy**
+    E->>S: trigger('booking.created', payload)
+    S->>W: enqueue(url, payload, secret)
+    
+    W->>W: sign = HMAC_SHA256(payload, secret)
+    
+    loop Retry Strategy (3 times)
+        W->>EXT: POST /endpoint (headers: X-Signature)
+        alt Success 200 OK
+            EXT-->>W: 200 OK
+            W->>W: Log Success
+        else Failure
+            EXT-->>W: 500 / Timeout
+            W->>W: Wait (Backoff) & Retry
+        end
+    end
+```
 
-Service Worker (`sw.js`) đóng vai trò là network proxy, quản lý cache và offline capabilities:
+#### **Sequence Diagram 10: Xử lý xung đột đồng bộ (Sync Conflict Resolution)**
 
-Service Worker (`sw.js`) quản lý chiến lược caching thông minh. Đối với tài nguyên tĩnh (JS, CSS, images), chiến lược **Cache First** được áp dụng để tăng tốc độ tải trang. Ngược lại, các API requests sử dụng chiến lược **Network First** để đảm bảo dữ liệu luôn mới nhất, chỉ fallback về cache khi mất mạng. Khả năng hỗ trợ offline cho phép người dùng xem lịch ngay cả khi không có kết nối internet, với các thay đổi dữ liệu được đưa vào hàng đợi background sync. Ngoài ra, Service Worker còn hỗ trợ các tác vụ nền như hiển thị Push Notifications và đồng bộ dữ liệu ngầm, đảm bảo tính nhất quán và trải nghiệm liền mạch.
+```mermaid
+sequenceDiagram
+    participant Job as Sync Job
+    participant DB as Database
+    participant U as User
+    participant API as API
 
-### **3.3.7. Hệ thống Email & Thông báo (Email Notification Service)**
+    Job->>DB: Fetch Local Event
+    Job->>DB: Fetch Google Event (via API)
+    
+    Note over Job: Compare updated_at
+    
+    alt Both Modified
+        Job->>DB: INSERT INTO conflicts (local_id, google_id, reason)
+        Job->>U: Notify "Sync Conflict"
+    end
+    
+    U->>API: Resolve Conflict (Selection: Use Google)
+    API->>DB: UPDATE events SET ... (from Google Data)
+    API->>DB: DELETE FROM conflicts
+    API-->>U: Success
+```
 
-Hệ thống Email & Thông báo đóng vai trò quan trọng trong việc duy trì tương tác với người dùng và đảm bảo họ không bỏ lỡ các sự kiện quan trọng. Module này được xây dựng tách biệt để đảm bảo hiệu năng và khả năng mở rộng.
+#### **Sequence Diagram 11: Blog CMS (Create Post / Moderate Comment)**
 
-#### **Chức năng chính**
--   **Transactional Emails**: Gửi email xác thực tài khoản, reset mật khẩu, và chào mừng người dùng mới (Welcome Email).
--   **Scheduling Notifications**: Gửi thông báo xác nhận đặt lịch (Booking Confirmation) và lời mời tham gia sự kiện (Event Invitations) cho cả người tổ chức và khách mời.
--   **Automated Reminders**: Hệ thống tự động quét và gửi email nhắc nhở (Reminder Email) trước khi sự kiện diễn ra (ví dụ: trước 15 phút, 1 giờ) nhờ vào Cron Jobs.
+```mermaid
+sequenceDiagram
+    participant Admin
+    participant Reader
+    participant CMS as CMS Service
+    participant DB as Database
 
-#### **Công nghệ sử dụng**
--   **Nodemailer**: Thư viện gửi email mạnh mẽ và phổ biến cho Node.js, hỗ trợ SMTP và nhiều transport khác.
--   **BullMQ & Redis**: Để tránh việc gửi email làm chặn luồng xử lý chính (main thread) của server, toàn bộ tác vụ gửi email được đẩy vào hàng đợi (Queue). BullMQ sẽ lấy job từ Redis và xử lý bất đồng bộ (background processing), đảm bảo phản hồi API luôn nhanh chóng.
--   **Handlebars**: Sử dụng làm template engine để tạo ra các email HTML động, chuyên nghiệp và nhất quán với thương hiệu.
+    Note over Admin, DB: Create Post
+    Admin->>CMS: Create Post (Markdown)
+    CMS->>DB: Save (Status: Draft)
+    Admin->>CMS: Publish
+    CMS->>DB: Update Status: Published
+    
+    Note over Reader, DB: Comment Flow
+    Reader->>CMS: Post Comment
+    CMS->>DB: Save (Status: Pending)
+    
+    Admin->>CMS: Approve Comment
+    CMS->>DB: Update Status: Approved
+    CMS-->>Reader: Comment Visible
+```
 
-#### **Giao diện Email mẫu**
+#### **Sequence Diagram 12: Analytics/Report (Aggregate Metrics)**
 
-![Welcome Email Template](Mô tả: Giao diện Email chào mừng người dùng mới với thiết kế thương hiệu Calento)
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant A as Analytics Controller
+    participant S as Aggregation Service
+    participant DB as Database
 
-![Event Reminder Email](Mô tả: Giao diện Email nhắc nhở sự kiện sắp diễn ra)
+    U->>A: View Dashboard (Last 30 Days)
+    A->>S: getOverviewMetrics(userId, range)
+    
+    par Parallel Queries
+        S->>DB: Count Events
+        S->>DB: Sum Duration
+        S->>DB: Group By Category
+    end
+    
+    DB-->>S: Raw Data
+    S->>S: Calculate Growth % (vs previous)
+    S-->>A: JSON Metrics
+    A-->>U: Render Charts
+```
 
-![Password Reset Email](Mô tả: Giao diện Email chứa liên kết đặt lại mật khẩu an toàn)
+### **3.4.3 Progressive Web App (PWA)**
 
-![Team Invitation Email](Mô tả: Giao diện Email mời thành viên gia nhập nhóm làm việc)
+Hệ thống Calento được xây dựng theo chuẩn PWA (Progressive Web App) để mang lại trải nghiệm giống ứng dụng Native (Native-app-like experience) trên cả Mobile và Desktop.
 
-4. **Validation & Update**: Khi người dùng nhấn vào liên kết và nhập mật khẩu mới, Client gửi request `/auth/reset-password` kèm token. Server xác thực token (kiểm tra tính hợp lệ và thời hạn). Nếu thành công, mật khẩu trong database được cập nhật (hashed) và token bị hủy bỏ.
+#### **3.4.3.1 PWA: App Manifest (manifest.json)**
+File cấu hình `manifest.json` giúp trình duyệt nhận diện ứng dụng, cho phép cài đặt vào màn hình Home và hiển thị splash screen.
 
+*   **Name**: Calento - AI Calendar Assistant
+*   **Icons**: Bộ icon đa kích thước (192x192, 512x512) phục vụ cho các thiết bị Android, iOS và Desktop.
+*   **Theme Color**: `#6366f1` (Màu chủ đạo thương hiệu).
+*   **Display Mode**: `standalone` (Ẩn thanh địa chỉ trình duyệt, chạy full màn hình).
+*   **Start URL**: `/dashboard` (Trang đích khi mở app).
 
-## **3.4. Thiết kế API**
+#### **3.4.3.2 PWA: Service Worker (sw.js)**
+Service Worker đóng vai trò như một proxy mạng, xử lý các request nền và quản lý cache. Calento sử dụng Workbox (thư viện của Google) để tối ưu Service Worker.
 
+*   **Precaching**: Tự động tải trước (preload) các tài nguyên tĩnh (JS bundles, CSS, Images, Fonts) ngay lần tải đầu tiên.
+*   **Runtime Caching**: Cache động các API response ít thay đổi (Ví dụ: danh sách Calendar, cấu hình User Settings).
+*   **Offline Fallback**: Hiển thị trang "You are offline" thân thiện khi mất kết nối mạng, thay vì lỗi trình duyệt mặc định.
 
-Hệ thống Calento cung cấp một bộ RESTful API toàn diện, được thiết kế xoay quanh các tài nguyên (resources) và tuân thủ chặt chẽ các nguyên tắc kiến trúc REST. API đóng vai trò là xương sống giao tiếp giữa frontend (Next.js) và backend (NestJS), cũng như cho phép các integrations từ bên thứ ba trong tương lai.
+#### **3.4.3.3 PWA: Caching strategy**
+Chiến lược cache được áp dụng linh hoạt tùy theo loại dữ liệu:
 
-### **3.4.1. Kiến trúc và Nguyên lý thiết kế**
+*   **Cache First**: Áp dụng cho static assets (Ảnh, Fonts, JS). Luôn lấy từ cache để tải trang tức thì, chỉ tải lại từ mạng khi có version mới.
+*   **Network First (có timeout)**: Áp dụng cho dữ liệu quan trọng như danh sách Event, Booking. Ưu tiên lấy dữ liệu mới nhất từ Server, nếu mạng chậm hoặc mất kết nối thì mới dùng cache cũ.
+*   **Stale-While-Revalidate**: Áp dụng cho data ít quan trọng hơn (Ví dụ: Blog posts). Hiển thị data cũ ngay lập tức, sau đó ngầm tải data mới và cập nhật giao diện.
 
-API của Calento được xây dựng dựa trên kiến trúc Layered Architecture của NestJS, đảm bảo tính separation of concerns. Mọi endpoint đều tuân theo quy tắc đặt tên danh từ số nhiều (plural nouns) để chỉ định tài nguyên (ví dụ: `/users`, `/events`) và sử dụng các HTTP verbs chuẩn (`GET`, `POST`, `PATCH`, `DELETE`) để định nghĩa hành động.
+#### **3.4.3.4 PWA: Offline & Background Sync**
+*   **Offline Access**: Người dùng có thể xem lại lịch trình đã tải khi không có mạng.
+*   **Background Sync**: Khi người dùng thực hiện hành động (như Update Event) lúc offline, request sẽ được lưu vào IndexedDB. Khi có mạng trở lại, Service Worker sẽ tự động gửi request lên server (Background Sync API).
 
-Dữ liệu trao đổi giữa client và server hoàn toàn sử dụng định dạng JSON (JavaScript Object Notation), đảm bảo tính lightweight và dễ dàng parsing trên mọi nền tảng. Mỗi response từ server đều có structure nhất quán, bao gồm `statusCode`, `message`, và `data` (đối với success response) hoặc `error` details (đối với failure), giúp frontend dễ dàng handle các trạng thái khác nhau của application.
+#### **3.4.3.5 PWA: Push Notifications**
+Tận dụng Web Push API để gửi thông báo ngay cả khi người dùng không mở tab ứng dụng:
+*   **Nhắc nhở lịch họp**: Gửi trước 15 phút.
+*   **Thông báo Booking mới**: Gửi ngay khi có khách đặt lịch.
+*   Yêu cầu quyền: Hiển thị popup `Notification.requestPermission()` tại thời điểm hợp lý (Contextual permission).
 
-### **3.4.2. Cơ chế Xác thực và Bảo mật**
+### **3.4.4 Hệ thống Email & Thông báo (Email Notification Service)**
 
-Bảo mật là ưu tiên hàng đầu trong thiết kế API. Hệ thống sử dụng cơ chế xác thực dựa trên token (Token-based Authentication) với chuẩn JWT (JSON Web Tokens).
+Hệ thống thông báo là thành phần quan trọng để giữ tương tác và nhắc nhở người dùng. Calento sử dụng kiến trúc Message Queue để xử lý việc gửi email/thông báo một cách tin cậy và hiệu năng cao.
 
-**Bearer Token Authentication:**
-Mọi request đến các protected endpoints đều bắt buộc phải đính kèm Access Token hợp lệ trong header `Authorization` dưới dạng `Bearer <token>`. Access Token này chứa các claims đã được ký (userId, email, role), cho phép server xác định danh tính user mà không cần tra cứu database liên tục (stateless authentication).
+#### **3.4.4.1 Email: Chức năng chính**
+*   **Transactional Email**: Gửi ngay lập tức theo hành động (Xác thực tài khoản, Quên mật khẩu, Xác nhận Booking).
+*   **Reminder Email**: Gửi theo lịch trình (Nhắc lịch họp sắp tới).
+*   **Digest/Report**: Email tổng hợp lịch trình ngày/tuần (Optional).
 
-**Refresh Token Rotation:**
-Để cân bằng giữa UX và bảo mật, Access Token có thời gian sống ngắn (1 giờ). Khi hết hạn, client sử dụng Refresh Token (thời hạn 7 ngày, lưu trong HttpOnly cookie) để request cấp phát cặp token mới. Cơ chế rotation này (cấp mới cả refresh token mỗi lần sử dụng) giúp detect token theft: nếu một refresh token cũ bị sử dụng lại, hệ thống sẽ lập tức invalidate toàn bộ chuỗi token của user đó.
+#### **3.4.4.2 Email: Transactional Emails**
+Sử dụng cho các email quan trọng, yêu cầu độ trễ thấp và độ tin cậy tuyệt đối.
+*   **Flow**: User Action -> API -> Queue (Priority High) -> Worker -> SendGrid/Mailgun -> User Inbox.
+*   **Ví dụ**: Email xác thực đăng ký (Verify Account), Mã OTP, Thông báo đổi mật khẩu.
 
-**Rate Limiting và Security Headers:**
-Để bảo vệ hệ thống khỏi các cuộc tấn công DDoS và Brute-force, API áp dụng rate limiting (giới hạn số request) cho các endpoints nhạy cảm như `/auth/login` hay `/auth/register`. Ngoài ra, các security headers như Helmet, CORS (Cross-Origin Resource Sharing) policies được cấu hình chặt chẽ, chỉ cho phép requests từ các domains tin cậy (frontend domain).
+#### **3.4.4.3 Email: Scheduling Notifications**
+Xử lý các thông báo được lên lịch trước (Scheduled Jobs).
+*   Khi một Event được tạo, hệ thống tính toán thời điểm gửi nhắc nhở (Ví dụ: Event lúc 10:00, nhắc lúc 09:45).
+*   Sử dụng Redis Delayed Queue để "treo" job cho đến đúng thời điểm mới đẩy vào hàng đợi xử lý.
 
-### **3.4.3. Chiến lược Phiên bản hóa (Versioning)**
+#### **3.4.4.4 Email: Automated Reminders (Cron/Jobs)**
+Ngoài các nhắc nhở theo từng event, hệ thống có các Cron Jobs định kỳ:
+*   **Daily Briefing**: Chạy lúc 07:00 AM mỗi ngày, tổng hợp lịch trình trong ngày gửi cho user.
+*   **Cleanup**: Xóa các log email cũ, retry các email thất bại quá hạn.
 
-Để đảm bảo tính tương thích ngược (backward compatibility) khi hệ thống phát triển, Calento áp dụng chiến lược phiên bản hóa qua URL (URI Path Versioning). Tất cả các endpoints đều có prefix `/api/v1`.
+#### **3.4.4.5 Email: Nodemailer (SMTP/Transport)**
+Module `Nodemailer` trong Backend đảm nhận việc kết nối với Mail Server.
+*   **Transport Config**: Hỗ trợ SMTP (Gmail, AWS SES) hoặc API driver (SendGrid, Mailgun).
+*   **Pool Connection**: Giữ kết nối SMTP để tái sử dụng, tăng tốc độ gửi hàng loạt.
+*   **DKIM/SPF Signing**: Đảm bảo email gửi đi đạt độ uy tín cao, tránh vào Spam.
 
-Chiến lược này cho phép team phát triển deploy các tính năng mới hoặc thay đổi breaking changes ở `/api/v2` trong tương lai mà không làm gián đoạn trải nghiệm của người dùng đang sử dụng phiên bản cũ. Đây là best practice trong thiết kế API cho các hệ thống long-term, giúp decouple vòng đời phát triển của frontend và backend.
+#### **3.4.4.6 Email: BullMQ & Redis (Queue/Worker)**
+Sử dụng thư viện `BullMQ` trên nền `Redis` để quản lý hàng đợi gửi email.
+*   **Decoupling**: API Server chỉ đẩy yêu cầu vào Queue và trả lời User ngay lập tức (Non-blocking). Việc gửi email (tốn 1-2s) được Worker xử lý nền.
+*   **Retries**: Tự động thử lại (Exponential backoff) nếu gửi thất bại (lỗi mạng, server mail quá tải).
+*   **Rate Limiting**: Giới hạn tốc độ gửi để tránh bị nhà cung cấp Email khóa tài khoản (Ví dụ: Max 100 email/giây).
 
-### **3.4.4. Các nhóm tài nguyên chính**
+#### **3.4.4.7 Email: Handlebars (HTML Templates)**
+Email được thiết kế chuyên nghiệp, responsive trên mọi thiết bị di động/desktop.
+*   **Template Engine**: Sử dụng `Handlebars (.hbs)` để tách biệt logic code và giao diện HTML email.
+*   **Variables**: Inject dữ liệu động (Tên User, Link Booking, Thời gian họp) vào template.
+*   **Styles**: Sử dụng CSS Inline (hoặc thư viện like Juice) để đảm bảo hiển thị đúng trên các trình đọc mail cũ (Outlook).
 
-Hệ thống API được tổ chức thành các nhóm module function-centric:
-
-**Auth & Users Module:**
-Bao gồm các endpoints cho quy trình authentication (Login, Register, OAuth callback) và quản lý identity. Các endpoints như `GET /users/me` cho phép lấy full profile của logged-in user, trong khi `PATCH /users/me/settings` cho phép update preferences linh hoạt thông qua JSONB storage.
-
-**Calendar & Events Module:**
-Đây là nhóm API phức tạp nhất, xử lý logic nghiệp vụ cốt lõi. Ngoài các CRUD operations cơ bản cho events, module này cung cấp các endpoints đặc thù như `/events/sync` để trigger Google Calendar synchronization, `/events/recurring/expand` để tính toán các instances cụ thể từ một recurring rule (RRULE), và `/events/availability` để kiểm tra xung đột lịch trình.
-
-**Public Booking Module:**
-Nhóm API này phục vụ tính năng đặt lịch công khai. Các endpoints như `/booking-links/:slug` là public (không yêu cầu auth), cho phép khách truy cập xem thông tin trang đặt lịch. Endpoint `/bookings` xử lý transaction phức tạp: tạo booking record, tạo event tương ứng, gửi emails xác nhận, và update Google Calendar nếu cần thiết.
-
-**AI Integration Module:**
-Cung cấp các endpoints cho tính năng AI Assistant. Endpoint `/ai/chat` hỗ trợ Server-Sent Events (SSE), cho phép streaming response từ LLM về client theo thời gian thực (real-time typing effect). Endpoint này cũng handle logic RAG: nhận câu hỏi, gọi vector search service, và inject context vào prompt trước khi gửi đến Gemini model.
-
-### **3.4.5. Danh sách API chi tiết**
-
-Dưới đây là bảng đặc tả các API endpoints quan trọng nhất của hệ thống, được phân nhóm theo chức năng:
-
-### **3.4.5. Danh sách API chi tiết**
-
-Dưới đây là bảng đặc tả các API endpoints quan trọng nhất của hệ thống, được phân nhóm theo chức năng:
-
-### **3.4.5. Danh sách API chi tiết**
-
-Dưới đây là bảng đặc tả các API endpoints quan trọng nhất của hệ thống, được phân nhóm theo chức năng:
-
-| Module | Method | Endpoint | Mô tả chức năng | Auth |
-| :--- | :---: | :--- | :--- | :---: |
-| **Auth** | POST | `/api/v1/auth/login` | Đăng nhập bằng Email/Password | No |
-| | POST | `/api/v1/auth/register` | Đăng ký tài khoản mới | No |
-| | POST | `/api/v1/auth/logout` | Đăng xuất (Clear cookie) | Yes |
-| | POST | `/api/v1/auth/refresh` | Làm mới Access Token (Token Rotation) | No |
-| | GET | `/api/v1/auth/verify` | Kiểm tra trạng thái đăng nhập | No |
-| | GET | `/api/v1/auth/google/url` | Lấy URL đăng nhập Google OAuth | No |
-| | POST | `/api/v1/auth/google/login` | Đăng nhập với Authorization Code | No |
-| | POST | `/api/v1/auth/forgot-password` | Yêu cầu reset mật khẩu | No |
-| **Users** | GET | `/api/v1/users/me` | Lấy thông tin Profile hiện tại | Yes |
-| | GET | `/api/v1/users/search` | Tìm kiếm người dùng (cho invite) | Yes |
-| | PATCH | `/api/v1/users/me/settings` | Cập nhật cài đặt (Language, Theme) | Yes |
-| **Calendars** | GET | `/api/v1/calendars` | Lấy danh sách lịch cá nhân | Yes |
-| | POST | `/api/v1/calendars` | Tạo lịch mới (Secondary Calendar) | Yes |
-| | GET | `/api/v1/calendars/primary` | Lấy lịch chính (Primary) | Yes |
-| **Events** | GET | `/api/v1/events` | Lấy danh sách sự kiện (Filter by date) | Yes |
-| | POST | `/api/v1/events` | Tạo sự kiện mới | Yes |
-| | GET | `/api/v1/events/recurring/expand` | Bung sự kiện lặp lại (Expand RRULE) | Yes |
-| | POST | `/api/v1/events/sync` | Trigger đồng bộ Google Calendar | Yes |
-| | POST | `/api/v1/events/:id/invitations/send`| Gửi email mời tham gia sự kiện | Yes |
-| | POST | `/api/v1/events/invitation/:token/respond`| Phản hồi lời mời (Accept/Decline) | No |
-| **Booking** | GET | `/api/v1/booking-links` | Quản lý danh sách Booking Links | Yes |
-| | GET | `/api/v1/bookings/public/:slug` | Lấy thông tin trang đặt lịch Public | No |
-| | GET | `/api/v1/bookings/public/:slug/slots`| Tìm các khung giờ rảnh (Availability) | No |
-| | POST | `/api/v1/bookings/:slug` | Khách thực hiện đặt lịch (Create) | No |
-| | POST | `/api/v1/bookings/:id/cancel` | Hủy lịch hẹn | Yes |
-| | POST | `/api/v1/bookings/:id/reschedule` | Dời lịch hẹn | Yes |
-| **Tasks** | GET | `/api/v1/tasks` | Lấy danh sách công việc (todo list) | Yes |
-| | POST | `/api/v1/tasks` | Tạo công việc mới | Yes |
-| | GET | `/api/v1/tasks/overdue` | Lấy công việc quá hạn | Yes |
-| | GET | `/api/v1/tasks/statistics` | Thống kê hiệu suất hoàn thành task | Yes |
-| | PATCH | `/api/v1/tasks/:id/status` | Cập nhật trạng thái (todo/done) | Yes |
-| **AI** | POST | `/api/v1/ai/chat` | Chat với AI (Response Object) | Yes |
-| | POST | `/api/v1/ai/chat/stream` | Chat Streaming (Server-Sent Events) | Yes |
-| | GET | `/api/v1/ai/conversations` | Lịch sử hội thoại | Yes |
-| | POST | `/api/v1/ai/actions/confirm` | Xác nhận hành động AI đề xuất | Yes |
-| **Teams** | GET | `/api/v1/teams` | Lấy danh sách Teams của user | Yes |
-| | POST | `/api/v1/teams/:id/members` | Mời thành viên vào Team | Yes |
-| | GET | `/api/v1/teams/:id/heatmap` | Biểu đồ nhiệt rảnh/bận của Team | Yes |
-| | GET | `/api/v1/teams/:id/optimal-times` | Gợi ý giờ họp tốt nhất cho Team | Yes |
-| **Analytics**| GET | `/api/v1/analytics/overview` | Tổng quan số liệu (Events/Time) | Yes |
-| | GET | `/api/v1/analytics/time-utilization`| Phân tích hiệu suất sử dụng thời gian | Yes |
-| | GET | `/api/v1/analytics/categories` | Phân tích phân bổ danh mục (Category) | Yes |
-| **Blog** | GET | `/api/v1/blog/public/published` | Lấy bài viết đã xuất bản (Public) | No |
-| | GET | `/api/v1/blog/search` | Tìm kiếm bài viết | No |
-| | POST | `/api/v1/blog` | Tạo bài viết mới (Admin) | Yes |
-| **Notification**| POST | `/api/v1/notifications/schedule-reminders`| Lên lịch gửi nhắc nhở (Job Trigger) | Yes |
-| | GET | `/api/v1/notifications/pending` | Lấy thông báo đang chờ xử lý | Yes |
-
-## **3.5. Cài đặt môi trường**
+## **3.5 Deployment (Triển khai hệ thống)**
 
 ### **3.5.1. Yêu cầu hệ thống (Prerequisites)**
 
@@ -2040,4 +2728,112 @@ Google Search Console (GSC) được sử dụng để theo dõi hiệu suất S
 ![Google Search Console](Google Search Console Interface)
 
 ##### Hình 23: Google Search Console {#hình-23:-google-search-console}
+
+## **3.6 Thiết kế API**
+
+Hệ thống Calento cung cấp một bộ RESTful API toàn diện, được thiết kế xoay quanh các tài nguyên (resources) và tuân thủ chặt chẽ các nguyên tắc kiến trúc REST. API đóng vai trò là xương sống giao tiếp giữa frontend (Next.js) và backend (NestJS), cũng như cho phép các integrations từ bên thứ ba trong tương lai.
+
+### **3.6.1 Kiến trúc & nguyên lý thiết kế**
+
+API của Calento được xây dựng dựa trên kiến trúc Layered Architecture của NestJS, đảm bảo tính separation of concerns. Mọi endpoint đều tuân theo quy tắc đặt tên danh từ số nhiều (plural nouns) để chỉ định tài nguyên (ví dụ: `/users`, `/events`) và sử dụng các HTTP verbs chuẩn (`GET`, `POST`, `PATCH`, `DELETE`) để định nghĩa hành động.
+
+Dữ liệu trao đổi giữa client và server hoàn toàn sử dụng định dạng JSON (JavaScript Object Notation), đảm bảo tính lightweight và dễ dàng parsing trên mọi nền tảng. Mỗi response từ server đều có structure nhất quán, bao gồm `statusCode`, `message`, và `data` (đối với success response) hoặc `error` details (đối với failure), giúp frontend dễ dàng handle các trạng thái khác nhau của application.
+
+### **3.6.2 Cơ chế xác thực & bảo mật**
+
+Bảo mật là ưu tiên hàng đầu trong thiết kế API. Hệ thống sử dụng cơ chế xác thực dựa trên token (Token-based Authentication) với chuẩn JWT (JSON Web Tokens).
+
+*   **Bearer Token Authentication:** Mọi request đến các protected endpoints đều bắt buộc phải đính kèm Access Token hợp lệ trong header `Authorization` dưới dạng `Bearer <token>`. Access Token này chứa các claims đã được ký (userId, email, role), cho phép server xác định danh tính user mà không cần tra cứu database liên tục (stateless authentication).
+
+*   **Refresh Token Rotation:** Để cân bằng giữa UX và bảo mật, Access Token có thời gian sống ngắn (1 giờ). Khi hết hạn, client sử dụng Refresh Token (thời hạn 7 ngày, lưu trong HttpOnly cookie) để request cấp phát cặp token mới. Cơ chế rotation này giúp phát hiện lạm dụng token.
+
+*   **Rate Limiting và Security Headers:** Áp dụng rate limiting cho các endpoints nhạy cảm như `/auth/login`. Sử dụng Helmet và CORS policies cấu hình chặt chẽ.
+
+### **3.6.3 Chiến lược phiên bản hóa (Versioning)**
+
+Để đảm bảo tính tương thích ngược (backward compatibility), Calento áp dụng chiến lược phiên bản hóa qua URL (URI Path Versioning). Tất cả các endpoints đều có prefix `/api/v1`. Chiến lược này cho phép deploy tính năng mới tại `/api/v2` mà không ảnh hưởng người dùng cũ.
+
+### **3.6.4 Các nhóm tài nguyên chính**
+
+Hệ thống API được tổ chức thành các nhóm module function-centric:
+
+*   **Auth & Users Module:** Endpoints cho authentication (Login, Register, OAuth) và quản lý identity.
+*   **Calendar & Events Module:** Xử lý logic nghiệp vụ cốt lõi, CRUD sự kiện, đồng bộ Google Calendar.
+*   **Public Booking Module:** Phục vụ tính năng đặt lịch công khai, xử lý transaction booking.
+*   **AI Integration Module:** Endpoints cho Chat AI (SSE Streaming) và RAG.
+
+### **3.6.5 Danh sách API chi tiết (Endpoints)**
+
+Dưới đây là bảng đặc tả các API endpoints quan trọng nhất:
+
+| Module | Method | Endpoint | Mô tả chức năng | Auth |
+| :--- | :---: | :--- | :--- | :---: |
+| **Auth** | POST | `/api/v1/auth/register` | Đăng ký tài khoản mới | No |
+| | POST | `/api/v1/auth/login` | Đăng nhập (Email/Password) | No |
+| |POST | `/api/v1/auth/logout` | Đăng xuất (Clear cookie) | Yes |
+| | POST | `/api/v1/auth/refresh` | Làm mới Access Token | No |
+| | GET | `/api/v1/auth/me` | Lấy thông tin User hiện tại | Yes |
+| | GET | `/api/v1/auth/verify` | Kiểm tra trạng thái đăng nhập | No |
+| | GET | `/api/v1/auth/google/url` | Lấy URL đăng nhập Google | No |
+| | POST | `/api/v1/auth/google/login` | Đăng nhập bằng Google Code | No |
+| | POST | `/api/v1/auth/forgot-password` | Yêu cầu reset mật khẩu | No |
+| | POST | `/api/v1/auth/reset-password` | Đặt lại mật khẩu mới | No |
+| **Users** | POST | `/api/v1/users` | Tạo user (Admin) | No |
+| | GET | `/api/v1/users` | Lấy danh sách users | Yes |
+| | GET | `/api/v1/users/search` | Tìm kiếm users | Yes |
+| | GET | `/api/v1/users/settings` | Lấy cài đặt cá nhân | Yes |
+| | PATCH | `/api/v1/users/settings` | Cập nhật cài đặt cá nhân | Yes |
+| | GET | `/api/v1/users/:id` | Lấy chi tiết user | Yes |
+| | PUT | `/api/v1/users/:id` | Cập nhật thông tin user | Yes |
+| | DELETE | `/api/v1/users/:id` | Xóa user (Admin) | Yes |
+| **Events** | GET | `/api/v1/events` | Lấy danh sách sự kiện | Yes |
+| | POST | `/api/v1/events` | Tạo sự kiện mới | Yes |
+| | GET | `/api/v1/events/recurring/expand` | Mở rộng sự kiện lặp lại | Yes |
+| | GET | `/api/v1/events/:id` | Lấy chi tiết sự kiện | Yes |
+| | PUT | `/api/v1/events/:id` | Cập nhật toàn bộ sự kiện | Yes |
+| | PATCH | `/api/v1/events/:id` | Cập nhật một phần sự kiện | Yes |
+| | DELETE | `/api/v1/events/:id` | Xóa sự kiện | Yes |
+| | POST | `/api/v1/events/sync-attendees` | Đồng bộ người tham gia | Yes |
+| | POST | `/api/v1/events/:id/invitations/send`| Gửi email mời họp | Yes |
+| | GET | `/api/v1/events/invitation/:token` | Xem chi tiết lời mời | No |
+| | POST | `/api/v1/events/invitation/:token/respond` | Phản hồi lời mời | No |
+| **Booking Links** | POST | `/api/v1/booking-links` | Tạo link đặt lịch cá nhân | Yes |
+| | GET | `/api/v1/booking-links` | Danh sách link của tôi | Yes |
+| | GET | `/api/v1/booking-links/active` | Danh sách link đang hoạt động | Yes |
+| | GET | `/api/v1/booking-links/:id` | Chi tiết Booking Link | Yes |
+| | PATCH | `/api/v1/booking-links/:id` | Cập nhật Booking Link | Yes |
+| | DELETE | `/api/v1/booking-links/:id` | Xóa Booking Link | Yes |
+| **Bookings** | GET | `/api/v1/bookings/public/:slug` | Lấy trang đặt lịch công khai| No |
+| | GET | `/api/v1/bookings/public/:slug/slots`| Lấy khung giờ rảnh (Public)| No |
+| | POST | `/api/v1/bookings/:slug` | Khách thực hiện đặt lịch | No |
+| | GET | `/api/v1/bookings/stats` | Thống kê số lượng booking | Yes |
+| | GET | `/api/v1/bookings/me` | Lịch sử booking của tôi | Yes |
+| | GET | `/api/v1/bookings/me/upcoming` | Booking sắp tới của tôi | Yes |
+| | POST | `/api/v1/bookings/:id/cancel` | Hủy lịch hẹn | Yes |
+| | POST | `/api/v1/bookings/:id/reschedule`| Dời lịch hẹn | Yes |
+| **Calendars** | GET | `/api/v1/calendars` | Danh sách lịch connected | Yes |
+| | GET | `/api/v1/calendars/primary` | Lấy lịch chính (Primary) | Yes |
+| | POST | `/api/v1/calendars` | Tạo lịch mới (Local) | Yes |
+| | PUT | `/api/v1/calendars/:id` | Cập nhật lịch | Yes |
+| | DELETE | `/api/v1/calendars/:id` | Xóa lịch | Yes |
+| **Teams** | POST | `/api/v1/teams` | Tạo Team mới | Yes |
+| | GET | `/api/v1/teams` | Team tôi tham gia | Yes |
+| | GET | `/api/v1/teams/owned` | Team tôi sở hữu | Yes |
+| | POST | `/api/v1/teams/:id/members` | Mời thành viên vào Team | Yes |
+| | POST | `/api/v1/teams/invitations/:token/accept` | Chấp nhận lời mời | Yes |
+| | POST | `/api/v1/teams/:id/rituals` | Tạo lịch hoạt động nhóm | Yes |
+| | GET | `/api/v1/teams/:id/heatmap` | Biểu đồ nhiệt rảnh rỗi | Yes |
+| | GET | `/api/v1/teams/:id/optimal-times`| Gợi ý giờ họp tối ưu | Yes |
+| **Tasks** | POST | `/api/v1/tasks` | Tạo công việc mới | Yes |
+| | GET | `/api/v1/tasks` | Lấy danh sách công việc | Yes |
+| | GET | `/api/v1/tasks/overdue` | Công việc quá hạn | Yes |
+| | PATCH | `/api/v1/tasks/:id/status` | Cập nhật trạng thái Task | Yes |
+| **AI** | GET | `/api/v1/ai/health` | Kiểm tra dịch vụ AI | Yes |
+| | POST | `/api/v1/ai/chat` | Chat với AI (Normal) | Yes |
+| | POST | `/api/v1/ai/chat/stream` | Chat với AI (SSE Stream) | Yes |
+| | GET | `/api/v1/ai/conversations` | Lịch sử hội thoại | Yes |
+| | POST | `/api/v1/ai/actions/confirm` | Xác nhận hành động AI | Yes |
+| **RAG** | POST | `/api/v1/rag/context` | Thêm context cho AI | Yes |
+| | GET | `/api/v1/rag/contexts` | Lấy danh sách context | Yes |
+
 
