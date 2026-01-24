@@ -164,9 +164,7 @@
   - [4.4 Tích hợp AI Assistant](#44-tich-hop-ai-assistant)
   - [4.5 Tích hợp Google Calendar/Meet](#45-tich-hop-google-calendarmeet)
   - [4.6 Notification/Email/Webhook/Jobs](#46-notificationemailwebhookjobs)
-  - [4.7 Kiến trúc Backend (NestJS Micro-modular)](#47-kien-truc-backend-nestjs-micro-modular)
-    - [4.7.1 Sơ đồ Module (Module Graph)](#471-so-do-module-module-graph)
-    - [4.7.2 Các Module Chính](#472-cac-module-chinh)
+
 - [Chương 5: Kiểm thử - đánh giá - triển khai](#chương-5-kiểm-thử---đánh-giá---triển-khai)
 
   - [5.1 Đánh giá kết quả](#51-đánh-giá-kết-quả)
@@ -769,17 +767,7 @@
 
 ### 4.6 Notification/Email/Webhook/Jobs
 
-`<a id="47-kien-truc-backend-nestjs-micro-modular"></a>`
 
-### 4.7 Kiến trúc Backend (NestJS Micro-modular)
-
-`<a id="471-so-do-module-module-graph"></a>`
-
-#### 4.7.1 Sơ đồ Module (Module Graph)
-
-`<a id="472-cac-module-chinh"></a>`
-
-#### 4.7.2 Các Module Chính
 
 ---
 

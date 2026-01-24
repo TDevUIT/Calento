@@ -58,27 +58,27 @@ Frontend của ứng dụng được tổ chức theo kiến trúc App Router c�
 ```mermaid
 graph TD
     %% App Entry
-    RootLayout[Root Layout (layout.tsx)]
+    RootLayout["Root Layout (layout.tsx)"]
     
     %% Providers
-    Providers[Providers Wrapper]
+    Providers["Providers Wrapper"]
     Theme[ThemeProvider]
     Query[TanStack QueryProvider]
     AuthProv[AuthProvider]
 
     %% Route Groups
-    subgraph PublicGroup [(public)]
+    subgraph PublicGroup ["(public)"]
         LandingPage[Landing Page]
         About[About Page]
         Pricing[Pricing Page]
     end
 
-    subgraph AuthGroup [auth]
+    subgraph AuthGroup ["auth"]
         Login[Login Page]
         Register[Register Page]
     end
 
-    subgraph DashboardGroup [(dashboard)]
+    subgraph DashboardGroup ["(dashboard)"]
         DashLayout[Dashboard Layout]
         Sidebar[Sidebar Component]
         Header[Header Component]
@@ -89,7 +89,7 @@ graph TD
         TeamPg[Team Page]
     end
 
-    subgraph AdminGroup [(admin)]
+    subgraph AdminGroup ["(admin)"]
         AdminLayout[Admin Layout]
         AdminBlog[Blog Management]
         AdminUsers[User Management]
@@ -240,84 +240,4 @@ Hệ thống thông báo đảm bảo người dùng không bỏ lỡ thông tin
 - **Webhooks**: Hệ thống bắn webhook ra bên ngoài (Outgoing Webhooks) khi có sự kiện `booking.created` hoặc `event.cancelled`, cho phép tích hợp với Zapier, Slack.
 - **In-app Notifications**: Thông báo thời gian thực trên giao diện web (chuông thông báo) sử dụng Socket.IO (hoặc Polling nhẹ) để cập nhật trạng thái mới nhất.
 
-## **4.7 Kiến trúc Backend (NestJS Micro-modular)**
 
-Backend được xây dựng trên **NestJS Framework**, áp dụng kiến trúc Module hóa chặt chẽ để đảm bảo tính mở rộng và dễ bảo trì.
-
-### **4.7.1 Sơ đồ Module (Module Graph)**
-
-```mermaid
-graph TD
-    Root[App Module]
-
-    subgraph Infra [Infrastructure Layer]
-        Config[Config Module]
-        Database[Database Module]
-        Queue[Queue Module (BullMQ)]
-    end
-
-    subgraph Core [Core Domain]
-        Auth[Auth Module]
-        User[Users Module]
-        Event[Event Module]
-        Calendar[Calendar Module]
-        Booking[Booking Module]
-    end
-
-    subgraph Feature [Feature Domain]
-        Team[Team Module]
-        Task[Task Module]
-        Blog[Blog Module]
-        AI[AI Module]
-    end
-
-    subgraph Integration [External & Jobs]
-        Google[Google Module]
-        Email[Email Module]
-        Notif[Notification Module]
-    end
-
-    Root --> Infra
-    Root --> Core
-    Root --> Feature
-    Root --> Integration
-
-    Auth --> User
-    Auth --> Google
-    
-    Event --> Calendar
-    Event --> Google
-    
-    Booking --> Event
-    Booking --> Notif
-    
-    AI --> Event
-    AI --> User
-
-    style Infra fill:#e0e0e0,stroke:#bdbdbd
-    style Core fill:#fff9c4,stroke:#fbc02d
-    style Feature fill:#e1bee7,stroke:#8e24aa
-    style Integration fill:#b3e5fc,stroke:#039be5
-```
-
-##### Hình 25: Kiến trúc Module NestJS {#hình-25:-kiến-trúc-module-nestjs}
-
-### **4.7.2 Các Module Chính**
-
-*   **Auth Module**:
-    *   Sử dụng `Passport.js` với các chiến lược `JwtStrategy` (xác thực token) và `GoogleStrategy` (OAuth 2.0).
-    *   Cơ chế **Guard** (`JwtAuthGuard`) bảo vệ các endpoints, chỉ cho phép Request có Bearer Token hợp lệ đi qua.
-    *   **Decorators** custom như `@CurrentUser()` giúp trích xuất thông tin user từ request một cách tiện lợi.
-
-*   **Event & Calendar Module**:
-    *   Chứa logic nghiệp vụ phức tạp nhất: xử lý sự kiện lặp lại (Recurrence Rules - RRule), phát hiện xung đột thời gian (Conflict Detection).
-    *   Tích hợp **Pattern Repository** để tương tác với Database, đảm bảo tính tách biệt giữa logic và dữ liệu.
-
-*   **Queue Module (BullMQ)**:
-    *   Xử lý các tác vụ nền (Background Jobs) để không chặn luồng chính (Main Thread).
-    *   Các Queue chính: `email.queue` (gửi mail), `calendar.sync` (đồng bộ Google), `ai.embedding` (xử lý Vector RAG).
-
-*   **AI Module**:
-    *   Tích hợp **LangChain** để quản lý luồng hội thoại.
-    *   Sử dụng **Google Gemini model** thông qua API.
-    *   Cơ chế **Context Injection**: Tự động lấy lịch trình của user trong ngày làm context cho Prompt hệ thống.
