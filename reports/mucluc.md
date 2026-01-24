@@ -151,13 +151,22 @@
     - [4.1.5 Teams (Team Member/Owner)](#415-teams-team-memberowner)
     - [4.1.6 Settings / Integrations / Profile / Billing](#416-settings--integrations--profile--billing)
     - [4.1.7 Admin / CMS (Blog/Comments/Contacts)](#417-admin--cms-blogcommentscontacts)
+    - [4.1.8 Sơ đồ luồng Frontend (Frontend Architecture)](#418-so-do-luong-frontend-frontend-architecture)
   - [4.2 Xây dựng Frontend (Next.js App)](#42-xay-dung-frontend-nextjs-app)
-    - [4.2.1 Routing &amp; Layouts (App Router)](#421-routing--layouts-app-router)
-    - [4.2.2 Data fetching &amp; State (TanStack Query / Zustand)](#422-data-fetching--state-tanstack-query--zustand)
+    - [4.2.1 Routing & Layouts (App Router)](#421-routing--layouts-app-router)
+    - [4.2.2 Data fetching & State (TanStack Query / Zustand)](#422-data-fetching--state-tanstack-query--zustand)
     - [4.2.3 UI Components (Calendar, Booking, Team, Blog)](#423-ui-components-calendar-booking-team-blog)
-  - [4.3 Tích hợp AI Assistant](#43-tich-hop-ai-assistant)
-  - [4.4 Tích hợp Google Calendar/Meet](#44-tich-hop-google-calendarmeet)
-  - [4.5 Notification/Email/Webhook/Jobs](#45-notificationemailwebhookjobs)
+  - [4.3 Chi tiết Hiện thực Tính năng (Feature Implementation)](#43-chi-tiet-hien-thuc-tinh-nang-feature-implementation)
+    - [4.3.1 Dashboard & Calendar](#431-dashboard--calendar)
+    - [4.3.2 Booking System (Đặt lịch hẹn)](#432-booking-system-dat-lich-hen)
+    - [4.3.3 Team Collaboration](#433-team-collaboration)
+    - [4.3.4 Blog CMS (Admin)](#434-blog-cms-admin)
+  - [4.4 Tích hợp AI Assistant](#44-tich-hop-ai-assistant)
+  - [4.5 Tích hợp Google Calendar/Meet](#45-tich-hop-google-calendarmeet)
+  - [4.6 Notification/Email/Webhook/Jobs](#46-notificationemailwebhookjobs)
+  - [4.7 Kiến trúc Backend (NestJS Micro-modular)](#47-kien-truc-backend-nestjs-micro-modular)
+    - [4.7.1 Sơ đồ Module (Module Graph)](#471-so-do-module-module-graph)
+    - [4.7.2 Các Module Chính](#472-cac-module-chinh)
 - [Chương 5: Kiểm thử - đánh giá - triển khai](#chương-5-kiểm-thử---đánh-giá---triển-khai)
 
   - [5.1 Đánh giá kết quả](#51-đánh-giá-kết-quả)
@@ -708,6 +717,10 @@
 
 #### 4.1.7 Admin / CMS (Blog/Comments/Contacts)
 
+`<a id="418-so-do-luong-frontend-frontend-architecture"></a>`
+
+#### 4.1.8 Sơ đồ luồng Frontend (Frontend Architecture)
+
 `<a id="42-xay-dung-frontend-nextjs-app"></a>`
 
 ### 4.2 Xây dựng Frontend (Next.js App)
@@ -724,17 +737,49 @@
 
 #### 4.2.3 UI Components (Calendar, Booking, Team, Blog)
 
-`<a id="43-tich-hop-ai-assistant"></a>`
+`<a id="43-chi-tiet-hien-thuc-tinh-nang-feature-implementation"></a>`
 
-### 4.3 Tích hợp AI Assistant
+### 4.3 Chi tiết Hiện thực Tính năng (Feature Implementation)
 
-`<a id="44-tich-hop-google-calendarmeet"></a>`
+`<a id="431-dashboard--calendar"></a>`
 
-### 4.4 Tích hợp Google Calendar/Meet
+#### 4.3.1 Dashboard & Calendar
 
-`<a id="45-notificationemailwebhookjobs"></a>`
+`<a id="432-booking-system-dat-lich-hen"></a>`
 
-### 4.5 Notification/Email/Webhook/Jobs
+#### 4.3.2 Booking System (Đặt lịch hẹn)
+
+`<a id="433-team-collaboration"></a>`
+
+#### 4.3.3 Team Collaboration
+
+`<a id="434-blog-cms-admin"></a>`
+
+#### 4.3.4 Blog CMS (Admin)
+
+`<a id="44-tich-hop-ai-assistant"></a>`
+
+### 4.4 Tích hợp AI Assistant
+
+`<a id="45-tich-hop-google-calendarmeet"></a>`
+
+### 4.5 Tích hợp Google Calendar/Meet
+
+`<a id="46-notificationemailwebhookjobs"></a>`
+
+### 4.6 Notification/Email/Webhook/Jobs
+
+`<a id="47-kien-truc-backend-nestjs-micro-modular"></a>`
+
+### 4.7 Kiến trúc Backend (NestJS Micro-modular)
+
+`<a id="471-so-do-module-module-graph"></a>`
+
+#### 4.7.1 Sơ đồ Module (Module Graph)
+
+`<a id="472-cac-module-chinh"></a>`
+
+#### 4.7.2 Các Module Chính
 
 ---
 
