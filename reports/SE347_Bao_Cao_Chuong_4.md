@@ -1,205 +1,323 @@
-# **Chương IV. THIẾT KẾ MÀN HÌNH**
+# **Chương IV. XÂY DỰNG ỨNG DỤNG**
 
-Chương này trình bày chi tiết về thiết kế giao diện người dùng (User Interface - UI) và trải nghiệm người dùng (User Experience - UX) của hệ thống Calento. Thiết kế tập trung vào sự tối giản, hiện đại và tính dễ sử dụng, tuân thủ các nguyên tắc của Material Design và Accessibility (WCAG).
+Chương này đi sâu vào quá trình hiện thực hóa thiết kế hệ thống thành sản phẩm thực tế. Nội dung bao gồm chi tiết thiết kế giao diện (UI/UX), kiến trúc Frontend với Next.js, chi tiết hiện thực các tính năng chính, và cách thức tích hợp các module quan trọng như AI Assistant, Google Calendar và hệ thống Backend.
 
-## **4.1. Sơ đồ liên kết màn hình (Screen Flow)**
+## **4.1 Thiết kế giao diện (UI/UX)**
 
-Hệ thống được tổ chức thành các luồng màn hình logic, giúp người dùng điều hướng dễ dàng giữa các chức năng. Sơ đồ dưới đây minh họa mối quan hệ và luồng di chuyển giữa các màn hình chính.
+Giao diện người dùng của Calento được thiết kế theo phong cách Minimalist, tối ưu hóa cho sự tập trung và hiệu suất. Hệ thống màu sắc sử dụng tông xanh dương (Brand Color) kết hợp với grayscale trung tính, đảm bảo tính thẩm mỹ và dễ đọc.
+
+### **4.1.1 Public pages (Guest)**
+Đây là bộ mặt của ứng dụng dành cho khách vãng lai, bao gồm:
+- **Landing Page**: Giới thiệu tính năng, lợi ích và lời kêu gọi hành động (CTA). Thiết kế sử dụng các section rõ ràng, minh họa trực quan.
+- **Pricing Page**: Bảng giá so sánh các gói dịch vụ (Free, Pro, Team, Enterprise) với highlighting cho gói phổ biến nhất.
+- **About / Contact**: Thông tin về đội ngũ và form liên hệ.
+- **Blog Listing & Detail**: Khu vực chia sẻ kiến thức, hỗ trợ SEO với nội dung rich-text và mục lục tự động.
+
+### **4.1.2 Auth pages**
+Giao diện xác thực an toàn và thân thiện:
+- **Login / Register**: Form nhập liệu tinh gọn, hỗ trợ Social Login (Google) nổi bật để khuyến khích SSO.
+- **Forgot Password flow**: Quy trình từng bước (Step-by-step) để khôi phục tài khoản.
+- **Onboarding**: Sau khi đăng ký, người dùng được dẫn dắt qua các bước thiết lập ban đầu (Timezone, Availability, Connect Calendar) để đảm bảo tài khoản sẵn sàng sử dụng ngay.
+
+### **4.1.3 Public Booking pages**
+Giao diện cốt lõi dành cho người muốn đặt lịch hẹn:
+- **Booking Page**: Hiển thị thông tin Host (Avatar, Tên), mô tả cuộc họp và thời lượng.
+- **Slot Picker**: Lịch chọn ngày/giờ trực quan. Chỉ hiển thị các khung giờ "Available" (đã trừ đi các lịch bận từ Google Calendar).
+- **Guest Form**: Form điền thông tin khách (Tên, Email, Ghi chú) sau khi chọn giờ.
+- **Confirmation**: Trang xác nhận thành công, cung cấp nút "Add to Calendar" và chi tiết cuộc họp.
+
+### **4.1.4 Dashboard (Registered User/Host)**
+Không gian làm việc chính của người dùng:
+- **Calendar View**: Giao diện lịch đầy đủ chức năng (Tháng/Tuần/Ngày) sử dụng FullCalendar. Cho phép kéo thả sự kiện, xem nhanh chi tiết khi hover (Hover Card).
+- **Sidebar**: Mini calendar để điều hướng nhanh, danh sách "My Calendars" để bật/tắt hiển thị các nguồn lịch khác nhau.
+- **Action Bar**: Nút "New Event" nổi bật, thanh tìm kiếm và các công cụ lọc.
+
+### **4.1.5 Teams (Team Member/Owner)**
+Khu vực cộng tác nhóm:
+- **Team List**: Danh sách các nhóm tham gia.
+- **Team Dashboard**: Xem lịch chung của cả nhóm (Team Availability), quản lý thành viên (Members) và vai trò (Roles).
+- **Team Rituals**: Giao diện thiết lập các cuộc họp định kỳ của nhóm, tự động xoay tua người chủ trì (Rotation).
+
+### **4.1.6 Settings / Integrations / Profile / Billing**
+Trung tâm cấu hình cá nhân:
+- **Profile**: Cập nhật thông tin cá nhân, Avatar.
+- **Integrations**: Quản lý kết nối Google Calendar (Connect/Disconnect), xem trạng thái đồng bộ.
+- **Billing**: Quản lý gói cước, xem lịch sử thanh toán (tích hợp Stripe/LemonSqueezy UI).
+- **Settings**: Tùy chỉnh Timezone, Ngôn ngữ, và Theme (Light/Dark mode).
+
+### **4.1.7 Admin / CMS (Blog/Comments/Contacts)**
+Giao diện quản trị dành cho Admin:
+- **Blog CMS**: Trình soạn thảo Markdown cho bài viết, quản lý trạng thái (Draft/Published), Tags và Categories.
+- **User Management**: Danh sách người dùng, công cụ hỗ trợ (Impersonate, Deactivate).
+- **System Health**: Dashboard theo dõi metric hệ thống (CPU, Memory, Active Users).
+
+### **4.1.8 Sơ đồ luồng Frontend (Frontend Architecture)**
+
+Frontend của ứng dụng được tổ chức theo kiến trúc App Router của Next.js 14, tối ưu hóa cho Server Components và Client Interactivity.
 
 ```mermaid
 graph TD
-    %% Public Area
-    subgraph Public[Public Pages]
-        Home[Landing Page]
-        About[About Us]
-        Pricing[Pricing]
-        BlogList[Blog Listing] --> BlogDetail[Blog Detail]
-        PublicBooking[Public Booking Page] --> BookingConfirm[Booking Confirmation]
+    %% App Entry
+    RootLayout[Root Layout (layout.tsx)]
+    
+    %% Providers
+    Providers[Providers Wrapper]
+    Theme[ThemeProvider]
+    Query[TanStack QueryProvider]
+    AuthProv[AuthProvider]
+
+    %% Route Groups
+    subgraph PublicGroup [(public)]
+        LandingPage[Landing Page]
+        About[About Page]
+        Pricing[Pricing Page]
     end
 
-    %% Auth Area
-    subgraph Auth[Authentication]
-        Login[Login Screen] -->|Forgot Password| ForgotPwd[Forgot Password]
-        Register[Register Screen] -->|Verify Email| OTP[OTP/Email Verification]
-        OAuth[Google OAuth Callback]
+    subgraph AuthGroup [auth]
+        Login[Login Page]
+        Register[Register Page]
     end
 
-    %% Dashboard Area
-    subgraph Dashboard[Dashboard Workspace]
-        HomeDashboard[Home Dashboard]
+    subgraph DashboardGroup [(dashboard)]
+        DashLayout[Dashboard Layout]
+        Sidebar[Sidebar Component]
+        Header[Header Component]
         
-        %% Calendar Group
-        subgraph CalModule[Calendar Management]
-            CalMonth[Calendar Month View]
-            CalWeek[Calendar Week View]
-            CalDay[Calendar Day View]
-            EventCreate[Create Event Modal]
-            EventDetail[Event View/Edit Modal]
-        end
+        CalendarPg[Calendar Page]
+        BookingPg[Booking Links Page]
+        TaskPg[Task Page]
+        TeamPg[Team Page]
+    end
 
-        %% Booking Group
-        subgraph BookModule[Booking System]
-            BookingList[Booking Links Manager]
-            BookingCreate[Create Booking Type]
-            BookingSettings[Booking Settings]
-            AvailSettings[Availability Rules]
-        end
-
-        %% Task Group
-        subgraph TaskModule[Task Management]
-            TaskBoard[Kanban Board]
-            TaskList[Task List View]
-        end
-
-        %% Team Group
-        subgraph TeamModule[Team Collaboration]
-            TeamList[Team List]
-            TeamDetail[Team Dashboard]
-            TeamSettings[Team Settings]
-        end
-
-        %% AI Group
-        subgraph AIModule[Ai Assistant]
-            AIChat[AI Sidebar/Panel]
-        end
-
-        %% Settings Group
-        subgraph SettingModule[Settings]
-            Profile[User Profile]
-            Integ[Integrations]
-            Pref[Preferences]
-            Billing[Billing]
-        end
+    subgraph AdminGroup [(admin)]
+        AdminLayout[Admin Layout]
+        AdminBlog[Blog Management]
+        AdminUsers[User Management]
     end
 
     %% Connections
-    Home --> Login
-    Home --> Register
+    RootLayout --> Providers
+    Providers --> Theme
+    Theme --> Query
+    Query --> AuthProv
     
-    Login -->|Success| HomeDashboard
-    Register -->|Success| HomeDashboard
-    OAuth -->|Success| HomeDashboard
-    
-    HomeDashboard --> CalMonth
-    HomeDashboard --> BookingList
-    HomeDashboard --> TaskBoard
-    HomeDashboard --> AIChat
-    HomeDashboard --> Profile
-    
-    %% Calendar Flows
-    CalMonth -->|Switch View| CalWeek
-    CalWeek -->|Switch View| CalDay
-    CalMonth -->|Click Slot| EventCreate
-    CalMonth -->|Click Event| EventDetail
-    
-    %% Booking Flows
-    BookingList -->|Create New| BookingCreate
-    BookingList -->|Edit| BookingSettings
-    BookingSettings --> AvailSettings
-    
-    %% Task Flows
-    TaskBoard -->|Toggle View| TaskList
-    
-    %% Team Flows
-    HomeDashboard --> TeamList
-    TeamList -->|Select Team| TeamDetail
-    TeamDetail -->|Manage| TeamSettings
+    AuthProv --> PublicGroup
+    AuthProv --> AuthGroup
+    AuthProv --> DashboardGroup
+    AuthProv --> AdminGroup
 
-    %% Navigation
-    User((User)) --> Home
-    Guest((Guest)) --> PublicBooking
+    DashboardGroup --> DashLayout
+    DashLayout --> Sidebar
+    DashLayout --> Header
     
-    style HomeDashboard fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
-    style PublicBooking fill:#e8f5e9,stroke:#4caf50
-    style AIChat fill:#f3e5f5,stroke:#9c27b0
+    DashLayout --> CalendarPg
+    DashLayout --> BookingPg
+    DashLayout --> TaskPg
+    DashLayout --> TeamPg
+
+    style DashboardGroup fill:#f0f9ff,stroke:#0284c7
+    style AdminGroup fill:#fef2f2,stroke:#dc2626
 ```
 
-![Screen Flow Diagram](Sơ đồ liên kết màn hình tổng quan từ Login đến các chức năng chính và Public Booking flow)
+##### Hình 24: Kiến trúc Frontend Next.js App Router {#hình-24:-kiến-trúc-frontend-next.js-app-router}
 
-## **4.2. Thiết kế UI/UX**
+## **4.2 Xây dựng Frontend (Next.js App)**
 
-### **4.2.1. Triết lý thiết kế (Design Philosophy)**
-Hệ thống Calento theo đuổi triết lý thiết kế **"User-Centric Minimalism"** (Tối giản lấy người dùng làm trung tâm). Nhóm tin rằng một công cụ quản lý thời gian hiệu quả phải là công cụ "vô hình" - không làm phiền người dùng với các chi tiết thừa thãi mà tập trung tối đa vào nội dung cốt lõi: Lịch trình và Công việc.
+Frontend của Calento được xây dựng trên nền tảng **Next.js 14** (App Router), tận dụng sức mạnh của Server Components để tối ưu hiệu năng và SEO.
 
-Các nguyên tắc chính:
-1. **Clarity (Sự rõ ràng)**: Thông tin quan trọng nhất luôn được làm nổi bật. Sử dụng khoảng trắng (whitespace) hợp lý để giảm tải nhận thức (cognitive load).
-2. **Efficiency (Sự hiệu quả)**: Giảm thiểu số lần click chuột để thực hiện một tác vụ. Các luồng nghiệp vụ chính như Tạo sự kiện hay Đặt lịch được tối ưu hóa để hoàn thành nhanh nhất có thể.
-3. **Consistency (Sự nhất quán)**: Sử dụng hệ thống Design System đồng bộ giúp người dùng nhanh chóng làm quen và ghi nhớ cách sử dụng.
+### **4.2.1 Routing & Layouts (App Router)**
+Cấu trúc thư mục `client/app` được tổ chức theo các Route Groups để tách biệt logic layout:
+- `(public)`: Layout chung cho trang chủ, blog, pricing (Header/Footer đơn giản).
+- `(dashboard)`: Layout cho ứng dụng chính với Sidebar, Header phức tạp và Auth Guard (yêu cầu đăng nhập).
+- `(admin)`: Layout riêng cho trang quản trị.
+- `auth`: Các trang login/register không có layout chung.
+- `book`: Layout tối giản cho trang Public Booking.
 
-### **4.2.2. Design System & Typography**
+### **4.2.2 Data fetching & State (TanStack Query / Zustand)**
+- **Server State (TanStack Query)**: Quản lý dữ liệu từ API (User, Events, Bookings). Sử dụng `useQuery` để fetch data và `useMutation` để thực hiện hành động (Create, Update, Delete). Tự động caching và re-validation giúp UI luôn đồng bộ.
+- **Client State (Zustand)**: Quản lý trạng thái giao diện cục bộ (Sidebar open/close, Modal visibility, Theme settings) một cách nhẹ nhàng và hiệu quả.
+- **Form Handling (React Hook Form + Zod)**: Quản lý form phức tạp với validation schema chặt chẽ từ Zod, đảm bảo dữ liệu đầu vào luôn hợp lệ.
 
-**Màu sắc chủ đạo (Color Palette):**
-*   **Primary Blue (#2563EB)**: Màu xanh dương hiện đại, tạo cảm giác tin cậy, chuyên nghiệp và năng động. Được sử dụng cho các nút hành động chính (CTA) và điểm nhấn.
-*   **Slate Neutral (Slate-50 to Slate-900)**: Hệ màu trung tính dùng cho văn bản và đường viền, giúp giảm mỏi mắt khi làm việc lâu dài.
-*   **Semantic Colors**: Green (Thành công), Red (Lỗi/Hủy bỏ), Amber (Cảnh báo/Pending) được sử dụng nhất quán để thông báo trạng thái.
+### **4.2.3 UI Components (Calendar, Booking, Team, Blog)**
+Hệ thống Component được xây dựng dựa trên **Shadcn UI** (Radix Primitives + Tailwind CSS), đảm bảo tính tiếp cận (Accessibility) và dễ dàng tùy biến:
+- **Calendar Component**: Wrapper quanh FullCalendar, xử lý render event custom, drag-and-drop logic.
+- **Booking Flow**: Wizard component đa bước (Step 1: Pick Date, Step 2: Pick Time, Step 3: Info) giúp trải nghiệm đặt lịch mượt mà.
+- **Data Table**: Bảng dữ liệu mạnh mẽ cho danh sách User, Booking, Task với tính năng sort, filter, pagination (TanStack Table).
+- **Dialogs/Modals**: Sử dụng triệt để cho các thao tác nhanh (Quick Edit, View Detail) để giữ người dùng trong ngữ cảnh.
 
-**Typography:**
-Hệ thống sử dụng bộ font **Inter**, một typeface sans-serif được thiết kế chuyên biệt cho giao diện người dùng trên màn hình máy tính. Inter có độ dễ đọc cao (legibility) ở cả kích thước nhỏ, hỗ trợ đa dạng weight từ Thin đến Black, giúp tạo nên ngữ nghĩa rõ ràng cho các tiêu đề và nội dung.
+## **4.3 Chi tiết Hiện thực Tính năng (Feature Implementation)**
 
-### **4.2.3. Trải nghiệm người dùng (UX) và Accessibility**
-Calento tuân thủ chuẩn **WCAG 2.1 Level AA** về khả năng truy cập:
-*   **Contrast Key**: Đảm bảo tỷ lệ tương phản màu sắc đủ lớn để người khiếm thị màu cũng có thể sử dụng dễ dàng.
-*   **Keyboard Navigation**: Người dùng có thể điều hướng toàn bộ ứng dụng chỉ bằng bàn phím (Tab, Enter, Arrow keys), hỗ trợ tối đa cho power users và người khuyết tật.
-*   **Responsive Mobile-First**: Giao diện được thiết kế ưu tiên cho mobile trước, đảm bảo mọi tính năng đều hoạt động tốt trên màn hình cảm ứng nhỏ gọn trước khi mở rộng lên desktop.
+Phần này mô tả chi tiết cách các tính năng chính được hiện thực hóa trong code và tương tác UI.
 
-## **4.3. Chi tiết các màn hình chính**
+### **4.3.1 Dashboard & Calendar**
+Khi đăng nhập thành công, người dùng được chuyển đến Dashboard, nơi tập trung mọi hoạt động quản lý thời gian.
 
-### **4.3.1. Màn hình Đăng nhập & Đăng ký (Authentication)**
+**Chức năng chi tiết:**
+*   **Calendar View**:
+    *   **Thao tác**: Kéo thả (Drag & Drop) để dời lịch, kéo cạnh dưới để thay đổi thời lượng (Resize).
+    *   **Chế độ xem**: Toggle nhanh giữa Tháng (tổng quan), Tuần (chi tiết giờ) và Ngày (lịch trình cụ thể).
+    *   **Quick Add**: Click vào bất kỳ ô trống nào để mở nhanh modal tạo lịch.
+*   **Mini Calendar**:
+    *   **Date Navigation**: Click chọn ngày để nhảy lịch chính đến ngày đó ngay lập tức.
+*   **Filter My Calendars**:
+    *   Checkbox để bật/tắt hiển thị các lớp lịch (ví dụ: Tắt lịch "Holidays" để đỡ rối mắt).
 
-Màn hình Authentication là điểm chạm đầu tiên của người dùng với hệ thống. Thiết kế được chia thành hai cột: bên trái là form nhập liệu clean và minimalist, bên phải là artwork minh họa tính năng hoặc branding imagery. Form hỗ trợ toggle nhanh giữa Login và Register mode.
+**Thành phần Component (Source Code Map):**
+*   `client/components/calendar/Calendar.tsx`: Component chính bọc FullCalendar.
+*   `client/components/dashboard/Sidebar.tsx`: Chứa MiniCalendar và Filters.
+*   `client/components/calendar/EventHoverCard.tsx`: Tooltip hiển thị tin vắn tắt khi rê chuột vào sự kiện.
 
-Điểm nhấn quan trọng là nút "Continue with Google" được đặt nổi bật, khuyến khích người dùng sử dụng Single Sign-On (SSO) để có trải nghiệm liền mạch nhất (tự động sync lịch sau khi login). Các thông báo lỗi (validation errors) được hiển thị inline ngay dưới trường nhập liệu giúp người dùng dễ dàng sửa lỗi.
+### **4.3.2 Booking System (Đặt lịch hẹn)**
+Hệ thống Booking cho phép người dùng tạo các trang đặt lịch cá nhân để gửi cho khách hàng.
 
-![Login and Registration Screen](Giao diện màn hình đăng nhập và đăng ký với tùy chọn Google Auth)
+**Chức năng chi tiết:**
+*   **Booking Link Management**:
+    *   **Create Link**: Định nghĩa loại cuộc họp (15 phút, 30 phút, 1 giờ).
+    *   **Availability**: Thiết lập giờ rảnh "Working Hours" (ví dụ: chỉ nhận khách từ 9h-17h, trừ T7-CN).
+    *   **Copy Link**: Nút copy nhanh URL để gửi qua chat/email.
+*   **Public Booking Flow (Góc nhìn của Khách)**:
+    *   **Timezone Detection**: Tự động phát hiện múi giờ của khách và chuyển đổi khung giờ hiển thị tương ứng.
+    *   **Slot Selection**: Chỉ hiện các slot còn trống. Tránh double-booking tuyệt đối.
 
-### **4.3.2. Màn hình Dashboard & Calendar View**
+**Thành phần Component:**
+*   `client/components/booking/BookingKanbanBoard.tsx`: Quản lý các loại booking dưới dạng thẻ.
+*   `client/components/booking/CreateBookingLinkDialog.tsx`: Form wizard tạo link mới.
+*   `client/components/booking/TimeSelectionStep.tsx`: Component chọn giờ cho trang Public.
 
-Đây là "trái tim" của ứng dụng, nơi người dùng dành phần lớn thời gian làm việc. Giao diện Calendar sử dụng thư viện FullCalendar được customize mạnh mẽ với theme hiện đại. Main View hiển thị lịch theo các chế độ Month, Week, Day với sự kiện được phân loại bằng mã màu (color-code) giúp dễ dàng nhận biết (Work, Personal, Meeting). Sidebar bên trái tích hợp Mini Calendar hỗ trợ điều hướng nhanh và bộ lọc "My Calendars" để tùy chọn hiển thị. Header chứa các công cụ điều hướng thời gian (Prev/Next, Today), nút "New Event" nổi bật và avatar người dùng để truy cập menu cá nhân.
+### **4.3.3 Team Collaboration**
+Tính năng làm việc nhóm cho phép chia sẻ lịch và đặt lịch họp chung.
 
-![Dashboard Main View](Giao diện chính Dashboard với lịch tuần và sidebar điều hướng)
+**Chức năng chi tiết:**
+*   **Team Availability (Heatmap)**:
+    *   Hiển thị biểu đồ nhiệt: Màu càng đậm nghĩa là càng nhiều thành viên rảnh vào giờ đó. Giúp Team Lead chọn giờ họp Daily Scrum nhanh chóng mà không cần hỏi từng người.
+*   **Optimal Time Finder**:
+    *   Thuật toán gợi ý "Top 3 khung giờ vàng" mà tất cả thành viên (hoặc các thành viên bắt buộc) đều rảnh.
 
-### **4.3.3. Màn hình AI Assistant Panel**
+**Thành phần Component:**
+*   `client/components/team/AvailabilityHeatmap.tsx`: Render biểu đồ Canvas/SVG.
+*   `client/components/team/TeamJobList.tsx`: Danh sách thành viên và trạng thái.
 
-AI Assistant không phải là một trang riêng biệt mà là một slide-over panel (ngăn kéo trượt) từ bên phải màn hình, được tích hợp trực tiếp vào giao diện **Dashboard** và **Calendar**. Thiết kế này cho phép người dùng vừa chat với AI vừa quan sát lịch của mình (contextual multitasking) mà không cần chuyển ngữ cảnh. Hiện tại tính năng này chỉ khả dụng trong không gian làm việc chính (Workspace), chưa hỗ trợ ở các trang Admin hay Public.
+### **4.3.4 Blog CMS (Admin)**
+Khu vực dành cho Content Creator quản lý nội dung.
 
-Giao diện chat mô phỏng các ứng dụng nhắn tin hiện đại với bong bóng chat (chat bubbles). Điểm đặc biệt là khả năng hiển thị Rich UI Components trong stream chat: khi AI đề xuất một lịch họp, nó không chỉ hiện text mà hiện một "Event Card" nhỏ gọn có nút "Confirm" để người dùng thao tác ngay lập tức. Hiệu ứng "typing indicator" và response streaming tạo cảm giác phản hồi tự nhiên và nhanh chóng.
+**Chức năng chi tiết:**
+*   **Markdown Editor**:
+    *   Soạn thảo văn bản với cú pháp Markdown. Có Split View (một bên gõ code, một bên hiện Preview).
+    *   **Upload Image**: Kéo thả ảnh vào trình soạn thảo để upload lên Cloudinary và chèn link tự động.
 
-![AI Assistant Chat Interface](Giao diện AI Assistant dạng slide-panel với rich cards và streaming text)
+**Thành phần Component:**
+*   `client/components/admin/blog/PostEditor.tsx`: Trình soạn thảo chính.
+*   `client/components/ui/markdown-preview.tsx`: Component render markdown ra HTML an toàn.
 
-### **4.3.4. Màn hình Public Booking Page**
+## **4.4 Tích hợp AI Assistant**
 
-Đây là giao diện dành cho khách (guest) - những người không cần tài khoản Calento vẫn có thể đặt lịch. Vì vậy, thiết kế ưu tiên sự đơn giản tối đa và thân thiện (mobile-first).
+AI Assistant là điểm nhấn công nghệ của Calento, mang lại trải nghiệm tương tác thông minh.
 
-Giao diện chia làm hai phần: bên trái hiển thị thông tin Host (Avatar, Tên, Mô tả cuộc họp, Thời lượng), bên phải là lưới lịch chọn ngày và giờ. Chỉ những khung giờ "Available" mới được hiển thị và có thể click. Sau khi chọn giờ, form điền thông tin khách hiện ra. Quy trình booking được rút gọn xuống tối thiểu số click để tăng conversion rate.
+- **Interface**: Chat Panel trượt từ bên phải, cho phép người dùng hội thoại với AI mọi lúc.
+- **SSE Streaming**: Sử dụng Server-Sent Events để hiển thị phản hồi của AI từng chữ (typewriter effect), giảm độ trễ nhận thức.
+- **RAG (Retrieval-Augmented Generation)**: Khi người dùng hỏi "Tôi rảnh lúc nào?", hệ thống sẽ tìm kiếm (Retrieve) các sự kiện liên quan trong Vector Database, kẹp vào prompt (Augment) và gửi cho LLM để tạo câu trả lời (Generate) chính xác dựa trên dữ liệu thật.
+- **Function Calling**: AI có thể đề xuất hành động thực thi (ví dụ: "Tạo lịch họp lúc 9h") thông qua các UI Card tương tác trong khung chat.
 
-![Public Booking Interface](Giao diện trang đặt lịch công khai dành cho khách mời chọn giờ)
+## **4.5 Tích hợp Google Calendar/Meet**
 
-### **4.3.5. Modal Tạo & Chỉnh sửa Sự kiện**
+Tích hợp sâu với hệ sinh thái Google là tính năng cốt lõi giúp Calento đồng bộ dữ liệu:
 
-Thay vì chuyển trang, thao tác tạo và sửa sự kiện diễn ra trong một Modal (Dialog) Overlay, giữ người dùng trong ngữ cảnh hiện tại.
+- **OAuth 2.0 Flow**: Sử dụng `passport-google-oauth20` để ủy quyền truy cập an toàn. Scope bao gồm `calendar` và `calendar.events`.
+- **Two-way Sync**:
+    - *Import*: Webhook từ Google báo hiệu thay đổi -> Server fetch event mới -> Cập nhật Database.
+    - *Export*: Khi tạo event trên Calento, server gọi Google API để tạo event tương ứng trên Google Calendar.
+- **Google Meet**: Tự động thêm link Google Meet vào sự kiện khi tùy chọn "Video Conferencing" được bật. Link họp được lưu và hiển thị trong chi tiết sự kiện và email mời.
 
-Modal được thiết kế tối ưu với các tabs: "Event Details" (Tiêu đề, Giờ), "Guests" (Thêm người tham dự qua email), và "Options" (Lặp lại, Location, Mô tả). Tính năng "Find a Time" thông minh giúp highlight các khung giờ mà tất cả guests đều rảnh (nếu họ cũng dùng hệ thống). Một toggle "Google Meet" cho phép tự động tạo link họp trực tuyến và đính kèm vào event.
+## **4.6 Notification/Email/Webhook/Jobs**
 
-![Event Creation Modal](Giao diện Modal tạo sự kiện với các options chi tiết và guest invite)
+Hệ thống thông báo đảm bảo người dùng không bỏ lỡ thông tin quan trọng:
 
-### **4.3.6. Màn hình User Settings**
+- **Architecture**: Sử dụng mô hình Producer-Consumer với **BullMQ** và **Redis**.
+- **Email Service**:
+    - *Transactional*: Gửi xác nhận đăng ký, reset password ngay lập tức (High priority queue).
+    - *Reminders*: Email nhắc lịch được lên lịch (Scheduled Jobs) gửi trước giờ họp 15 phút.
+    - Templates được viết bằng **Handlebars**, hỗ trợ dark mode và responsive email.
+- **Webhooks**: Hệ thống bắn webhook ra bên ngoài (Outgoing Webhooks) khi có sự kiện `booking.created` hoặc `event.cancelled`, cho phép tích hợp với Zapier, Slack.
+- **In-app Notifications**: Thông báo thời gian thực trên giao diện web (chuông thông báo) sử dụng Socket.IO (hoặc Polling nhẹ) để cập nhật trạng thái mới nhất.
 
-Trung tâm quản lý cá nhân hóa của người dùng sử dụng layout Tabs trực quan để phân nhóm cấu hình. Tab Profile cho phép cập nhật avatar và tên hiển thị. Tab Preferences cung cấp các tùy chỉnh về ngôn ngữ (Việt/Anh), giao diện (Sáng/Tối), múi giờ và định dạng ngày tháng. Tab Integrations quản lý kết nối Google Calendar, cho phép kết nối hoặc ngắt kết nối và xem trạng thái đồng bộ. Cuối cùng, Tab Notifications giúp người dùng tùy chỉnh kênh nhận thông báo qua Email hoặc Webhook cho từng loại sự kiện cụ thể.
+## **4.7 Kiến trúc Backend (NestJS Micro-modular)**
 
-![User Settings Page](Giao diện trang cài đặt người dùng với các tab cấu hình hệ thống)
+Backend được xây dựng trên **NestJS Framework**, áp dụng kiến trúc Module hóa chặt chẽ để đảm bảo tính mở rộng và dễ bảo trì.
 
-### **4.3.7. Màn hình Task Management (Priority Board)**
+### **4.7.1 Sơ đồ Module (Module Graph)**
 
-Giao diện quản lý công việc (To-do) được thiết kế theo phong cách Kanban đơn giản hoặc List view. Các tasks được phân loại rõ ràng theo mức độ ưu tiên (Critical, High, Medium, Low) bằng các tags màu sắc.
+```mermaid
+graph TD
+    Root[App Module]
 
-Tính năng Drag & Drop cho phép người dùng dễ dàng sắp xếp lại thứ tự hoàn thành công việc. Mỗi task item có checkbox hoàn thành, và khi check vào sẽ có hiệu ứng gạch ngang và mờ đi, mang lại cảm giác thỏa mãn (satisfaction) cho người dùng khi hoàn thành công việc.
+    subgraph Infra [Infrastructure Layer]
+        Config[Config Module]
+        Database[Database Module]
+        Queue[Queue Module (BullMQ)]
+    end
 
-![Task Management Board](Giao diện quản lý Task với danh sách ưu tiên và thao tác kéo thả)
+    subgraph Core [Core Domain]
+        Auth[Auth Module]
+        User[Users Module]
+        Event[Event Module]
+        Calendar[Calendar Module]
+        Booking[Booking Module]
+    end
 
-### **4.3.8. Màn hình Quản lý Blog (Admin CMS)**
+    subgraph Feature [Feature Domain]
+        Team[Team Module]
+        Task[Task Module]
+        Blog[Blog Module]
+        AI[AI Module]
+    end
 
-Giao diện quản trị (Admin Dashboard) đang trong giai đoạn phát triển hoàn thiện. Hiện tại, module **Content Management System (CMS)** đã được triển khai để phục vụ việc tạo và quản lý bài viết Blog.
+    subgraph Integration [External & Jobs]
+        Google[Google Module]
+        Email[Email Module]
+        Notif[Notification Module]
+    end
 
-Giao diện soạn thảo hỗ trợ Markdown Editor với chế độ xem trước (Preview) thời gian thực. Admin có thể đặt tiêu đề, chọn danh mục, gắn thẻ (tags) và tải lên ảnh bìa cho bài viết. Danh sách bài viết cho phép lọc theo trạng thái (Draft/Published) và thực hiện các thao tác chỉnh sửa nhanh. Các module quản trị khác (Quản lý User, Analytics) sẽ được cập nhật trong các phiên bản tiếp theo.
+    Root --> Infra
+    Root --> Core
+    Root --> Feature
+    Root --> Integration
 
-![Admin Blog CMS](Giao diện Admin tạo bài viết Blog với trình soạn thảo Markdown)
+    Auth --> User
+    Auth --> Google
+    
+    Event --> Calendar
+    Event --> Google
+    
+    Booking --> Event
+    Booking --> Notif
+    
+    AI --> Event
+    AI --> User
+
+    style Infra fill:#e0e0e0,stroke:#bdbdbd
+    style Core fill:#fff9c4,stroke:#fbc02d
+    style Feature fill:#e1bee7,stroke:#8e24aa
+    style Integration fill:#b3e5fc,stroke:#039be5
+```
+
+##### Hình 25: Kiến trúc Module NestJS {#hình-25:-kiến-trúc-module-nestjs}
+
+### **4.7.2 Các Module Chính**
+
+*   **Auth Module**:
+    *   Sử dụng `Passport.js` với các chiến lược `JwtStrategy` (xác thực token) và `GoogleStrategy` (OAuth 2.0).
+    *   Cơ chế **Guard** (`JwtAuthGuard`) bảo vệ các endpoints, chỉ cho phép Request có Bearer Token hợp lệ đi qua.
+    *   **Decorators** custom như `@CurrentUser()` giúp trích xuất thông tin user từ request một cách tiện lợi.
+
+*   **Event & Calendar Module**:
+    *   Chứa logic nghiệp vụ phức tạp nhất: xử lý sự kiện lặp lại (Recurrence Rules - RRule), phát hiện xung đột thời gian (Conflict Detection).
+    *   Tích hợp **Pattern Repository** để tương tác với Database, đảm bảo tính tách biệt giữa logic và dữ liệu.
+
+*   **Queue Module (BullMQ)**:
+    *   Xử lý các tác vụ nền (Background Jobs) để không chặn luồng chính (Main Thread).
+    *   Các Queue chính: `email.queue` (gửi mail), `calendar.sync` (đồng bộ Google), `ai.embedding` (xử lý Vector RAG).
+
+*   **AI Module**:
+    *   Tích hợp **LangChain** để quản lý luồng hội thoại.
+    *   Sử dụng **Google Gemini model** thông qua API.
+    *   Cơ chế **Context Injection**: Tự động lấy lịch trình của user trong ngày làm context cho Prompt hệ thống.
